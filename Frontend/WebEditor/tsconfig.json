@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Base
+    "target": "ES2017",
+    "module": "commonjs",
+    "lib": [
+        "ES2017",
+        "DOM"
+    ],
+    // "types": [
+    //     "reflect-metadata"
+    // ],
+    "typeRoots": [
+        "node_modules/@types",
+        "typings"
+    ],
+    "sourceMap": true,
+    // "declaration": true,
+    // "declarationMap": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+
+    // Overrides
+    "types": [
+      "reflect-metadata", "webpack-env"
+    ],
+    "declaration": false,
+    "declarationMap": false
+  }
+}
