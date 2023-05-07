@@ -1,9 +1,10 @@
 import "reflect-metadata";
+import "./page.css"
 import { TaskNode, TaskNodeSchema, TaskNodeView } from "./views";
 import { Container, ContainerModule } from "inversify";
-import { LocalModelSource, PolylineEdgeView, SEdge, SEdgeSchema, SGraph, SGraphFactory, SGraphSchema, SGraphView, TYPES, boundsModule, buttonModule, commandPaletteModule, configureModelElement, contextMenuModule, decorationModule, defaultModule, edgeEditModule, edgeLayoutModule, expandModule, exportModule, fadeModule, graphModule, hoverModule, labelEditModule, labelEditUiModule, modelSourceModule, moveModule, openModule, routingModule, selectModule, undoRedoModule, updateModule, viewportModule, zorderModule } from "sprotty";
+import { LocalModelSource, PolylineEdgeView, SEdge, SEdgeSchema, SGraph, SGraphFactory, SGraphSchema, SGraphView, TYPES, boundsModule, configureModelElement, defaultModule, modelSourceModule, moveModule, routingModule, selectModule, zorderModule } from "sprotty";
 
-const flowModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope()
     const context = { bind, unbind, isBound, rebind };
@@ -13,16 +14,19 @@ const flowModule = new ContainerModule((bind, unbind, isBound, rebind) => {
 });
 
 const container = new Container();
-// container.load(defaultModule, selectModule, moveModule, boundsModule, undoRedoModule, viewportModule,
-//     exportModule, updateModule, graphModule, routingModule, flowModule);
+// container.load(
+//     defaultModule, modelSourceModule, boundsModule, buttonModule,
+//     commandPaletteModule, contextMenuModule, decorationModule, edgeEditModule,
+//     edgeLayoutModule, expandModule, exportModule, fadeModule,
+//     hoverModule, labelEditModule, labelEditUiModule, moveModule,
+//     openModule, routingModule, selectModule, undoRedoModule,
+//     updateModule, viewportModule, zorderModule, graphModule,
+//     taskModule
+// );
 container.load(
-    defaultModule, modelSourceModule, boundsModule, buttonModule,
-    commandPaletteModule, contextMenuModule, decorationModule, edgeEditModule,
-    edgeLayoutModule, expandModule, exportModule, fadeModule,
-    hoverModule, labelEditModule, labelEditUiModule, moveModule,
-    openModule, routingModule, selectModule, undoRedoModule,
-    updateModule, viewportModule, zorderModule, graphModule,
-    flowModule
+    defaultModule, modelSourceModule, boundsModule,
+    moveModule, routingModule, selectModule, zorderModule,
+    taskModule
 );
 
 const graph: SGraphSchema = {
@@ -46,7 +50,7 @@ const graph: SGraphSchema = {
             id: 'edge01',
             sourceId: 'task01',
             targetId: 'task02'
-        } as SEdgeSchema
+        } as SEdgeSchema,
     ]
 }
 
