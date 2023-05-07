@@ -16,7 +16,7 @@ export class TaskNode extends SNode {
 
 @injectable()
 export class TaskNodeView implements IView {
-    render(node: Readonly<TaskNode>, context: RenderingContext): VNode {
+    render(node: Readonly<TaskNode>, _context: RenderingContext): VNode {
         const radius = 20;
         // In this context, the coordinates (0,0) mark the upper left corner of
         // the node, thus we shift all elements by the radius of the circle.

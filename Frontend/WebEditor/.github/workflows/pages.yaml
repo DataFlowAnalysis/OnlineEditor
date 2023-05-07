@@ -1,4 +1,4 @@
-name: Build using Webpack and deploy to GitHub Pages
+name: Build using vite and deploy to GitHub Pages
 
 on:
 - push
@@ -22,9 +22,6 @@ jobs:
 
     - name: Build
       run: npm run build
-
-    - name: Copy public assets
-      run: cp -r public/* dist/
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'

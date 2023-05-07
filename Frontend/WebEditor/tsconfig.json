@@ -1,39 +1,69 @@
+// {
+//   "$schema": "https://json.schemastore.org/tsconfig",
+//   "compilerOptions": {
+//     // Base
+//     "target": "ES2017",
+//     "module": "commonjs",
+//     "lib": [
+//         "ES2017",
+//         "DOM"
+//     ],
+//     // "types": [
+//     //     "reflect-metadata"
+//     // ],
+//     "typeRoots": [
+//         "node_modules/@types",
+//         "typings"
+//     ],
+//     "sourceMap": true,
+//     // "declaration": true,
+//     // "declarationMap": true,
+//     "noImplicitAny": true,
+//     "noImplicitThis": true,
+//     "noImplicitReturns": true,
+//     "noImplicitOverride": true,
+//     "noUnusedLocals": true,
+//     "strictNullChecks": true,
+//     "experimentalDecorators": true,
+//     "emitDecoratorMetadata": true,
+//     "esModuleInterop": true,
+//     "jsx": "react",
+
+//     // Overrides
+//     "types": [
+//       "reflect-metadata", "webpack-env"
+//     ],
+//     "declaration": false,
+//     "declarationMap": false
+//   }
+// }
+
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    // Base
-    "target": "ES2017",
-    "module": "commonjs",
-    "lib": [
-        "ES2017",
-        "DOM"
-    ],
-    // "types": [
-    //     "reflect-metadata"
-    // ],
-    "typeRoots": [
-        "node_modules/@types",
-        "typings"
-    ],
-    "sourceMap": true,
-    // "declaration": true,
-    // "declarationMap": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noImplicitOverride": true,
-    "noUnusedLocals": true,
-    "strictNullChecks": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "jsx": "react",
+    /* vite default options */
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
 
-    // Overrides
-    "types": [
-      "reflect-metadata", "webpack-env"
-    ],
-    "declaration": false,
-    "declarationMap": false
-  }
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* for use with sprotty */
+    "jsx": "react",
+    "experimentalDecorators": true
+  },
+  "include": ["src"]
 }
