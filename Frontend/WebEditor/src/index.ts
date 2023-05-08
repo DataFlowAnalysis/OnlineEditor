@@ -2,10 +2,10 @@ import "reflect-metadata";
 import "./page.css"
 import { StorageNode, StorageNodeSchema, StorageNodeView, TaskNode, TaskNodeSchema, TaskNodeView } from "./views";
 import { Container, ContainerModule } from "inversify";
-import { LocalModelSource, PolylineEdgeView, SEdge, SEdgeSchema, SGraph, SGraphFactory, SGraphSchema, SGraphView, TYPES, boundsModule, configureModelElement, defaultModule, modelSourceModule, moveModule, routingModule, selectModule, viewportFeature, viewportModule, zorderModule } from "sprotty";
+import {SEdge as SEdgeSchema, SGraph as SGraphSchema} from "sprotty-protocol";
+import { LocalModelSource, PolylineEdgeView, SEdge, SGraph, SGraphView, TYPES, boundsModule, configureModelElement, defaultModule, modelSourceModule, moveModule, routingModule, selectModule, viewportModule, zorderModule } from "sprotty";
 
 const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope()
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, 'graph', SGraph, SGraphView);

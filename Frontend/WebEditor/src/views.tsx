@@ -1,5 +1,6 @@
 /** @jsx svg */
-import {svg, IView, SNode, RenderingContext, SNodeSchema} from "sprotty";
+import {SNode as SNodeSchema} from "sprotty-protocol";
+import {svg, IView, SNode, RenderingContext} from "sprotty";
 import {injectable} from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
