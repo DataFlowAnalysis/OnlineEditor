@@ -1,21 +1,12 @@
-.sprotty-node.task {
-    fill: #c0e0fc;
-    stroke: #444;
-    stroke-width: 1;
-}
-
-.sprotty-node.task.running {
-    fill: #f00;
-}
-
-.sprotty-node.task.finished {
-    fill: #0f0;
-}
-
 .sprotty-node.storage line {
-    fill: black;
     stroke-width: 1;
     stroke: black;
+}
+
+.sprotty-node.function circle {
+    stroke: #444;
+    stroke-width: 1;
+    fill: #eeeeee;
 }
 
 text {

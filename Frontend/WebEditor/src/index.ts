@@ -1,6 +1,13 @@
 import "reflect-metadata";
 import "./page.css";
-import { StorageNode, StorageNodeSchema, StorageNodeView, TaskNode, TaskNodeSchema, TaskNodeView } from "./views";
+import {
+    FunctionNode,
+    FunctionNodeSchema,
+    FunctionNodeView,
+    StorageNode,
+    StorageNodeSchema,
+    StorageNodeView,
+} from "./views";
 import { Container, ContainerModule } from "inversify";
 import { SEdge as SEdgeSchema, SGraph as SGraphSchema } from "sprotty-protocol";
 import {
@@ -25,8 +32,8 @@ const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
-    configureModelElement(context, "task", TaskNode, TaskNodeView);
     configureModelElement(context, "storage", StorageNode, StorageNodeView);
+    configureModelElement(context, "function", FunctionNode, FunctionNodeView);
     configureModelElement(context, "edge", SEdge, PolylineEdgeView);
 });
 
@@ -57,29 +64,23 @@ const graph: SGraphSchema = {
     id: "root",
     children: [
         {
-            type: "task",
-            id: "task01",
-            name: "First Task",
-            status: "finished",
-        } as TaskNodeSchema,
-        {
-            type: "task",
-            id: "task02",
-            name: "Second Task",
-            status: "running",
-        } as TaskNodeSchema,
-        {
-            type: "edge",
-            id: "edge01",
-            sourceId: "task01",
-            targetId: "task02",
-        } as SEdgeSchema,
-        {
             type: "storage",
             id: "storage01",
             name: "TestDB",
             position: { x: 100, y: 100 },
         } as StorageNodeSchema,
+        {
+            type: "function",
+            id: "function01",
+            name: "TestFunction",
+            position: { x: 200, y: 200 },
+        } as FunctionNodeSchema,
+        {
+            type: "edge",
+            id: "edge01",
+            sourceId: "storage01",
+            targetId: "function01",
+        } as SEdgeSchema,
     ],
 };
 
