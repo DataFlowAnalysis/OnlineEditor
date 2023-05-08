@@ -29,3 +29,24 @@ export class TaskNodeView implements IView {
         </g>;
     }
 }
+
+export interface StorageNodeSchema extends SNodeSchema {
+    name?: string;
+}
+
+export class StorageNode extends SNode {
+    name: string = '';
+}
+
+@injectable()
+export class StorageNodeView implements IView {
+    render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
+        const width = 60;
+        const height = 20;
+        return <g class-sprotty-node={true} class-storage={true}>
+            <line x1="0" y1="0" x2={width} y2="0"></line>
+            <text x={width / 2} y={height - 5}>{node.name}</text>
+            <line x1="0" y1={height} x2={width} y2={height}></line>
+        </g>;
+    }
+}

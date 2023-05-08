@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import "./page.css"
-import { TaskNode, TaskNodeSchema, TaskNodeView } from "./views";
+import { StorageNode, StorageNodeSchema, StorageNodeView, TaskNode, TaskNodeSchema, TaskNodeView } from "./views";
 import { Container, ContainerModule } from "inversify";
-import { LocalModelSource, PolylineEdgeView, SEdge, SEdgeSchema, SGraph, SGraphFactory, SGraphSchema, SGraphView, TYPES, boundsModule, configureModelElement, defaultModule, modelSourceModule, moveModule, routingModule, selectModule, zorderModule } from "sprotty";
+import { LocalModelSource, PolylineEdgeView, SEdge, SEdgeSchema, SGraph, SGraphFactory, SGraphSchema, SGraphView, TYPES, boundsModule, configureModelElement, defaultModule, modelSourceModule, moveModule, routingModule, selectModule, viewportFeature, viewportModule, zorderModule } from "sprotty";
 
 const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
@@ -10,6 +10,7 @@ const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, 'graph', SGraph, SGraphView);
     configureModelElement(context, 'task', TaskNode, TaskNodeView);
+    configureModelElement(context, 'storage', StorageNode, StorageNodeView);
     configureModelElement(context, 'edge', SEdge, PolylineEdgeView);
 });
 
@@ -24,7 +25,7 @@ const container = new Container();
 //     taskModule
 // );
 container.load(
-    defaultModule, modelSourceModule, boundsModule,
+    defaultModule, modelSourceModule, boundsModule, viewportModule,
     moveModule, routingModule, selectModule, zorderModule,
     taskModule
 );
@@ -51,6 +52,12 @@ const graph: SGraphSchema = {
             sourceId: 'task01',
             targetId: 'task02'
         } as SEdgeSchema,
+        {
+            type: 'storage',
+            id: 'storage01',
+            name: 'TestDB',
+            position: { x: 100, y: 100 }
+        } as StorageNodeSchema,
     ]
 }
 

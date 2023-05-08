@@ -12,6 +12,12 @@
     fill: #0f0;
 }
 
+.sprotty-node.storage line {
+    fill: black;
+    stroke-width: 1;
+    stroke: black;
+}
+
 text {
     stroke-width: 0;
     stroke: #000;
