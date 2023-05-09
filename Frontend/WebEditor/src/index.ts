@@ -1,5 +1,8 @@
 import "reflect-metadata";
+
 import "./page.css";
+import "sprotty/css/sprotty.css";
+
 import {
     FunctionNode,
     FunctionNodeSchema,
