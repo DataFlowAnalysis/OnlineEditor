@@ -52,3 +52,30 @@ export class FunctionNodeView implements IView {
         );
     }
 }
+
+export interface IONodeSchema extends SNodeSchema {
+    // TODO: must this be optional? Can this be made required?
+    name?: string;
+}
+
+// TODO: the node is the same everywhere (for now), so this could be a single class and single schema instead
+export class IONode extends SNode {
+    name: string = "";
+}
+
+@injectable()
+export class IONodeView implements IView {
+    render(node: Readonly<IONode>, _context: RenderingContext): VNode {
+        const width = 80;
+        const height = 40;
+
+        return (
+            <g class-sprotty-node={true} class-io={true}>
+                <rect x="0" y="0" width={width} height={height} />
+                <text x={width / 2} y={height / 2 + 5}>
+                    {node.name}
+                </text>
+            </g>
+        );
+    }
+}

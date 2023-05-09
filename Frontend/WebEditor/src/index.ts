@@ -7,6 +7,8 @@ import {
     FunctionNode,
     FunctionNodeSchema,
     FunctionNodeView,
+    IONode,
+    IONodeView,
     StorageNode,
     StorageNodeSchema,
     StorageNodeView,
@@ -37,6 +39,7 @@ const taskModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     configureModelElement(context, "graph", SGraph, SGraphView);
     configureModelElement(context, "storage", StorageNode, StorageNodeView);
     configureModelElement(context, "function", FunctionNode, FunctionNodeView);
+    configureModelElement(context, "input-output", IONode, IONodeView);
     configureModelElement(context, "edge", SEdge, PolylineEdgeView);
 });
 
@@ -79,10 +82,23 @@ const graph: SGraphSchema = {
             position: { x: 200, y: 200 },
         } as FunctionNodeSchema,
         {
+            type: "input-output",
+            id: "input01",
+            name: "TestInput",
+            position: { x: 300, y: 300 },
+        },
+
+        {
             type: "edge",
             id: "edge01",
             sourceId: "storage01",
             targetId: "function01",
+        } as SEdgeSchema,
+        {
+            type: "edge",
+            id: "edge02",
+            sourceId: "function01",
+            targetId: "input01",
         } as SEdgeSchema,
     ],
 };

@@ -1,12 +1,18 @@
 .sprotty-node.storage line {
-    stroke-width: 1;
     stroke: black;
+    stroke-width: 1;
 }
 
 .sprotty-node.function circle {
-    stroke: #444;
+    stroke: black;
     stroke-width: 1;
-    fill: #eeeeee;
+    fill: white;
+}
+
+.sprotty-node.io rect {
+    stroke: black;
+    stroke-width: 1;
+    fill: white;
 }
 
 .sprotty-edge {
@@ -17,8 +23,7 @@
 
 text {
     stroke-width: 0;
-    stroke: #000;
-    fill: #000;
+    fill: black;
     font-family: sans-serif;
     font-size: 11pt;
     text-anchor: middle;
