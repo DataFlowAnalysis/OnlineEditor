@@ -16,9 +16,8 @@
 }
 
 .sprotty-edge {
-    fill: none;
-    stroke: #222;
-    stroke-width: 2;
+    stroke: black;
+    stroke-width: 1;
 }
 
 text {

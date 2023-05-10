@@ -1,6 +1,6 @@
 /** @jsx svg */
 import { SNode as SNodeSchema } from "sprotty-protocol";
-import { svg, IView, SNode, RenderingContext } from "sprotty";
+import { svg, IView, SNode, RenderingContext, CircularNodeView } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
@@ -17,11 +17,11 @@ export class StorageNode extends SNode {
 export class StorageNodeView implements IView {
     render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
         const width = 60;
-        const height = 20;
+        const height = 30;
         return (
             <g class-sprotty-node={true} class-storage={true}>
                 <line x1="0" y1="0" x2={width} y2="0" />
-                <text x={width / 2} y={height - 5}>
+                <text x={width / 2} y={height / 2 + 5}>
                     {node.name}
                 </text>
                 <line x1="0" y1={height} x2={width} y2={height} />
@@ -39,7 +39,7 @@ export class FunctionNode extends SNode {
 }
 
 @injectable()
-export class FunctionNodeView implements IView {
+export class FunctionNodeView extends CircularNodeView implements IView {
     render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
         const radius = 20;
         return (
