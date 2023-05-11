@@ -16,8 +16,8 @@ export class StorageNode extends SNode {
 @injectable()
 export class StorageNodeView implements IView {
     render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
-        const width = 60;
-        const height = 30;
+        const width = node.size.width;
+        const height = node.size.height;
         return (
             <g class-sprotty-node={true} class-storage={true}>
                 <line x1="0" y1="0" x2={width} y2="0" />
@@ -41,7 +41,7 @@ export class FunctionNode extends SNode {
 @injectable()
 export class FunctionNodeView extends CircularNodeView implements IView {
     render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
-        const radius = 20;
+        const radius = Math.min(node.size.width, node.size.height) / 2;
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <circle r={radius} cx={radius} cy={radius} />
@@ -66,8 +66,8 @@ export class IONode extends SNode {
 @injectable()
 export class IONodeView implements IView {
     render(node: Readonly<IONode>, _context: RenderingContext): VNode {
-        const width = 80;
-        const height = 40;
+        const width = node.size.width;
+        const height = node.size.height;
 
         return (
             <g class-sprotty-node={true} class-io={true}>

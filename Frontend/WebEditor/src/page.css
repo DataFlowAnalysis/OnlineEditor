@@ -5,3 +5,8 @@ svg.sprotty-graph {
     border-width: 1px;
     border-color: #bbb;
 }
+
+/* this is a div of divs that should be inside a row. Put 50 px spacing between each div */
+.new-element-row div {
+    display: inline-block;
+}

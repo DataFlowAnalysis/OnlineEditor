@@ -1,14 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sprotty tech demo</title>
-</head>
-<body>
-    <h1>Sprotty Tech Demo</h1>
-    <div id="sprotty"></div>
-    <script type="module" src="./src/index.ts"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>sprotty tech demo</title>
+    </head>
+    <body>
+        <h1>Sprotty Tech Demo</h1>
+        <div class="new-element-row">
+            <div
+                draggable="true"
+                style="height: 70px; width: 45px"
+                ondragstart="dragstart(event, 'function', 40, 40, 'Func')"
+            >
+                <svg style="height: inherit; width: inherit">
+                    <g transform="translate(2, 2)" class="sprotty-node function">
+                        <circle r="20" cx="20" cy="20"></circle>
+                        <text x="20" y="25" class="sprotty-text">Func</text>
+                    </g>
+                </svg>
+            </div>
+            <div
+                draggable="true"
+                style="height: 70px; width: 70px"
+                ondragstart="dragstart(event, 'input-output', 60, 40, 'IO')"
+            >
+                <svg style="height: inherit; width: inherit">
+                    <g transform="translate(2, 2)" class="sprotty-node io">
+                        <rect x="0" y="0" width="60" height="40" />
+                        <text x="30" y="25">IO</text>
+                    </g>
+                </svg>
+            </div>
+            <div
+                draggable="true"
+                style="height: 70px; width: 70px"
+                ondragstart="dragstart(event, 'storage', 60, 30, 'Storage')"
+            >
+                <svg style="height: inherit; width: inherit">
+                    <g transform="translate(2, 2)" class="sprotty-node storage">
+                        <line x1="0" y1="0" x2="60" y2="0" />
+                        <text x="30" y="20">Storage</text>
+                        <line x1="0" y1="30" x2="60" y2="30" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div id="sprotty"></div>
+
+        <script>
+            function dragstart(event, nodeType, width, height, name) {
+                const nodeObject = {
+                    type: nodeType,
+                    id: nodeType + Math.random().toString(36).substring(7),
+                    size: { width, height },
+                    name,
+                };
+                event.dataTransfer.setData("text/plain", JSON.stringify(nodeObject));
+            }
+        </script>
+        <script type="module" src="./src/index.ts"></script>
+    </body>
 </html>
