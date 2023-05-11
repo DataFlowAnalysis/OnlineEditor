@@ -15,14 +15,7 @@ import {
     StorageNodeView,
 } from "./views";
 import { Container, ContainerModule, inject, injectable } from "inversify";
-import {
-    Bounds,
-    SEdge as SEdgeSchema,
-    SGraph as SGraphSchema,
-    Action,
-    Point,
-    SNode as SNodeSchema,
-} from "sprotty-protocol";
+import { SEdge as SEdgeSchema, SGraph as SGraphSchema, Action, SNode as SNodeSchema } from "sprotty-protocol";
 import {
     LocalModelSource,
     MouseListener,
@@ -68,59 +61,31 @@ class DroppableMouseListener extends MouseListener {
     }
 
     override drop(_target: SModelElement, event: DragEvent): (Action | Promise<Action>)[] {
-        // console.log(_target, event)
-
-        const nodeType = event.dataTransfer?.getData("text/plain");
-        if (!nodeType) {
+        const nodeDataString = event.dataTransfer?.getData("text/plain");
+        const nodeData: SNodeSchema = nodeDataString ? JSON.parse(nodeDataString) : undefined;
+        if (!nodeData) {
             return [];
         }
 
-        const nodeSize = 30;
         modelSource.getViewport().then((viewport) => {
-            const newElement = this.addNode(nodeType, nodeSize, this.getVisibleBounds(viewport));
-            const adjust = (offset: number) => {
-                return offset / viewport.zoom - nodeSize / 2;
+            if (!nodeData.size) {
+                nodeData.size = {
+                    width: 10,
+                    height: 10,
+                };
+            }
+
+            const adjust = (offset: number, size: number) => {
+                return offset / viewport.zoom - size / 2;
             };
-            newElement.position = {
-                x: viewport.scroll.x + adjust(event.offsetX),
-                y: viewport.scroll.y + adjust(event.offsetY),
+            nodeData.position = {
+                x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
+                y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
             };
-            modelSource.addElements([newElement]);
+            modelSource.addElements([nodeData]);
         });
 
         return [];
-    }
-
-    private addNode(nodeType: string, nodeSize: number, bounds: Bounds): SNodeSchema {
-        return {
-            type: nodeType,
-            id: nodeType + Math.random().toString(36).substring(7),
-            name: "TestFunction",
-            position: {
-                x: bounds.x + Math.random() * (bounds.width - nodeSize),
-                y: bounds.y + Math.random() * (bounds.height - nodeSize),
-            },
-            size: {
-                width: nodeSize,
-                height: nodeSize,
-            },
-        } as FunctionNodeSchema;
-    }
-
-    private getVisibleBounds({
-        canvasBounds,
-        scroll,
-        zoom,
-    }: {
-        canvasBounds: Bounds;
-        scroll: Point;
-        zoom: number;
-    }): Bounds {
-        return {
-            ...scroll,
-            width: canvasBounds.width / zoom,
-            height: canvasBounds.height / zoom,
-        };
     }
 }
 
@@ -158,18 +123,21 @@ const graph: SGraphSchema = {
             id: "storage01",
             name: "TestDB",
             position: { x: 100, y: 100 },
+            size: { width: 60, height: 30 },
         } as StorageNodeSchema,
         {
             type: "function",
             id: "function01",
             name: "TestFunction",
             position: { x: 200, y: 200 },
+            size: { width: 40, height: 40 },
         } as FunctionNodeSchema,
         {
             type: "input-output",
             id: "input01",
             name: "TestInput",
             position: { x: 300, y: 300 },
+            size: { width: 60, height: 40 },
         } as IONodeSchema,
 
         {
