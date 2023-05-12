@@ -36,6 +36,7 @@ import {
     viewportModule,
     zorderModule,
 } from "sprotty";
+import { toolsModules } from "./tools/tool-manager";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -110,7 +111,9 @@ container.load(
     selectModule,
     updateModule,
     zorderModule,
+
     dataFlowDiagramModule,
+    ...toolsModules,
 );
 
 // Construct the diagram graph state that should be shown.
