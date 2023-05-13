@@ -30,10 +30,12 @@ import {
     boundsModule,
     configureModelElement,
     defaultModule,
+    edgeEditModule,
     modelSourceModule,
     moveModule,
     routingModule,
     selectModule,
+    undoRedoModule,
     updateModule,
     viewportModule,
     zorderModule,
@@ -51,9 +53,9 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
-    configureModelElement(context, "storage", StorageNode, StorageNodeView);
-    configureModelElement(context, "function", FunctionNode, FunctionNodeView);
-    configureModelElement(context, "input-output", IONode, IONodeView);
+    configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
+    configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
+    configureModelElement(context, "node:input-output", IONode, IONodeView);
     configureModelElement(context, "edge", SEdge, PolylineEdgeView);
 });
 
@@ -117,6 +119,7 @@ container.load(
     selectModule,
     updateModule,
     zorderModule,
+    undoRedoModule,
 
     // Custom modules
     dataFlowDiagramModule,
@@ -130,21 +133,21 @@ const graph: SGraphSchema = {
     id: "root",
     children: [
         {
-            type: "storage",
+            type: "node:storage",
             id: "storage01",
             name: "TestDB",
             position: { x: 100, y: 100 },
             size: { width: 60, height: 30 },
         } as StorageNodeSchema,
         {
-            type: "function",
+            type: "node:function",
             id: "function01",
             name: "TestFunction",
             position: { x: 200, y: 200 },
             size: { width: 40, height: 40 },
         } as FunctionNodeSchema,
         {
-            type: "input-output",
+            type: "node:input-output",
             id: "input01",
             name: "TestInput",
             position: { x: 300, y: 300 },

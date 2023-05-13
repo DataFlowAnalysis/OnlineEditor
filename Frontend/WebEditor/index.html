@@ -53,7 +53,7 @@
         <script>
             function dragstart(event, nodeType, width, height, name) {
                 const nodeObject = {
-                    type: nodeType,
+                    type: "node:" + nodeType,
                     id: nodeType + Math.random().toString(36).substring(7),
                     size: { width, height },
                     name,
