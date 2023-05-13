@@ -17,7 +17,9 @@ import {
 import { Container, ContainerModule, inject, injectable } from "inversify";
 import { SEdge as SEdgeSchema, SGraph as SGraphSchema, Action, SNode as SNodeSchema } from "sprotty-protocol";
 import {
+    ConsoleLogger,
     LocalModelSource,
+    LogLevel,
     MouseListener,
     PolylineEdgeView,
     SEdge,
@@ -37,6 +39,7 @@ import {
     zorderModule,
 } from "sprotty";
 import { toolsModules } from "./tools/tool-manager";
+import { commandsModule } from "./commands/commands";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -44,6 +47,8 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     bind(DroppableMouseListener).toSelf().inSingletonScope();
     bind(TYPES.MouseListener).toService(DroppableMouseListener);
+    rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
+    rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
     configureModelElement(context, "storage", StorageNode, StorageNodeView);
@@ -102,6 +107,7 @@ const container = new Container();
 //     dataFlowDiagramModule
 // );
 container.load(
+    // Sprotty modules
     defaultModule,
     modelSourceModule,
     boundsModule,
@@ -112,8 +118,10 @@ container.load(
     updateModule,
     zorderModule,
 
+    // Custom modules
     dataFlowDiagramModule,
     ...toolsModules,
+    commandsModule,
 );
 
 // Construct the diagram graph state that should be shown.

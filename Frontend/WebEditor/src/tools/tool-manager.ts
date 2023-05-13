@@ -1,7 +1,7 @@
 import { ContainerModule, injectable, multiInject, optional, postConstruct } from "inversify";
 import { ToolManager, Tool, TYPES } from "sprotty";
 import { customCommandPaletteModule } from "./commandPalette";
-import { EDITOR_TYPES } from "../types";
+import { EDITOR_TYPES } from "../utils";
 
 @injectable()
 export class TestToolManager extends ToolManager {

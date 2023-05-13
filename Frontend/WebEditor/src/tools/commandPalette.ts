@@ -11,11 +11,12 @@ import {
     TYPES,
     Tool,
 } from "sprotty";
-import { Action, Point } from "sprotty-protocol";
+import { Point } from "sprotty-protocol";
 
 import "@vscode/codicons/dist/codicon.css";
 import "./commandPalette.css";
-import { EDITOR_TYPES } from "../types";
+import { EDITOR_TYPES } from "../utils";
+import { LogHelloAction } from "../commands/log-hello";
 
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
@@ -25,15 +26,14 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         _lastMousePosition?: Point,
         _index?: number,
     ): Promise<LabeledAction[]> {
-        const actions: Action[] = [
-            {
-                kind: "log-test",
-            },
-        ];
         return [
-            new LabeledAction("hello world", actions, "add"),
-            new LabeledAction("test", actions, "zoom-in"),
-            new LabeledAction("lorem ipsum", actions, "type-hierarchy-sub"),
+            new LabeledAction("hello world", [LogHelloAction.create("from command palette hello")], "symbol-event"),
+            new LabeledAction("test", [LogHelloAction.create("from command palette test")], "zoom-in"),
+            new LabeledAction(
+                "lorem ipsum",
+                [LogHelloAction.create("from command palette lorem ipsum")],
+                "type-hierarchy-sub",
+            ),
         ];
     }
 }
