@@ -15,9 +15,19 @@
     fill: white;
 }
 
+.sprotty-node.selected circle,
+.sprotty-node.selected rect,
+.sprotty-node.selected line {
+    stroke-width: 3;
+}
+
 .sprotty-edge {
     stroke: black;
     stroke-width: 1;
+}
+
+.sprotty-edge.selected {
+    stroke-width: 2;
 }
 
 text {
