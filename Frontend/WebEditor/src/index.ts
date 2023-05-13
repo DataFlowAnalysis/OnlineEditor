@@ -13,6 +13,7 @@ import {
     StorageNode,
     StorageNodeSchema,
     StorageNodeView,
+    ArrowEdgeView,
 } from "./views";
 import { Container, ContainerModule, inject, injectable } from "inversify";
 import { SEdge as SEdgeSchema, SGraph as SGraphSchema, Action, SNode as SNodeSchema } from "sprotty-protocol";
@@ -21,7 +22,6 @@ import {
     LocalModelSource,
     LogLevel,
     MouseListener,
-    PolylineEdgeView,
     SEdge,
     SGraph,
     SGraphView,
@@ -55,7 +55,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
     configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
     configureModelElement(context, "node:input-output", IONode, IONodeView);
-    configureModelElement(context, "edge", SEdge, PolylineEdgeView);
+    configureModelElement(context, "edge", SEdge, ArrowEdgeView);
 });
 
 @injectable()

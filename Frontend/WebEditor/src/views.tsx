@@ -1,6 +1,6 @@
 /** @jsx svg */
-import { SNode as SNodeSchema } from "sprotty-protocol";
-import { svg, IView, SNode, RenderingContext } from "sprotty";
+import { Point, SNode as SNodeSchema, angleOfPoint, toDegrees } from "sprotty-protocol";
+import { svg, IView, SNode, RenderingContext, PolylineEdgeViewWithGapsOnIntersections, SEdge } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
@@ -77,5 +77,26 @@ export class IONodeView implements IView {
                 </text>
             </g>
         );
+    }
+}
+
+@injectable()
+export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+        const additionals = super.renderAdditionals(edge, segments, context);
+        const p1 = segments[segments.length - 2];
+        const p2 = segments[segments.length - 1];
+        const arrow = (
+            <path
+                class-sprotty-edge={true}
+                class-arrow={true}
+                d="M 1,0 L 10,-4 L 10,4 Z"
+                transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${
+                    p2.y
+                }) translate(${p2.x} ${p2.y})`}
+            />
+        );
+        additionals.push(arrow);
+        return additionals;
     }
 }
