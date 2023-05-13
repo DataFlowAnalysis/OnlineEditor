@@ -7,11 +7,11 @@ import {
     KeyListener,
     KeyTool,
     LabeledAction,
-    SModelElement,
+    SModelRoot,
     TYPES,
     Tool,
 } from "sprotty";
-import { Point } from "sprotty-protocol";
+import { FitToScreenAction, Point } from "sprotty-protocol";
 
 import "@vscode/codicons/dist/codicon.css";
 import "./commandPalette.css";
@@ -21,12 +21,17 @@ import { LogHelloAction } from "../commands/log-hello";
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
-        _root: Readonly<SModelElement>,
+        root: Readonly<SModelRoot>,
         _text: string,
         _lastMousePosition?: Point,
         _index?: number,
     ): Promise<LabeledAction[]> {
+        const fitToScreenAction = FitToScreenAction.create(
+            root.children.map((child) => child.id),
+            { padding: 40 },
+        );
         return [
+            new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("hello world", [LogHelloAction.create("from command palette hello")], "symbol-event"),
             new LabeledAction("test", [LogHelloAction.create("from command palette test")], "zoom-in"),
             new LabeledAction(

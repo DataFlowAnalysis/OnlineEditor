@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
-import "./page.css";
 import "sprotty/css/sprotty.css";
+import "./page.css";
 
 import {
     FunctionNode,
@@ -30,7 +30,6 @@ import {
     boundsModule,
     configureModelElement,
     defaultModule,
-    edgeEditModule,
     modelSourceModule,
     moveModule,
     routingModule,
@@ -135,23 +134,23 @@ const graph: SGraphSchema = {
         {
             type: "node:storage",
             id: "storage01",
-            name: "TestDB",
+            name: "Database",
             position: { x: 100, y: 100 },
             size: { width: 60, height: 30 },
         } as StorageNodeSchema,
         {
             type: "node:function",
             id: "function01",
-            name: "TestFunction",
+            name: "System",
             position: { x: 200, y: 200 },
-            size: { width: 40, height: 40 },
+            size: { width: 50, height: 50 },
         } as FunctionNodeSchema,
         {
             type: "node:input-output",
             id: "input01",
-            name: "TestInput",
+            name: "Customer",
             position: { x: 300, y: 300 },
-            size: { width: 60, height: 40 },
+            size: { width: 70, height: 40 },
         } as IONodeSchema,
 
         {

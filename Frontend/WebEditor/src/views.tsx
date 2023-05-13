@@ -1,6 +1,6 @@
 /** @jsx svg */
 import { SNode as SNodeSchema } from "sprotty-protocol";
-import { svg, IView, SNode, RenderingContext, CircularNodeView } from "sprotty";
+import { svg, IView, SNode, RenderingContext } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
@@ -39,7 +39,7 @@ export class FunctionNode extends SNode {
 }
 
 @injectable()
-export class FunctionNodeView extends CircularNodeView implements IView {
+export class FunctionNodeView implements IView {
     render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
         const radius = Math.min(node.size.width, node.size.height) / 2;
         return (
