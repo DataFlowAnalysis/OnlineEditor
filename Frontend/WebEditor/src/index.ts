@@ -16,7 +16,7 @@ import {
     ArrowEdgeView,
 } from "./views";
 import { Container, ContainerModule, inject, injectable } from "inversify";
-import { SEdge as SEdgeSchema, SGraph as SGraphSchema, Action, SNode as SNodeSchema } from "sprotty-protocol";
+import { Action, SEdge as SEdgeSchema, SGraph as SGraphSchema, SNode as SNodeSchema } from "sprotty-protocol";
 import {
     ConsoleLogger,
     LocalModelSource,
@@ -30,6 +30,8 @@ import {
     boundsModule,
     configureModelElement,
     defaultModule,
+    labelEditModule,
+    labelEditUiModule,
     modelSourceModule,
     moveModule,
     routingModule,
@@ -119,6 +121,8 @@ container.load(
     updateModule,
     zorderModule,
     undoRedoModule,
+    labelEditModule,
+    labelEditUiModule,
 
     // Custom modules
     dataFlowDiagramModule,
@@ -134,21 +138,21 @@ const graph: SGraphSchema = {
         {
             type: "node:storage",
             id: "storage01",
-            name: "Database",
+            text: "Database",
             position: { x: 100, y: 100 },
             size: { width: 60, height: 30 },
         } as StorageNodeSchema,
         {
             type: "node:function",
             id: "function01",
-            name: "System",
+            text: "System",
             position: { x: 200, y: 200 },
             size: { width: 50, height: 50 },
         } as FunctionNodeSchema,
         {
             type: "node:input-output",
             id: "input01",
-            name: "Customer",
+            text: "Customer",
             position: { x: 325, y: 205 },
             size: { width: 70, height: 40 },
         } as IONodeSchema,

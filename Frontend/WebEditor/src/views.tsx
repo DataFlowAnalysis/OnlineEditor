@@ -8,17 +8,20 @@ import {
     PolylineEdgeViewWithGapsOnIntersections,
     SEdge,
     ELLIPTIC_ANCHOR_KIND,
+    editLabelFeature,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
 
 export interface StorageNodeSchema extends SNodeSchema {
-    name?: string;
+    text?: string;
 }
 
 export class StorageNode extends SNode {
-    name: string = "";
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
+
+    text: string = "";
 }
 
 @injectable()
@@ -30,7 +33,7 @@ export class StorageNodeView implements IView {
             <g class-sprotty-node={true} class-storage={true}>
                 <line x1="0" y1="0" x2={width} y2="0" />
                 <text x={width / 2} y={height / 2 + 5}>
-                    {node.name}
+                    {node.text}
                 </text>
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
@@ -39,11 +42,13 @@ export class StorageNodeView implements IView {
 }
 
 export interface FunctionNodeSchema extends SNodeSchema {
-    name?: string;
+    text?: string;
 }
 
 export class FunctionNode extends SNode {
-    name: string = "";
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
+
+    text: string = "";
 
     override get anchorKind() {
         return ELLIPTIC_ANCHOR_KIND;
@@ -52,13 +57,13 @@ export class FunctionNode extends SNode {
 
 @injectable()
 export class FunctionNodeView implements IView {
-    render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<FunctionNode>, _context: RenderingContext): VNode {
         const radius = Math.min(node.size.width, node.size.height) / 2;
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <circle r={radius} cx={radius} cy={radius} />
                 <text x={radius} y={radius + 5}>
-                    {node.name}
+                    {node.text}
                 </text>
             </g>
         );
@@ -67,12 +72,14 @@ export class FunctionNodeView implements IView {
 
 export interface IONodeSchema extends SNodeSchema {
     // TODO: must this be optional? Can this be made required?
-    name?: string;
+    text?: string;
 }
 
-// TODO: the node is the same everywhere (for now), so this could be a single class and single schema instead
+// TODO: the node is the similar everywhere (for now), so this could be a single class and single schema instead
 export class IONode extends SNode {
-    name: string = "";
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
+
+    text: string = "";
 }
 
 @injectable()
@@ -85,7 +92,7 @@ export class IONodeView implements IView {
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
                 <text x={width / 2} y={height / 2 + 5}>
-                    {node.name}
+                    {node.text}
                 </text>
             </g>
         );
