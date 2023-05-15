@@ -1,6 +1,14 @@
 /** @jsx svg */
 import { Point, SNode as SNodeSchema, angleOfPoint, toDegrees } from "sprotty-protocol";
-import { svg, IView, SNode, RenderingContext, PolylineEdgeViewWithGapsOnIntersections, SEdge } from "sprotty";
+import {
+    svg,
+    IView,
+    SNode,
+    RenderingContext,
+    PolylineEdgeViewWithGapsOnIntersections,
+    SEdge,
+    ELLIPTIC_ANCHOR_KIND,
+} from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
@@ -36,6 +44,10 @@ export interface FunctionNodeSchema extends SNodeSchema {
 
 export class FunctionNode extends SNode {
     name: string = "";
+
+    override get anchorKind() {
+        return ELLIPTIC_ANCHOR_KIND;
+    }
 }
 
 @injectable()

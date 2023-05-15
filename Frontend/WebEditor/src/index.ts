@@ -149,7 +149,7 @@ const graph: SGraphSchema = {
             type: "node:input-output",
             id: "input01",
             name: "Customer",
-            position: { x: 300, y: 300 },
+            position: { x: 325, y: 205 },
             size: { width: 70, height: 40 },
         } as IONodeSchema,
 
