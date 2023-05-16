@@ -18,6 +18,7 @@ import {
 import { Container, ContainerModule, inject, injectable } from "inversify";
 import { Action, SEdge as SEdgeSchema, SGraph as SGraphSchema, SNode as SNodeSchema } from "sprotty-protocol";
 import {
+    CenterGridSnapper,
     ConsoleLogger,
     LocalModelSource,
     LogLevel,
@@ -52,6 +53,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(TYPES.MouseListener).toService(DroppableMouseListener);
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
+    bind(TYPES.ISnapper).to(CenterGridSnapper);
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
     configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
