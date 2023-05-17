@@ -3,8 +3,9 @@
     transition: opacity 0.2s ease-in-out;
 }
 
-.command-palette-suggestions {
-    /* FIXME: no important please */
+div.autocomplete.command-palette-suggestions {
+    /* sprotty sets the position using inline style tags. */
+    /* The only way to override this is to use !important */
     top: 50px !important;
-    left: 0 !important;
+    left: 0px !important;
 }

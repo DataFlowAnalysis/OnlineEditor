@@ -33,10 +33,10 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         );
         return [
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
-            new LabeledAction("hello world", [LogHelloAction.create("from command palette hello")], "symbol-event"),
-            new LabeledAction("test", [LogHelloAction.create("from command palette test")], "zoom-in"),
+            new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
+            new LabeledAction("Log Test", [LogHelloAction.create("from command palette test")], "zoom-in"),
             new LabeledAction(
-                "lorem ipsum",
+                "Log lorem ipsum",
                 [LogHelloAction.create("from command palette lorem ipsum")],
                 "type-hierarchy-sub",
             ),
