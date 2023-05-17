@@ -1,34 +1,10 @@
+/* Overrides for sprotty command palette css (should be imported in commandPalette.ts before this .css file */
 .command-palette {
     transition: opacity 0.2s ease-in-out;
 }
 
 .command-palette-suggestions {
-    background: white;
-    z-index: 1000;
-    overflow: auto;
-    box-sizing: border-box;
-    border: 1px solid #555;
     /* FIXME: no important please */
     top: 50px !important;
     left: 0 !important;
-}
-
-.command-palette-suggestions .icon {
-    padding-right: 0.3em;
-    display: flex;
-    align-self: center;
-}
-
-.command-palette-suggestions em {
-    font-weight: bold;
-    font-style: normal;
-}
-
-.command-palette-suggestions > div {
-    padding: 0 4px;
-    display: flex;
-}
-
-.command-palette-suggestions > div.selected {
-    background: #bdf;
 }

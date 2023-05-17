@@ -14,6 +14,7 @@ import {
 import { FitToScreenAction, Point } from "sprotty-protocol";
 
 import "@vscode/codicons/dist/codicon.css";
+import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
 import { EDITOR_TYPES } from "../utils";
 import { LogHelloAction } from "../commands/log-hello";
