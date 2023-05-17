@@ -1,6 +1,7 @@
 import { ContainerModule, injectable, multiInject, optional, postConstruct } from "inversify";
 import { ToolManager, Tool, TYPES } from "sprotty";
 import { customCommandPaletteModule } from "./commandPalette";
+import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
 
 @injectable()
@@ -42,4 +43,4 @@ export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind)
     rebind(TYPES.IToolManager).toService(TestToolManager);
 });
 
-export const toolsModules = [toolManager, customCommandPaletteModule];
+export const toolsModules = [toolManager, customCommandPaletteModule, deleteKeyDeleteTool];

@@ -1,8 +1,5 @@
 import "reflect-metadata";
 
-import "sprotty/css/sprotty.css";
-import "./page.css";
-
 import {
     FunctionNode,
     FunctionNodeSchema,
@@ -31,6 +28,7 @@ import {
     boundsModule,
     configureModelElement,
     defaultModule,
+    edgeEditModule,
     labelEditModule,
     labelEditUiModule,
     modelSourceModule,
@@ -44,6 +42,10 @@ import {
 } from "sprotty";
 import { toolsModules } from "./tools/tool-manager";
 import { commandsModule } from "./commands/commands";
+
+import "sprotty/css/sprotty.css";
+import "sprotty/css/edit-label.css";
+import "./page.css";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -125,6 +127,7 @@ container.load(
     undoRedoModule,
     labelEditModule,
     labelEditUiModule,
+    edgeEditModule,
 
     // Custom modules
     dataFlowDiagramModule,
