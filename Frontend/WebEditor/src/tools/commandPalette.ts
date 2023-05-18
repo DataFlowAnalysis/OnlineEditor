@@ -4,6 +4,7 @@ import {
     CommandPaletteActionProviderRegistry,
     CommandPaletteKeyListener,
     ICommandPaletteActionProvider,
+    RequestExportSvgAction,
     KeyListener,
     KeyTool,
     LabeledAction,
@@ -12,12 +13,12 @@ import {
     Tool,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
+import { EDITOR_TYPES } from "../utils";
+import { LogHelloAction } from "../commands/log-hello";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
-import { EDITOR_TYPES } from "../utils";
-import { LogHelloAction } from "../commands/log-hello";
 
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
@@ -33,6 +34,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         );
         return [
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
+            new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
             new LabeledAction("Log Test", [LogHelloAction.create("from command palette test")], "zoom-in"),
             new LabeledAction(

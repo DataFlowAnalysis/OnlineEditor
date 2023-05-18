@@ -29,6 +29,7 @@ import {
     configureModelElement,
     defaultModule,
     edgeEditModule,
+    exportModule,
     labelEditModule,
     labelEditUiModule,
     modelSourceModule,
@@ -128,6 +129,7 @@ container.load(
     labelEditModule,
     labelEditUiModule,
     edgeEditModule,
+    exportModule,
 
     // Custom modules
     dataFlowDiagramModule,
