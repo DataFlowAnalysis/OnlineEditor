@@ -3,6 +3,10 @@
     stroke-width: 1;
 }
 
+.sprotty-node.storage .select-rect {
+    fill: transparent;
+}
+
 .sprotty-node.function circle {
     stroke: black;
     stroke-width: 1;

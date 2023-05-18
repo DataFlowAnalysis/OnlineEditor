@@ -36,6 +36,11 @@ export class StorageNodeView implements IView {
                     {node.text}
                 </text>
                 <line x1="0" y1={height} x2={width} y2={height} />
+                {/* This transparent rect exists only to make this element easily selectable.
+                    Without this you would need click the text or exactly hit one of the lines.
+                    With this rect you can click anywhere between the two lines to select it.
+                    This is especially important when there is no text given or it is short. */}
+                <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
             </g>
         );
     }
