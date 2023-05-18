@@ -10,13 +10,13 @@
 .sprotty-node.function circle {
     stroke: black;
     stroke-width: 1;
-    fill: white;
+    fill: transparent;
 }
 
 .sprotty-node.io rect {
     stroke: black;
     stroke-width: 1;
-    fill: white;
+    fill: transparent;
 }
 
 .sprotty-node.selected circle,
