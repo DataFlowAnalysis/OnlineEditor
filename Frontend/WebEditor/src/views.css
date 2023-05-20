@@ -35,8 +35,14 @@
     stroke-width: 2;
 }
 
-.sprotty-edge.arrow {
+.sprotty-edge path.arrow {
     fill: black;
+}
+
+.sprotty-edge > .sprotty-routing-handle {
+    fill: black;
+
+    stroke: none;
 }
 
 text {
