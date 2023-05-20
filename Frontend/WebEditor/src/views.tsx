@@ -9,6 +9,7 @@ import {
     SEdge,
     ELLIPTIC_ANCHOR_KIND,
     editLabelFeature,
+    IViewArgs,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
@@ -106,6 +107,9 @@ export class IONodeView implements IView {
 
 @injectable()
 export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
+    /**
+     * Renders an arrow at the end of the edge.
+     */
     protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
@@ -122,5 +126,31 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
         );
         additionals.push(arrow);
         return additionals;
+    }
+
+    /**
+     * Renders the edge line.
+     * In contrast to the default implementation that we override here,
+     * this implementation makes the edge line 10px shorter at the end to make space for the arrow without any overlap.
+     */
+    protected renderLine(_edge: SEdge, segments: Point[], _context: RenderingContext, _args?: IViewArgs): VNode {
+        const firstPoint = segments[0];
+        let path = `M ${firstPoint.x},${firstPoint.y}`;
+        for (let i = 1; i < segments.length; i++) {
+            const p = segments[i];
+            if (i === segments.length - 1) {
+                // Make edge line 10px shorter to make space for the arrow
+                const prevP = segments[i - 1];
+                const dx = p.x - prevP.x;
+                const dy = p.y - prevP.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const ratio = (length - 10) / length;
+                path += ` L ${prevP.x + dx * ratio},${prevP.y + dy * ratio}`;
+            } else {
+                // Lines between points in between are not shortened
+                path += ` L ${p.x},${p.y}`;
+            }
+        }
+        return <path d={path} />;
     }
 }
