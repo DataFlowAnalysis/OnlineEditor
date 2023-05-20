@@ -11,24 +11,36 @@ import {
     StorageNodeSchema,
     StorageNodeView,
     ArrowEdgeView,
+    ArrowEdge,
 } from "./views";
 import { Container, ContainerModule, inject, injectable } from "inversify";
-import { Action, SEdge as SEdgeSchema, SGraph as SGraphSchema, SNode as SNodeSchema } from "sprotty-protocol";
+import {
+    Action,
+    SEdge as SEdgeSchema,
+    SGraph as SGraphSchema,
+    SNode as SNodeSchema,
+    SLabel as SLabelSchema,
+} from "sprotty-protocol";
 import {
     CenterGridSnapper,
     ConsoleLogger,
     LocalModelSource,
     LogLevel,
     MouseListener,
-    SEdge,
     SGraph,
     SGraphView,
+    SLabel,
+    SLabelView,
     SModelElement,
+    SRoutingHandle,
+    SRoutingHandleView,
     TYPES,
     boundsModule,
     configureModelElement,
     defaultModule,
     edgeEditModule,
+    edgeLayoutModule,
+    editLabelFeature,
     exportModule,
     labelEditModule,
     labelEditUiModule,
@@ -39,6 +51,7 @@ import {
     undoRedoModule,
     updateModule,
     viewportModule,
+    withEditLabelFeature,
     zorderModule,
 } from "sprotty";
 import { toolsModules } from "./tools/tool-manager";
@@ -62,7 +75,14 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
     configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
     configureModelElement(context, "node:input-output", IONode, IONodeView);
-    configureModelElement(context, "edge", SEdge, ArrowEdgeView);
+    configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
+        enable: [withEditLabelFeature],
+    });
+    configureModelElement(context, "label", SLabel, SLabelView, {
+        enable: [editLabelFeature],
+    });
+    configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
+    configureModelElement(context, "volatile-routing-point", SRoutingHandle, SRoutingHandleView);
 });
 
 @injectable()
@@ -130,6 +150,7 @@ container.load(
     labelEditUiModule,
     edgeEditModule,
     exportModule,
+    edgeLayoutModule,
 
     // Custom modules
     dataFlowDiagramModule,
@@ -165,13 +186,25 @@ const graph: SGraphSchema = {
         } as IONodeSchema,
 
         {
-            type: "edge",
+            type: "edge:arrow",
             id: "edge01",
             sourceId: "storage01",
             targetId: "function01",
+            children: [
+                {
+                    type: "label",
+                    id: "label01",
+                    text: "Input",
+                    edgePlacement: {
+                        position: 0.5,
+                        side: "on",
+                        rotate: false,
+                    },
+                } as SLabelSchema,
+            ],
         } as SEdgeSchema,
         {
-            type: "edge",
+            type: "edge:arrow",
             id: "edge02",
             sourceId: "function01",
             targetId: "input01",

@@ -10,6 +10,8 @@ import {
     ELLIPTIC_ANCHOR_KIND,
     editLabelFeature,
     IViewArgs,
+    WithEditableLabel,
+    isEditableLabel,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
@@ -102,6 +104,17 @@ export class IONodeView implements IView {
                 </text>
             </g>
         );
+    }
+}
+
+export class ArrowEdge extends SEdge implements WithEditableLabel {
+    get editableLabel() {
+        const label = this.children.find((element) => element.type === "label");
+        if (label && isEditableLabel(label)) {
+            return label;
+        }
+
+        return undefined;
     }
 }
 
