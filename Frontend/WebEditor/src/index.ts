@@ -87,7 +87,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 
 @injectable()
 class DroppableMouseListener extends MouseListener {
-    @inject(TYPES.ModelSource) modelSource?: LocalModelSource;
+    @inject(TYPES.ModelSource) modelSource: LocalModelSource = new LocalModelSource();
 
     override dragOver(_target: SModelElement, event: DragEvent): (Action | Promise<Action>)[] {
         event.preventDefault();
@@ -101,7 +101,7 @@ class DroppableMouseListener extends MouseListener {
             return [];
         }
 
-        modelSource.getViewport().then((viewport) => {
+        this.modelSource.getViewport().then((viewport) => {
             if (!nodeData.size) {
                 nodeData.size = {
                     width: 10,
@@ -116,7 +116,7 @@ class DroppableMouseListener extends MouseListener {
                 x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
                 y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
             };
-            modelSource.addElements([nodeData]);
+            this.modelSource.addElements([nodeData]);
         });
 
         return [];

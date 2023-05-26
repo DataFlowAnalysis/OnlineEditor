@@ -19,7 +19,7 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "format": "prettier --write ./src/ ./index.html",
+        "format": "prettier --write ./**/*.{html,css,ts,json}",
         "prepare": "husky install"
     }
 }
