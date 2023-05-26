@@ -1,28 +1,29 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-        /* vite default options */
+        // vite default options
         "target": "ES2020",
         "useDefineForClassFields": true,
         "module": "ESNext",
         "lib": ["ES2020", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
 
-        /* Bundler mode */
+        // Bundler mode
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
 
-        /* Linting */
+        // Linting
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
 
-        /* for use with sprotty */
+        // JSX is used for sprotty node elements
         "jsx": "react",
+        // Required for inversify decorators like @injectable
         "experimentalDecorators": true
     },
     "include": ["src"]
