@@ -17,19 +17,25 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import "./views.css";
 
-export interface StorageNodeSchema extends SNodeSchema {
-    text?: string;
+export interface DFDNodeSchema extends SNodeSchema {
+    text: string;
 }
 
-export class StorageNode extends SNode {
+export class RectangularDFDNode extends SNode {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
 
     text: string = "";
 }
 
+export class CircularDFDNode extends RectangularDFDNode {
+    override get anchorKind() {
+        return ELLIPTIC_ANCHOR_KIND;
+    }
+}
+
 @injectable()
 export class StorageNodeView implements IView {
-    render(node: Readonly<StorageNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<RectangularDFDNode>, _context: RenderingContext): VNode {
         const width = node.size.width;
         const height = node.size.height;
         return (
@@ -49,23 +55,9 @@ export class StorageNodeView implements IView {
     }
 }
 
-export interface FunctionNodeSchema extends SNodeSchema {
-    text?: string;
-}
-
-export class FunctionNode extends SNode {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
-
-    text: string = "";
-
-    override get anchorKind() {
-        return ELLIPTIC_ANCHOR_KIND;
-    }
-}
-
 @injectable()
 export class FunctionNodeView implements IView {
-    render(node: Readonly<FunctionNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<CircularDFDNode>, _context: RenderingContext): VNode {
         const radius = Math.min(node.size.width, node.size.height) / 2;
         return (
             <g class-sprotty-node={true} class-function={true}>
@@ -78,21 +70,9 @@ export class FunctionNodeView implements IView {
     }
 }
 
-export interface IONodeSchema extends SNodeSchema {
-    // TODO: must this be optional? Can this be made required?
-    text?: string;
-}
-
-// TODO: the node is the similar everywhere (for now), so this could be a single class and single schema instead
-export class IONode extends SNode {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
-
-    text: string = "";
-}
-
 @injectable()
 export class IONodeView implements IView {
-    render(node: Readonly<IONode>, _context: RenderingContext): VNode {
+    render(node: Readonly<RectangularDFDNode>, _context: RenderingContext): VNode {
         const width = node.size.width;
         const height = node.size.height;
 

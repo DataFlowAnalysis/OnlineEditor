@@ -4,7 +4,6 @@
     "private": true,
     "devDependencies": {
         "@vscode/codicons": "^0.0.33",
-        "circular-dependency-plugin": "^5.2.2",
         "husky": "^8.0.0",
         "inversify": "^5.1.1",
         "prettier": "^2.8.8",
@@ -19,7 +18,7 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "format": "prettier --write ./**/*.{html,css,ts,json}",
+        "format": "prettier --write ./**/*.{html,css,ts,json,yaml}",
         "prepare": "husky install"
     }
 }

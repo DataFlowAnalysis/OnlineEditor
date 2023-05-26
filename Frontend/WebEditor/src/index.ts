@@ -1,17 +1,14 @@
 import "reflect-metadata";
 
 import {
-    FunctionNode,
-    FunctionNodeSchema,
     FunctionNodeView,
-    IONode,
-    IONodeSchema,
     IONodeView,
-    StorageNode,
-    StorageNodeSchema,
     StorageNodeView,
     ArrowEdgeView,
     ArrowEdge,
+    DFDNodeSchema,
+    RectangularDFDNode,
+    CircularDFDNode,
 } from "./views";
 import { Container, ContainerModule, inject, injectable } from "inversify";
 import {
@@ -72,9 +69,9 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(TYPES.ISnapper).to(CenterGridSnapper);
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
-    configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
-    configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
-    configureModelElement(context, "node:input-output", IONode, IONodeView);
+    configureModelElement(context, "node:storage", RectangularDFDNode, StorageNodeView);
+    configureModelElement(context, "node:function", CircularDFDNode, FunctionNodeView);
+    configureModelElement(context, "node:input-output", RectangularDFDNode, IONodeView);
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
@@ -169,21 +166,21 @@ const graph: SGraphSchema = {
             text: "Database",
             position: { x: 100, y: 100 },
             size: { width: 60, height: 30 },
-        } as StorageNodeSchema,
+        } as DFDNodeSchema,
         {
             type: "node:function",
             id: "function01",
             text: "System",
             position: { x: 200, y: 200 },
             size: { width: 50, height: 50 },
-        } as FunctionNodeSchema,
+        } as DFDNodeSchema,
         {
             type: "node:input-output",
             id: "input01",
             text: "Customer",
             position: { x: 325, y: 205 },
             size: { width: 70, height: 40 },
-        } as IONodeSchema,
+        } as DFDNodeSchema,
 
         {
             type: "edge:arrow",
