@@ -1,4 +1,4 @@
-import { injectable, inject, postConstruct, ContainerModule } from "inversify";
+import { injectable, ContainerModule } from "inversify";
 import {
     CommandPalette,
     CommandPaletteActionProviderRegistry,
@@ -13,13 +13,16 @@ import {
     Tool,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
-import { EDITOR_TYPES } from "../utils";
+import { EDITOR_TYPES, constructorInject } from "../utils";
 import { LogHelloAction } from "../commands/log-hello";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
 
+/**
+ * Provides possible actions for the command palette.
+ */
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
@@ -29,9 +32,10 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         _index?: number,
     ): Promise<LabeledAction[]> {
         const fitToScreenAction = FitToScreenAction.create(
-            root.children.map((child) => child.id),
+            root.children.map((child) => child.id), // Fit screen to all children
             { padding: 40 },
         );
+
         return [
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
@@ -46,17 +50,16 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     }
 }
 
+/**
+ * This tool registers a key listener that opens the command palette when the user presses
+ * the default key combination (Ctrl+Space).
+ */
 @injectable()
 export class CommandPaletteTool implements Tool {
     static ID = "command-palette-tool";
 
-    protected commandPaletteKeyListener: KeyListener = new KeyListener();
-    @inject(KeyTool) protected keyTool: KeyTool = new KeyTool();
-
-    @postConstruct()
-    protected postConstruct(): void {
-        this.commandPaletteKeyListener = this.createCommandPaletteKeyListener();
-    }
+    protected commandPaletteKeyListener: KeyListener = new CommandPaletteKeyListener();
+    constructor(@constructorInject(KeyTool) protected keyTool: KeyTool) {}
 
     get id(): string {
         return CommandPaletteTool.ID;
@@ -68,10 +71,6 @@ export class CommandPaletteTool implements Tool {
 
     disable(): void {
         this.keyTool.deregister(this.commandPaletteKeyListener);
-    }
-
-    protected createCommandPaletteKeyListener(): KeyListener {
-        return new CommandPaletteKeyListener();
     }
 }
 

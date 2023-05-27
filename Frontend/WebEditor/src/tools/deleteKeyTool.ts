@@ -4,6 +4,9 @@ import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { EDITOR_TYPES } from "../utils";
 
+/**
+ * A custom sprotty tool that registers a DeleteKeyListener by default (see below).
+ */
 @injectable()
 export class DelKeyDeleteTool implements Tool {
     static ID = "delete-keyboard";
@@ -25,6 +28,9 @@ export class DelKeyDeleteTool implements Tool {
     }
 }
 
+/**
+ * Custom sprotty key listener that deletes all selected elements when the user presses the delete key.
+ */
 @injectable()
 export class DeleteKeyListener extends KeyListener {
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
@@ -33,7 +39,7 @@ export class DeleteKeyListener extends KeyListener {
                 element.root.index
                     .all()
                     .filter((e) => isDeletable(e) && isSelectable(e) && e.selected)
-                    .filter((e) => e.id !== e.root.id)
+                    .filter((e) => e.id !== e.root.id) // Deleting the model root would be a bad idea
                     .map((e) => e.id),
             );
             if (deleteElementIds.length > 0) {

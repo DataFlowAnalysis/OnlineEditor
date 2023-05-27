@@ -4,43 +4,24 @@ import { customCommandPaletteModule } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
 
+/**
+ * A tool manager that gets all our custom tools using dependency injection and registers them
+ * Default tools are automatically enabled when the editor is loaded.
+ */
 @injectable()
-export class TestToolManager extends ToolManager {
-    // @multiInject(TYPES.ITool) @optional() override tools: Tool[] = [];
+export class DFDToolManager extends ToolManager {
+    @multiInject(EDITOR_TYPES.ITool) @optional() override tools: Tool[] = [];
     @multiInject(EDITOR_TYPES.IDefaultTool) @optional() override defaultTools: Tool[] = [];
 
     @postConstruct()
     protected initialize(): void {
         this.enableDefaultTools();
     }
-
-    override registerDefaultTools(...tools: Tool[]): void {
-        for (const tool of tools) {
-            this.defaultTools.push(tool);
-        }
-    }
-
-    override registerTools(...tools: Tool[]): void {
-        for (const tool of tools) {
-            this.tools.push(tool);
-        }
-    }
-
-    override enable(toolIds: string[]): void {
-        this.disableActiveTools();
-        const tools = toolIds.map((id) => this.tool(id));
-        tools.forEach((tool) => {
-            if (tool !== undefined) {
-                tool.enable();
-                this.actives.push(tool);
-            }
-        });
-    }
 }
 
 export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind) => {
-    bind(TestToolManager).toSelf().inSingletonScope();
-    rebind(TYPES.IToolManager).toService(TestToolManager);
+    bind(DFDToolManager).toSelf().inSingletonScope();
+    rebind(TYPES.IToolManager).toService(DFDToolManager);
 });
 
 export const toolsModules = [toolManager, customCommandPaletteModule, deleteKeyDeleteTool];

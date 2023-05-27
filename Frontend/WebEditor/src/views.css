@@ -1,3 +1,10 @@
+/* This file contains styling for the node views defined in views.tsx */
+
+/* sprotty-* classes are automatically added by sprotty and the other ones
+   are added in the definition inside views.tsx */
+
+/* Nodes */
+
 .sprotty-node.storage line {
     stroke: black;
     stroke-width: 1;
@@ -25,8 +32,9 @@
     stroke-width: 3;
 }
 
+/* Edges */
+
 .sprotty-edge {
-    fill: none;
     stroke: black;
     stroke-width: 1;
 }
@@ -35,15 +43,12 @@
     stroke-width: 2;
 }
 
-.sprotty-edge path.arrow {
-    fill: black;
-}
-
 .sprotty-edge > .sprotty-routing-handle {
     fill: black;
-
     stroke: none;
 }
+
+/* Misc */
 
 text {
     stroke-width: 0;
@@ -53,6 +58,10 @@ text {
     text-anchor: middle;
 }
 
+/* elements with the sprotty-missing class use a node type that has not been registered.
+   Because of this sprotty does not know what to do with them and renders their content and specifies them as missing.
+   To make these errors very visible we make them red here.
+   Ideally a user should never see this. */
 .sprotty-missing {
     stroke-width: 1;
     stroke: #f00;
