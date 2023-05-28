@@ -9,7 +9,7 @@ import { EDITOR_TYPES } from "../utils";
  */
 @injectable()
 export class DelKeyDeleteTool implements Tool {
-    static ID = "delete-keyboard";
+    static ID = "delete-keylistener";
 
     protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
 

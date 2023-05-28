@@ -33,6 +33,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         return [
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
+            // TODO: these are actions used for demonstration purposes including the LogHelloAction. These should be removed
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
             new LabeledAction("Log Test", [LogHelloAction.create("from command palette test")], "zoom-in"),
             new LabeledAction(
