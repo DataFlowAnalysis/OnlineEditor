@@ -3,6 +3,7 @@ import { ToolManager, Tool, TYPES } from "sprotty";
 import { commandPaletteModules } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
+import { mouseDroppableTool } from "./mouseDroppableListener";
 
 /**
  * A tool manager that gets all our custom tools using dependency injection and registers them
@@ -24,4 +25,4 @@ export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind)
     rebind(TYPES.IToolManager).toService(DFDToolManager);
 });
 
-export const toolsModules = [toolManager, ...commandPaletteModules, deleteKeyDeleteTool];
+export const toolsModules = [toolManager, ...commandPaletteModules, deleteKeyDeleteTool, mouseDroppableTool];

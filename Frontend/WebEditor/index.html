@@ -9,6 +9,12 @@
     <body>
         <h1>Sprotty Tech Demo</h1>
         <div class="new-element-row">
+            <!-- Has a draggable hardcoded version for each possible element.
+                 These can be dragged into the sprotty container where MouseDroppableListener will
+                 receive the node schema and create it in the diagram.
+                 TODO: hardcoding all elements is not a good solution.
+                 There should be a way for registered elements to be creatable without any further work.
+                 Maybe it is a good idea to move this to a sprotty UI Extension too -->
             <div
                 draggable="true"
                 style="height: 70px; width: 55px"
@@ -57,6 +63,11 @@
         </div>
 
         <script>
+            /**
+             * Util function to create a node schema for the specified node type.
+             * Stringifies the node schema and sets it to the html drag'n'drop dataTransfer object.
+             * This will then be read in MouseDroppableListener inside sprotty.
+             */
             function dragstart(event, nodeType, width, height, text) {
                 const nodeObject = {
                     type: "node:" + nodeType,
@@ -64,7 +75,7 @@
                     size: { width, height },
                     text,
                 };
-                event.dataTransfer.setData("text/plain", JSON.stringify(nodeObject));
+                event.dataTransfer.setData("application/json", JSON.stringify(nodeObject));
             }
         </script>
         <script type="module" src="./src/index.ts"></script>

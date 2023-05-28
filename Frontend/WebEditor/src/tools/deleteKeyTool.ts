@@ -1,37 +1,12 @@
-import { ContainerModule, inject, injectable } from "inversify";
+import { ContainerModule, injectable } from "inversify";
 import { DeleteElementAction, KeyListener, KeyTool, SModelElement, Tool, isDeletable, isSelectable } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
-import { EDITOR_TYPES } from "../utils";
-
-/**
- * A custom sprotty tool that registers a DeleteKeyListener by default (see below).
- */
-@injectable()
-export class DelKeyDeleteTool implements Tool {
-    static ID = "delete-keylistener";
-
-    protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
-
-    @inject(KeyTool) protected readonly keytool: KeyTool = new KeyTool();
-
-    get id(): string {
-        return DelKeyDeleteTool.ID;
-    }
-
-    enable(): void {
-        this.keytool.register(this.deleteKeyListener);
-    }
-
-    disable(): void {
-        this.keytool.deregister(this.deleteKeyListener);
-    }
-}
+import { EDITOR_TYPES, constructorInject } from "../utils";
 
 /**
  * Custom sprotty key listener that deletes all selected elements when the user presses the delete key.
  */
-@injectable()
 export class DeleteKeyListener extends KeyListener {
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, "Delete")) {
@@ -47,6 +22,30 @@ export class DeleteKeyListener extends KeyListener {
             }
         }
         return [];
+    }
+}
+
+/**
+ * A custom sprotty tool that registers a DeleteKeyListener by default (see below).
+ */
+@injectable()
+export class DelKeyDeleteTool implements Tool {
+    static ID = "delete-keylistener";
+
+    protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
+
+    constructor(@constructorInject(KeyTool) protected keytool: KeyTool) {}
+
+    get id(): string {
+        return DelKeyDeleteTool.ID;
+    }
+
+    enable(): void {
+        this.keytool.register(this.deleteKeyListener);
+    }
+
+    disable(): void {
+        this.keytool.deregister(this.deleteKeyListener);
     }
 }
 
