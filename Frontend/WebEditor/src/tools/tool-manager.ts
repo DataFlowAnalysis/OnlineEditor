@@ -1,6 +1,6 @@
 import { ContainerModule, injectable, multiInject, optional, postConstruct } from "inversify";
 import { ToolManager, Tool, TYPES } from "sprotty";
-import { customCommandPaletteModule } from "./commandPalette";
+import { commandPaletteModules } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
 
@@ -24,4 +24,4 @@ export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind)
     rebind(TYPES.IToolManager).toService(DFDToolManager);
 });
 
-export const toolsModules = [toolManager, customCommandPaletteModule, deleteKeyDeleteTool];
+export const toolsModules = [toolManager, ...commandPaletteModules, deleteKeyDeleteTool];
