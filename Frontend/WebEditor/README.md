@@ -1,4 +1,4 @@
-# sprotty-tech-demo
+# Palladio-Supporting-DataFlowConfidentiality-WebBasedEditor
 
 ## Setup
 
@@ -6,8 +6,8 @@ To set up the project locally you need to have [Node.js](https://nodejs.org/en/)
 Then run the following commands to clone the repository and install the dependencies:
 
 ```shell
-git clone https://github.com/daniel0611/sprotty-tech-demo.git
-cd sprotty-tech-demo
+git clone https://github.com/PalladioSimulator/Palladio-Supporting-DataFlowConfidentiality-WebBasedEditor.git
+cd Palladio-Supporting-DataFlowConfidentiality-WebBasedEditor
 npm install
 ```
 
@@ -34,4 +34,4 @@ npm run build
 
 This will create a `dist` folder containing the built static assets. The contents of this folder can be uploaded to a web server to host the project.
 
-This project is build using GitHub Actions and the current built version is hosted on GitHub Pages that can be found [here](https://daniel0611.github.io/sprotty-tech-demo/).
+This project is built using GitHub Actions and the current built version is hosted on GitHub Pages that can be found [here](https://palladiosimulator.github.io/Palladio-Supporting-DataFlowConfidentiality-WebBasedEditor/).
