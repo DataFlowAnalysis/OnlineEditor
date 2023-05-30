@@ -3,11 +3,11 @@ name: Build using vite and deploy to GitHub Pages when on main
 on:
     - push
 
-# This action deploy to GitHub Pages by pushing to the gh-pages branch.
-# To do this we need write permissions to the repository which are not
-# enabled in GitHub Actions by default (anymore).
+# Configures premissions for the used GitHub Token that are required for Pages.
 permissions:
-    contents: write
+    contents: read # To get the source
+    pages: write # To deploy to pages
+    id-token: write # To verify deployment (done automatically by the official action)
 
 jobs:
     build:
@@ -20,15 +20,22 @@ jobs:
                   node-version: 18.x
                   cache: npm
 
+            - name: Setup GitHub Pages
+              if: github.ref == 'refs/heads/main'
+              uses: actions/checkout@v3
+
             - name: Install dependencies
               run: npm install
 
-            - name: Build
+            - name: Build project
               run: npm run build
+
+            - name: Upload Pages artifact
+              if: github.ref == 'refs/heads/main'
+              uses: actions/upload-pages-artifact@v1
+              with:
+                  path: "./dist/"
 
             - name: Deploy to GitHub Pages
               if: github.ref == 'refs/heads/main'
-              uses: JamesIves/github-pages-deploy-action@v4
-              with:
-                  branch: gh-pages
-                  folder: dist
+              uses: actions/deploy-pages@v2
