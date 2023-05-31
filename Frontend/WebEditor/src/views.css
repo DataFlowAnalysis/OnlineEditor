@@ -36,11 +36,17 @@
 
 .sprotty-edge {
     stroke: black;
+    fill: none;
     stroke-width: 1;
 }
 
 .sprotty-edge.selected {
     stroke-width: 2;
+}
+
+.sprotty-edge .arrow {
+    fill: black;
+    stroke: none;
 }
 
 .sprotty-edge > .sprotty-routing-handle {
