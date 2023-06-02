@@ -2,7 +2,7 @@ import { ContainerModule, injectable } from "inversify";
 import { MouseListener, TYPES, LocalModelSource, Tool, MouseTool } from "sprotty";
 import { SNode as SNodeSchema } from "sprotty-protocol";
 import { SModelElement, Action } from "sprotty-protocol";
-import { EDITOR_TYPES, constructorInject } from "../utils";
+import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
 
 /**
  * When dragging a node from the new element row from the top of the page to
@@ -33,6 +33,7 @@ class MouseDroppableListener extends MouseListener {
         }
 
         this.modelSource.getViewport().then((viewport) => {
+            nodeData.id = generateRandomSprottyId();
             if (!nodeData.size) {
                 // Default sizes for nodes that don't have a size set.
                 nodeData.size = {

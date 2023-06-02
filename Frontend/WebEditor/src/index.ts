@@ -161,6 +161,18 @@ const graph: SGraphSchema = {
             id: "edge02",
             sourceId: "function01",
             targetId: "input01",
+            children: [
+                {
+                    type: "label",
+                    id: "label02",
+                    text: "",
+                    edgePlacement: {
+                        position: 0.5,
+                        side: "on",
+                        rotate: false,
+                    },
+                } as SLabelSchema,
+            ],
         } as SEdgeSchema,
     ],
 };

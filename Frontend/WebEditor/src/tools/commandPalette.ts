@@ -6,6 +6,7 @@ import {
     SModelRoot,
     TYPES,
     commandPaletteModule,
+    EnableToolsAction,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
 import { LogHelloAction } from "../commands/log-hello";
@@ -13,6 +14,7 @@ import { LogHelloAction } from "../commands/log-hello";
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
+import { EdgeCreationTool } from "./edgeCreationTool";
 
 /**
  * Provides possible actions for the command palette.
@@ -31,16 +33,11 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         );
 
         return [
+            new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
-            // TODO: these are actions used for demonstration purposes including the LogHelloAction. These should be removed
+            // TODO: this action is only used for demonstration purposes including the LogHelloAction. This should be removed
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
-            new LabeledAction("Log Test", [LogHelloAction.create("from command palette test")], "zoom-in"),
-            new LabeledAction(
-                "Log lorem ipsum",
-                [LogHelloAction.create("from command palette lorem ipsum")],
-                "type-hierarchy-sub",
-            ),
         ];
     }
 }
