@@ -13,6 +13,7 @@ import {
 import { Container, ContainerModule } from "inversify";
 import { SEdge as SEdgeSchema, SGraph as SGraphSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import {
+    ActionDispatcher,
     CenterGridSnapper,
     ConsoleLogger,
     LocalModelSource,
@@ -23,6 +24,7 @@ import {
     SLabelView,
     SRoutingHandle,
     SRoutingHandleView,
+    SetUIExtensionVisibilityAction,
     TYPES,
     boundsModule,
     configureModelElement,
@@ -49,6 +51,7 @@ import { commandsModule } from "./commands/commands";
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 import "./page.css";
+import { ToolPaletteUI } from "./tools/toolPalette";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -180,7 +183,18 @@ const graph: SGraphSchema = {
 // Load the graph into the model source and display it inside the DOM.
 // Unless overwritten this will load the graph into the DOM element with the id "sprotty".
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
+const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 modelSource
     .setModel(graph)
-    .then(() => console.log("Sprotty model set."))
+    .then(() => {
+        console.log("Sprotty model set.");
+
+        // Show the tool palette after startup has completed.
+        dispatcher.dispatch(
+            SetUIExtensionVisibilityAction.create({
+                extensionId: ToolPaletteUI.ID,
+                visible: true,
+            }),
+        );
+    })
     .catch((reason) => console.error(reason));

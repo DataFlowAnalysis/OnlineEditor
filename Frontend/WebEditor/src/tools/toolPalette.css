@@ -1,0 +1,25 @@
+.tool-palette {
+    position: absolute;
+    right: 40px;
+    user-select: none;
+    background-color: #eee;
+    border-radius: 10px;
+    padding: 5px;
+    margin-top: 40px;
+}
+
+.tool-palette .tool {
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.tool-palette .tool:hover {
+    cursor: pointer;
+    background-color: #ccc;
+}
+
+.tool-palette .tool.active {
+    background-color: #bbb;
+}

@@ -11,15 +11,24 @@ import {
     SEdge,
     EnableDefaultToolsAction,
 } from "sprotty";
-import { Action, SEdge as SEdgeSchema } from "sprotty-protocol";
+import { Action, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
 
+@injectable()
 export class EdgeCreationToolMouseListener extends MouseListener {
     private source?: SModelElement;
     private target?: SModelElement;
 
-    constructor(protected modelSource: LocalModelSource, private edgeType: string = "edge:arrow") {
+    constructor(
+        @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
+        private edgeType: string = "edge:arrow",
+    ) {
         super();
+    }
+
+    reinitialize(): void {
+        this.source = undefined;
+        this.target = undefined;
     }
 
     override mouseDown(target: SModelElement, _event: MouseEvent): Action[] {
@@ -48,6 +57,18 @@ export class EdgeCreationToolMouseListener extends MouseListener {
                 id: generateRandomSprottyId(),
                 sourceId: this.source.id,
                 targetId: this.target.id,
+                children: [
+                    {
+                        type: "label",
+                        id: generateRandomSprottyId(),
+                        text: "",
+                        edgePlacement: {
+                            position: 0.5,
+                            side: "on",
+                            rotate: false,
+                        },
+                    } as SLabelSchema,
+                ],
             } as SEdgeSchema;
             this.modelSource.addElements([edge]);
 
@@ -77,29 +98,24 @@ export class EdgeCreationToolMouseListener extends MouseListener {
 export class EdgeCreationTool implements Tool {
     static ID = "edge-creation-tool";
 
-    protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener;
-
     constructor(
         @constructorInject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry,
         @constructorInject(MouseTool) protected mouseTool: MouseTool,
-        @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
-    ) {
-        this.edgeCreationToolMouseListener = new EdgeCreationToolMouseListener(this.modelSource);
-    }
+        @constructorInject(EdgeCreationToolMouseListener)
+        protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener,
+    ) {}
 
     get id(): string {
         return EdgeCreationTool.ID;
     }
 
     enable(): void {
-        this.edgeCreationToolMouseListener = new EdgeCreationToolMouseListener(this.modelSource);
+        this.edgeCreationToolMouseListener.reinitialize();
         this.mouseTool.register(this.edgeCreationToolMouseListener);
-        console.log("EdgeCreationTool.enable()");
     }
 
     disable(): void {
         this.mouseTool.deregister(this.edgeCreationToolMouseListener);
-        console.log("EdgeCreationTool.disable()");
     }
 }
 

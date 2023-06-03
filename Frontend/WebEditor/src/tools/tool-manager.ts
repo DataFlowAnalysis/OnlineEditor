@@ -5,6 +5,7 @@ import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
 import { mouseDroppableTool } from "./mouseDroppableListener";
 import { edgeCreationTool } from "./edgeCreationTool";
+import { toolPaletteModule } from "./toolPalette";
 
 /**
  * A tool manager that gets all our custom tools using dependency injection and registers them
@@ -32,4 +33,5 @@ export const toolsModules = [
     edgeCreationTool,
     deleteKeyDeleteTool,
     mouseDroppableTool,
+    toolPaletteModule,
 ];
