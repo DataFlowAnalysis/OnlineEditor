@@ -6,12 +6,10 @@ import {
     Tool,
     SModelElement,
     isConnectable,
-    TYPES,
-    LocalModelSource,
     SEdge,
     EnableDefaultToolsAction,
 } from "sprotty";
-import { Action, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
+import { Action, CreateElementAction, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
 
 @injectable()
@@ -19,10 +17,7 @@ export class EdgeCreationToolMouseListener extends MouseListener {
     private source?: SModelElement;
     private target?: SModelElement;
 
-    constructor(
-        @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
-        private edgeType: string = "edge:arrow",
-    ) {
+    constructor(private edgeType: string = "edge:arrow") {
         super();
     }
 
@@ -70,10 +65,15 @@ export class EdgeCreationToolMouseListener extends MouseListener {
                     } as SLabelSchema,
                 ],
             } as SEdgeSchema;
-            this.modelSource.addElements([edge]);
 
-            // Disables the EdgeCreationTool and only enables the default tools
-            return [EnableDefaultToolsAction.create()];
+            return [
+                // Disables the EdgeCreationTool and only enables the default tools
+                EnableDefaultToolsAction.create(),
+                // Create the new edge
+                CreateElementAction.create(edge, {
+                    containerId: this.source.root.id,
+                }),
+            ];
         }
         return [];
     }

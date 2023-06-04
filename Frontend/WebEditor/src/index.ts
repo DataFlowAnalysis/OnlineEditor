@@ -16,6 +16,7 @@ import {
     ActionDispatcher,
     CenterGridSnapper,
     ConsoleLogger,
+    CreateElementCommand,
     LocalModelSource,
     LogLevel,
     SGraph,
@@ -27,6 +28,7 @@ import {
     SetUIExtensionVisibilityAction,
     TYPES,
     boundsModule,
+    configureCommand,
     configureModelElement,
     defaultModule,
     edgeEditModule,
@@ -73,6 +75,9 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
     configureModelElement(context, "volatile-routing-point", SRoutingHandle, SRoutingHandleView);
+
+    // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
+    configureCommand(context, CreateElementCommand);
 });
 
 // Load the above defined module with all the used modules from sprotty.
