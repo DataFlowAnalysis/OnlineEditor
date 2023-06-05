@@ -3,7 +3,7 @@
     margin-top: 40px;
     right: 40px;
     user-select: none;
-    background-color: #eee;
+    background-color: var(--color-primary);
     border-radius: 10px;
     padding: 5px;
 }
@@ -15,11 +15,18 @@
     border-radius: 5px;
 }
 
+.tool-palette .tool svg line {
+    stroke: var(--color-foreground);
+}
+.tool-palette .tool svg marker {
+    fill: var(--color-foreground);
+}
+
 .tool-palette .tool:hover {
     cursor: pointer;
-    background-color: #ccc;
+    background-color: var(--color-tool-palette-hover);
 }
 
 .tool-palette .tool.active {
-    background-color: #bbb;
+    background-color: var(--color-tool-palette-selected);
 }

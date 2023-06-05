@@ -49,8 +49,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         </defs>
 
         <line x1="10%" y1="10%" x2="75%" y2="75%"
-                stroke="black" stroke-width="2"
-                marker-end="url(#arrowhead)" />
+                stroke-width="2" marker-end="url(#arrowhead)" />
         </svg>
         `;
 

@@ -6,7 +6,7 @@
 /* Nodes */
 
 .sprotty-node.storage line {
-    stroke: black;
+    stroke: var(--color-foreground);
     stroke-width: 1;
 }
 
@@ -15,13 +15,13 @@
 }
 
 .sprotty-node.function circle {
-    stroke: black;
+    stroke: var(--color-foreground);
     stroke-width: 1;
     fill: transparent;
 }
 
 .sprotty-node.io rect {
-    stroke: black;
+    stroke: var(--color-foreground);
     stroke-width: 1;
     fill: transparent;
 }
@@ -35,7 +35,7 @@
 /* Edges */
 
 .sprotty-edge {
-    stroke: black;
+    stroke: var(--color-foreground);
     fill: none;
     stroke-width: 1;
 }
@@ -45,12 +45,12 @@
 }
 
 .sprotty-edge .arrow {
-    fill: black;
+    fill: var(--color-foreground);
     stroke: none;
 }
 
 .sprotty-edge > .sprotty-routing-handle {
-    fill: black;
+    fill: var(--color-foreground);
     stroke: none;
 }
 
@@ -58,7 +58,7 @@
 
 text {
     stroke-width: 0;
-    fill: black;
+    fill: var(--color-foreground);
     font-family: sans-serif;
     font-size: 11pt;
     text-anchor: middle;
@@ -70,8 +70,8 @@ text {
    Ideally a user should never see this. */
 .sprotty-missing {
     stroke-width: 1;
-    stroke: #f00;
-    fill: #f00;
+    stroke: var(--color-error);
+    fill: var(--color-error);
     font-size: 14pt;
     text-anchor: middle;
 }

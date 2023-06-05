@@ -1,0 +1,18 @@
+:root {
+    --color-foreground: #000;
+    --color-background: #fff;
+    --color-error: #f00;
+    --color-primary: #eee;
+    --color-tool-palette-hover: #ccc;
+    --color-tool-palette-selected: #bbb;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-foreground: #fff;
+        --color-background: #000;
+        --color-primary: #222;
+        --color-tool-palette-hover: #444;
+        --color-tool-palette-selected: #555;
+    }
+}

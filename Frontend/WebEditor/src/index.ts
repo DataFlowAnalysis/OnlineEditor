@@ -49,11 +49,13 @@ import {
 } from "sprotty";
 import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
+import { ToolPaletteUI } from "./tools/toolPalette";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
+
+import "./theme.css";
 import "./page.css";
-import { ToolPaletteUI } from "./tools/toolPalette";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.

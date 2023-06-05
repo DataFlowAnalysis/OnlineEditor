@@ -10,11 +10,11 @@ import {
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
 import { LogHelloAction } from "../commands/log-hello";
+import { EdgeCreationTool } from "./edgeCreationTool";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
-import { EdgeCreationTool } from "./edgeCreationTool";
 
 /**
  * Provides possible actions for the command palette.
