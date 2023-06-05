@@ -47,7 +47,7 @@ import {
     withEditLabelFeature,
     zorderModule,
 } from "sprotty";
-import { toolsModules } from "./tools/tool-manager";
+import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 
 import "sprotty/css/sprotty.css";

@@ -1,11 +1,11 @@
 .tool-palette {
     position: absolute;
+    margin-top: 40px;
     right: 40px;
     user-select: none;
     background-color: #eee;
     border-radius: 10px;
     padding: 5px;
-    margin-top: 40px;
 }
 
 .tool-palette .tool {

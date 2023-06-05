@@ -1,11 +1,6 @@
 import { ContainerModule, injectable, multiInject, optional, postConstruct } from "inversify";
 import { ToolManager, Tool, TYPES } from "sprotty";
-import { commandPaletteModules } from "./commandPalette";
-import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
-import { mouseDroppableTool } from "./mouseDroppableListener";
-import { edgeCreationTool } from "./edgeCreationTool";
-import { toolPaletteModule } from "./toolPalette";
 
 /**
  * A tool manager that gets all our custom tools using dependency injection and registers them
@@ -26,12 +21,3 @@ export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind)
     bind(DFDToolManager).toSelf().inSingletonScope();
     rebind(TYPES.IToolManager).toService(DFDToolManager);
 });
-
-export const toolsModules = [
-    toolManager,
-    ...commandPaletteModules,
-    edgeCreationTool,
-    deleteKeyDeleteTool,
-    mouseDroppableTool,
-    toolPaletteModule,
-];

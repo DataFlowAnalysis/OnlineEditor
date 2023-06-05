@@ -10,11 +10,15 @@ import {
     configureActionHandler,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-
-import "./toolPalette.css";
 import { constructorInject } from "../utils";
 import { EdgeCreationTool } from "./edgeCreationTool";
 
+import "./toolPalette.css";
+
+/**
+ * UI extension that adds a tool palette to the diagram in the upper right.
+ * Currently this only allows activating the CreateEdgeTool.
+ */
 @injectable()
 export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler {
     static readonly ID = "tool-palette";
@@ -52,7 +56,8 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         arrowEdgeElement.addEventListener("click", () => {
             if (arrowEdgeElement.classList.contains("active")) {
-                this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
+                // Already activated => disable the tool
+                this.disableEdgeCreationTool();
             } else {
                 arrowEdgeElement.classList.toggle("active");
                 this.enableEdgeCreationTool();
@@ -66,18 +71,18 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         this.actionDispatcher.dispatch(EnableToolsAction.create([EdgeCreationTool.ID]));
     }
 
+    private disableEdgeCreationTool(): void {
+        this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
+    }
+
     handle(action: Action): void | Action | ICommand {
+        // Unsets all active classes of the tool icons when all non-default tools are disabled
         if (action.kind === EnableDefaultToolsAction.KIND) {
-            // Recursively remove the active class from all tools
-            const removeActiveClass = (element: HTMLElement) => {
-                element.classList.remove("active");
-                element.childNodes.forEach((child) => {
-                    if (child instanceof HTMLElement) {
-                        removeActiveClass(child);
-                    }
-                });
-            };
-            removeActiveClass(this.containerElement);
+            this.containerElement.childNodes.forEach((node) => {
+                if (node instanceof HTMLElement) {
+                    node.classList.remove("active");
+                }
+            });
         }
     }
 }
