@@ -13,8 +13,10 @@ import {
 import { Container, ContainerModule } from "inversify";
 import { SEdge as SEdgeSchema, SGraph as SGraphSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import {
+    ActionDispatcher,
     CenterGridSnapper,
     ConsoleLogger,
+    CreateElementCommand,
     LocalModelSource,
     LogLevel,
     SGraph,
@@ -23,8 +25,10 @@ import {
     SLabelView,
     SRoutingHandle,
     SRoutingHandleView,
+    SetUIExtensionVisibilityAction,
     TYPES,
     boundsModule,
+    configureCommand,
     configureModelElement,
     defaultModule,
     edgeEditModule,
@@ -43,12 +47,13 @@ import {
     withEditLabelFeature,
     zorderModule,
 } from "sprotty";
-import { toolsModules } from "./tools/tool-manager";
+import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 import "./page.css";
+import { ToolPaletteUI } from "./tools/toolPalette";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -70,6 +75,9 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
     configureModelElement(context, "volatile-routing-point", SRoutingHandle, SRoutingHandleView);
+
+    // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
+    configureCommand(context, CreateElementCommand);
 });
 
 // Load the above defined module with all the used modules from sprotty.
@@ -161,6 +169,18 @@ const graph: SGraphSchema = {
             id: "edge02",
             sourceId: "function01",
             targetId: "input01",
+            children: [
+                {
+                    type: "label",
+                    id: "label02",
+                    text: "",
+                    edgePlacement: {
+                        position: 0.5,
+                        side: "on",
+                        rotate: false,
+                    },
+                } as SLabelSchema,
+            ],
         } as SEdgeSchema,
     ],
 };
@@ -168,7 +188,18 @@ const graph: SGraphSchema = {
 // Load the graph into the model source and display it inside the DOM.
 // Unless overwritten this will load the graph into the DOM element with the id "sprotty".
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
+const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 modelSource
     .setModel(graph)
-    .then(() => console.log("Sprotty model set."))
+    .then(() => {
+        console.log("Sprotty model set.");
+
+        // Show the tool palette after startup has completed.
+        dispatcher.dispatch(
+            SetUIExtensionVisibilityAction.create({
+                extensionId: ToolPaletteUI.ID,
+                visible: true,
+            }),
+        );
+    })
     .catch((reason) => console.error(reason));

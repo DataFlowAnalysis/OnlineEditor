@@ -1,8 +1,8 @@
 import { ContainerModule, injectable } from "inversify";
 import { MouseListener, TYPES, LocalModelSource, Tool, MouseTool } from "sprotty";
-import { SNode as SNodeSchema } from "sprotty-protocol";
+import { CreateElementAction, SNode as SNodeSchema } from "sprotty-protocol";
 import { SModelElement, Action } from "sprotty-protocol";
-import { EDITOR_TYPES, constructorInject } from "../utils";
+import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
 
 /**
  * When dragging a node from the new element row from the top of the page to
@@ -32,29 +32,32 @@ class MouseDroppableListener extends MouseListener {
             return [];
         }
 
-        this.modelSource.getViewport().then((viewport) => {
-            if (!nodeData.size) {
-                // Default sizes for nodes that don't have a size set.
-                nodeData.size = {
-                    width: 10,
-                    height: 10,
+        return [
+            this.modelSource.getViewport().then((viewport) => {
+                nodeData.id = generateRandomSprottyId();
+                if (!nodeData.size) {
+                    // Default sizes for nodes that don't have a size set.
+                    nodeData.size = {
+                        width: 10,
+                        height: 10,
+                    };
+                }
+
+                // Adjust the position of the node so that it is centered on the cursor.
+                const adjust = (offset: number, size: number) => {
+                    return offset / viewport.zoom - size / 2;
                 };
-            }
+                nodeData.position = {
+                    x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
+                    y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
+                };
 
-            // Adjust the position of the node so that it is centered on the cursor.
-            const adjust = (offset: number, size: number) => {
-                return offset / viewport.zoom - size / 2;
-            };
-            nodeData.position = {
-                x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
-                y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
-            };
-
-            // Add the node to the diagram.
-            this.modelSource.addElements([nodeData]);
-        });
-
-        return [];
+                // Add the node to the diagram.
+                return CreateElementAction.create(nodeData, {
+                    containerId: this.modelSource.model.id,
+                });
+            }),
+        ];
     }
 }
 
