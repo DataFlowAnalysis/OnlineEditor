@@ -13,6 +13,11 @@
     background: var(--color-primary);
 }
 
+.command-palette-suggestions > div:hover:not(.group),
+.command-palette-suggestions > div.selected {
+    background: var(--color-background);
+}
+
 div.autocomplete.command-palette-suggestions {
     /* sprotty sets the position using inline style tags
        The only way to override this is to use !important
