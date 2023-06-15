@@ -1,14 +1,5 @@
 import { inject } from "inversify";
-import {
-    Command,
-    CommandExecutionContext,
-    EMPTY_ROOT,
-    ILogger,
-    NullLogger,
-    SModelElementSchema,
-    SModelRoot,
-    TYPES,
-} from "sprotty";
+import { Command, CommandExecutionContext, EMPTY_ROOT, ILogger, NullLogger, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 
 export interface LoadDiagramAction extends Action {
