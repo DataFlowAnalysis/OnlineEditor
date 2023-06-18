@@ -1,6 +1,8 @@
 import { ContainerModule } from "inversify";
 import { configureCommand } from "sprotty";
 import { LogHelloCommand } from "./log-hello";
+import { SaveDiagramCommand } from "./save";
+import { LoadDiagramCommand } from "./load";
 
 // Bundles all defined commands into a inversify module that can be loaded to make
 // all commands available to sprotty.
@@ -8,4 +10,6 @@ import { LogHelloCommand } from "./log-hello";
 export const commandsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureCommand(context, LogHelloCommand);
+    configureCommand(context, SaveDiagramCommand);
+    configureCommand(context, LoadDiagramCommand);
 });
