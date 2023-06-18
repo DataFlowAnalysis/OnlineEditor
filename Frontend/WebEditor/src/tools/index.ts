@@ -2,7 +2,7 @@ import { commandPaletteModules } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { edgeCreationTool } from "./edgeCreationTool";
 import { mouseDroppableTool } from "./mouseDroppableListener";
-import { toolManager } from "./tool-manager";
+import { toolManager } from "./toolManager";
 import { toolPaletteModule } from "./toolPalette";
 
 // Exports all the tool related inversify modules.
