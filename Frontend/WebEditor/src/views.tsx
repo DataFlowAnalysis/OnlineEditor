@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { Point, SNode as SNodeSchema, angleOfPoint, toDegrees } from "sprotty-protocol";
+import { Point, SLabel as SLabelSchema, SNode as SNodeSchema, angleOfPoint, toDegrees } from "sprotty-protocol";
 import {
     svg,
     IView,
@@ -8,23 +8,60 @@ import {
     PolylineEdgeViewWithGapsOnIntersections,
     SEdge,
     ELLIPTIC_ANCHOR_KIND,
-    editLabelFeature,
     IViewArgs,
     WithEditableLabel,
     isEditableLabel,
+    withEditLabelFeature,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
+
 import "./views.css";
+
+export abstract class ExpandableView extends SNode {
+    abstract expand(schema: SNodeSchema): void;
+    abstract retract(schema: SNodeSchema): void;
+}
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
 }
 
-export class RectangularDFDNode extends SNode {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, editLabelFeature];
+export class RectangularDFDNode extends ExpandableView implements WithEditableLabel {
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
 
     text: string = "";
+
+    override expand(schema: DFDNodeSchema): void {
+        const width = schema.size?.width ?? 0;
+        const height = schema.size?.height ?? 0;
+
+        console.log("expand", schema, width, height);
+
+        const label = {
+            type: "label",
+            text: schema.text,
+            id: schema.id + "-label",
+            position: { x: width / 6, y: height / 4 },
+        } as SLabelSchema;
+
+        schema.children = [label];
+    }
+
+    override retract(schema: DFDNodeSchema): void {
+        const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
+        schema.text = label?.text ?? "";
+        schema.children = [];
+    }
+
+    get editableLabel() {
+        const label = this.children.find((element) => element.type === "label");
+        if (label && isEditableLabel(label)) {
+            return label;
+        }
+
+        return undefined;
+    }
 }
 
 export class CircularDFDNode extends RectangularDFDNode {
@@ -35,15 +72,13 @@ export class CircularDFDNode extends RectangularDFDNode {
 
 @injectable()
 export class StorageNodeView implements IView {
-    render(node: Readonly<RectangularDFDNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.size.width;
         const height = node.size.height;
         return (
             <g class-sprotty-node={true} class-storage={true}>
                 <line x1="0" y1="0" x2={width} y2="0" />
-                <text x={width / 2} y={height / 2 + 5}>
-                    {node.text}
-                </text>
+                {context.renderChildren(node)}
                 <line x1="0" y1={height} x2={width} y2={height} />
                 {/* This transparent rect exists only to make this element easily selectable.
                     Without this you would need click the text or exactly hit one of the lines.

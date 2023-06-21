@@ -50,6 +50,7 @@ import {
 import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { ToolPaletteUI } from "./tools/toolPalette";
+import { ExpanderModelSource } from "./modelSource";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
@@ -60,10 +61,11 @@ import "./page.css";
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
 const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
+    bind(TYPES.ModelSource).to(ExpanderModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
+
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
     configureModelElement(context, "node:storage", RectangularDFDNode, StorageNodeView);
@@ -191,17 +193,14 @@ const graph: SGraphSchema = {
 // Unless overwritten this will load the graph into the DOM element with the id "sprotty".
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
-modelSource
-    .setModel(graph)
-    .then(() => {
-        console.log("Sprotty model set.");
 
-        // Show the tool palette after startup has completed.
-        dispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: ToolPaletteUI.ID,
-                visible: true,
-            }),
-        );
-    })
-    .catch((reason) => console.error(reason));
+modelSource.model = graph;
+console.log("Sprotty model set.");
+
+// Show the tool palette after startup has completed.
+dispatcher.dispatch(
+    SetUIExtensionVisibilityAction.create({
+        extensionId: ToolPaletteUI.ID,
+        visible: true,
+    }),
+);
