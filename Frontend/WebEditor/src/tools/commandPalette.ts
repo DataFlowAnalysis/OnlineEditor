@@ -17,6 +17,7 @@ import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
 import { SaveDiagramAction } from "../commands/save";
 import { LoadDiagramAction } from "../commands/load";
+import { LoadDefaultDiagramAction } from "../commands/loadDefaultDiagram";
 
 /**
  * Provides possible actions for the command palette.
@@ -40,6 +41,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create("diagram.json")], "save"),
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create()], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
+            new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create()], "clear-all"),
             // TODO: this action is only used for demonstration purposes including the LogHelloAction. This should be removed
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
         ];

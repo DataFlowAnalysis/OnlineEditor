@@ -6,23 +6,20 @@ import {
     StorageNodeView,
     ArrowEdgeView,
     ArrowEdge,
-    DFDNodeSchema,
     RectangularDFDNode,
     CircularDFDNode,
+    DFDLabelView,
 } from "./views";
 import { Container, ContainerModule } from "inversify";
-import { SEdge as SEdgeSchema, SGraph as SGraphSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import {
     ActionDispatcher,
     CenterGridSnapper,
     ConsoleLogger,
     CreateElementCommand,
-    LocalModelSource,
     LogLevel,
     SGraph,
     SGraphView,
     SLabel,
-    SLabelView,
     SRoutingHandle,
     SRoutingHandleView,
     SetUIExtensionVisibilityAction,
@@ -57,6 +54,7 @@ import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
+import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -74,7 +72,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
-    configureModelElement(context, "label", SLabel, SLabelView, {
+    configureModelElement(context, "label", SLabel, DFDLabelView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
@@ -123,79 +121,9 @@ container.load(
     commandsModule,
 );
 
-// Construct the diagram graph state that should be shown.
-const graph: SGraphSchema = {
-    type: "graph",
-    id: "root",
-    children: [
-        {
-            type: "node:storage",
-            id: "storage01",
-            text: "Database",
-            position: { x: 100, y: 100 },
-            size: { width: 60, height: 30 },
-        } as DFDNodeSchema,
-        {
-            type: "node:function",
-            id: "function01",
-            text: "System",
-            position: { x: 200, y: 200 },
-            size: { width: 50, height: 50 },
-        } as DFDNodeSchema,
-        {
-            type: "node:input-output",
-            id: "input01",
-            text: "Customer",
-            position: { x: 325, y: 205 },
-            size: { width: 70, height: 40 },
-        } as DFDNodeSchema,
-
-        {
-            type: "edge:arrow",
-            id: "edge01",
-            sourceId: "storage01",
-            targetId: "function01",
-            children: [
-                {
-                    type: "label",
-                    id: "label01",
-                    text: "Input",
-                    edgePlacement: {
-                        position: 0.5,
-                        side: "on",
-                        rotate: false,
-                    },
-                } as SLabelSchema,
-            ],
-        } as SEdgeSchema,
-        {
-            type: "edge:arrow",
-            id: "edge02",
-            sourceId: "function01",
-            targetId: "input01",
-            children: [
-                {
-                    type: "label",
-                    id: "label02",
-                    text: "",
-                    edgePlacement: {
-                        position: 0.5,
-                        side: "on",
-                        rotate: false,
-                    },
-                } as SLabelSchema,
-            ],
-        } as SEdgeSchema,
-    ],
-};
-
 // Load the graph into the model source and display it inside the DOM.
 // Unless overwritten this will load the graph into the DOM element with the id "sprotty".
-const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
-
-modelSource.model = graph;
-console.log("Sprotty model set.");
 
 // Show the tool palette after startup has completed.
 dispatcher.dispatch(
@@ -204,3 +132,6 @@ dispatcher.dispatch(
         visible: true,
     }),
 );
+
+// Load the default diagram
+dispatcher.dispatch(LoadDefaultDiagramAction.create());

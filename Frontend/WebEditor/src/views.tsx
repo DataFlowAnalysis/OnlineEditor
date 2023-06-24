@@ -12,6 +12,8 @@ import {
     WithEditableLabel,
     isEditableLabel,
     withEditLabelFeature,
+    ShapeView,
+    SLabel,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
@@ -42,7 +44,6 @@ export class RectangularDFDNode extends ExpandableView implements WithEditableLa
             type: "label",
             text: schema.text,
             id: schema.id + "-label",
-            position: { x: width / 6, y: height / 4 },
         } as SLabelSchema;
 
         schema.children = [label];
@@ -92,14 +93,12 @@ export class StorageNodeView implements IView {
 
 @injectable()
 export class FunctionNodeView implements IView {
-    render(node: Readonly<CircularDFDNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<CircularDFDNode>, context: RenderingContext): VNode {
         const radius = Math.min(node.size.width, node.size.height) / 2;
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <circle r={radius} cx={radius} cy={radius} />
-                <text x={radius} y={radius + 5}>
-                    {node.text}
-                </text>
+                {context.renderChildren(node)}
             </g>
         );
     }
@@ -107,16 +106,14 @@ export class FunctionNodeView implements IView {
 
 @injectable()
 export class IONodeView implements IView {
-    render(node: Readonly<RectangularDFDNode>, _context: RenderingContext): VNode {
+    render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.size.width;
         const height = node.size.height;
 
         return (
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
-                <text x={width / 2} y={height / 2 + 5}>
-                    {node.text}
-                </text>
+                {context.renderChildren(node)}
             </g>
         );
     }
@@ -180,5 +177,20 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
             }
         }
         return <path d={path} />;
+    }
+}
+
+@injectable()
+export class DFDLabelView extends ShapeView {
+    render(label: Readonly<SLabel>, _context: RenderingContext): VNode | undefined {
+        const parentSize = (label.parent as SNode | undefined)?.size;
+        const width = parentSize?.width ?? 0;
+        const height = parentSize?.height ?? 0;
+
+        return (
+            <text class-sprotty-label={true} x={width / 2} y={height / 2 + 5}>
+                {label.text}
+            </text>
+        );
     }
 }

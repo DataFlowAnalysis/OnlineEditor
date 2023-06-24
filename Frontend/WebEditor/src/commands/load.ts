@@ -1,8 +1,7 @@
-import { inject } from "inversify";
 import { Command, CommandExecutionContext, EMPTY_ROOT, ILogger, NullLogger, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
-import { constructorInject } from "../utils";
 import { ExpanderModelSource } from "../modelSource";
+import { inject } from "inversify";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -20,15 +19,13 @@ export namespace LoadDiagramAction {
 export class LoadDiagramCommand extends Command {
     static readonly KIND = LoadDiagramAction.KIND;
 
+    @inject(TYPES.ILogger)
+    private readonly logger: ILogger = new NullLogger();
+    @inject(TYPES.ModelSource)
+    private readonly modelSource: ExpanderModelSource = new ExpanderModelSource();
+
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
-
-    constructor(
-        @constructorInject(TYPES.ILogger) private readonly logger: ILogger,
-        @constructorInject(TYPES.ModelSource) private readonly modelSource: ExpanderModelSource,
-    ) {
-        super();
-    }
 
     async execute(context: CommandExecutionContext): Promise<SModelRoot> {
         // Open a file picker dialog.
@@ -128,6 +125,6 @@ export class LoadDiagramCommand extends Command {
     }
 
     redo(context: CommandExecutionContext): SModelRoot {
-        return this.newRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
+        return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }
