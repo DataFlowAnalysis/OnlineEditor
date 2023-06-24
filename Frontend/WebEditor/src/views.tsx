@@ -1,5 +1,12 @@
 /** @jsx svg */
-import { Point, SLabel as SLabelSchema, SNode as SNodeSchema, angleOfPoint, toDegrees } from "sprotty-protocol";
+import {
+    Point,
+    SLabel as SLabelSchema,
+    SNode as SNodeSchema,
+    angleOfPoint,
+    toDegrees,
+    SEdge as SEdgeSchema,
+} from "sprotty-protocol";
 import {
     svg,
     IView,
@@ -20,33 +27,33 @@ import { VNode } from "snabbdom";
 
 import "./views.css";
 
-export abstract class ExpandableView extends SNode {
+export abstract class ExpandableNode extends SNode {
     abstract expand(schema: SNodeSchema): void;
     abstract retract(schema: SNodeSchema): void;
+}
+
+export abstract class ExpandableEdge extends SEdge {
+    abstract expand(schema: SEdgeSchema): void;
+    abstract retract(schema: SEdgeSchema): void;
 }
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
 }
 
-export class RectangularDFDNode extends ExpandableView implements WithEditableLabel {
+export class RectangularDFDNode extends ExpandableNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
 
     text: string = "";
 
     override expand(schema: DFDNodeSchema): void {
-        const width = schema.size?.width ?? 0;
-        const height = schema.size?.height ?? 0;
-
-        console.log("expand", schema, width, height);
-
-        const label = {
-            type: "label",
-            text: schema.text,
-            id: schema.id + "-label",
-        } as SLabelSchema;
-
-        schema.children = [label];
+        schema.children = [
+            {
+                type: "label",
+                text: schema.text,
+                id: schema.id + "-label",
+            } as SLabelSchema,
+        ];
     }
 
     override retract(schema: DFDNodeSchema): void {
@@ -119,7 +126,32 @@ export class IONodeView implements IView {
     }
 }
 
-export class ArrowEdge extends SEdge implements WithEditableLabel {
+export interface ArrowEdgeSchema extends SEdgeSchema {
+    text: string;
+}
+
+export class ArrowEdge extends ExpandableEdge implements WithEditableLabel {
+    expand(schema: ArrowEdgeSchema): void {
+        schema.children = [
+            {
+                type: "label",
+                text: schema.text,
+                id: schema.id + "-label",
+                edgePlacement: {
+                    position: 0.5,
+                    side: "on",
+                    rotate: false,
+                },
+            } as SLabelSchema,
+        ];
+    }
+
+    retract(schema: ArrowEdgeSchema): void {
+        const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
+        schema.text = label?.text ?? "";
+        schema.children = [];
+    }
+
     get editableLabel() {
         const label = this.children.find((element) => element.type === "label");
         if (label && isEditableLabel(label)) {

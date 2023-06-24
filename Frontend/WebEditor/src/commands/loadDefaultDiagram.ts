@@ -9,7 +9,7 @@ import {
     SModelRoot,
     TYPES,
 } from "sprotty";
-import { Action, SGraph as SGraphSchema, SLabel as SLabelSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
+import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
 import { ExpanderModelSource } from "../modelSource";
 import { DFDNodeSchema } from "../views";
 
@@ -38,42 +38,18 @@ const defaultDiagramSchema: SGraphSchema = {
             position: { x: 325, y: 205 },
             size: { width: 70, height: 40 },
         } as DFDNodeSchema,
-
         {
             type: "edge:arrow",
             id: "edge01",
             sourceId: "storage01",
             targetId: "function01",
-            children: [
-                {
-                    type: "label",
-                    id: "label01",
-                    text: "Input",
-                    edgePlacement: {
-                        position: 0.5,
-                        side: "on",
-                        rotate: false,
-                    },
-                } as SLabelSchema,
-            ],
+            text: "Read",
         } as SEdgeSchema,
         {
             type: "edge:arrow",
             id: "edge02",
             sourceId: "function01",
             targetId: "input01",
-            children: [
-                {
-                    type: "label",
-                    id: "label02",
-                    text: "",
-                    edgePlacement: {
-                        position: 0.5,
-                        side: "on",
-                        rotate: false,
-                    },
-                } as SLabelSchema,
-            ],
         } as SEdgeSchema,
     ],
 };

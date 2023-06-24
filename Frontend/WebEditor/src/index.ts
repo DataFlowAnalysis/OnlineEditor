@@ -46,6 +46,7 @@ import {
 } from "sprotty";
 import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
+import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 import { ToolPaletteUI } from "./tools/toolPalette";
 import { ExpanderModelSource } from "./modelSource";
 
@@ -54,7 +55,6 @@ import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
-import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.

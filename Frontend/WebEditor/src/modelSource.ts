@@ -1,7 +1,11 @@
 import { injectable, multiInject } from "inversify";
 import { LocalModelSource, SModelElementRegistration, TYPES } from "sprotty";
-import { SModelRoot as SModelRootSchema, SModelElement as SModelElementSchema } from "sprotty-protocol";
-import { ExpandableView } from "./views";
+import {
+    SModelRoot as SModelRootSchema,
+    SModelElement as SModelElementSchema,
+    SEdge as SEdgeSchema,
+} from "sprotty-protocol";
+import { ExpandableEdge, ExpandableNode } from "./views";
 
 @injectable()
 export class ExpanderModelSource extends LocalModelSource {
@@ -20,11 +24,20 @@ export class ExpanderModelSource extends LocalModelSource {
         this.setModel(root);
     }
 
-    public processGraph(graphElement: SModelElementSchema, action: "expand" | "retract"): void {
+    public processGraph(graphElement: SModelElementSchema | SEdgeSchema, action: "expand" | "retract"): void {
         const registration = this.elementRegistrations.find((r) => r.type === graphElement.type);
         if (registration) {
             const impl = new registration.constr();
-            if (impl instanceof ExpandableView) {
+            if (impl instanceof ExpandableNode) {
+                if (action === "expand") {
+                    impl.expand(graphElement);
+                } else {
+                    impl.retract(graphElement);
+                }
+            }
+
+            if (impl instanceof ExpandableEdge && "sourceId" in graphElement) {
+                // sourceId is only present in edges and ensures that the graphElement is an edge (to calm the type system)
                 if (action === "expand") {
                     impl.expand(graphElement);
                 } else {
