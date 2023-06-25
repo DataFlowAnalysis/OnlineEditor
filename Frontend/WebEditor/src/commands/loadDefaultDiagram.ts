@@ -12,6 +12,11 @@ import {
 import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
 import { ExpanderModelSource } from "../modelSource";
 import { DFDNodeSchema } from "../views";
+import { generateRandomSprottyId } from "../utils";
+
+const storageId = generateRandomSprottyId();
+const functionId = generateRandomSprottyId();
+const outputId = generateRandomSprottyId();
 
 const defaultDiagramSchema: SGraphSchema = {
     type: "graph",
@@ -19,37 +24,37 @@ const defaultDiagramSchema: SGraphSchema = {
     children: [
         {
             type: "node:storage",
-            id: "storage01",
+            id: storageId,
             text: "Database",
             position: { x: 100, y: 100 },
             size: { width: 60, height: 30 },
         } as DFDNodeSchema,
         {
             type: "node:function",
-            id: "function01",
+            id: functionId,
             text: "System",
             position: { x: 200, y: 200 },
             size: { width: 50, height: 50 },
         } as DFDNodeSchema,
         {
             type: "node:input-output",
-            id: "input01",
+            id: outputId,
             text: "Customer",
             position: { x: 325, y: 205 },
             size: { width: 70, height: 40 },
         } as DFDNodeSchema,
         {
             type: "edge:arrow",
-            id: "edge01",
-            sourceId: "storage01",
-            targetId: "function01",
+            id: generateRandomSprottyId(),
+            sourceId: storageId,
+            targetId: functionId,
             text: "Read",
         } as SEdgeSchema,
         {
             type: "edge:arrow",
-            id: "edge02",
-            sourceId: "function01",
-            targetId: "input01",
+            id: generateRandomSprottyId(),
+            sourceId: functionId,
+            targetId: outputId,
         } as SEdgeSchema,
     ],
 };
