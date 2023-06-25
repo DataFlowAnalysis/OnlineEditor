@@ -8,6 +8,7 @@ import {
     isConnectable,
     SEdge,
     EnableDefaultToolsAction,
+    SChildElement,
 } from "sprotty";
 import { Action, CreateElementAction, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
@@ -29,10 +30,29 @@ export class EdgeCreationToolMouseListener extends MouseListener {
     override mouseDown(target: SModelElement, _event: MouseEvent): Action[] {
         // First click selects the source (if valid source element)
         // Second click selects the target and creates the edge (if valid target element)
+        const element = this.findConnectableElement(target);
+        if (!element) return [];
+
         if (this.source === undefined) {
-            return this.sourceClick(target);
+            return this.sourceClick(element);
         } else {
-            return this.targetClick(target);
+            return this.targetClick(element);
+        }
+    }
+
+    /**
+     * A graph node may contain other elements (e.g. labels).
+     * The user may click on this but they want to add a edge to the parent node.
+     * To find the parent node that is intended we recursively go up the parent chain until we find a connectable element.
+     * If none is found we return undefined. In this case the whole element is not connectable.
+     */
+    private findConnectableElement(element: SModelElement): SModelElement | undefined {
+        if (isConnectable(element)) {
+            return element;
+        } else if (element instanceof SChildElement) {
+            return this.findConnectableElement(element.parent);
+        } else {
+            return undefined;
         }
     }
 
