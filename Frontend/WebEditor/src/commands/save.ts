@@ -1,7 +1,8 @@
 import { inject, injectable } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, SModelRoot, TYPES } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { constructorInject } from "../utils";
+import { ExpanderModelSource } from "../modelSource";
 
 export interface SaveDiagramAction extends Action {
     kind: typeof SaveDiagramAction.KIND;
@@ -22,7 +23,7 @@ export namespace SaveDiagramAction {
 export class SaveDiagramCommand extends Command {
     static readonly KIND = SaveDiagramAction.KIND;
     @inject(TYPES.ModelSource)
-    private modelSource: LocalModelSource = new LocalModelSource();
+    private modelSource: ExpanderModelSource = new ExpanderModelSource();
 
     constructor(@constructorInject(TYPES.Action) private action: SaveDiagramAction) {
         super();

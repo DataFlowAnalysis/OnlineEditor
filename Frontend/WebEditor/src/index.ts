@@ -121,17 +121,26 @@ container.load(
     commandsModule,
 );
 
-// Load the graph into the model source and display it inside the DOM.
-// Unless overwritten this will load the graph into the DOM element with the id "sprotty".
+// Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
+const modelSource = container.get<ExpanderModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 
-// Show the tool palette after startup has completed.
-dispatcher.dispatch(
-    SetUIExtensionVisibilityAction.create({
-        extensionId: ToolPaletteUI.ID,
-        visible: true,
-    }),
-);
+// Load the initial root model
+modelSource
+    .setModel({
+        type: "graph",
+        id: "root",
+        children: [],
+    })
+    .then(() => {
+        // Show the tool palette after startup has completed.
+        dispatcher.dispatch(
+            SetUIExtensionVisibilityAction.create({
+                extensionId: ToolPaletteUI.ID,
+                visible: true,
+            }),
+        );
 
-// Load the default diagram
-dispatcher.dispatch(LoadDefaultDiagramAction.create());
+        // Load the default diagram
+        dispatcher.dispatch(LoadDefaultDiagramAction.create());
+    });
