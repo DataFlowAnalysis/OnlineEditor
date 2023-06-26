@@ -26,27 +26,18 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 
 import "./views.css";
-
-export abstract class ExpandableNode extends SNode {
-    abstract expand(schema: SNodeSchema): void;
-    abstract retract(schema: SNodeSchema): void;
-}
-
-export abstract class ExpandableEdge extends SEdge {
-    abstract expand(schema: SEdgeSchema): void;
-    abstract retract(schema: SEdgeSchema): void;
-}
+import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
 }
 
-export class RectangularDFDNode extends ExpandableNode implements WithEditableLabel {
+export class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
 
     text: string = "";
 
-    override expand(schema: DFDNodeSchema): void {
+    override setChildren(schema: DFDNodeSchema): void {
         schema.children = [
             {
                 type: "label",
@@ -56,7 +47,7 @@ export class RectangularDFDNode extends ExpandableNode implements WithEditableLa
         ];
     }
 
-    override retract(schema: DFDNodeSchema): void {
+    override removeChildren(schema: DFDNodeSchema): void {
         const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];
@@ -131,8 +122,8 @@ export interface ArrowEdgeSchema extends SEdgeSchema {
     text: string;
 }
 
-export class ArrowEdge extends ExpandableEdge implements WithEditableLabel {
-    expand(schema: ArrowEdgeSchema): void {
+export class ArrowEdge extends DynamicChildrenEdge implements WithEditableLabel {
+    setChildren(schema: ArrowEdgeSchema): void {
         schema.children = [
             {
                 type: "label",
@@ -147,7 +138,7 @@ export class ArrowEdge extends ExpandableEdge implements WithEditableLabel {
         ];
     }
 
-    retract(schema: ArrowEdgeSchema): void {
+    removeChildren(schema: ArrowEdgeSchema): void {
         const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];

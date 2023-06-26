@@ -1,6 +1,6 @@
 import { Command, CommandExecutionContext, EMPTY_ROOT, ILogger, NullLogger, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
-import { ExpanderModelSource } from "../modelSource";
+import { DynamicChildrenModelSource } from "../dynamicChildren";
 import { inject } from "inversify";
 
 export interface LoadDiagramAction extends Action {
@@ -22,7 +22,7 @@ export class LoadDiagramCommand extends Command {
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
     @inject(TYPES.ModelSource)
-    private readonly modelSource: ExpanderModelSource = new ExpanderModelSource();
+    private readonly modelSource: DynamicChildrenModelSource = new DynamicChildrenModelSource();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;

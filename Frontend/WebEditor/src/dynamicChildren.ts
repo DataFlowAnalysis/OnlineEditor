@@ -1,14 +1,24 @@
 import { injectable, multiInject } from "inversify";
-import { LocalModelSource, SModelElementRegistration, TYPES } from "sprotty";
+import { LocalModelSource, SModelElementRegistration, SNode, SEdge, TYPES } from "sprotty";
 import {
     SModelRoot as SModelRootSchema,
     SModelElement as SModelElementSchema,
     SEdge as SEdgeSchema,
+    SNode as SNodeSchema,
 } from "sprotty-protocol";
-import { ExpandableEdge, ExpandableNode } from "./views";
+
+export abstract class DynamicChildrenNode extends SNode {
+    abstract setChildren(schema: SNodeSchema): void;
+    abstract removeChildren(schema: SNodeSchema): void;
+}
+
+export abstract class DynamicChildrenEdge extends SEdge {
+    abstract setChildren(schema: SEdgeSchema): void;
+    abstract removeChildren(schema: SEdgeSchema): void;
+}
 
 @injectable()
-export class ExpanderModelSource extends LocalModelSource {
+export class DynamicChildrenModelSource extends LocalModelSource {
     @multiInject(TYPES.SModelElementRegistration)
     private readonly elementRegistrations: SModelElementRegistration[] = [];
 
@@ -28,20 +38,20 @@ export class ExpanderModelSource extends LocalModelSource {
         const registration = this.elementRegistrations.find((r) => r.type === graphElement.type);
         if (registration) {
             const impl = new registration.constr();
-            if (impl instanceof ExpandableNode) {
+            if (impl instanceof DynamicChildrenNode) {
                 if (action === "expand") {
-                    impl.expand(graphElement);
+                    impl.setChildren(graphElement);
                 } else {
-                    impl.retract(graphElement);
+                    impl.removeChildren(graphElement);
                 }
             }
 
-            if (impl instanceof ExpandableEdge && "sourceId" in graphElement) {
+            if (impl instanceof DynamicChildrenEdge && "sourceId" in graphElement) {
                 // sourceId is only present in edges and ensures that the graphElement is an edge (to calm the type system)
                 if (action === "expand") {
-                    impl.expand(graphElement);
+                    impl.setChildren(graphElement);
                 } else {
-                    impl.retract(graphElement);
+                    impl.removeChildren(graphElement);
                 }
             }
         }

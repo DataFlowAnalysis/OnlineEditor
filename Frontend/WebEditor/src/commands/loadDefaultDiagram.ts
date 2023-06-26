@@ -10,7 +10,7 @@ import {
     TYPES,
 } from "sprotty";
 import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
-import { ExpanderModelSource } from "../modelSource";
+import { DynamicChildrenModelSource } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
 
@@ -78,7 +78,7 @@ export class LoadDefaultDiagramCommand extends Command {
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
     @inject(TYPES.ModelSource)
-    private readonly modelSource: ExpanderModelSource = new ExpanderModelSource();
+    private readonly modelSource: DynamicChildrenModelSource = new DynamicChildrenModelSource();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;

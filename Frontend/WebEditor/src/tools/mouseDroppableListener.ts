@@ -3,7 +3,7 @@ import { MouseListener, TYPES, Tool, MouseTool } from "sprotty";
 import { CreateElementAction, SNode as SNodeSchema } from "sprotty-protocol";
 import { SModelElement, Action } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
-import { ExpanderModelSource } from "../modelSource";
+import { DynamicChildrenModelSource } from "../dynamicChildren";
 
 /**
  * When dragging a node from the new element row from the top of the page to
@@ -13,7 +13,7 @@ import { ExpanderModelSource } from "../modelSource";
  */
 @injectable()
 class MouseDroppableListener extends MouseListener {
-    constructor(@constructorInject(TYPES.ModelSource) protected modelSource: ExpanderModelSource) {
+    constructor(@constructorInject(TYPES.ModelSource) protected modelSource: DynamicChildrenModelSource) {
         super();
     }
 

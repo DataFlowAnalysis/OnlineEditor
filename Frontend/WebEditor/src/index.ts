@@ -48,7 +48,7 @@ import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 import { ToolPaletteUI } from "./tools/toolPalette";
-import { ExpanderModelSource } from "./modelSource";
+import { DynamicChildrenModelSource } from "./dynamicChildren";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
@@ -59,7 +59,7 @@ import "./page.css";
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
 const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(TYPES.ModelSource).to(ExpanderModelSource).inSingletonScope();
+    bind(TYPES.ModelSource).to(DynamicChildrenModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
@@ -122,7 +122,7 @@ container.load(
 );
 
 // Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
-const modelSource = container.get<ExpanderModelSource>(TYPES.ModelSource);
+const modelSource = container.get<DynamicChildrenModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 
 // Load the initial root model
