@@ -10,7 +10,7 @@ import {
     TYPES,
 } from "sprotty";
 import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
-import { DynamicChildrenModelSource } from "../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
 
@@ -77,8 +77,8 @@ export class LoadDefaultDiagramCommand extends Command {
     static readonly KIND = LoadDefaultDiagramAction.KIND;
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
-    @inject(TYPES.ModelSource)
-    private readonly modelSource: DynamicChildrenModelSource = new DynamicChildrenModelSource();
+    @inject(DynamicChildrenProcessor)
+    private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -87,7 +87,7 @@ export class LoadDefaultDiagramCommand extends Command {
         this.oldRoot = context.root;
 
         const graphCopy = JSON.parse(JSON.stringify(defaultDiagramSchema));
-        this.modelSource.processGraph(graphCopy, "expand");
+        this.dynamicChildrenProcessor.processGraphChildren(graphCopy, "set");
         this.newRoot = context.modelFactory.createRoot(graphCopy);
 
         this.logger.info(this, "Default Model loaded successfully");

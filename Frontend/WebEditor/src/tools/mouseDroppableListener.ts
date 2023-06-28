@@ -1,9 +1,9 @@
 import { ContainerModule, injectable } from "inversify";
-import { MouseListener, TYPES, Tool, MouseTool } from "sprotty";
+import { MouseListener, TYPES, Tool, MouseTool, LocalModelSource } from "sprotty";
 import { CreateElementAction, SNode as SNodeSchema } from "sprotty-protocol";
 import { SModelElement, Action } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
-import { DynamicChildrenModelSource } from "../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dynamicChildren";
 
 /**
  * When dragging a node from the new element row from the top of the page to
@@ -13,7 +13,10 @@ import { DynamicChildrenModelSource } from "../dynamicChildren";
  */
 @injectable()
 class MouseDroppableListener extends MouseListener {
-    constructor(@constructorInject(TYPES.ModelSource) protected modelSource: DynamicChildrenModelSource) {
+    constructor(
+        @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
+        @constructorInject(DynamicChildrenProcessor) protected dynamicChildrenProcessor: DynamicChildrenProcessor,
+    ) {
         super();
     }
 
@@ -54,7 +57,7 @@ class MouseDroppableListener extends MouseListener {
                 };
 
                 // Add children of this element to the diagram.
-                this.modelSource.processGraph(nodeData, "expand");
+                this.dynamicChildrenProcessor.processGraphChildren(nodeData, "set");
 
                 // Add the node to the diagram.
                 return CreateElementAction.create(nodeData, {

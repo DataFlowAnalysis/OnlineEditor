@@ -1,6 +1,6 @@
 import { Command, CommandExecutionContext, EMPTY_ROOT, ILogger, NullLogger, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
-import { DynamicChildrenModelSource } from "../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { inject } from "inversify";
 
 export interface LoadDiagramAction extends Action {
@@ -21,8 +21,8 @@ export class LoadDiagramCommand extends Command {
 
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
-    @inject(TYPES.ModelSource)
-    private readonly modelSource: DynamicChildrenModelSource = new DynamicChildrenModelSource();
+    @inject(DynamicChildrenProcessor)
+    private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -84,7 +84,7 @@ export class LoadDiagramCommand extends Command {
             }
 
             this.preprocessModelSchema(newSchema);
-            this.modelSource.processGraph(newSchema, "expand");
+            this.dynamicChildrenProcessor.processGraphChildren(newSchema, "set");
             this.newRoot = context.modelFactory.createRoot(newSchema);
 
             this.logger.info(this, "Model loaded successfully");

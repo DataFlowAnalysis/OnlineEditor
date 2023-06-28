@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { Command, CommandExecutionContext, SModelRoot, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { constructorInject } from "../utils";
-import { DynamicChildrenModelSource } from "../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dynamicChildren";
 
 export interface SaveDiagramAction extends Action {
     kind: typeof SaveDiagramAction.KIND;
@@ -23,15 +23,23 @@ export namespace SaveDiagramAction {
 export class SaveDiagramCommand extends Command {
     static readonly KIND = SaveDiagramAction.KIND;
     @inject(TYPES.ModelSource)
-    private modelSource: DynamicChildrenModelSource = new DynamicChildrenModelSource();
+    private modelSource: LocalModelSource = new LocalModelSource();
+    @inject(DynamicChildrenProcessor)
+    private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
 
     constructor(@constructorInject(TYPES.Action) private action: SaveDiagramAction) {
         super();
     }
 
     execute(context: CommandExecutionContext): SModelRoot {
+        // Convert the model to JSON
+        // Do a copy because we're going to modify it
+        const modelCopy = JSON.parse(JSON.stringify(this.modelSource.model));
+        // Remove element children that are implementation detail
+        this.dynamicChildrenProcessor.processGraphChildren(modelCopy, "remove");
+
         // Export the diagram as a JSON data URL.
-        const diagramJson = JSON.stringify(this.modelSource.model, undefined, 4);
+        const diagramJson = JSON.stringify(modelCopy, undefined, 4);
         const jsonBlob = new Blob([diagramJson], { type: "application/json" });
         const jsonUrl = URL.createObjectURL(jsonBlob);
 
@@ -51,7 +59,7 @@ export class SaveDiagramCommand extends Command {
         return context.root;
     }
 
-    // Saving cannot be undone and should not be redone.
+    // Saving cannot be meaningfully undone/redone
 
     undo(context: CommandExecutionContext): SModelRoot {
         return context.root;

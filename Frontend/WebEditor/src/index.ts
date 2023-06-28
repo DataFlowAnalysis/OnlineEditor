@@ -16,6 +16,7 @@ import {
     CenterGridSnapper,
     ConsoleLogger,
     CreateElementCommand,
+    LocalModelSource,
     LogLevel,
     SGraph,
     SGraphView,
@@ -48,21 +49,22 @@ import { toolsModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 import { ToolPaletteUI } from "./tools/toolPalette";
-import { DynamicChildrenModelSource } from "./dynamicChildren";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
+import { DynamicChildrenProcessor } from "./dynamicChildren";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
 const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(TYPES.ModelSource).to(DynamicChildrenModelSource).inSingletonScope();
+    bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
+    bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
 
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
@@ -121,11 +123,11 @@ container.load(
     commandsModule,
 );
 
-// Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
-const modelSource = container.get<DynamicChildrenModelSource>(TYPES.ModelSource);
+const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 
 // Load the initial root model
+// Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
 modelSource
     .setModel({
         type: "graph",
