@@ -1,5 +1,14 @@
 import { ContainerModule, injectable } from "inversify";
-import { DeleteElementAction, KeyListener, KeyTool, SModelElement, Tool, isDeletable, isSelectable } from "sprotty";
+import {
+    CommitModelAction,
+    DeleteElementAction,
+    KeyListener,
+    KeyTool,
+    SModelElement,
+    Tool,
+    isDeletable,
+    isSelectable,
+} from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { EDITOR_TYPES, constructorInject } from "../utils";
@@ -18,7 +27,7 @@ export class DeleteKeyListener extends KeyListener {
                     .map((e) => e.id),
             );
             if (deleteElementIds.length > 0) {
-                return [DeleteElementAction.create(deleteElementIds)];
+                return [DeleteElementAction.create(deleteElementIds), CommitModelAction.create()];
             }
         }
         return [];

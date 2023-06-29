@@ -9,6 +9,7 @@ import {
     SEdge,
     EnableDefaultToolsAction,
     SChildElement,
+    CommitModelAction,
 } from "sprotty";
 import { Action, CreateElementAction, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
@@ -93,6 +94,7 @@ export class EdgeCreationToolMouseListener extends MouseListener {
                 CreateElementAction.create(edge, {
                     containerId: this.source.root.id,
                 }),
+                CommitModelAction.create(),
             ];
         }
         return [];

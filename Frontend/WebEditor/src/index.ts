@@ -14,6 +14,7 @@ import { Container, ContainerModule } from "inversify";
 import {
     ActionDispatcher,
     CenterGridSnapper,
+    CommitModelAction,
     ConsoleLogger,
     CreateElementCommand,
     LocalModelSource,
@@ -143,6 +144,7 @@ modelSource
             }),
         );
 
-        // Load the default diagram
+        // Load the default diagram and commit it to the model source.
         dispatcher.dispatch(LoadDefaultDiagramAction.create());
+        dispatcher.dispatch(CommitModelAction.create());
     });
