@@ -12,13 +12,14 @@ import {
 import { FitToScreenAction, Point } from "sprotty-protocol";
 import { LogHelloAction } from "../commands/log-hello";
 import { EdgeCreationTool } from "./edgeCreationTool";
+import { SaveDiagramAction } from "../commands/save";
+import { LoadDiagramAction } from "../commands/load";
+import { LoadDefaultDiagramAction } from "../commands/loadDefaultDiagram";
+import { FIT_TO_SCREEN_PADDING } from "../utils";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
-import { SaveDiagramAction } from "../commands/save";
-import { LoadDiagramAction } from "../commands/load";
-import { LoadDefaultDiagramAction } from "../commands/loadDefaultDiagram";
 
 /**
  * Provides possible actions for the command palette.
@@ -33,24 +34,17 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     ): Promise<LabeledAction[]> {
         const fitToScreenAction = FitToScreenAction.create(
             root.children.map((child) => child.id), // Fit screen to all children
-            { padding: 40 },
+            { padding: FIT_TO_SCREEN_PADDING },
         );
+        const commitAction = CommitModelAction.create();
 
         return [
             new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create("diagram.json")], "save"),
-            new LabeledAction(
-                "Load diagram from JSON",
-                [LoadDiagramAction.create(), CommitModelAction.create()],
-                "go-to-file",
-            ),
+            new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
-            new LabeledAction(
-                "Load default diagram",
-                [LoadDefaultDiagramAction.create(), CommitModelAction.create()],
-                "clear-all",
-            ),
+            new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
             // TODO: this action is only used for demonstration purposes including the LogHelloAction. This should be removed
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
         ];

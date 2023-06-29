@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import {
+    ActionDispatcher,
     Command,
     CommandExecutionContext,
     CommandReturn,
@@ -13,6 +14,7 @@ import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-pr
 import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
+import { fitToScreenAfterLoad } from "./load";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();
@@ -79,6 +81,8 @@ export class LoadDefaultDiagramCommand extends Command {
     private readonly logger: ILogger = new NullLogger();
     @inject(DynamicChildrenProcessor)
     private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
+    @inject(TYPES.IActionDispatcher)
+    private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -91,6 +95,7 @@ export class LoadDefaultDiagramCommand extends Command {
         this.newRoot = context.modelFactory.createRoot(graphCopy);
 
         this.logger.info(this, "Default Model loaded successfully");
+        fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
         return this.newRoot;
     }
 
