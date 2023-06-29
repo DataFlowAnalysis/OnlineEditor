@@ -11,6 +11,8 @@ export const EDITOR_TYPES = {
     ITool: Symbol("ITool"),
 };
 
+export const FIT_TO_SCREEN_PADDING = 50;
+
 /**
  * A wrapper decorator for inversify's `inject` decorator.
  * This is necessary because with TypeScript 5.x a decorator must accept targetKey as an optional parameter

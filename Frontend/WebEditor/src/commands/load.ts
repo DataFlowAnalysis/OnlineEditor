@@ -1,7 +1,17 @@
-import { Command, CommandExecutionContext, EMPTY_ROOT, ILogger, NullLogger, SModelRoot, TYPES } from "sprotty";
-import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
+import {
+    ActionDispatcher,
+    Command,
+    CommandExecutionContext,
+    EMPTY_ROOT,
+    ILogger,
+    NullLogger,
+    SModelRoot,
+    TYPES,
+} from "sprotty";
+import { Action, FitToScreenAction, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { inject } from "inversify";
+import { FIT_TO_SCREEN_PADDING } from "../utils";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -23,6 +33,8 @@ export class LoadDiagramCommand extends Command {
     private readonly logger: ILogger = new NullLogger();
     @inject(DynamicChildrenProcessor)
     private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
+    @inject(TYPES.IActionDispatcher)
+    private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -88,6 +100,7 @@ export class LoadDiagramCommand extends Command {
             this.newRoot = context.modelFactory.createRoot(newSchema);
 
             this.logger.info(this, "Model loaded successfully");
+            fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
@@ -127,4 +140,28 @@ export class LoadDiagramCommand extends Command {
     redo(context: CommandExecutionContext): SModelRoot {
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
+}
+
+/**
+ * Utility function to fit the diagram to the screen after loading a model inside a command.
+ * Captures all element ids and dispatches a FitToScreenAction in the next event loop tick.
+ */
+export function fitToScreenAfterLoad(newRoot: SModelRoot | undefined, actionDispatcher: ActionDispatcher): void {
+    // After loading a model the InitializeCanvasBoundsCommand is automatically dispatched after.
+    // We can only fit the diagram to the screen after this command has finished.
+    // Because of this we need to dispatch our command after the load command has finished.
+    // To do this we use a 0ms timeout to schedule it in the next tick of the browser event loop.
+
+    // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 5ms timeout.
+    // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
+    setTimeout(() => {
+        if (newRoot) {
+            const elements = newRoot?.children.map((child) => child.id);
+            const fitToScreenAction = FitToScreenAction.create(elements, {
+                animate: false,
+                padding: FIT_TO_SCREEN_PADDING,
+            });
+            actionDispatcher.dispatch(fitToScreenAction);
+        }
+    }, 5);
 }
