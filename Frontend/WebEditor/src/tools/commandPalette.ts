@@ -7,6 +7,7 @@ import {
     TYPES,
     commandPaletteModule,
     EnableToolsAction,
+    CommitModelAction,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
 import { LogHelloAction } from "../commands/log-hello";
@@ -39,9 +40,17 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create("diagram.json")], "save"),
-            new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create()], "go-to-file"),
+            new LabeledAction(
+                "Load diagram from JSON",
+                [LoadDiagramAction.create(), CommitModelAction.create()],
+                "go-to-file",
+            ),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
-            new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create()], "clear-all"),
+            new LabeledAction(
+                "Load default diagram",
+                [LoadDefaultDiagramAction.create(), CommitModelAction.create()],
+                "clear-all",
+            ),
             // TODO: this action is only used for demonstration purposes including the LogHelloAction. This should be removed
             new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
         ];

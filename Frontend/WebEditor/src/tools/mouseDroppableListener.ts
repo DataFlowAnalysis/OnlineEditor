@@ -1,5 +1,5 @@
 import { ContainerModule, injectable } from "inversify";
-import { MouseListener, TYPES, Tool, MouseTool, LocalModelSource } from "sprotty";
+import { MouseListener, TYPES, Tool, MouseTool, LocalModelSource, CommitModelAction } from "sprotty";
 import { CreateElementAction, SNode as SNodeSchema } from "sprotty-protocol";
 import { SModelElement, Action } from "sprotty-protocol";
 import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
@@ -36,34 +36,37 @@ class MouseDroppableListener extends MouseListener {
             return [];
         }
 
+        const createElementPromise = this.modelSource.getViewport().then((viewport) => {
+            nodeData.id = generateRandomSprottyId();
+            if (!nodeData.size) {
+                // Default sizes for nodes that don't have a size set.
+                nodeData.size = {
+                    width: 10,
+                    height: 10,
+                };
+            }
+
+            // Adjust the position of the node so that it is centered on the cursor.
+            const adjust = (offset: number, size: number) => {
+                return offset / viewport.zoom - size / 2;
+            };
+            nodeData.position = {
+                x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
+                y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
+            };
+
+            // Add children of this element to the diagram.
+            this.dynamicChildrenProcessor.processGraphChildren(nodeData, "set");
+
+            // Add the node to the diagram.
+            return CreateElementAction.create(nodeData, {
+                containerId: this.modelSource.model.id,
+            });
+        });
+
         return [
-            this.modelSource.getViewport().then((viewport) => {
-                nodeData.id = generateRandomSprottyId();
-                if (!nodeData.size) {
-                    // Default sizes for nodes that don't have a size set.
-                    nodeData.size = {
-                        width: 10,
-                        height: 10,
-                    };
-                }
-
-                // Adjust the position of the node so that it is centered on the cursor.
-                const adjust = (offset: number, size: number) => {
-                    return offset / viewport.zoom - size / 2;
-                };
-                nodeData.position = {
-                    x: viewport.scroll.x + adjust(event.offsetX, nodeData.size.width),
-                    y: viewport.scroll.y + adjust(event.offsetY, nodeData.size.height),
-                };
-
-                // Add children of this element to the diagram.
-                this.dynamicChildrenProcessor.processGraphChildren(nodeData, "set");
-
-                // Add the node to the diagram.
-                return CreateElementAction.create(nodeData, {
-                    containerId: this.modelSource.model.id,
-                });
-            }),
+            createElementPromise, // Create element
+            createElementPromise.then(() => CommitModelAction.create()), // And commit it to the ModelSource
         ];
     }
 }
