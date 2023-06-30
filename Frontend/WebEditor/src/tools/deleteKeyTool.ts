@@ -8,6 +8,8 @@ import {
     Tool,
     isDeletable,
     isSelectable,
+    SConnectableElement,
+    SRoutableElement,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
@@ -19,15 +21,30 @@ import { EDITOR_TYPES, constructorInject } from "../utils";
 export class DeleteKeyListener extends KeyListener {
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, "Delete")) {
-            const deleteElementIds = Array.from(
-                element.root.index
+            const index = element.root.index;
+            const selectedElements = Array.from(
+                index
                     .all()
                     .filter((e) => isDeletable(e) && isSelectable(e) && e.selected)
-                    .filter((e) => e.id !== e.root.id) // Deleting the model root would be a bad idea
-                    .map((e) => e.id),
+                    .filter((e) => e.id !== e.root.id), // Deleting the model root would be a bad idea
             );
+
+            const deleteElementIds = selectedElements.flatMap((e) => {
+                if (e instanceof SConnectableElement) {
+                    // This element can be connected to other elements, so we need to delete all edges connected to it as well.
+                    // Otherwise the edges would be left dangling in the graph.
+                    const getEdgeId = (edge: SRoutableElement) => edge.id;
+                    return [...e.incomingEdges.map(getEdgeId), ...e.outgoingEdges.map(getEdgeId), e.id];
+                } else {
+                    // This element cannot be connected to anything, so we can just delete it
+                    return [e.id];
+                }
+            });
+
             if (deleteElementIds.length > 0) {
-                return [DeleteElementAction.create(deleteElementIds), CommitModelAction.create()];
+                const uniqueIds = [...new Set(deleteElementIds)];
+
+                return [DeleteElementAction.create(uniqueIds), CommitModelAction.create()];
             }
         }
         return [];
