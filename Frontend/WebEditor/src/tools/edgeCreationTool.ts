@@ -1,6 +1,5 @@
 import { ContainerModule, injectable } from "inversify";
 import {
-    AnchorComputerRegistry,
     MouseListener,
     MouseTool,
     Tool,
@@ -121,7 +120,6 @@ export class EdgeCreationTool implements Tool {
     static ID = "edge-creation-tool";
 
     constructor(
-        @constructorInject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry,
         @constructorInject(MouseTool) protected mouseTool: MouseTool,
         @constructorInject(EdgeCreationToolMouseListener)
         protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener,

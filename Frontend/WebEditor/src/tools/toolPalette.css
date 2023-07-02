@@ -2,17 +2,25 @@
     position: absolute;
     margin-top: 40px;
     right: 40px;
-    user-select: none;
-    background-color: var(--color-primary);
+    padding: 3px;
     border-radius: 10px;
-    padding: 5px;
+    background-color: var(--color-primary);
+
+    /* Make text of the elements non-selectable */
+    -webkit-user-select: none; /* Safari only supports user select using the -webkit prefix */
+    user-select: none;
+
+    /* grid layout (two tools per row) */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
 .tool-palette .tool {
     width: 32px;
     height: 32px;
-    padding: 2px;
     border-radius: 5px;
+    padding: 2px;
+    margin: 2px;
 }
 
 .tool-palette .tool svg line {
@@ -20,6 +28,20 @@
 }
 .tool-palette .tool svg marker {
     fill: var(--color-foreground);
+}
+
+.tool-palette .tool svg rect,
+.tool-palette .tool svg circle {
+    stroke: var(--color-foreground);
+    fill: transparent;
+}
+
+.tool-palette .tool svg text {
+    fill: var(--color-foreground);
+    font-size: 10px;
+    font-family: sans-serif;
+    text-anchor: middle;
+    dominant-baseline: middle;
 }
 
 .tool-palette .tool:hover {
