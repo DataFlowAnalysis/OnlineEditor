@@ -48,65 +48,69 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     protected initializeContents(containerElement: HTMLElement): void {
         this.addTool(
             containerElement,
+            NodeCreationTool.ID,
+            "Storage node",
             `
-            <line x1="10%" y1="20%" x2="90%" y2="20%" stroke-width="1" />
-            <line x1="10%" y1="80%" x2="90%" y2="80%" stroke-width="1" />
-            <text x="50%" y="53%">Sto</text>
-        `,
+                <line x1="10%" y1="20%" x2="90%" y2="20%" stroke-width="1" />
+                <line x1="10%" y1="80%" x2="90%" y2="80%" stroke-width="1" />
+                <text x="50%" y="53%">Sto</text>
+            `,
             () =>
                 this.nodeCreationToolMouseListener.setNodeMetadata({
                     type: "node:storage",
                     height: 30,
                     width: 60,
                 }),
-            NodeCreationTool.ID,
         );
 
         this.addTool(
             containerElement,
+            NodeCreationTool.ID,
+            "Input/Output node",
             `
-            <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
-            <text x="50%" y="53%">IO</text>
-        `,
+                <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
+                <text x="50%" y="53%">IO</text>
+            `,
             () =>
                 this.nodeCreationToolMouseListener.setNodeMetadata({
                     type: "node:input-output",
                     height: 40,
                     width: 70,
                 }),
-            NodeCreationTool.ID,
         );
 
         this.addTool(
             containerElement,
+            NodeCreationTool.ID,
+            "Function node",
             `
-            <circle cx="50%" cy="50%" r="40%" stroke-width="1" />
-            <text x="50%" y="53%">Fun</text>
-        `,
+                <circle cx="50%" cy="50%" r="40%" stroke-width="1" />
+                <text x="50%" y="53%">Fun</text>
+            `,
             () =>
                 this.nodeCreationToolMouseListener.setNodeMetadata({
                     type: "node:function",
                     height: 50,
                     width: 50,
                 }),
-            NodeCreationTool.ID,
         );
 
         this.addTool(
             containerElement,
-            `
-        <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7"
-                    refX="0" refY="2" orient="auto">
-                <polygon points="0 0, 4 2, 0 4" />
-            </marker>
-        </defs>
-
-        <line x1="10%" y1="10%" x2="75%" y2="75%"
-                stroke-width="2" marker-end="url(#arrowhead)" />
-        `,
-            () => {},
             EdgeCreationTool.ID,
+            "Edge with an arrowhead",
+            `
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                            refX="0" refY="2" orient="auto">
+                        <polygon points="0 0, 4 2, 0 4" />
+                    </marker>
+                </defs>
+
+                <line x1="10%" y1="10%" x2="75%" y2="75%"
+                        stroke-width="2" marker-end="url(#arrowhead)" />
+            `,
+            () => {},
         );
 
         containerElement.classList.add("tool-palette");
@@ -116,15 +120,17 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * Utility function that adds a tool to the tool palette.
      *
      * @param container the base container html element of the tool palette
+     * @param toolId the id of the sprotty tool that should be activated when the tool is clicked
+     * @param name the name of the tool that is displayed as a alt text/tooltip
      * @param svgCode code for the svg logo of the tool. Will be placed in a 32x32 svg element
      * @param clicked callback that is called when the tool is clicked. Can be used to configure the calling tool
-     * @param toolId the id of the sprotty tool that should be activated when the tool is clicked
      */
-    private addTool(container: HTMLElement, svgCode: string, clicked: () => void, toolId: string): void {
+    private addTool(container: HTMLElement, toolId: string, name: string, svgCode: string, clicked: () => void): void {
         const toolElement = document.createElement("div");
         toolElement.classList.add("tool");
         toolElement.innerHTML = `
         <svg width="32" height="32">
+            <title>${name}</title>
             ${svgCode}
         </svg>`;
 
