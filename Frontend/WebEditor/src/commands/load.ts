@@ -152,7 +152,7 @@ export function fitToScreenAfterLoad(newRoot: SModelRoot | undefined, actionDisp
     // Because of this we need to dispatch our command after the load command has finished.
     // To do this we use a 0ms timeout to schedule it in the next tick of the browser event loop.
 
-    // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 5ms timeout.
+    // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 10ms timeout.
     // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
     setTimeout(() => {
         if (newRoot) {
@@ -163,5 +163,5 @@ export function fitToScreenAfterLoad(newRoot: SModelRoot | undefined, actionDisp
             });
             actionDispatcher.dispatch(fitToScreenAction);
         }
-    }, 5);
+    }, 10);
 }

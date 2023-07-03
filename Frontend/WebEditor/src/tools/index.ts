@@ -1,7 +1,6 @@
 import { commandPaletteModules } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
 import { edgeCreationTool } from "./edgeCreationTool";
-import { mouseDroppableTool } from "./mouseDroppableListener";
 import { nodeCreationToolModule } from "./nodeCreationTool";
 import { toolManager } from "./toolManager";
 import { toolPaletteModule } from "./toolPalette";
@@ -15,6 +14,5 @@ export const toolsModules = [
     edgeCreationTool,
     nodeCreationToolModule,
     deleteKeyDeleteTool,
-    mouseDroppableTool,
     toolPaletteModule,
 ];
