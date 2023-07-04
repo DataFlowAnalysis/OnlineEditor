@@ -11,7 +11,7 @@ export const EDITOR_TYPES = {
     ITool: Symbol("ITool"),
 };
 
-export const FIT_TO_SCREEN_PADDING = 50;
+export const FIT_TO_SCREEN_PADDING = 75;
 
 /**
  * A wrapper decorator for inversify's `inject` decorator.
