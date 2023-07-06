@@ -6,6 +6,7 @@ import {
     angleOfPoint,
     toDegrees,
     SEdge as SEdgeSchema,
+    Bounds,
 } from "sprotty-protocol";
 import {
     svg,
@@ -24,15 +25,16 @@ import {
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
+import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
+import { calculateTextWidth } from "./utils";
 
 import "./views.css";
-import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
 }
 
-export class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
+class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
 
     text: string = "";
@@ -63,17 +65,22 @@ export class RectangularDFDNode extends DynamicChildrenNode implements WithEdita
     }
 }
 
-export class CircularDFDNode extends RectangularDFDNode {
-    override get anchorKind() {
-        return ELLIPTIC_ANCHOR_KIND;
+export class StorageNode extends RectangularDFDNode {
+    override get bounds(): Bounds {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            width: Math.max(calculateTextWidth(this.editableLabel?.text), 40),
+            height: 30,
+        };
     }
 }
 
 @injectable()
 export class StorageNodeView implements IView {
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
-        const width = node.size.width;
-        const height = node.size.height;
+        const width = node.bounds.width;
+        const height = node.bounds.height;
         return (
             <g class-sprotty-node={true} class-storage={true}>
                 {/* This transparent rect exists only to make this element easily selectable.
@@ -90,10 +97,29 @@ export class StorageNodeView implements IView {
     }
 }
 
+export class FunctionNode extends RectangularDFDNode {
+    override get anchorKind() {
+        return ELLIPTIC_ANCHOR_KIND;
+    }
+
+    override get bounds(): Bounds {
+        const diameter = calculateTextWidth(this.editableLabel?.text) + 5;
+        // Clamp diameter to be between 30 and 60
+        const clampedDiameter = Math.min(Math.max(diameter, 30), 60);
+
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            width: clampedDiameter,
+            height: clampedDiameter,
+        };
+    }
+}
+
 @injectable()
 export class FunctionNodeView implements IView {
-    render(node: Readonly<CircularDFDNode>, context: RenderingContext): VNode {
-        const radius = Math.min(node.size.width, node.size.height) / 2;
+    render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
+        const radius = Math.min(node.bounds.width, node.bounds.height) / 2;
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <circle r={radius} cx={radius} cy={radius} />
@@ -103,11 +129,22 @@ export class FunctionNodeView implements IView {
     }
 }
 
+export class IONode extends RectangularDFDNode {
+    override get bounds(): Bounds {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 40),
+            height: 40,
+        };
+    }
+}
+
 @injectable()
 export class IONodeView implements IView {
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
-        const width = node.size.width;
-        const height = node.size.height;
+        const width = node.bounds.width;
+        const height = node.bounds.height;
 
         return (
             <g class-sprotty-node={true} class-io={true}>
@@ -207,7 +244,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
 @injectable()
 export class DFDLabelView extends ShapeView {
     render(label: Readonly<SLabel>, _context: RenderingContext): VNode | undefined {
-        const parentSize = (label.parent as SNode | undefined)?.size;
+        const parentSize = (label.parent as SNode | undefined)?.bounds;
         const width = parentSize?.width ?? 0;
         const height = parentSize?.height ?? 0;
 

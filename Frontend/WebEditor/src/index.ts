@@ -6,9 +6,10 @@ import {
     StorageNodeView,
     ArrowEdgeView,
     ArrowEdge,
-    RectangularDFDNode,
-    CircularDFDNode,
+    FunctionNode,
     DFDLabelView,
+    StorageNode,
+    IONode,
 } from "./views";
 import { Container, ContainerModule } from "inversify";
 import {
@@ -69,9 +70,9 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
-    configureModelElement(context, "node:storage", RectangularDFDNode, StorageNodeView);
-    configureModelElement(context, "node:function", CircularDFDNode, FunctionNodeView);
-    configureModelElement(context, "node:input-output", RectangularDFDNode, IONodeView);
+    configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
+    configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
+    configureModelElement(context, "node:input-output", IONode, IONodeView);
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
