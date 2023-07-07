@@ -1,0 +1,6 @@
+.ui-float {
+    position: absolute;
+    padding: 3px;
+    border-radius: 10px;
+    background-color: var(--color-primary);
+}

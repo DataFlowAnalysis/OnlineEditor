@@ -3,31 +3,25 @@
 body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    padding: 0;
+    margin: 0;
+    /* The sprotty container is slight larger than the browser
+        viewport, so we need this to avoid a horizontal scrollbar. */
+    overflow: hidden;
+}
+
+/* Make sprotty relative to be able to position ui elements
+   inside the sprotty viewport using position absolute
+   and absolute top/left/bottom/right values. */
+#sprotty {
+    position: relative;
 }
 
 svg.sprotty-graph {
     width: 100%;
-    height: 75vh;
-
-    border-style: solid;
-    border-width: 1px;
-    border-color: #bbb;
+    height: 100vh;
 }
 
-/* Styling for keyboard symbols.
-   Copied from the example at https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
-   with adapted colors */
-kbd {
-    background-color: var(--color-primary);
-    color: var(--color-foreground);
-
-    border-radius: 3px;
-    border: 1px solid var(--color-foreground);
-    box-shadow: 0 1px 1px var(--color-foreground), 0 2px 0 0 var(--color-background) inset;
-    display: inline-block;
-    font-size: 0.85em;
-    font-weight: 700;
-    line-height: 1;
-    padding: 2px 4px;
-    white-space: nowrap;
+.sprotty-hidden {
+    display: none;
 }

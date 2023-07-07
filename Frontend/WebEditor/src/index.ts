@@ -47,10 +47,9 @@ import {
     withEditLabelFeature,
     zorderModule,
 } from "sprotty";
-import { toolsModules } from "./tools";
+import { toolModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
-import { ToolPaletteUI } from "./tools/toolPalette";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
@@ -58,6 +57,9 @@ import "sprotty/css/edit-label.css";
 import "./theme.css";
 import "./page.css";
 import { DynamicChildrenProcessor } from "./dynamicChildren";
+import { uiModules } from "./ui";
+import { ToolPaletteUI } from "./ui/toolPalette";
+import { HelpUI } from "./ui/help";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -121,7 +123,8 @@ container.load(
 
     // Custom modules
     dataFlowDiagramModule,
-    ...toolsModules,
+    ...toolModules,
+    ...uiModules,
     commandsModule,
 );
 
@@ -141,6 +144,12 @@ modelSource
         dispatcher.dispatch(
             SetUIExtensionVisibilityAction.create({
                 extensionId: ToolPaletteUI.ID,
+                visible: true,
+            }),
+        );
+        dispatcher.dispatch(
+            SetUIExtensionVisibilityAction.create({
+                extensionId: HelpUI.ID,
                 visible: true,
             }),
         );

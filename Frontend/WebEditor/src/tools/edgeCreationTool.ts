@@ -139,7 +139,7 @@ export class EdgeCreationTool implements Tool {
     }
 }
 
-export const edgeCreationTool = new ContainerModule((bind) => {
+export const edgeCreationToolModule = new ContainerModule((bind) => {
     bind(EdgeCreationToolMouseListener).toSelf().inSingletonScope();
     bind(EdgeCreationTool).toSelf().inSingletonScope();
     bind(EDITOR_TYPES.ITool).toService(EdgeCreationTool);

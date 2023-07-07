@@ -14,8 +14,8 @@ import {
 } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { constructorInject } from "../utils";
-import { EdgeCreationTool } from "./edgeCreationTool";
-import { NodeCreationTool, NodeCreationToolMouseListener } from "./nodeCreationTool";
+import { NodeCreationTool, NodeCreationToolMouseListener } from "../tools/nodeCreationTool";
+import { EdgeCreationTool } from "../tools/edgeCreationTool";
 
 import "./toolPalette.css";
 
@@ -51,6 +51,8 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * This is called by the sprotty base class after creating the container element.
      */
     protected initializeContents(containerElement: HTMLElement): void {
+        containerElement.classList.add("ui-float");
+
         this.addTool(
             containerElement,
             NodeCreationTool.ID,

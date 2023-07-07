@@ -1,18 +1,16 @@
 import { commandPaletteModules } from "./commandPalette";
 import { deleteKeyDeleteTool } from "./deleteKeyTool";
-import { edgeCreationTool } from "./edgeCreationTool";
+import { edgeCreationToolModule } from "./edgeCreationTool";
 import { nodeCreationToolModule } from "./nodeCreationTool";
 import { toolManager } from "./toolManager";
-import { toolPaletteModule } from "./toolPalette";
 
 // Exports all the tool related inversify modules.
 // This includes the configuration for the sprotty tool manager and all implemented tools.
 
-export const toolsModules = [
+export const toolModules = [
     toolManager,
     ...commandPaletteModules,
-    edgeCreationTool,
+    edgeCreationToolModule,
     nodeCreationToolModule,
     deleteKeyDeleteTool,
-    toolPaletteModule,
 ];
