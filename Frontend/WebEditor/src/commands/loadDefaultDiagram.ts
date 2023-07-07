@@ -29,21 +29,18 @@ const defaultDiagramSchema: SGraphSchema = {
             id: storageId,
             text: "Database",
             position: { x: 100, y: 100 },
-            size: { width: 60, height: 30 },
         } as DFDNodeSchema,
         {
             type: "node:function",
             id: functionId,
             text: "System",
             position: { x: 200, y: 200 },
-            size: { width: 50, height: 50 },
         } as DFDNodeSchema,
         {
             type: "node:input-output",
             id: outputId,
             text: "Customer",
-            position: { x: 325, y: 205 },
-            size: { width: 70, height: 40 },
+            position: { x: 325, y: 206 },
         } as DFDNodeSchema,
         {
             type: "edge:arrow",

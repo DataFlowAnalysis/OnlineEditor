@@ -31,3 +31,18 @@ export function constructorInject(
 export function generateRandomSprottyId(): string {
     return Math.random().toString(36).substring(7);
 }
+
+const context = document.createElement("canvas").getContext("2d");
+export function calculateTextWidth(text: string | undefined, font: string = "11pt sans-serif"): number {
+    if (!context) {
+        throw new Error("Could not create canvas context used to measure text width");
+    }
+
+    if (!text || text.length === 0) {
+        return 20;
+    }
+
+    context.font = font;
+    const metrics = context.measureText(text);
+    return Math.round(metrics.width);
+}
