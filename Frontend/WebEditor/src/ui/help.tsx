@@ -12,7 +12,7 @@ export class HelpUI extends AbstractUIExtension {
     }
 
     containerClass(): string {
-        return "help-ui";
+        return HelpUI.ID;
     }
 
     protected initializeContents(containerElement: HTMLElement): void {

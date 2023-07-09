@@ -50,16 +50,18 @@ import {
 import { toolModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
+import { DynamicChildrenProcessor } from "./dynamicChildren";
+import { uiModules } from "./ui";
+import { ToolPaletteUI } from "./ui/toolPalette";
+import { HelpUI } from "./ui/help";
+import { LabelTypeUI } from "./ui/labelTypes";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
-import { DynamicChildrenProcessor } from "./dynamicChildren";
-import { uiModules } from "./ui";
-import { ToolPaletteUI } from "./ui/toolPalette";
-import { HelpUI } from "./ui/help";
+import { LabelTypeRegistry } from "./labelTypeRegistry";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -69,6 +71,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
     bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
+    bind(LabelTypeRegistry).toSelf().inSingletonScope();
 
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
@@ -140,17 +143,14 @@ modelSource
         children: [],
     })
     .then(() => {
-        // Show the tool palette after startup has completed.
-        dispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: ToolPaletteUI.ID,
-                visible: true,
-            }),
-        );
-        dispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: HelpUI.ID,
-                visible: true,
+        // Show the default uis after startup
+        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeUI.ID];
+        dispatcher.dispatchAll(
+            defaultUiElements.map((id) => {
+                return SetUIExtensionVisibilityAction.create({
+                    extensionId: id,
+                    visible: true,
+                });
             }),
         );
 
