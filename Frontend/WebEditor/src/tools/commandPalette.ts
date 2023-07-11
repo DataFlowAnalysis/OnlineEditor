@@ -39,8 +39,8 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         const commitAction = CommitModelAction.create();
 
         return [
-            new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
+            new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create("diagram.json")], "save"),
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),

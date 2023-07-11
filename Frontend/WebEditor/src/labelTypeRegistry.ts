@@ -3,7 +3,12 @@ import { injectable } from "inversify";
 export interface LabelType {
     id: string;
     name: string;
-    values: string[];
+    values: LabelTypeValue[];
+}
+
+export interface LabelTypeValue {
+    id: string;
+    value: string;
 }
 
 @injectable()

@@ -4,6 +4,40 @@ div.label-type-ui {
     padding: 10px;
 }
 
-.label-type-value {
+.label-type-ui * {
+    color: var(--color-foreground);
+}
+
+.label-type {
+    padding-bottom: 10px;
+}
+
+.label-type-value,
+.label-type-value-add {
     margin-left: 10px;
+}
+
+.label-type-name {
+    font-size: 12pt;
+}
+
+.label-type-ui input {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+.label-type-value input {
+    background-color: var(--color-background);
+    text-align: center;
+    border: 1px solid var(--color-foreground);
+    border-radius: 15px;
+    padding: 3px;
+    margin: 4px;
+}
+
+.label-type-ui button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 }
