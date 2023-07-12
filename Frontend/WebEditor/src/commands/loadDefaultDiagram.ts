@@ -15,6 +15,7 @@ import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
 import { fitToScreenAfterLoad } from "./load";
+import { LabelTypeRegistry } from "../labelTypeRegistry";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();
@@ -80,6 +81,8 @@ export class LoadDefaultDiagramCommand extends Command {
     private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
     @inject(TYPES.IActionDispatcher)
     private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
+    @inject(LabelTypeRegistry)
+    private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -93,6 +96,24 @@ export class LoadDefaultDiagramCommand extends Command {
 
         this.logger.info(this, "Default Model loaded successfully");
         fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
+
+        this.labelTypeRegistry.clearLabelTypes();
+        this.labelTypeRegistry.registerLabelType({
+            id: generateRandomSprottyId(),
+            name: "DC Location",
+            values: [
+                {
+                    id: generateRandomSprottyId(),
+                    value: "On-Premise",
+                },
+                {
+                    id: generateRandomSprottyId(),
+                    value: "Cloud",
+                },
+            ],
+        });
+        this.logger.info(this, "Default Label Types loaded successfully");
+
         return this.newRoot;
     }
 

@@ -14,16 +14,32 @@ export interface LabelTypeValue {
 @injectable()
 export class LabelTypeRegistry {
     private labelTypes: LabelType[] = [];
+    private updateCallbacks: (() => void)[] = [];
 
-    public registerLabelType(labelType: LabelType) {
+    public registerLabelType(labelType: LabelType): void {
         this.labelTypes.push(labelType);
+        this.updateCallbacks.forEach((cb) => cb());
     }
 
-    public unregisterLabelType(labelType: LabelType) {
+    public unregisterLabelType(labelType: LabelType): void {
         this.labelTypes = this.labelTypes.filter((type) => type.id !== labelType.id);
+        this.updateCallbacks.forEach((cb) => cb());
     }
 
-    public getLabelTypes() {
+    public clearLabelTypes(): void {
+        this.labelTypes = [];
+        this.updateCallbacks.forEach((cb) => cb());
+    }
+
+    public labelTypeChanged(): void {
+        this.updateCallbacks.forEach((cb) => cb());
+    }
+
+    public onUpdate(callback: () => void): void {
+        this.updateCallbacks.push(callback);
+    }
+
+    public getLabelTypes(): LabelType[] {
         return this.labelTypes;
     }
 }

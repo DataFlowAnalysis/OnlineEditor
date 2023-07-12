@@ -1,8 +1,14 @@
 import { inject, injectable } from "inversify";
 import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
-import { Action } from "sprotty-protocol";
+import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 import { constructorInject } from "../utils";
 import { DynamicChildrenProcessor } from "../dynamicChildren";
+import { LabelType, LabelTypeRegistry } from "../labelTypeRegistry";
+
+export interface SavedDiagram {
+    model: SModelRootSchema;
+    labelTypes: LabelType[];
+}
 
 export interface SaveDiagramAction extends Action {
     kind: typeof SaveDiagramAction.KIND;
@@ -26,6 +32,8 @@ export class SaveDiagramCommand extends Command {
     private modelSource: LocalModelSource = new LocalModelSource();
     @inject(DynamicChildrenProcessor)
     private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
+    @inject(LabelTypeRegistry)
+    private labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
     constructor(@constructorInject(TYPES.Action) private action: SaveDiagramAction) {
         super();
@@ -39,7 +47,11 @@ export class SaveDiagramCommand extends Command {
         this.dynamicChildrenProcessor.processGraphChildren(modelCopy, "remove");
 
         // Export the diagram as a JSON data URL.
-        const diagramJson = JSON.stringify(modelCopy, undefined, 4);
+        const diagram: SavedDiagram = {
+            model: modelCopy,
+            labelTypes: this.labelTypeRegistry.getLabelTypes(),
+        };
+        const diagramJson = JSON.stringify(diagram, undefined, 4);
         const jsonBlob = new Blob([diagramJson], { type: "application/json" });
         const jsonUrl = URL.createObjectURL(jsonBlob);
 

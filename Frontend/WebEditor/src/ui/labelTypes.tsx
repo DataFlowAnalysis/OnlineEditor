@@ -25,6 +25,8 @@ export class LabelTypeUI extends AbstractUIExtension {
                 value,
             })),
         });
+
+        labelTypeRegistry.onUpdate(() => this.reRender());
     }
 
     static readonly ID = "label-type-ui";
@@ -35,6 +37,13 @@ export class LabelTypeUI extends AbstractUIExtension {
 
     containerClass(): string {
         return LabelTypeUI.ID;
+    }
+
+    private reRender(): void {
+        // Remove all children
+        this.containerElement.innerHTML = "";
+        // Re-render
+        this.initializeContents(this.containerElement);
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -59,12 +68,11 @@ export class LabelTypeUI extends AbstractUIExtension {
             };
             this.labelTypeRegistry.registerLabelType(labelType);
 
-            // Insert label type last but before the button
-            const labelTypeElement = this.renderLabelType(labelType);
-            containerElement.insertBefore(labelTypeElement, containerElement.lastChild);
-
             // Select the text input element of the new label type to allow entering the name
-            labelTypeElement.querySelector("input")?.focus();
+            const inputElement: HTMLElement | null = this.containerElement.querySelector(
+                `.label-type-${labelType.id} input`,
+            );
+            inputElement?.focus();
         };
         containerElement.appendChild(addButton);
     }
@@ -72,6 +80,7 @@ export class LabelTypeUI extends AbstractUIExtension {
     private renderLabelType(labelType: LabelType): HTMLElement {
         const labelTypeElement = document.createElement("div");
         labelTypeElement.classList.add("label-type");
+        labelTypeElement.classList.add(`label-type-${labelType.id}`);
 
         const labelTypeNameInput = document.createElement("input");
         labelTypeNameInput.value = labelType.name;
@@ -118,11 +127,17 @@ export class LabelTypeUI extends AbstractUIExtension {
         const valueInput = document.createElement("input");
         valueInput.value = labelTypeValue.value;
         valueInput.placeholder = "Value";
-        valueInput.size = labelTypeValue.value.length;
+        // When there is no text set the length of the value will be 0.
+        // In this case the place holder is shown and we use its length instead to size the input.
+        valueInput.size = labelTypeValue.value.length || valueInput.placeholder.length;
         valueInput.onkeyup = () => {
-            labelTypeValue.value = valueInput.value;
-            valueInput.size = valueInput.value.length;
+            valueInput.size = valueInput.value.length || valueInput.placeholder.length;
         };
+        valueInput.onchange = () => {
+            labelTypeValue.value = valueInput.value;
+            this.labelTypeRegistry.labelTypeChanged();
+        };
+
         valueElement.appendChild(valueInput);
 
         const deleteButton = document.createElement("button");
@@ -131,7 +146,7 @@ export class LabelTypeUI extends AbstractUIExtension {
             const index = labelType.values.indexOf(labelTypeValue);
             if (index >= 0) {
                 labelType.values.splice(index, 1);
-                valueElement.remove();
+                this.labelTypeRegistry.labelTypeChanged();
             }
         };
         valueElement.appendChild(deleteButton);

@@ -12,6 +12,8 @@ import { Action, FitToScreenAction, SModelRoot as SModelRootSchema } from "sprot
 import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
+import { SavedDiagram } from "./save";
+import { LabelTypeRegistry } from "../labelTypeRegistry";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -35,6 +37,8 @@ export class LoadDiagramCommand extends Command {
     private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
     @inject(TYPES.IActionDispatcher)
     private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
+    @inject(LabelTypeRegistry)
+    private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -47,7 +51,7 @@ export class LoadDiagramCommand extends Command {
         const input = document.createElement("input");
         input.type = "file";
         input.accept = ".json";
-        const fileLoadPromise = new Promise<SModelRootSchema | undefined>((resolve, reject) => {
+        const fileLoadPromise = new Promise<SavedDiagram | undefined>((resolve, reject) => {
             // This event is fired when the user successfully submits the file picker dialog.
             input.onchange = () => {
                 if (input.files && input.files.length > 0) {
@@ -88,7 +92,8 @@ export class LoadDiagramCommand extends Command {
 
         this.oldRoot = context.root;
         try {
-            const newSchema = await fileLoadPromise;
+            const newDiagram = await fileLoadPromise;
+            const newSchema = newDiagram?.model;
             if (!newSchema) {
                 this.logger.info(this, "Model loading aborted");
                 this.newRoot = this.oldRoot;
@@ -101,6 +106,16 @@ export class LoadDiagramCommand extends Command {
 
             this.logger.info(this, "Model loaded successfully");
             fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
+
+            this.labelTypeRegistry.clearLabelTypes();
+            if (newDiagram?.labelTypes) {
+                newDiagram.labelTypes.forEach((labelType) => {
+                    this.labelTypeRegistry.registerLabelType(labelType);
+                });
+
+                this.logger.info(this, "Label types loaded successfully");
+            }
+
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
