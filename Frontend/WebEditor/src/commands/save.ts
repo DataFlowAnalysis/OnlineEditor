@@ -3,7 +3,7 @@ import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES }
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 import { constructorInject } from "../utils";
 import { DynamicChildrenProcessor } from "../dynamicChildren";
-import { LabelType, LabelTypeRegistry } from "../labelTypeRegistry";
+import { LabelType, LabelTypeRegistry } from "../labelTypes";
 
 export interface SavedDiagram {
     model: SModelRootSchema;

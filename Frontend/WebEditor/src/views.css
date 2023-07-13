@@ -32,6 +32,16 @@
     stroke-width: 3;
 }
 
+.sprotty-node .node-label text {
+    font-size: 6pt;
+}
+
+.sprotty-node .node-label rect {
+    fill: var(--color-primary);
+    stroke: var(--color-foreground);
+    stroke-width: 0.5;
+}
+
 /* Edges */
 
 .sprotty-edge {

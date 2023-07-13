@@ -13,7 +13,7 @@ import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
 import { SavedDiagram } from "./save";
-import { LabelTypeRegistry } from "../labelTypeRegistry";
+import { LabelTypeRegistry } from "../labelTypes";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;

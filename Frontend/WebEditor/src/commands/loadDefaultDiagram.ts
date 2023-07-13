@@ -15,11 +15,14 @@ import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
 import { fitToScreenAfterLoad } from "./load";
-import { LabelTypeRegistry } from "../labelTypeRegistry";
+import { LabelType, LabelTypeRegistry } from "../labelTypes";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();
 const outputId = generateRandomSprottyId();
+const locationLabelTypeId = generateRandomSprottyId();
+const locationOnPremId = generateRandomSprottyId();
+const locationCloudId = generateRandomSprottyId();
 
 const defaultDiagramSchema: SGraphSchema = {
     type: "graph",
@@ -29,12 +32,28 @@ const defaultDiagramSchema: SGraphSchema = {
             type: "node:storage",
             id: storageId,
             text: "Database",
+            labels: [
+                {
+                    labelTypeId: locationLabelTypeId,
+                    labelTypeValueId: locationOnPremId,
+                },
+                {
+                    labelTypeId: locationLabelTypeId,
+                    labelTypeValueId: locationOnPremId,
+                },
+            ],
             position: { x: 100, y: 100 },
         } as DFDNodeSchema,
         {
             type: "node:function",
             id: functionId,
             text: "System",
+            labels: [
+                {
+                    labelTypeId: locationLabelTypeId,
+                    labelTypeValueId: locationCloudId,
+                },
+            ],
             position: { x: 200, y: 200 },
         } as DFDNodeSchema,
         {
@@ -56,6 +75,20 @@ const defaultDiagramSchema: SGraphSchema = {
             sourceId: functionId,
             targetId: outputId,
         } as SEdgeSchema,
+    ],
+};
+const locationLabelType: LabelType = {
+    id: locationLabelTypeId,
+    name: "DC Location",
+    values: [
+        {
+            id: locationOnPremId,
+            text: "On-Premise",
+        },
+        {
+            id: locationCloudId,
+            text: "Cloud",
+        },
     ],
 };
 
@@ -98,20 +131,7 @@ export class LoadDefaultDiagramCommand extends Command {
         fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
 
         this.labelTypeRegistry.clearLabelTypes();
-        this.labelTypeRegistry.registerLabelType({
-            id: generateRandomSprottyId(),
-            name: "DC Location",
-            values: [
-                {
-                    id: generateRandomSprottyId(),
-                    value: "On-Premise",
-                },
-                {
-                    id: generateRandomSprottyId(),
-                    value: "Cloud",
-                },
-            ],
-        });
+        this.labelTypeRegistry.registerLabelType(locationLabelType);
         this.logger.info(this, "Default Label Types loaded successfully");
 
         return this.newRoot;

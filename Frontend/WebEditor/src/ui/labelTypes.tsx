@@ -3,7 +3,7 @@ import { ContainerModule, injectable } from "inversify";
 
 import "./labelTypes.css";
 import { constructorInject, generateRandomSprottyId } from "../utils";
-import { LabelType, LabelTypeRegistry, LabelTypeValue } from "../labelTypeRegistry";
+import { LabelType, LabelTypeRegistry, LabelTypeValue } from "../labelTypes";
 
 @injectable()
 export class LabelTypeUI extends AbstractUIExtension {
@@ -62,7 +62,7 @@ export class LabelTypeUI extends AbstractUIExtension {
                 values: [
                     {
                         id: generateRandomSprottyId(),
-                        value: "Value",
+                        text: "Value",
                     },
                 ],
             };
@@ -104,7 +104,7 @@ export class LabelTypeUI extends AbstractUIExtension {
         addButton.onclick = () => {
             const labelValue: LabelTypeValue = {
                 id: generateRandomSprottyId(),
-                value: "",
+                text: "",
             };
             labelType.values.push(labelValue);
 
@@ -125,16 +125,16 @@ export class LabelTypeUI extends AbstractUIExtension {
         valueElement.classList.add("label-type-value");
 
         const valueInput = document.createElement("input");
-        valueInput.value = labelTypeValue.value;
+        valueInput.value = labelTypeValue.text;
         valueInput.placeholder = "Value";
         // When there is no text set the length of the value will be 0.
         // In this case the place holder is shown and we use its length instead to size the input.
-        valueInput.size = labelTypeValue.value.length || valueInput.placeholder.length;
+        valueInput.size = labelTypeValue.text.length || valueInput.placeholder.length;
         valueInput.onkeyup = () => {
             valueInput.size = valueInput.value.length || valueInput.placeholder.length;
         };
         valueInput.onchange = () => {
-            labelTypeValue.value = valueInput.value;
+            labelTypeValue.text = valueInput.value;
             this.labelTypeRegistry.labelTypeChanged();
         };
 

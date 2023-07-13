@@ -61,7 +61,7 @@ import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
-import { LabelTypeRegistry } from "./labelTypeRegistry";
+import { LabelTypeRegistry } from "./labelTypes";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.

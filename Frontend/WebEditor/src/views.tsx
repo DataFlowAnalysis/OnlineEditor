@@ -26,18 +26,21 @@ import {
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
-import { calculateTextWidth } from "./utils";
+import { calculateTextWidth, constructorInject } from "./utils";
+import { LabelAssignment, LabelTypeRegistry } from "./labelTypes";
 
 import "./views.css";
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
+    labels: LabelAssignment[];
 }
 
 class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
 
     text: string = "";
+    labels: LabelAssignment[] = [];
 
     override setChildren(schema: DFDNodeSchema): void {
         schema.children = [
@@ -66,18 +69,67 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
 }
 
 export class StorageNode extends RectangularDFDNode {
+    private calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return 27 + this.labels.length * 13;
+        } else {
+            return 30;
+        }
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
             width: Math.max(calculateTextWidth(this.editableLabel?.text), 40),
-            height: 30,
+            height: this.calculateHeight(),
         };
     }
 }
 
 @injectable()
 export class StorageNodeView implements IView {
+    constructor(@constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {}
+
+    private renderLabels(node: Readonly<RectangularDFDNode>): VNode {
+        const labels = node.labels;
+        if (labels.length === 0) {
+            return <g />;
+        }
+
+        const nodeWidth = node.bounds.width;
+
+        return (
+            <g>
+                {labels.map((label, i) => {
+                    const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
+                    const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
+                    if (!labelTypeValue) {
+                        return <g />;
+                    }
+
+                    const text = labelTypeValue.text;
+                    const width = calculateTextWidth(text, "6pt sans-serif") + 8;
+                    const height = 10;
+                    const x = node.bounds.width / 2 - width / 2;
+                    const y = 25 + i * 13;
+                    const radius = height / 2;
+                    console.log(node.bounds.width, width, x, y);
+
+                    return (
+                        <g class-node-label={true}>
+                            <rect x={x} y={y} width={width} height={height} rx={radius} ry={radius} />
+                            <text x={nodeWidth / 2} y={y + 8}>
+                                {text}
+                            </text>
+                        </g>
+                    );
+                })}
+            </g>
+        );
+    }
+
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
@@ -90,7 +142,11 @@ export class StorageNodeView implements IView {
                 <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
 
                 <line x1="0" y1="0" x2={width} y2="0" />
-                {context.renderChildren(node)}
+                {context.renderChildren(node, {
+                    xPosition: width / 2,
+                    yPosition: 20,
+                } as DFDLabelArgs)}
+                {this.renderLabels(node)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
@@ -241,15 +297,29 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     }
 }
 
+interface DFDLabelArgs extends IViewArgs {
+    xPosition: number;
+    yPosition: number;
+}
+
 @injectable()
 export class DFDLabelView extends ShapeView {
-    render(label: Readonly<SLabel>, _context: RenderingContext): VNode | undefined {
-        const parentSize = (label.parent as SNode | undefined)?.bounds;
-        const width = parentSize?.width ?? 0;
-        const height = parentSize?.height ?? 0;
+    private getPosition(label: Readonly<SLabel>, args?: DFDLabelArgs | IViewArgs): Point {
+        if (args && "xPosition" in args && "yPosition" in args) {
+            return { x: args.xPosition, y: args.yPosition };
+        } else {
+            const parentSize = (label.parent as SNode | undefined)?.bounds;
+            const width = parentSize?.width ?? 0;
+            const height = parentSize?.height ?? 0;
+            return { x: width / 2, y: height / 2 + 5 };
+        }
+    }
+
+    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DFDLabelArgs): VNode | undefined {
+        const position = this.getPosition(label, args);
 
         return (
-            <text class-sprotty-label={true} x={width / 2} y={height / 2 + 5}>
+            <text class-sprotty-label={true} x={position.x} y={position.y}>
                 {label.text}
             </text>
         );

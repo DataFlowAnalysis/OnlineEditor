@@ -8,7 +8,12 @@ export interface LabelType {
 
 export interface LabelTypeValue {
     id: string;
-    value: string;
+    text: string;
+}
+
+export interface LabelAssignment {
+    labelTypeId: string;
+    labelTypeValueId: string;
 }
 
 @injectable()
@@ -41,5 +46,9 @@ export class LabelTypeRegistry {
 
     public getLabelTypes(): LabelType[] {
         return this.labelTypes;
+    }
+
+    public getLabelType(id: string): LabelType | undefined {
+        return this.labelTypes.find((type) => type.id === id);
     }
 }
