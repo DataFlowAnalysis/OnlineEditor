@@ -37,10 +37,6 @@ const defaultDiagramSchema: SGraphSchema = {
                     labelTypeId: locationLabelTypeId,
                     labelTypeValueId: locationOnPremId,
                 },
-                {
-                    labelTypeId: locationLabelTypeId,
-                    labelTypeValueId: locationOnPremId,
-                },
             ],
             position: { x: 100, y: 100 },
         } as DFDNodeSchema,
@@ -61,6 +57,7 @@ const defaultDiagramSchema: SGraphSchema = {
             id: outputId,
             text: "Customer",
             position: { x: 325, y: 206 },
+            labels: [],
         } as DFDNodeSchema,
         {
             type: "edge:arrow",

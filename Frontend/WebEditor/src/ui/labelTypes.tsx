@@ -1,9 +1,15 @@
 import { AbstractUIExtension, TYPES } from "sprotty";
 import { ContainerModule, injectable } from "inversify";
+import { constructorInject, generateRandomSprottyId } from "../utils";
+import {
+    LABEL_ASSIGNMENT_MIME_TYPE,
+    LabelAssignment,
+    LabelType,
+    LabelTypeRegistry,
+    LabelTypeValue,
+} from "../labelTypes";
 
 import "./labelTypes.css";
-import { constructorInject, generateRandomSprottyId } from "../utils";
-import { LabelType, LabelTypeRegistry, LabelTypeValue } from "../labelTypes";
 
 @injectable()
 export class LabelTypeUI extends AbstractUIExtension {
@@ -119,6 +125,17 @@ export class LabelTypeUI extends AbstractUIExtension {
         valueInput.onchange = () => {
             labelTypeValue.text = valueInput.value;
             this.labelTypeRegistry.labelTypeChanged();
+        };
+
+        // Allow dragging to create a label assignment
+        valueInput.draggable = true;
+        valueInput.ondragstart = (event) => {
+            const assignment: LabelAssignment = {
+                labelTypeId: labelType.id,
+                labelTypeValueId: labelTypeValue.id,
+            };
+            const assignmentJson = JSON.stringify(assignment);
+            event.dataTransfer?.setData(LABEL_ASSIGNMENT_MIME_TYPE, assignmentJson);
         };
 
         valueElement.appendChild(valueInput);

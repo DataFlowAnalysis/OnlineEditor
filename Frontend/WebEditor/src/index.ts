@@ -55,13 +55,13 @@ import { uiModules } from "./ui";
 import { ToolPaletteUI } from "./ui/toolPalette";
 import { HelpUI } from "./ui/help";
 import { LabelTypeUI } from "./ui/labelTypes";
+import { labelTypeModule } from "./labelTypes";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
-import { LabelTypeRegistry } from "./labelTypes";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -71,7 +71,6 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
     bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
-    bind(LabelTypeRegistry).toSelf().inSingletonScope();
 
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraph, SGraphView);
@@ -129,6 +128,7 @@ container.load(
     ...toolModules,
     ...uiModules,
     commandsModule,
+    labelTypeModule,
 );
 
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);

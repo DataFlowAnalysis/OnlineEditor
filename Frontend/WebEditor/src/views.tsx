@@ -27,7 +27,7 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
-import { LabelAssignment, LabelTypeRegistry } from "./labelTypes";
+import { LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
 
 import "./views.css";
 
@@ -37,7 +37,7 @@ export interface DFDNodeSchema extends SNodeSchema {
 }
 
 class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
 
     text: string = "";
     labels: LabelAssignment[] = [];
@@ -115,7 +115,6 @@ export class StorageNodeView implements IView {
                     const x = node.bounds.width / 2 - width / 2;
                     const y = 25 + i * 13;
                     const radius = height / 2;
-                    console.log(node.bounds.width, width, x, y);
 
                     return (
                         <g class-node-label={true}>
