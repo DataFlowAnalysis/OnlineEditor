@@ -9,23 +9,6 @@ import { LabelType, LabelTypeRegistry, LabelTypeValue } from "../labelTypes";
 export class LabelTypeUI extends AbstractUIExtension {
     constructor(@constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {
         super();
-        labelTypeRegistry.registerLabelType({
-            id: generateRandomSprottyId(),
-            name: "Test Label",
-            values: ["Value1", "Value2"].map((value) => ({
-                id: generateRandomSprottyId(),
-                value,
-            })),
-        });
-        labelTypeRegistry.registerLabelType({
-            id: generateRandomSprottyId(),
-            name: "Test Label 2",
-            values: ["Foo", "Bar", "Baz"].map((value) => ({
-                id: generateRandomSprottyId(),
-                value,
-            })),
-        });
-
         labelTypeRegistry.onUpdate(() => this.reRender());
     }
 
