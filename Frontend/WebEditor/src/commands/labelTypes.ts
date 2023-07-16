@@ -1,6 +1,6 @@
 import { Action } from "sprotty-protocol";
 import { ContainsDfdLabels, LabelAssignment } from "../labelTypes";
-import { Command, CommandExecutionContext, CommandReturn, TYPES, SModelElement } from "sprotty";
+import { Command, CommandExecutionContext, CommandReturn, TYPES } from "sprotty";
 import { constructorInject } from "../utils";
 
 export interface AddLabelAssignmentAction extends Action {
