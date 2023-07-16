@@ -36,7 +36,7 @@ export const LABEL_ASSIGNMENT_MIME_TYPE = "application/x-label-assignment";
 export const containsDfdLabelFeature = Symbol("dfd-label-feature");
 
 export interface ContainsDfdLabels extends SModelExtension {
-    readonly labels: LabelAssignment[];
+    labels: LabelAssignment[];
 }
 
 export function containsDfdLabels<T extends SModelElement>(element: T): element is T & ContainsDfdLabels {

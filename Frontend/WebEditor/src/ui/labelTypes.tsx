@@ -1,4 +1,4 @@
-import { AbstractUIExtension, TYPES } from "sprotty";
+import { AbstractUIExtension, IActionDispatcher, TYPES } from "sprotty";
 import { ContainerModule, injectable } from "inversify";
 import { constructorInject, generateRandomSprottyId } from "../utils";
 import {
@@ -10,10 +10,14 @@ import {
 } from "../labelTypes";
 
 import "./labelTypes.css";
+import { DeleteLabelTypeValueAction } from "../commands/labelTypes";
 
 @injectable()
 export class LabelTypeUI extends AbstractUIExtension {
-    constructor(@constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {
+    constructor(
+        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+    ) {
         super();
         labelTypeRegistry.onUpdate(() => this.reRender());
     }
@@ -43,7 +47,7 @@ export class LabelTypeUI extends AbstractUIExtension {
 
         // Render add button for whole label type
         const addButton = document.createElement("button");
-        addButton.innerText = "+ Label Type";
+        addButton.innerHTML = '<span class="codicon codicon-add"></span> Label Type';
         addButton.onclick = () => {
             const labelType: LabelType = {
                 id: generateRandomSprottyId(),
@@ -89,7 +93,7 @@ export class LabelTypeUI extends AbstractUIExtension {
         // Add + button
         const addButton = document.createElement("button");
         addButton.classList.add("label-type-value-add");
-        addButton.innerText = "+ Value";
+        addButton.innerHTML = '<span class="codicon codicon-add"></span> Value';
         addButton.onclick = () => {
             const labelValue: LabelTypeValue = {
                 id: generateRandomSprottyId(),
@@ -141,13 +145,11 @@ export class LabelTypeUI extends AbstractUIExtension {
         valueElement.appendChild(valueInput);
 
         const deleteButton = document.createElement("button");
-        deleteButton.innerText = "-";
+        deleteButton.innerHTML = '<span class="codicon codicon-trash"></span>';
         deleteButton.onclick = () => {
-            const index = labelType.values.indexOf(labelTypeValue);
-            if (index >= 0) {
-                labelType.values.splice(index, 1);
-                this.labelTypeRegistry.labelTypeChanged();
-            }
+            this.actionDispatcher.dispatch(
+                DeleteLabelTypeValueAction.create(this.labelTypeRegistry, labelType.id, labelTypeValue.id),
+            );
         };
         valueElement.appendChild(deleteButton);
         return valueElement;

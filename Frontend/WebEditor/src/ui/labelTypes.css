@@ -8,6 +8,10 @@ div.label-type-ui {
     color: var(--color-foreground);
 }
 
+.label-type-ui .codicon {
+    vertical-align: middle;
+}
+
 .label-type {
     padding-bottom: 10px;
 }
@@ -40,4 +44,5 @@ div.label-type-ui {
     background-color: transparent;
     border: none;
     cursor: pointer;
+    padding: 0;
 }
