@@ -42,6 +42,17 @@
     stroke-width: 0.5;
 }
 
+.sprotty-node .node-label .label-delete {
+    fill: var(--color-primary);
+    stroke: var(--color-foreground);
+
+    stroke-width: 0.5;
+}
+
+.sprotty-node .node-label .label-delete text {
+    fill: var(--color-foreground);
+}
+
 /* Edges */
 
 .sprotty-edge {

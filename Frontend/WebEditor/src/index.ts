@@ -35,6 +35,7 @@ import {
     edgeLayoutModule,
     editLabelFeature,
     exportModule,
+    hoverModule,
     labelEditModule,
     labelEditUiModule,
     modelSourceModule,
@@ -122,6 +123,7 @@ container.load(
     edgeEditModule,
     exportModule,
     edgeLayoutModule,
+    hoverModule,
 
     // Custom modules
     dataFlowDiagramModule,

@@ -22,6 +22,7 @@ import {
     withEditLabelFeature,
     ShapeView,
     SLabel,
+    hoverFeedbackFeature,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
@@ -69,6 +70,8 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
 }
 
 export class StorageNode extends RectangularDFDNode {
+    static readonly DEFAULT_FEATURES = [...RectangularDFDNode.DEFAULT_FEATURES, hoverFeedbackFeature];
+
     private calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
@@ -122,6 +125,24 @@ export class StorageNodeView implements IView {
                             <text x={nodeWidth / 2} y={y + 8}>
                                 {text}
                             </text>
+                            {
+                                // Put a x button to delete the element on the right upper edge
+                                node.hoverFeedback ? (
+                                    <g>
+                                        <circle
+                                            class-label-delete={true}
+                                            cx={x + width}
+                                            cy={y}
+                                            r={radius * 0.8}
+                                        ></circle>
+                                        <text x={x + width} y={y + 2} fill="white">
+                                            x
+                                        </text>
+                                    </g>
+                                ) : (
+                                    <g />
+                                )
+                            }
                         </g>
                     );
                 })}
