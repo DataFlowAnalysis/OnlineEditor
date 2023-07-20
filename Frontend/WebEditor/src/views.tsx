@@ -28,7 +28,7 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
-import { LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
+import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue, containsDfdLabelFeature } from "./labelTypes";
 
 import "./views.css";
 
@@ -69,13 +69,14 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
     }
 }
 
+@injectable()
 export class StorageNode extends RectangularDFDNode {
     static readonly DEFAULT_FEATURES = [...RectangularDFDNode.DEFAULT_FEATURES, hoverFeedbackFeature];
 
     private calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
-            return 27 + this.labels.length * 13;
+            return 26 + this.labels.length * 12;
         } else {
             return 30;
         }
@@ -108,21 +109,21 @@ export class StorageNodeView implements IView {
                 {labels.map((label, i) => {
                     const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
                     const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
-                    if (!labelTypeValue) {
+                    if (!labelType || !labelTypeValue) {
                         return <g />;
                     }
 
                     const text = labelTypeValue.text;
-                    const width = calculateTextWidth(text, "6pt sans-serif") + 8;
+                    const width = calculateTextWidth(text, "5pt sans-serif") + 8;
                     const height = 10;
                     const x = node.bounds.width / 2 - width / 2;
-                    const y = 25 + i * 13;
+                    const y = 25 + i * 12;
                     const radius = height / 2;
 
                     return (
                         <g class-node-label={true}>
                             <rect x={x} y={y} width={width} height={height} rx={radius} ry={radius} />
-                            <text x={nodeWidth / 2} y={y + 8}>
+                            <text x={nodeWidth / 2} y={y + 7}>
                                 {text}
                             </text>
                             {
