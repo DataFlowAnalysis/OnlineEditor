@@ -4,7 +4,7 @@ import { LogHelloCommand } from "./log-hello";
 import { SaveDiagramCommand } from "./save";
 import { LoadDiagramCommand } from "./load";
 import { LoadDefaultDiagramCommand } from "./loadDefaultDiagram";
-import { AddLabelAssignmentCommand, DeleteLabelTypeValueCommand } from "./labelTypes";
+import { AddLabelAssignmentCommand, DeleteLabelTypeValueCommand, DeleteLabelTypeCommand } from "./labelTypes";
 
 // Bundles all defined commands into a inversify module that can be loaded to make
 // all commands available to sprotty.
@@ -17,4 +17,5 @@ export const commandsModule = new ContainerModule((bind, unbind, isBound, rebind
     configureCommand(context, LoadDefaultDiagramCommand);
     configureCommand(context, AddLabelAssignmentCommand);
     configureCommand(context, DeleteLabelTypeValueCommand);
+    configureCommand(context, DeleteLabelTypeCommand);
 });

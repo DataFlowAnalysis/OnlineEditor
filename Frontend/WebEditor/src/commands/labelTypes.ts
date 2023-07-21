@@ -59,6 +59,23 @@ export class AddLabelAssignmentCommand extends Command {
     }
 }
 
+/**
+ * Recursively traverses the sprotty diagram graph and removes all labels that match the given predicate.
+ * @param predicate a function deciding whether the label assignment should be kept
+ */
+function removeLabelsFromGraph(
+    element: SModelElement | SParentElement,
+    predicate: (type: LabelAssignment) => boolean,
+): void {
+    if (containsDfdLabels(element)) {
+        element.labels = element.labels.filter(predicate);
+    }
+
+    if ("children" in element) {
+        element.children.forEach((child) => removeLabelsFromGraph(child, predicate));
+    }
+}
+
 export interface DeleteLabelTypeValueAction extends Action {
     kind: typeof DeleteLabelTypeValueAction.TYPE;
     registry: LabelTypeRegistry;
@@ -89,21 +106,6 @@ export class DeleteLabelTypeValueCommand extends Command {
         super();
     }
 
-    private removeLabelValueFromGraph(element: SModelElement | SParentElement): void {
-        if (containsDfdLabels(element)) {
-            element.labels = element.labels.filter((label) => {
-                return (
-                    label.labelTypeId !== this.action.labelTypeId ||
-                    label.labelTypeValueId !== this.action.labelTypeValueId
-                );
-            });
-        }
-
-        if ("children" in element) {
-            element.children.forEach((child) => this.removeLabelValueFromGraph(child));
-        }
-    }
-
     execute(context: CommandExecutionContext): CommandReturn {
         const labelType = this.action.registry.getLabelType(this.action.labelTypeId);
         if (!labelType) {
@@ -115,13 +117,62 @@ export class DeleteLabelTypeValueCommand extends Command {
             return context.root;
         }
 
-        this.removeLabelValueFromGraph(context.root);
+        removeLabelsFromGraph(context.root, (label) => {
+            return (
+                label.labelTypeId !== this.action.labelTypeId || label.labelTypeValueId !== this.action.labelTypeValueId
+            );
+        });
 
         const index = labelType.values.indexOf(labelTypeValue);
         if (index > -1) {
             labelType.values.splice(index, 1);
             this.action.registry.labelTypeChanged();
         }
+
+        return context.root;
+    }
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        return context.root;
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        return this.execute(context);
+    }
+}
+
+export interface DeleteLabelTypeAction extends Action {
+    kind: typeof DeleteLabelTypeAction.TYPE;
+    registry: LabelTypeRegistry;
+    labelTypeId: string;
+}
+export namespace DeleteLabelTypeAction {
+    export const TYPE = "delete-label-type";
+    export function create(registry: LabelTypeRegistry, labelTypeId: string): DeleteLabelTypeAction {
+        return {
+            kind: TYPE,
+            registry,
+            labelTypeId,
+        };
+    }
+}
+
+@injectable()
+export class DeleteLabelTypeCommand extends Command {
+    public static readonly KIND = DeleteLabelTypeAction.TYPE;
+
+    constructor(@constructorInject(TYPES.Action) private action: DeleteLabelTypeAction) {
+        super();
+    }
+
+    execute(context: CommandExecutionContext): CommandReturn {
+        const labelType = this.action.registry.getLabelType(this.action.labelTypeId);
+        if (!labelType) {
+            return context.root;
+        }
+
+        removeLabelsFromGraph(context.root, (label) => label.labelTypeId !== this.action.labelTypeId);
+        this.action.registry.unregisterLabelType(labelType);
 
         return context.root;
     }

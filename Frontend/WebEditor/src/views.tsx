@@ -28,7 +28,7 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
-import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue, containsDfdLabelFeature } from "./labelTypes";
+import { LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
 
 import "./views.css";
 

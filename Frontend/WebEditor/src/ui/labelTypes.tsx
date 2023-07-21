@@ -10,7 +10,7 @@ import {
 } from "../labelTypes";
 
 import "./labelTypes.css";
-import { DeleteLabelTypeValueAction } from "../commands/labelTypes";
+import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "../commands/labelTypes";
 
 @injectable()
 export class LabelTypeUI extends AbstractUIExtension {
@@ -85,6 +85,13 @@ export class LabelTypeUI extends AbstractUIExtension {
         };
 
         labelTypeElement.appendChild(labelTypeNameInput);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = '<span class="codicon codicon-trash"></span>';
+        deleteButton.onclick = () => {
+            this.actionDispatcher.dispatch(DeleteLabelTypeAction.create(this.labelTypeRegistry, labelType.id));
+        };
+        labelTypeElement.appendChild(deleteButton);
 
         labelType.values.forEach((possibleValue) => {
             labelTypeElement.appendChild(this.renderLabelTypeValue(labelType, possibleValue));
