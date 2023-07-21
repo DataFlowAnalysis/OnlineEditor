@@ -80,6 +80,8 @@ export class LabelTypeUI extends AbstractUIExtension {
         labelTypeNameInput.placeholder = "Label Type Name";
         labelTypeNameInput.classList.add("label-type-name");
 
+        this.dynamicallySetInputSize(labelTypeNameInput);
+
         labelTypeNameInput.onchange = () => {
             labelType.name = labelTypeNameInput.value;
         };
@@ -127,12 +129,8 @@ export class LabelTypeUI extends AbstractUIExtension {
         const valueInput = document.createElement("input");
         valueInput.value = labelTypeValue.text;
         valueInput.placeholder = "Value";
-        // When there is no text set the length of the value will be 0.
-        // In this case the place holder is shown and we use its length instead to size the input.
-        valueInput.size = labelTypeValue.text.length || valueInput.placeholder.length;
-        valueInput.onkeyup = () => {
-            valueInput.size = valueInput.value.length || valueInput.placeholder.length;
-        };
+        this.dynamicallySetInputSize(valueInput);
+
         valueInput.onchange = () => {
             labelTypeValue.text = valueInput.value;
             this.labelTypeRegistry.labelTypeChanged();
@@ -160,6 +158,23 @@ export class LabelTypeUI extends AbstractUIExtension {
         };
         valueElement.appendChild(deleteButton);
         return valueElement;
+    }
+
+    /**
+     * Sets and dynamically updates the size property of the passed input element.
+     * When the text is zero the width is set to the placeholder length to make place for it.
+     * When the text is changed the size gets updated with the keyup event.
+     * @param inputElement the html dom input element to set the size property for
+     */
+    private dynamicallySetInputSize(inputElement: HTMLInputElement): void {
+        const factor = 0.8;
+        const rawSize = inputElement.value.length || inputElement.placeholder.length;
+        inputElement.size = Math.round(rawSize * factor);
+
+        inputElement.onkeyup = () => {
+            const rawSize = inputElement.value.length || inputElement.placeholder.length;
+            inputElement.size = Math.round(rawSize * factor);
+        };
     }
 }
 

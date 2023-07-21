@@ -123,7 +123,7 @@ export class StorageNodeView implements IView {
                     return (
                         <g class-node-label={true}>
                             <rect x={x} y={y} width={width} height={height} rx={radius} ry={radius} />
-                            <text x={nodeWidth / 2} y={y + 7}>
+                            <text x={nodeWidth / 2} y={y + 7.25}>
                                 {text}
                             </text>
                             {
