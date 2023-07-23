@@ -23,12 +23,15 @@ import {
     ShapeView,
     SLabel,
     hoverFeedbackFeature,
+    TYPES,
+    IActionDispatcher,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
 import { LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
+import { DeleteLabelAssignmentAction } from "./commands/labelTypes";
 
 import "./views.css";
 
@@ -94,7 +97,10 @@ export class StorageNode extends RectangularDFDNode {
 
 @injectable()
 export class StorageNodeView implements IView {
-    constructor(@constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {}
+    constructor(
+        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+    ) {}
 
     private renderLabels(node: Readonly<RectangularDFDNode>): VNode {
         const labels = node.labels;
@@ -113,12 +119,17 @@ export class StorageNodeView implements IView {
                         return <g />;
                     }
 
-                    const text = labelTypeValue.text;
+                    const text = `${labelType.name}: ${labelTypeValue.text}`;
                     const width = calculateTextWidth(text, "5pt sans-serif") + 8;
                     const height = 10;
                     const x = node.bounds.width / 2 - width / 2;
                     const y = 25 + i * 12;
                     const radius = height / 2;
+
+                    const deleteLabelHandler = () => {
+                        const action = DeleteLabelAssignmentAction.create(node, label);
+                        this.actionDispatcher.dispatch(action);
+                    };
 
                     return (
                         <g class-node-label={true}>
@@ -129,14 +140,9 @@ export class StorageNodeView implements IView {
                             {
                                 // Put a x button to delete the element on the right upper edge
                                 node.hoverFeedback ? (
-                                    <g>
-                                        <circle
-                                            class-label-delete={true}
-                                            cx={x + width}
-                                            cy={y}
-                                            r={radius * 0.8}
-                                        ></circle>
-                                        <text x={x + width} y={y + 2} fill="white">
+                                    <g class-label-delete={true} on={{ click: deleteLabelHandler }}>
+                                        <circle cx={x + width} cy={y} r={radius * 0.8}></circle>
+                                        <text x={x + width} y={y + 2}>
                                             x
                                         </text>
                                     </g>

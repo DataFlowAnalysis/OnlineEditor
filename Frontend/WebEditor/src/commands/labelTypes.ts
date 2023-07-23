@@ -20,6 +20,7 @@ export namespace AddLabelAssignmentAction {
     }
 }
 
+@injectable()
 export class AddLabelAssignmentCommand extends Command {
     public static readonly KIND = AddLabelAssignmentAction.TYPE;
     private hasBeenAdded = false;
@@ -50,6 +51,53 @@ export class AddLabelAssignmentCommand extends Command {
         if (idx >= 0 && this.hasBeenAdded) {
             labels.splice(idx, 1);
         }
+
+        return context.root;
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        return this.execute(context);
+    }
+}
+
+export interface DeleteLabelAssignmentAction extends Action {
+    kind: typeof DeleteLabelAssignmentAction.TYPE;
+    element: ContainsDfdLabels;
+    labelAssignment: LabelAssignment;
+}
+export namespace DeleteLabelAssignmentAction {
+    export const TYPE = "delete-label-assignment";
+    export function create(element: ContainsDfdLabels, labelAssignment: LabelAssignment): DeleteLabelAssignmentAction {
+        return {
+            kind: TYPE,
+            element,
+            labelAssignment,
+        };
+    }
+}
+
+@injectable()
+export class DeleteLabelAssignmentCommand extends Command {
+    public static readonly KIND = DeleteLabelAssignmentAction.TYPE;
+
+    constructor(@constructorInject(TYPES.Action) private action: DeleteLabelAssignmentAction) {
+        super();
+    }
+
+    execute(context: CommandExecutionContext): CommandReturn {
+        const labels = this.action.element.labels;
+
+        const idx = labels.indexOf(this.action.labelAssignment);
+        if (idx >= 0) {
+            labels.splice(idx, 1);
+        }
+
+        return context.root;
+    }
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        const labels = this.action.element.labels;
+        labels.push(this.action.labelAssignment);
 
         return context.root;
     }

@@ -42,7 +42,7 @@
     stroke-width: 0.5;
 }
 
-.sprotty-node .node-label .label-delete {
+.sprotty-node .node-label .label-delete circle {
     fill: var(--color-primary);
     stroke: var(--color-foreground);
 
