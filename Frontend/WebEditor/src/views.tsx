@@ -25,12 +25,14 @@ import {
     hoverFeedbackFeature,
     TYPES,
     IActionDispatcher,
+    SShapeElement,
+    Hoverable,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
-import { LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
+import { ContainsDfdLabels, LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
 import { DeleteLabelAssignmentAction } from "./commands/labelTypes";
 
 import "./views.css";
@@ -95,67 +97,79 @@ export class StorageNode extends RectangularDFDNode {
     }
 }
 
+function renderNodeLabel(
+    node: ContainsDfdLabels & SShapeElement & Hoverable,
+    actionDispatcher: IActionDispatcher,
+    labelTypeRegistry: LabelTypeRegistry,
+    label: LabelAssignment,
+    x: number,
+    y: number,
+): VNode {
+    const labelType = labelTypeRegistry.getLabelType(label.labelTypeId);
+    const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
+    if (!labelType || !labelTypeValue) {
+        return <g />;
+    }
+
+    const text = `${labelType.name}: ${labelTypeValue.text}`;
+    const width = calculateTextWidth(text, "5pt sans-serif") + 8;
+    const xLeft = x - width / 2;
+    const xRight = x + width / 2;
+    const height = 10;
+    const radius = height / 2;
+
+    const deleteLabelHandler = () => {
+        const action = DeleteLabelAssignmentAction.create(node, label);
+        actionDispatcher.dispatch(action);
+    };
+
+    return (
+        <g class-node-label={true}>
+            <rect x={xLeft} y={y} width={width} height={height} rx={radius} ry={radius} />
+            <text x={node.bounds.width / 2} y={y + 7.25}>
+                {text}
+            </text>
+            {
+                // Put a x button to delete the element on the right upper edge
+                node.hoverFeedback ? (
+                    <g class-label-delete={true} on={{ click: deleteLabelHandler }}>
+                        <circle cx={xRight} cy={y} r={radius * 0.8}></circle>
+                        <text x={xRight} y={y + 2}>
+                            x
+                        </text>
+                    </g>
+                ) : (
+                    <g />
+                )
+            }
+        </g>
+    );
+}
+
+function renderNodeLabels(
+    node: ContainsDfdLabels & SShapeElement & Hoverable,
+    actionDispatcher: IActionDispatcher,
+    labelTypeRegistry: LabelTypeRegistry,
+    baseY: number,
+    labelSpacing = 12,
+): VNode {
+    return (
+        <g>
+            {node.labels.map((label, i) => {
+                const x = node.bounds.width / 2;
+                const y = baseY + i * labelSpacing;
+                return renderNodeLabel(node, actionDispatcher, labelTypeRegistry, label, x, y);
+            })}
+        </g>
+    );
+}
+
 @injectable()
 export class StorageNodeView implements IView {
     constructor(
         @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {}
-
-    private renderLabels(node: Readonly<RectangularDFDNode>): VNode {
-        const labels = node.labels;
-        if (labels.length === 0) {
-            return <g />;
-        }
-
-        const nodeWidth = node.bounds.width;
-
-        return (
-            <g>
-                {labels.map((label, i) => {
-                    const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
-                    const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
-                    if (!labelType || !labelTypeValue) {
-                        return <g />;
-                    }
-
-                    const text = `${labelType.name}: ${labelTypeValue.text}`;
-                    const width = calculateTextWidth(text, "5pt sans-serif") + 8;
-                    const height = 10;
-                    const x = node.bounds.width / 2 - width / 2;
-                    const y = 25 + i * 12;
-                    const radius = height / 2;
-
-                    const deleteLabelHandler = () => {
-                        const action = DeleteLabelAssignmentAction.create(node, label);
-                        this.actionDispatcher.dispatch(action);
-                    };
-
-                    return (
-                        <g class-node-label={true}>
-                            <rect x={x} y={y} width={width} height={height} rx={radius} ry={radius} />
-                            <text x={nodeWidth / 2} y={y + 7.25}>
-                                {text}
-                            </text>
-                            {
-                                // Put a x button to delete the element on the right upper edge
-                                node.hoverFeedback ? (
-                                    <g class-label-delete={true} on={{ click: deleteLabelHandler }}>
-                                        <circle cx={x + width} cy={y} r={radius * 0.8}></circle>
-                                        <text x={x + width} y={y + 2}>
-                                            x
-                                        </text>
-                                    </g>
-                                ) : (
-                                    <g />
-                                )
-                            }
-                        </g>
-                    );
-                })}
-            </g>
-        );
-    }
 
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
@@ -173,7 +187,7 @@ export class StorageNodeView implements IView {
                     xPosition: width / 2,
                     yPosition: 20,
                 } as DFDLabelArgs)}
-                {this.renderLabels(node)}
+                {renderNodeLabels(node, this.actionDispatcher, this.labelTypeRegistry, 25)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
@@ -213,18 +227,32 @@ export class FunctionNodeView implements IView {
 }
 
 export class IONode extends RectangularDFDNode {
+    private calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return 36 + this.labels.length * 12;
+        } else {
+            return 40;
+        }
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
             width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 40),
-            height: 40,
+            height: this.calculateHeight(),
         };
     }
 }
 
 @injectable()
 export class IONodeView implements IView {
+    constructor(
+        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+    ) {}
+
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
@@ -232,7 +260,11 @@ export class IONodeView implements IView {
         return (
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
-                {context.renderChildren(node)}
+                {context.renderChildren(node, {
+                    xPosition: width / 2,
+                    yPosition: 25,
+                } as DFDLabelArgs)}
+                {renderNodeLabels(node, this.actionDispatcher, this.labelTypeRegistry, 30)}
             </g>
         );
     }
