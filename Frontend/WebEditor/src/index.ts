@@ -7,7 +7,7 @@ import {
     ArrowEdgeView,
     ArrowEdge,
     FunctionNode,
-    DFDLabelView,
+    DfdLabelView,
     StorageNode,
     IONode,
 } from "./views";
@@ -81,7 +81,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
-    configureModelElement(context, "label", SLabel, DFDLabelView, {
+    configureModelElement(context, "label", SLabel, DfdLabelView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);

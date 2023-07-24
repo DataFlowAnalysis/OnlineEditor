@@ -23,17 +23,12 @@ import {
     ShapeView,
     SLabel,
     hoverFeedbackFeature,
-    TYPES,
-    IActionDispatcher,
-    SShapeElement,
-    Hoverable,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
 import { calculateTextWidth, constructorInject } from "./utils";
-import { ContainsDfdLabels, LabelAssignment, LabelTypeRegistry, containsDfdLabelFeature } from "./labelTypes";
-import { DeleteLabelAssignmentAction } from "./commands/labelTypes";
+import { DfdNodeLabelRenderer, LabelAssignment, containsDfdLabelFeature } from "./labelTypes";
 
 import "./views.css";
 
@@ -97,79 +92,9 @@ export class StorageNode extends RectangularDFDNode {
     }
 }
 
-function renderNodeLabel(
-    node: ContainsDfdLabels & SShapeElement & Hoverable,
-    actionDispatcher: IActionDispatcher,
-    labelTypeRegistry: LabelTypeRegistry,
-    label: LabelAssignment,
-    x: number,
-    y: number,
-): VNode {
-    const labelType = labelTypeRegistry.getLabelType(label.labelTypeId);
-    const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
-    if (!labelType || !labelTypeValue) {
-        return <g />;
-    }
-
-    const text = `${labelType.name}: ${labelTypeValue.text}`;
-    const width = calculateTextWidth(text, "5pt sans-serif") + 8;
-    const xLeft = x - width / 2;
-    const xRight = x + width / 2;
-    const height = 10;
-    const radius = height / 2;
-
-    const deleteLabelHandler = () => {
-        const action = DeleteLabelAssignmentAction.create(node, label);
-        actionDispatcher.dispatch(action);
-    };
-
-    return (
-        <g class-node-label={true}>
-            <rect x={xLeft} y={y} width={width} height={height} rx={radius} ry={radius} />
-            <text x={node.bounds.width / 2} y={y + 7.25}>
-                {text}
-            </text>
-            {
-                // Put a x button to delete the element on the right upper edge
-                node.hoverFeedback ? (
-                    <g class-label-delete={true} on={{ click: deleteLabelHandler }}>
-                        <circle cx={xRight} cy={y} r={radius * 0.8}></circle>
-                        <text x={xRight} y={y + 2}>
-                            x
-                        </text>
-                    </g>
-                ) : (
-                    <g />
-                )
-            }
-        </g>
-    );
-}
-
-function renderNodeLabels(
-    node: ContainsDfdLabels & SShapeElement & Hoverable,
-    actionDispatcher: IActionDispatcher,
-    labelTypeRegistry: LabelTypeRegistry,
-    baseY: number,
-    labelSpacing = 12,
-): VNode {
-    return (
-        <g>
-            {node.labels.map((label, i) => {
-                const x = node.bounds.width / 2;
-                const y = baseY + i * labelSpacing;
-                return renderNodeLabel(node, actionDispatcher, labelTypeRegistry, label, x, y);
-            })}
-        </g>
-    );
-}
-
 @injectable()
 export class StorageNodeView implements IView {
-    constructor(
-        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
-    ) {}
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
@@ -186,8 +111,8 @@ export class StorageNodeView implements IView {
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: 20,
-                } as DFDLabelArgs)}
-                {renderNodeLabels(node, this.actionDispatcher, this.labelTypeRegistry, 25)}
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, 25)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
@@ -248,10 +173,7 @@ export class IONode extends RectangularDFDNode {
 
 @injectable()
 export class IONodeView implements IView {
-    constructor(
-        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
-    ) {}
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
@@ -263,8 +185,8 @@ export class IONodeView implements IView {
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: 25,
-                } as DFDLabelArgs)}
-                {renderNodeLabels(node, this.actionDispatcher, this.labelTypeRegistry, 30)}
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, 30)}
             </g>
         );
     }
@@ -356,14 +278,14 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     }
 }
 
-interface DFDLabelArgs extends IViewArgs {
+interface DfdLabelArgs extends IViewArgs {
     xPosition: number;
     yPosition: number;
 }
 
 @injectable()
-export class DFDLabelView extends ShapeView {
-    private getPosition(label: Readonly<SLabel>, args?: DFDLabelArgs | IViewArgs): Point {
+export class DfdLabelView extends ShapeView {
+    private getPosition(label: Readonly<SLabel>, args?: DfdLabelArgs | IViewArgs): Point {
         if (args && "xPosition" in args && "yPosition" in args) {
             return { x: args.xPosition, y: args.yPosition };
         } else {
@@ -374,7 +296,7 @@ export class DFDLabelView extends ShapeView {
         }
     }
 
-    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DFDLabelArgs): VNode | undefined {
+    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DfdLabelArgs): VNode | undefined {
         const position = this.getPosition(label, args);
 
         return (
