@@ -124,28 +124,42 @@ export class FunctionNode extends RectangularDFDNode {
         return ELLIPTIC_ANCHOR_KIND;
     }
 
-    override get bounds(): Bounds {
-        const diameter = calculateTextWidth(this.editableLabel?.text) + 5;
+    calculateBaseDiameter(): number {
+        const baseDiameter = calculateTextWidth(this.editableLabel?.text) + 5;
         // Clamp diameter to be between 30 and 60
-        const clampedDiameter = Math.min(Math.max(diameter, 30), 60);
+        const clampedBaseDiameter = Math.min(Math.max(baseDiameter, 30), 60);
+        return clampedBaseDiameter;
+    }
+
+    override get bounds(): Bounds {
+        const baseDiameter = this.calculateBaseDiameter();
+        const labelDiameter = baseDiameter + (this.labels.length > 0 ? this.labels.length * 12 - 5 : 0);
 
         return {
             x: this.position.x,
             y: this.position.y,
-            width: clampedDiameter,
-            height: clampedDiameter,
+            width: labelDiameter,
+            height: labelDiameter,
         };
     }
 }
 
 @injectable()
 export class FunctionNodeView implements IView {
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+
     render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
-        const radius = Math.min(node.bounds.width, node.bounds.height) / 2;
+        const baseRadius = node.calculateBaseDiameter() / 2;
+        const fullRadius = node.bounds.width / 2;
+        console.log("base", baseRadius, "full", fullRadius);
         return (
             <g class-sprotty-node={true} class-function={true}>
-                <circle r={radius} cx={radius} cy={radius} />
-                {context.renderChildren(node)}
+                <circle r={fullRadius} cx={fullRadius} cy={fullRadius} />
+                {context.renderChildren(node, {
+                    xPosition: fullRadius,
+                    yPosition: baseRadius + 4,
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, baseRadius + 10)}
             </g>
         );
     }
