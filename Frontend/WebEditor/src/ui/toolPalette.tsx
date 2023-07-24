@@ -1,6 +1,6 @@
 /** @jsx svg */
 import { ContainerModule, injectable } from "inversify";
-import { init, attributesModule, VNode } from "snabbdom";
+import { VNode } from "snabbdom";
 import {
     svg,
     AbstractUIExtension,
@@ -11,6 +11,7 @@ import {
     ICommand,
     TYPES,
     configureActionHandler,
+    PatcherProvider,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { constructorInject } from "../utils";
@@ -18,8 +19,6 @@ import { NodeCreationTool, NodeCreationToolMouseListener } from "../tools/nodeCr
 import { EdgeCreationTool } from "../tools/edgeCreationTool";
 
 import "./toolPalette.css";
-
-const patch = init([attributesModule]);
 
 /**
  * UI extension that adds a tool palette to the diagram in the upper right.
@@ -33,6 +32,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         @constructorInject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
         @constructorInject(NodeCreationToolMouseListener)
         protected nodeCreationToolMouseListener: NodeCreationToolMouseListener,
+        @constructorInject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
     ) {
         super();
     }
@@ -172,7 +172,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         // it would be replaced by the svg node and the tool class would be removed with it, which we don't want.
         const subElement = document.createElement("div");
         toolElement.appendChild(subElement);
-        patch(subElement, svgNode);
+        this.patcherProvider.patcher(subElement, svgNode);
     }
 
     private enableTool(id: string): void {
