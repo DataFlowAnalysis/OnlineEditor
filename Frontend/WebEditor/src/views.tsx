@@ -151,7 +151,7 @@ export class FunctionNodeView implements IView {
     render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
         const baseRadius = node.calculateBaseDiameter() / 2;
         const fullRadius = node.bounds.width / 2;
-        console.log("base", baseRadius, "full", fullRadius);
+
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <circle r={fullRadius} cx={fullRadius} cy={fullRadius} />
