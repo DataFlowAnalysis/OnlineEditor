@@ -56,7 +56,7 @@ import { uiModules } from "./ui";
 import { ToolPaletteUI } from "./ui/toolPalette";
 import { HelpUI } from "./ui/help";
 import { LabelTypeUI } from "./ui/labelTypes";
-import { labelTypeModule } from "./labelTypes";
+import { dfdLabelModule } from "./labelTypes";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
@@ -130,7 +130,7 @@ container.load(
     ...toolModules,
     ...uiModules,
     commandsModule,
-    labelTypeModule,
+    dfdLabelModule,
 );
 
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);

@@ -102,7 +102,7 @@ export class LabelTypeRegistry {
 }
 
 @injectable()
-export class LabelTypeMouseDropListener extends MouseListener {
+export class DfdLabelMouseDropListener extends MouseListener {
     @inject(TYPES.ILogger)
     private logger: ILogger = new NullLogger();
 
@@ -135,16 +135,16 @@ export class LabelTypeMouseDropListener extends MouseListener {
 }
 
 @injectable()
-export class LabelTypeTool implements Tool {
-    static ID = "label-type-tool";
+export class DfdLabelDropTool implements Tool {
+    static ID = "dfd-label-drop-tool";
 
     constructor(
         @constructorInject(MouseTool) private mouseTool: MouseTool,
-        @constructorInject(LabelTypeMouseDropListener) private mouseListener: LabelTypeMouseDropListener,
+        @constructorInject(DfdLabelMouseDropListener) private mouseListener: DfdLabelMouseDropListener,
     ) {}
 
     get id(): string {
-        return LabelTypeTool.ID;
+        return DfdLabelDropTool.ID;
     }
 
     enable(): void {
@@ -223,10 +223,10 @@ export class DfdNodeLabelRenderer {
     }
 }
 
-export const labelTypeModule = new ContainerModule((bind) => {
+export const dfdLabelModule = new ContainerModule((bind) => {
     bind(LabelTypeRegistry).toSelf().inSingletonScope();
-    bind(LabelTypeMouseDropListener).toSelf().inSingletonScope();
-    bind(LabelTypeTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.IDefaultTool).to(LabelTypeTool);
+    bind(DfdLabelMouseDropListener).toSelf().inSingletonScope();
+    bind(DfdLabelDropTool).toSelf().inSingletonScope();
+    bind(EDITOR_TYPES.IDefaultTool).to(DfdLabelDropTool);
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();
 });

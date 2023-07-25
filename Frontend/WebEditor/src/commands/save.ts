@@ -5,6 +5,10 @@ import { constructorInject } from "../utils";
 import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { LabelType, LabelTypeRegistry } from "../labelTypes";
 
+/**
+ * Type that contains all data related to a diagram.
+ * This contains the sprotty diagram model and other data related to it.
+ */
 export interface SavedDiagram {
     model: SModelRootSchema;
     labelTypes: LabelType[];

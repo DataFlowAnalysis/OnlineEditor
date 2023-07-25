@@ -100,6 +100,7 @@ export class LoadDiagramCommand extends Command {
                 return this.oldRoot;
             }
 
+            // Load sprotty model
             this.preprocessModelSchema(newSchema);
             this.dynamicChildrenProcessor.processGraphChildren(newSchema, "set");
             this.newRoot = context.modelFactory.createRoot(newSchema);
@@ -107,6 +108,7 @@ export class LoadDiagramCommand extends Command {
             this.logger.info(this, "Model loaded successfully");
             fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
 
+            // Load label types
             this.labelTypeRegistry.clearLabelTypes();
             if (newDiagram?.labelTypes) {
                 newDiagram.labelTypes.forEach((labelType) => {
