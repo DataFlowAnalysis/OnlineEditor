@@ -1,4 +1,4 @@
-import { AbstractUIExtension, IActionDispatcher, TYPES } from "sprotty";
+import { AbstractUIExtension, CommitModelAction, IActionDispatcher, TYPES } from "sprotty";
 import { ContainerModule, injectable } from "inversify";
 import { constructorInject, generateRandomSprottyId } from "../utils";
 import {
@@ -37,6 +37,16 @@ export class LabelTypeUI extends AbstractUIExtension {
         this.containerElement.innerHTML = "";
         // Re-render
         this.initializeContents(this.containerElement);
+
+        // Re-render sprotty model viewport by dispatching some command.
+        // sprotty automatically triggers a re-render after any command is executed as it may change the model.
+
+        // CommitModelAction is a great idea because that way we don't have to call it
+        // each time we do some operation on the model inside the UI, like when removing a label type,
+        // we also need to commit the removal from the model.
+        // We can just do it here and not worry about it in the buttons/change handlers inside the ui.
+        // All changes are propagated through the label type registry.
+        this.actionDispatcher.dispatch(CommitModelAction.create());
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -84,6 +94,7 @@ export class LabelTypeUI extends AbstractUIExtension {
 
         labelTypeNameInput.onchange = () => {
             labelType.name = labelTypeNameInput.value;
+            this.labelTypeRegistry.labelTypeChanged();
         };
 
         labelTypeElement.appendChild(labelTypeNameInput);
