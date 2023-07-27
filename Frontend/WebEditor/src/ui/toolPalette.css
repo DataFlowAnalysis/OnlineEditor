@@ -1,5 +1,6 @@
 .tool-palette {
     top: 40px;
+    padding: 3px;
     right: 40px;
 
     /* Make text of the elements non-selectable */

@@ -1,0 +1,48 @@
+div.label-type-ui {
+    top: 150px;
+    right: 40px;
+    padding: 10px;
+}
+
+.label-type-ui * {
+    color: var(--color-foreground);
+}
+
+.label-type-ui .codicon {
+    vertical-align: middle;
+}
+
+.label-type {
+    padding-bottom: 10px;
+}
+
+.label-type-value,
+.label-type-value-add {
+    margin-left: 10px;
+}
+
+.label-type-name {
+    font-size: 12pt;
+}
+
+.label-type-ui input {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+.label-type-value input {
+    background-color: var(--color-background);
+    text-align: center;
+    border: 1px solid var(--color-foreground);
+    border-radius: 15px;
+    padding: 3px;
+    margin: 4px;
+}
+
+.label-type-ui button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}

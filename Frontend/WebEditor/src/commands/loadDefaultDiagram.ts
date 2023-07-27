@@ -15,10 +15,14 @@ import { DynamicChildrenProcessor } from "../dynamicChildren";
 import { DFDNodeSchema } from "../views";
 import { generateRandomSprottyId } from "../utils";
 import { fitToScreenAfterLoad } from "./load";
+import { LabelType, LabelTypeRegistry } from "../labelTypes";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();
 const outputId = generateRandomSprottyId();
+const locationLabelTypeId = generateRandomSprottyId();
+const locationOnPremId = generateRandomSprottyId();
+const locationCloudId = generateRandomSprottyId();
 
 const defaultDiagramSchema: SGraphSchema = {
     type: "graph",
@@ -28,19 +32,32 @@ const defaultDiagramSchema: SGraphSchema = {
             type: "node:storage",
             id: storageId,
             text: "Database",
+            labels: [
+                {
+                    labelTypeId: locationLabelTypeId,
+                    labelTypeValueId: locationOnPremId,
+                },
+            ],
             position: { x: 100, y: 100 },
         } as DFDNodeSchema,
         {
             type: "node:function",
             id: functionId,
             text: "System",
+            labels: [
+                {
+                    labelTypeId: locationLabelTypeId,
+                    labelTypeValueId: locationCloudId,
+                },
+            ],
             position: { x: 200, y: 200 },
         } as DFDNodeSchema,
         {
             type: "node:input-output",
             id: outputId,
             text: "Customer",
-            position: { x: 325, y: 206 },
+            position: { x: 325, y: 210 },
+            labels: [],
         } as DFDNodeSchema,
         {
             type: "edge:arrow",
@@ -55,6 +72,20 @@ const defaultDiagramSchema: SGraphSchema = {
             sourceId: functionId,
             targetId: outputId,
         } as SEdgeSchema,
+    ],
+};
+const locationLabelType: LabelType = {
+    id: locationLabelTypeId,
+    name: "DC Location",
+    values: [
+        {
+            id: locationOnPremId,
+            text: "On-Premise",
+        },
+        {
+            id: locationCloudId,
+            text: "Cloud",
+        },
     ],
 };
 
@@ -80,6 +111,8 @@ export class LoadDefaultDiagramCommand extends Command {
     private readonly dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
     @inject(TYPES.IActionDispatcher)
     private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
+    @inject(LabelTypeRegistry)
+    private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
     private oldRoot: SModelRoot | undefined;
     private newRoot: SModelRoot | undefined;
@@ -93,6 +126,11 @@ export class LoadDefaultDiagramCommand extends Command {
 
         this.logger.info(this, "Default Model loaded successfully");
         fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
+
+        this.labelTypeRegistry.clearLabelTypes();
+        this.labelTypeRegistry.registerLabelType(locationLabelType);
+        this.logger.info(this, "Default Label Types loaded successfully");
+
         return this.newRoot;
     }
 

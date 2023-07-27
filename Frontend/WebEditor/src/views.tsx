@@ -22,22 +22,26 @@ import {
     withEditLabelFeature,
     ShapeView,
     SLabel,
+    hoverFeedbackFeature,
 } from "sprotty";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenEdge, DynamicChildrenNode } from "./dynamicChildren";
-import { calculateTextWidth } from "./utils";
+import { calculateTextWidth, constructorInject } from "./utils";
+import { DfdNodeLabelRenderer, LabelAssignment, containsDfdLabelFeature } from "./labelTypes";
 
 import "./views.css";
 
 export interface DFDNodeSchema extends SNodeSchema {
     text: string;
+    labels: LabelAssignment[];
 }
 
 class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature];
+    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
 
     text: string = "";
+    labels: LabelAssignment[] = [];
 
     override setChildren(schema: DFDNodeSchema): void {
         schema.children = [
@@ -65,19 +69,33 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
     }
 }
 
+@injectable()
 export class StorageNode extends RectangularDFDNode {
+    static readonly DEFAULT_FEATURES = [...RectangularDFDNode.DEFAULT_FEATURES, hoverFeedbackFeature];
+
+    private calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return 26 + this.labels.length * 12;
+        } else {
+            return 30;
+        }
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
             width: Math.max(calculateTextWidth(this.editableLabel?.text), 40),
-            height: 30,
+            height: this.calculateHeight(),
         };
     }
 }
 
 @injectable()
 export class StorageNodeView implements IView {
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
@@ -90,7 +108,11 @@ export class StorageNodeView implements IView {
                 <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
 
                 <line x1="0" y1="0" x2={width} y2="0" />
-                {context.renderChildren(node)}
+                {context.renderChildren(node, {
+                    xPosition: width / 2,
+                    yPosition: 20,
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, 25)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
@@ -102,46 +124,71 @@ export class FunctionNode extends RectangularDFDNode {
         return ELLIPTIC_ANCHOR_KIND;
     }
 
-    override get bounds(): Bounds {
-        const diameter = calculateTextWidth(this.editableLabel?.text) + 5;
+    calculateBaseDiameter(): number {
+        const baseDiameter = calculateTextWidth(this.editableLabel?.text) + 5;
         // Clamp diameter to be between 30 and 60
-        const clampedDiameter = Math.min(Math.max(diameter, 30), 60);
+        const clampedBaseDiameter = Math.min(Math.max(baseDiameter, 30), 60);
+        return clampedBaseDiameter;
+    }
+
+    override get bounds(): Bounds {
+        const baseDiameter = this.calculateBaseDiameter();
+        const labelDiameter = baseDiameter + (this.labels.length > 0 ? this.labels.length * 12 - 5 : 0);
 
         return {
             x: this.position.x,
             y: this.position.y,
-            width: clampedDiameter,
-            height: clampedDiameter,
+            width: labelDiameter,
+            height: labelDiameter,
         };
     }
 }
 
 @injectable()
 export class FunctionNodeView implements IView {
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+
     render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
-        const radius = Math.min(node.bounds.width, node.bounds.height) / 2;
+        const baseRadius = node.calculateBaseDiameter() / 2;
+        const fullRadius = node.bounds.width / 2;
+
         return (
             <g class-sprotty-node={true} class-function={true}>
-                <circle r={radius} cx={radius} cy={radius} />
-                {context.renderChildren(node)}
+                <circle r={fullRadius} cx={fullRadius} cy={fullRadius} />
+                {context.renderChildren(node, {
+                    xPosition: fullRadius,
+                    yPosition: baseRadius + 4,
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, baseRadius + 10)}
             </g>
         );
     }
 }
 
 export class IONode extends RectangularDFDNode {
+    private calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return 36 + this.labels.length * 12;
+        } else {
+            return 40;
+        }
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
             width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 40),
-            height: 40,
+            height: this.calculateHeight(),
         };
     }
 }
 
 @injectable()
 export class IONodeView implements IView {
+    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+
     render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
@@ -149,7 +196,11 @@ export class IONodeView implements IView {
         return (
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
-                {context.renderChildren(node)}
+                {context.renderChildren(node, {
+                    xPosition: width / 2,
+                    yPosition: 25,
+                } as DfdLabelArgs)}
+                {this.labelRenderer.renderNodeLabels(node, 30)}
             </g>
         );
     }
@@ -225,12 +276,14 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
         for (let i = 1; i < segments.length; i++) {
             const p = segments[i];
             if (i === segments.length - 1) {
-                // Make edge line 10px shorter to make space for the arrow
+                // Make edge line 9px shorter to make space for the arrow
+                // The arrow is 10px long, but we only shorten by 9x to have overlap at the edge between line and arrow.
+                // Otherwise edges would be exactly next to each other which would result in a small gap and flickering if you zoom in enough.
                 const prevP = segments[i - 1];
                 const dx = p.x - prevP.x;
                 const dy = p.y - prevP.y;
                 const length = Math.sqrt(dx * dx + dy * dy);
-                const ratio = (length - 10) / length;
+                const ratio = (length - 9) / length;
                 path += ` L ${prevP.x + dx * ratio},${prevP.y + dy * ratio}`;
             } else {
                 // Lines between points in between are not shortened
@@ -241,15 +294,29 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     }
 }
 
+interface DfdLabelArgs extends IViewArgs {
+    xPosition: number;
+    yPosition: number;
+}
+
 @injectable()
-export class DFDLabelView extends ShapeView {
-    render(label: Readonly<SLabel>, _context: RenderingContext): VNode | undefined {
-        const parentSize = (label.parent as SNode | undefined)?.bounds;
-        const width = parentSize?.width ?? 0;
-        const height = parentSize?.height ?? 0;
+export class DfdLabelView extends ShapeView {
+    private getPosition(label: Readonly<SLabel>, args?: DfdLabelArgs | IViewArgs): Point {
+        if (args && "xPosition" in args && "yPosition" in args) {
+            return { x: args.xPosition, y: args.yPosition };
+        } else {
+            const parentSize = (label.parent as SNode | undefined)?.bounds;
+            const width = parentSize?.width ?? 0;
+            const height = parentSize?.height ?? 0;
+            return { x: width / 2, y: height / 2 + 5 };
+        }
+    }
+
+    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DfdLabelArgs): VNode | undefined {
+        const position = this.getPosition(label, args);
 
         return (
-            <text class-sprotty-label={true} x={width / 2} y={height / 2 + 5}>
+            <text class-sprotty-label={true} x={position.x} y={position.y}>
                 {label.text}
             </text>
         );

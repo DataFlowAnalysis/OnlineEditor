@@ -7,7 +7,7 @@ import {
     ArrowEdgeView,
     ArrowEdge,
     FunctionNode,
-    DFDLabelView,
+    DfdLabelView,
     StorageNode,
     IONode,
 } from "./views";
@@ -35,6 +35,7 @@ import {
     edgeLayoutModule,
     editLabelFeature,
     exportModule,
+    hoverModule,
     labelEditModule,
     labelEditUiModule,
     modelSourceModule,
@@ -50,16 +51,18 @@ import {
 import { toolModules } from "./tools";
 import { commandsModule } from "./commands/commands";
 import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
+import { DynamicChildrenProcessor } from "./dynamicChildren";
+import { uiModules } from "./ui";
+import { ToolPaletteUI } from "./ui/toolPalette";
+import { HelpUI } from "./ui/help";
+import { LabelTypeUI } from "./ui/labelTypes";
+import { dfdLabelModule } from "./labelTypes";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 
 import "./theme.css";
 import "./page.css";
-import { DynamicChildrenProcessor } from "./dynamicChildren";
-import { uiModules } from "./ui";
-import { ToolPaletteUI } from "./ui/toolPalette";
-import { HelpUI } from "./ui/help";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -78,7 +81,7 @@ const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
-    configureModelElement(context, "label", SLabel, DFDLabelView, {
+    configureModelElement(context, "label", SLabel, DfdLabelView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
@@ -120,12 +123,14 @@ container.load(
     edgeEditModule,
     exportModule,
     edgeLayoutModule,
+    hoverModule,
 
     // Custom modules
     dataFlowDiagramModule,
     ...toolModules,
     ...uiModules,
     commandsModule,
+    dfdLabelModule,
 );
 
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
@@ -140,17 +145,14 @@ modelSource
         children: [],
     })
     .then(() => {
-        // Show the tool palette after startup has completed.
-        dispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: ToolPaletteUI.ID,
-                visible: true,
-            }),
-        );
-        dispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: HelpUI.ID,
-                visible: true,
+        // Show the default uis after startup
+        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeUI.ID];
+        dispatcher.dispatchAll(
+            defaultUiElements.map((id) => {
+                return SetUIExtensionVisibilityAction.create({
+                    extensionId: id,
+                    visible: true,
+                });
             }),
         );
 

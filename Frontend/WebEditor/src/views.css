@@ -32,6 +32,21 @@
     stroke-width: 3;
 }
 
+.sprotty-node .node-label text {
+    font-size: 5pt;
+}
+
+.sprotty-node .node-label rect,
+.sprotty-node .node-label .label-delete circle {
+    fill: var(--color-primary);
+    stroke: var(--color-foreground);
+    stroke-width: 0.5;
+}
+
+.sprotty-node .node-label .label-delete text {
+    fill: var(--color-foreground);
+}
+
 /* Edges */
 
 .sprotty-edge {

@@ -1,4 +1,4 @@
-.help-ui {
+div.help-ui {
     left: 20px;
     bottom: 20px;
     padding: 0px 10px;
@@ -7,7 +7,7 @@
 /* Styling for keyboard symbols.
    Copied from the example at https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
    with adapted colors */
-kbd {
+div.help-ui kbd {
     background-color: var(--color-primary);
     color: var(--color-foreground);
 

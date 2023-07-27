@@ -1,6 +1,7 @@
 import { toolPaletteModule } from "./toolPalette";
+import { helpUiModule } from "./help";
+import { labelTypeUiModule } from "./labelTypes";
 
 import "./common.css";
-import { helpUiModule } from "./help";
 
-export const uiModules = [toolPaletteModule, helpUiModule];
+export const uiModules = [toolPaletteModule, helpUiModule, labelTypeUiModule];
