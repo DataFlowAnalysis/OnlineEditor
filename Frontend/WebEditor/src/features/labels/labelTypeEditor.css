@@ -1,14 +1,14 @@
-div.label-type-ui {
+div.label-type-editor-ui {
     top: 150px;
     right: 40px;
     padding: 10px;
 }
 
-.label-type-ui * {
+.label-type-editor-ui * {
     color: var(--color-foreground);
 }
 
-.label-type-ui .codicon {
+.label-type-editor-ui .codicon {
     vertical-align: middle;
 }
 
@@ -25,7 +25,7 @@ div.label-type-ui {
     font-size: 12pt;
 }
 
-.label-type-ui input {
+.label-type-editor-ui input {
     background-color: transparent;
     outline: none;
     border: none;
@@ -40,7 +40,7 @@ div.label-type-ui {
     margin: 4px;
 }
 
-.label-type-ui button {
+.label-type-editor-ui button {
     background-color: transparent;
     border: none;
     cursor: pointer;

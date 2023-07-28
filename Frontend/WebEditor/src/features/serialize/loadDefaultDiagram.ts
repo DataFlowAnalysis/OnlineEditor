@@ -11,11 +11,11 @@ import {
     TYPES,
 } from "sprotty";
 import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
-import { DynamicChildrenProcessor } from "../dynamicChildren";
-import { DFDNodeSchema } from "../views";
-import { generateRandomSprottyId } from "../utils";
+import { generateRandomSprottyId } from "../../utils";
+import { DFDNodeSchema } from "../../views";
+import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { DynamicChildrenProcessor } from "../../dynamicChildren";
 import { fitToScreenAfterLoad } from "./load";
-import { LabelType, LabelTypeRegistry } from "../labelTypes";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();

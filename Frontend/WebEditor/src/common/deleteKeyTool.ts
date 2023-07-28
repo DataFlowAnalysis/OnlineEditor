@@ -1,4 +1,4 @@
-import { ContainerModule, injectable } from "inversify";
+import { injectable } from "inversify";
 import {
     CommitModelAction,
     DeleteElementAction,
@@ -13,7 +13,7 @@ import {
 } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
-import { EDITOR_TYPES, constructorInject } from "../utils";
+import { constructorInject } from "../utils";
 
 /**
  * Custom sprotty key listener that deletes all selected elements when the user presses the delete key.
@@ -74,8 +74,3 @@ export class DelKeyDeleteTool implements Tool {
         this.keytool.deregister(this.deleteKeyListener);
     }
 }
-
-export const deleteKeyDeleteTool = new ContainerModule((bind) => {
-    bind(DelKeyDeleteTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.IDefaultTool).toService(DelKeyDeleteTool);
-});

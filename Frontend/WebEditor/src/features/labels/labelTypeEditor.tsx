@@ -1,19 +1,15 @@
+import { injectable } from "inversify";
+import { constructorInject, generateRandomSprottyId } from "../../utils";
 import { AbstractUIExtension, CommitModelAction, IActionDispatcher, TYPES } from "sprotty";
-import { ContainerModule, injectable } from "inversify";
-import { constructorInject, generateRandomSprottyId } from "../utils";
-import {
-    LABEL_ASSIGNMENT_MIME_TYPE,
-    LabelAssignment,
-    LabelType,
-    LabelTypeRegistry,
-    LabelTypeValue,
-} from "../labelTypes";
+import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from "./labelTypeRegistry";
+import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
+import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropTool";
 
-import "./labelTypes.css";
-import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "../commands/labelTypes";
+import "../../common/commonStyling.css";
+import "./labelTypeEditor.css";
 
 @injectable()
-export class LabelTypeUI extends AbstractUIExtension {
+export class LabelTypeEditorUI extends AbstractUIExtension {
     constructor(
         @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
@@ -22,14 +18,14 @@ export class LabelTypeUI extends AbstractUIExtension {
         labelTypeRegistry.onUpdate(() => this.reRender());
     }
 
-    static readonly ID = "label-type-ui";
+    static readonly ID = "label-type-editor-ui";
 
     id(): string {
-        return LabelTypeUI.ID;
+        return LabelTypeEditorUI.ID;
     }
 
     containerClass(): string {
-        return LabelTypeUI.ID;
+        return LabelTypeEditorUI.ID;
     }
 
     private reRender(): void {
@@ -188,8 +184,3 @@ export class LabelTypeUI extends AbstractUIExtension {
         };
     }
 }
-
-export const labelTypeUiModule = new ContainerModule((bind) => {
-    bind(LabelTypeUI).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(LabelTypeUI);
-});

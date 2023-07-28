@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { ContainerModule, injectable } from "inversify";
+import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import {
     svg,
@@ -10,14 +10,14 @@ import {
     IActionHandler,
     ICommand,
     TYPES,
-    configureActionHandler,
     PatcherProvider,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { constructorInject } from "../utils";
-import { NodeCreationTool, NodeCreationToolMouseListener } from "../tools/nodeCreationTool";
-import { EdgeCreationTool } from "../tools/edgeCreationTool";
+import { constructorInject } from "../../utils";
+import { NodeCreationTool, NodeCreationToolMouseListener } from "./nodeCreationTool";
+import { EdgeCreationTool } from "./edgeCreationTool";
 
+import "../../common/commonStyling.css";
 import "./toolPalette.css";
 
 /**
@@ -194,10 +194,3 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         }
     }
 }
-
-export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bind(ToolPaletteUI).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(ToolPaletteUI);
-    configureActionHandler(context, EnableDefaultToolsAction.KIND, ToolPaletteUI);
-});

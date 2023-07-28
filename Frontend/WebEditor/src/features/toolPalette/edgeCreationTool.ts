@@ -1,4 +1,4 @@
-import { ContainerModule, injectable } from "inversify";
+import { injectable } from "inversify";
 import {
     MouseListener,
     MouseTool,
@@ -11,7 +11,7 @@ import {
     CommitModelAction,
 } from "sprotty";
 import { Action, CreateElementAction, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
-import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
+import { constructorInject, generateRandomSprottyId } from "../../utils";
 
 @injectable()
 export class EdgeCreationToolMouseListener extends MouseListener {
@@ -138,9 +138,3 @@ export class EdgeCreationTool implements Tool {
         this.mouseTool.deregister(this.edgeCreationToolMouseListener);
     }
 }
-
-export const edgeCreationToolModule = new ContainerModule((bind) => {
-    bind(EdgeCreationToolMouseListener).toSelf().inSingletonScope();
-    bind(EdgeCreationTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.ITool).toService(EdgeCreationTool);
-});

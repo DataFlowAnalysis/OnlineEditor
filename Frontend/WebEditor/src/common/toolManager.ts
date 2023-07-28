@@ -1,5 +1,5 @@
-import { ContainerModule, injectable, multiInject, optional, postConstruct } from "inversify";
-import { ToolManager, Tool, TYPES } from "sprotty";
+import { injectable, multiInject, optional, postConstruct } from "inversify";
+import { ToolManager, Tool } from "sprotty";
 import { EDITOR_TYPES } from "../utils";
 
 /**
@@ -16,8 +16,3 @@ export class DFDToolManager extends ToolManager {
         this.enableDefaultTools();
     }
 }
-
-export const toolManager = new ContainerModule((bind, _unbind, _isBound, rebind) => {
-    bind(DFDToolManager).toSelf().inSingletonScope();
-    rebind(TYPES.IToolManager).toService(DFDToolManager);
-});

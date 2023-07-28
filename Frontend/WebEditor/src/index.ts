@@ -28,6 +28,7 @@ import {
     SetUIExtensionVisibilityAction,
     TYPES,
     boundsModule,
+    commandPaletteModule,
     configureCommand,
     configureModelElement,
     defaultModule,
@@ -48,21 +49,20 @@ import {
     withEditLabelFeature,
     zorderModule,
 } from "sprotty";
-import { toolModules } from "./tools";
-import { commandsModule } from "./commands/commands";
-import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
 import { DynamicChildrenProcessor } from "./dynamicChildren";
-import { uiModules } from "./ui";
-import { ToolPaletteUI } from "./ui/toolPalette";
-import { HelpUI } from "./ui/help";
-import { LabelTypeUI } from "./ui/labelTypes";
-import { dfdLabelModule } from "./labelTypes";
+import { HelpUI } from "./common/helpUi";
+import { dfdLabelModule } from "./features/labels/di.config";
+import { LabelTypeEditorUI } from "./features/labels/labelTypeEditor";
+import { ToolPaletteUI } from "./features/toolPalette/toolPalette";
+import { toolPaletteModule } from "./features/toolPalette/di.config";
+import { serializeModule } from "./features/serialize/di.config";
+import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagram";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
-
 import "./theme.css";
 import "./page.css";
+import { dfdCommonModule } from "./common/di.config";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -124,13 +124,14 @@ container.load(
     exportModule,
     edgeLayoutModule,
     hoverModule,
+    commandPaletteModule,
 
     // Custom modules
     dataFlowDiagramModule,
-    ...toolModules,
-    ...uiModules,
-    commandsModule,
+    dfdCommonModule,
+    serializeModule,
     dfdLabelModule,
+    toolPaletteModule,
 );
 
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
@@ -146,7 +147,7 @@ modelSource
     })
     .then(() => {
         // Show the default uis after startup
-        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeUI.ID];
+        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeEditorUI.ID];
         dispatcher.dispatchAll(
             defaultUiElements.map((id) => {
                 return SetUIExtensionVisibilityAction.create({

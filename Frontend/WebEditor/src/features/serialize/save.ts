@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
-import { constructorInject } from "../utils";
-import { DynamicChildrenProcessor } from "../dynamicChildren";
-import { LabelType, LabelTypeRegistry } from "../labelTypes";
+import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { DynamicChildrenProcessor } from "../../dynamicChildren";
+import { constructorInject } from "../../utils";
 
 /**
  * Type that contains all data related to a diagram.
