@@ -13,6 +13,7 @@ import {
 } from "./views";
 import { Container, ContainerModule } from "inversify";
 import {
+    AbstractUIExtension,
     ActionDispatcher,
     CenterGridSnapper,
     CommitModelAction,
@@ -50,19 +51,17 @@ import {
     zorderModule,
 } from "sprotty";
 import { DynamicChildrenProcessor } from "./dynamicChildren";
-import { HelpUI } from "./common/helpUi";
 import { dfdLabelModule } from "./features/labels/di.config";
-import { LabelTypeEditorUI } from "./features/labels/labelTypeEditor";
-import { ToolPaletteUI } from "./features/toolPalette/toolPalette";
 import { toolPaletteModule } from "./features/toolPalette/di.config";
 import { serializeModule } from "./features/serialize/di.config";
 import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagram";
+import { dfdCommonModule } from "./common/di.config";
+import { EDITOR_TYPES } from "./utils";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 import "./theme.css";
 import "./page.css";
-import { dfdCommonModule } from "./common/di.config";
 
 // Setup the Dependency Injection Container.
 // This includes all used nodes, edges, listeners, etc. for sprotty.
@@ -136,6 +135,7 @@ container.load(
 
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
+const defaultUIElements = container.getAll<AbstractUIExtension>(EDITOR_TYPES.DefaultUIElement);
 
 // Load the initial root model
 // Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
@@ -147,11 +147,10 @@ modelSource
     })
     .then(() => {
         // Show the default uis after startup
-        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeEditorUI.ID];
         dispatcher.dispatchAll(
-            defaultUiElements.map((id) => {
+            defaultUIElements.map((uiElement) => {
                 return SetUIExtensionVisibilityAction.create({
-                    extensionId: id,
+                    extensionId: uiElement.id(),
                     visible: true,
                 });
             }),

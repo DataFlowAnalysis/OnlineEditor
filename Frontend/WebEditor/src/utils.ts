@@ -9,6 +9,9 @@ export const EDITOR_TYPES = {
     IDefaultTool: Symbol("IDefaultTool"),
     // sprotty tools that should be registered but not enabled by default.
     ITool: Symbol("ITool"),
+    // All IUIExtension instances that are bound to this symbol will
+    // be loaded and enabled at editor startup.
+    DefaultUIElement: Symbol("DefaultUIElement"),
 };
 
 export const FIT_TO_SCREEN_PADDING = 75;

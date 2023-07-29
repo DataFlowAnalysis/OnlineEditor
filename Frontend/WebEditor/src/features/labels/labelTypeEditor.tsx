@@ -29,6 +29,11 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
     }
 
     private reRender(): void {
+        if (!this.containerElement) {
+            // The ui extension has not been initialized yet.
+            return;
+        }
+
         // Remove all children
         this.containerElement.innerHTML = "";
         // Re-render

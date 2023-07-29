@@ -20,6 +20,7 @@ export const dfdLabelModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(EDITOR_TYPES.IDefaultTool).to(DfdLabelDropTool);
     bind(LabelTypeEditorUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).to(LabelTypeEditorUI);
+    bind(EDITOR_TYPES.DefaultUIElement).to(LabelTypeEditorUI);
 
     const context = { bind, unbind, isBound, rebind };
     configureCommand(context, AddLabelAssignmentCommand);
