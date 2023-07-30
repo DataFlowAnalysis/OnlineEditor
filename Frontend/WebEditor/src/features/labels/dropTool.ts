@@ -17,6 +17,11 @@ import { getParentWithDfdLabels } from "./elementFeature";
 
 export const LABEL_ASSIGNMENT_MIME_TYPE = "application/x-label-assignment";
 
+/**
+ * Mouse Listener that handles the drop of label assignments.
+ * These can be started by dragging a label type value from the label type editor UI.
+ * Adds the label to the element that the label value was dropped on.
+ */
 @injectable()
 export class DfdLabelMouseDropListener extends MouseListener {
     constructor(@constructorInject(TYPES.ILogger) private logger: ILogger) {

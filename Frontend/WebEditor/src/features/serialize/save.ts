@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
 import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import { DynamicChildrenProcessor } from "../../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { constructorInject } from "../../utils";
 
 /**

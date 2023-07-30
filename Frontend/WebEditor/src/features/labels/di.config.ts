@@ -12,6 +12,10 @@ import {
     DeleteLabelTypeValueCommand,
 } from "./commands";
 
+// This module contains the components required for the dfd node labels.
+// This includes a registry for the label types, a UI to manage them,
+// a renderer to display them inside nodes and commands to add/delete them to nodes.
+
 export const dfdLabelModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(LabelTypeRegistry).toSelf().inSingletonScope();
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();

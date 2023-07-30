@@ -12,9 +12,9 @@ import {
 } from "sprotty";
 import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
-import { DFDNodeSchema } from "../../views";
+import { DFDNodeSchema } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import { DynamicChildrenProcessor } from "../../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { fitToScreenAfterLoad } from "./load";
 
 const storageId = generateRandomSprottyId();

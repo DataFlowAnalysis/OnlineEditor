@@ -9,7 +9,7 @@ import {
     TYPES,
 } from "sprotty";
 import { Action, FitToScreenAction, SModelRoot as SModelRootSchema } from "sprotty-protocol";
-import { DynamicChildrenProcessor } from "../../dynamicChildren";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../../utils";
 import { SavedDiagram } from "./save";

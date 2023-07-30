@@ -5,6 +5,10 @@ import { NodeCreationTool, NodeCreationToolMouseListener } from "./nodeCreationT
 import { ToolPaletteUI } from "./toolPalette";
 import { EnableDefaultToolsAction, TYPES, configureActionHandler } from "sprotty";
 
+// This module contains an UI extension that adds a tool palette to the editor.
+// This tool palette allows the user to create new nodes and edges.
+// Additionally it contains the tools that are used to create the nodes and edges.
+
 export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(EdgeCreationToolMouseListener).toSelf().inSingletonScope();
     bind(EdgeCreationTool).toSelf().inSingletonScope();

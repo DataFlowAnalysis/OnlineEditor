@@ -1,14 +1,23 @@
 import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty";
+import {
+    CenterGridSnapper,
+    ConsoleLogger,
+    CreateElementCommand,
+    LocalModelSource,
+    LogLevel,
+    TYPES,
+    configureCommand,
+} from "sprotty";
 import { ServerCommandPaletteActionProvider } from "./commandPalette";
 import { DFDToolManager } from "./toolManager";
 import { HelpUI } from "./helpUi";
 import { DelKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
+import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
 
 import "./commonStyling.css";
 
-export const dfdCommonModule = new ContainerModule((bind, _unbind, _isBound, rebind) => {
+export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
 
@@ -21,4 +30,14 @@ export const dfdCommonModule = new ContainerModule((bind, _unbind, _isBound, reb
 
     bind(DFDToolManager).toSelf().inSingletonScope();
     rebind(TYPES.IToolManager).toService(DFDToolManager);
+
+    bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
+    rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
+    rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
+    bind(TYPES.ISnapper).to(CenterGridSnapper);
+    bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
+
+    // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
+    const context = { bind, unbind, isBound, rebind };
+    configureCommand(context, CreateElementCommand);
 });

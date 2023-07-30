@@ -11,8 +11,8 @@ import {
     Tool,
 } from "sprotty";
 import { Action, CreateElementAction } from "sprotty-protocol";
-import { DFDNodeSchema } from "../../views";
-import { DynamicChildrenProcessor } from "../../dynamicChildren";
+import { DFDNodeSchema } from "../dfdElements/nodes";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 
 /**
  * The type and size of the node to be created by the NodeCreationTool.
