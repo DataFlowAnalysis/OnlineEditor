@@ -61,7 +61,37 @@ export class DfdNodeLabelRenderer {
         );
     }
 
+    /**
+     * Sorts the labels alphabetically by label type name (primary) and label type value text (secondary).
+     *
+     * @param labels the labels to sort. The operation is performed in-place.
+     */
+    private sortLabels(labels: LabelAssignment[]): void {
+        labels.sort((a, b) => {
+            const labelTypeA = this.labelTypeRegistry.getLabelType(a.labelTypeId);
+            const labelTypeB = this.labelTypeRegistry.getLabelType(b.labelTypeId);
+            if (!labelTypeA || !labelTypeB) {
+                return 0;
+            }
+
+            if (labelTypeA.name < labelTypeB.name) {
+                return -1;
+            } else if (labelTypeA.name > labelTypeB.name) {
+                return 1;
+            } else {
+                const labelTypeValueA = labelTypeA.values.find((value) => value.id === a.labelTypeValueId);
+                const labelTypeValueB = labelTypeB.values.find((value) => value.id === b.labelTypeValueId);
+                if (!labelTypeValueA || !labelTypeValueB) {
+                    return 0;
+                }
+
+                return labelTypeValueA.text.localeCompare(labelTypeValueB.text);
+            }
+        });
+    }
+
     renderNodeLabels(node: ContainsDfdLabels & SShapeElement & Hoverable, baseY: number, labelSpacing = 12): VNode {
+        this.sortLabels(node.labels);
         return (
             <g>
                 {node.labels.map((label, i) => {
