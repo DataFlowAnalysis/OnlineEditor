@@ -1,7 +1,7 @@
-import { AbstractUIExtension, TYPES } from "sprotty";
-import { injectable, ContainerModule } from "inversify";
+import { AbstractUIExtension } from "sprotty";
+import { injectable } from "inversify";
 
-import "./help.css";
+import "./helpUi.css";
 
 @injectable()
 export class HelpUI extends AbstractUIExtension {
@@ -27,8 +27,3 @@ export class HelpUI extends AbstractUIExtension {
         `;
     }
 }
-
-export const helpUiModule = new ContainerModule((bind) => {
-    bind(HelpUI).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(HelpUI);
-});

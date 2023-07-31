@@ -1,39 +1,17 @@
 import "reflect-metadata";
 
+import { Container } from "inversify";
 import {
-    FunctionNodeView,
-    IONodeView,
-    StorageNodeView,
-    ArrowEdgeView,
-    ArrowEdge,
-    FunctionNode,
-    DfdLabelView,
-    StorageNode,
-    IONode,
-} from "./views";
-import { Container, ContainerModule } from "inversify";
-import {
+    AbstractUIExtension,
     ActionDispatcher,
-    CenterGridSnapper,
     CommitModelAction,
-    ConsoleLogger,
-    CreateElementCommand,
-    LocalModelSource,
-    LogLevel,
-    SGraph,
-    SGraphView,
-    SLabel,
-    SRoutingHandle,
-    SRoutingHandleView,
     SetUIExtensionVisibilityAction,
     TYPES,
     boundsModule,
-    configureCommand,
-    configureModelElement,
+    commandPaletteModule,
     defaultModule,
     edgeEditModule,
     edgeLayoutModule,
-    editLabelFeature,
     exportModule,
     hoverModule,
     labelEditModule,
@@ -45,53 +23,22 @@ import {
     undoRedoModule,
     updateModule,
     viewportModule,
-    withEditLabelFeature,
     zorderModule,
 } from "sprotty";
-import { toolModules } from "./tools";
-import { commandsModule } from "./commands/commands";
-import { LoadDefaultDiagramAction } from "./commands/loadDefaultDiagram";
-import { DynamicChildrenProcessor } from "./dynamicChildren";
-import { uiModules } from "./ui";
-import { ToolPaletteUI } from "./ui/toolPalette";
-import { HelpUI } from "./ui/help";
-import { LabelTypeUI } from "./ui/labelTypes";
-import { dfdLabelModule } from "./labelTypes";
+import { dfdCommonModule } from "./common/di.config";
+import { dfdLabelModule } from "./features/labels/di.config";
+import { toolPaletteModule } from "./features/toolPalette/di.config";
+import { serializeModule } from "./features/serialize/di.config";
+import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagram";
+import { dfdElementsModule } from "./features/dfdElements/di.config";
+import { EDITOR_TYPES } from "./utils";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
-
 import "./theme.css";
 import "./page.css";
 
-// Setup the Dependency Injection Container.
-// This includes all used nodes, edges, listeners, etc. for sprotty.
-const dataFlowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
-    rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
-    rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
-    bind(TYPES.ISnapper).to(CenterGridSnapper);
-    bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
-
-    const context = { bind, unbind, isBound, rebind };
-    configureModelElement(context, "graph", SGraph, SGraphView);
-    configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
-    configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
-    configureModelElement(context, "node:input-output", IONode, IONodeView);
-    configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
-        enable: [withEditLabelFeature],
-    });
-    configureModelElement(context, "label", SLabel, DfdLabelView, {
-        enable: [editLabelFeature],
-    });
-    configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
-    configureModelElement(context, "volatile-routing-point", SRoutingHandle, SRoutingHandleView);
-
-    // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
-    configureCommand(context, CreateElementCommand);
-});
-
-// Load the above defined module with all the used modules from sprotty.
+// Load required sprotty and custom modules.
 const container = new Container();
 // For reference: these are the modules used in the sprotty examples that can be used
 // There may(?) be more modules available in sprotty but these are the most relevant ones
@@ -102,10 +49,9 @@ const container = new Container();
 //     hoverModule, labelEditModule, labelEditUiModule, moveModule,
 //     openModule, routingModule, selectModule, undoRedoModule,
 //     updateModule, viewportModule, zorderModule, graphModule,
-//     dataFlowDiagramModule
 // );
 container.load(
-    // Sprotty modules
+    // Sprotty modules, will create a sprotty diagram inside the html element with id "sprotty" by default
     // TODO: it is unclear what all these modules do *exactly* and would be good
     // to have a short description for each sprotty internal module
     defaultModule,
@@ -124,39 +70,29 @@ container.load(
     exportModule,
     edgeLayoutModule,
     hoverModule,
+    commandPaletteModule,
 
     // Custom modules
-    dataFlowDiagramModule,
-    ...toolModules,
-    ...uiModules,
-    commandsModule,
+    dfdCommonModule,
+    dfdElementsModule,
+    serializeModule,
     dfdLabelModule,
+    toolPaletteModule,
 );
 
-const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
+const defaultUIElements = container.getAll<AbstractUIExtension>(EDITOR_TYPES.DefaultUIElement);
 
-// Load the initial root model
-// Unless overwritten this the graph will be loaded into the DOM element with the id "sprotty".
-modelSource
-    .setModel({
-        type: "graph",
-        id: "root",
-        children: [],
-    })
-    .then(() => {
-        // Show the default uis after startup
-        const defaultUiElements = [ToolPaletteUI.ID, HelpUI.ID, LabelTypeUI.ID];
-        dispatcher.dispatchAll(
-            defaultUiElements.map((id) => {
-                return SetUIExtensionVisibilityAction.create({
-                    extensionId: id,
-                    visible: true,
-                });
-            }),
-        );
+// Show the default uis after startup
+dispatcher.dispatchAll(
+    defaultUIElements.map((uiElement) => {
+        return SetUIExtensionVisibilityAction.create({
+            extensionId: uiElement.id(),
+            visible: true,
+        });
+    }),
+);
 
-        // Load the default diagram and commit it to the model source.
-        dispatcher.dispatch(LoadDefaultDiagramAction.create());
-        dispatcher.dispatch(CommitModelAction.create());
-    });
+// Then load the default diagram and commit the temporary model to the model source
+dispatcher.dispatch(LoadDefaultDiagramAction.create());
+dispatcher.dispatch(CommitModelAction.create());

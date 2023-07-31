@@ -1,5 +1,5 @@
-import { ContainerModule, injectable } from "inversify";
-import { EDITOR_TYPES, constructorInject, generateRandomSprottyId } from "../utils";
+import { injectable } from "inversify";
+import { constructorInject, generateRandomSprottyId } from "../../utils";
 import {
     CommitModelAction,
     EnableDefaultToolsAction,
@@ -11,8 +11,8 @@ import {
     Tool,
 } from "sprotty";
 import { Action, CreateElementAction } from "sprotty-protocol";
-import { DFDNodeSchema } from "../views";
-import { DynamicChildrenProcessor } from "../dynamicChildren";
+import { DFDNodeSchema } from "../dfdElements/nodes";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 
 /**
  * The type and size of the node to be created by the NodeCreationTool.
@@ -114,9 +114,3 @@ export class NodeCreationTool implements Tool {
         this.mouseTool.deregister(this.nodeCreationToolMouseListener);
     }
 }
-
-export const nodeCreationToolModule = new ContainerModule((bind) => {
-    bind(NodeCreationToolMouseListener).toSelf().inSingletonScope();
-    bind(NodeCreationTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.ITool).toService(NodeCreationTool);
-});

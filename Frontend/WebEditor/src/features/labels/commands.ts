@@ -1,8 +1,9 @@
 import { Action } from "sprotty-protocol";
-import { ContainsDfdLabels, LabelAssignment, LabelTypeRegistry, containsDfdLabels } from "../labelTypes";
 import { Command, CommandExecutionContext, CommandReturn, SModelElement, SParentElement, TYPES } from "sprotty";
-import { constructorInject } from "../utils";
+import { constructorInject } from "../../utils";
 import { injectable } from "inversify";
+import { ContainsDfdLabels, containsDfdLabels } from "./elementFeature";
+import { LabelAssignment, LabelTypeRegistry } from "./labelTypeRegistry";
 
 export interface AddLabelAssignmentAction extends Action {
     kind: typeof AddLabelAssignmentAction.TYPE;

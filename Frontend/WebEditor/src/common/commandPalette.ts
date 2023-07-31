@@ -1,21 +1,18 @@
-import { injectable, ContainerModule } from "inversify";
+import { injectable } from "inversify";
 import {
     ICommandPaletteActionProvider,
     RequestExportSvgAction,
     LabeledAction,
     SModelRoot,
-    TYPES,
-    commandPaletteModule,
     EnableToolsAction,
     CommitModelAction,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
-import { LogHelloAction } from "../commands/log-hello";
-import { EdgeCreationTool } from "./edgeCreationTool";
-import { SaveDiagramAction } from "../commands/save";
-import { LoadDiagramAction } from "../commands/load";
-import { LoadDefaultDiagramAction } from "../commands/loadDefaultDiagram";
+import { EdgeCreationTool } from "../features/toolPalette/edgeCreationTool";
+import { LoadDiagramAction } from "../features/serialize/load";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
+import { SaveDiagramAction } from "../features/serialize/save";
+import { LoadDefaultDiagramAction } from "../features/serialize/loadDefaultDiagram";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
@@ -45,15 +42,6 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
-            // TODO: this action is only used for demonstration purposes including the LogHelloAction. This should be removed
-            new LabeledAction("Log Hello World", [LogHelloAction.create("from command palette hello")], "symbol-event"),
         ];
     }
 }
-
-const commandPaletteActionProviderModule = new ContainerModule((bind) => {
-    bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
-    bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
-});
-
-export const commandPaletteModules = [commandPaletteModule, commandPaletteActionProviderModule];
