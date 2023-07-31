@@ -1,3 +1,5 @@
+/* General UI */
+
 div.label-type-editor-ui {
     top: 150px;
     right: 40px;
@@ -12,8 +14,23 @@ div.label-type-editor-ui {
     vertical-align: middle;
 }
 
+.label-type-editor-ui hr {
+    height: 1px;
+    border: 0;
+    background-color: var(--color-foreground);
+}
+
+.label-type-editor-ui button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Label Types */
+
 .label-type {
-    padding-bottom: 10px;
+    padding-bottom: 5px;
 }
 
 .label-type-value,
@@ -25,12 +42,14 @@ div.label-type-editor-ui {
     font-size: 12pt;
 }
 
+/* This is the input field for the label type name */
 .label-type-editor-ui input {
     background-color: transparent;
     outline: none;
     border: none;
 }
 
+/* Label Type value */
 .label-type-value input {
     background-color: var(--color-background);
     text-align: center;
@@ -38,11 +57,4 @@ div.label-type-editor-ui {
     border-radius: 15px;
     padding: 3px;
     margin: 4px;
-}
-
-.label-type-editor-ui button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
 }

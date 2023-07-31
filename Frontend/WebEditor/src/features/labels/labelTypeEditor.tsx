@@ -52,8 +52,14 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
 
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
-        this.labelTypeRegistry.getLabelTypes().forEach((labelType) => {
+        this.labelTypeRegistry.getLabelTypes().forEach((labelType, idx) => {
             containerElement.appendChild(this.renderLabelType(labelType));
+
+            if (idx < this.labelTypeRegistry.getLabelTypes().length - 1) {
+                // Add a horizontal line between label types
+                const horizontalLine = document.createElement("hr");
+                containerElement.appendChild(horizontalLine);
+            }
         });
 
         // Render add button for whole label type
