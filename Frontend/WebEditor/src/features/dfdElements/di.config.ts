@@ -18,7 +18,7 @@ import {
     StorageNode,
     StorageNodeView,
 } from "./nodes";
-import { ArrowEdge, ArrowEdgeView } from "./edge";
+import { ArrowEdge, ArrowEdgeView } from "./edges";
 
 import "./styles.css";
 

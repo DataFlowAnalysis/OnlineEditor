@@ -55,6 +55,13 @@
     stroke-width: 1;
 }
 
+/* On top of the actual edge path we draw a transparent path with a larger stroke width.
+   This makes it easier to select the edge with the mouse. */
+.sprotty-edge path.select-path {
+    stroke: transparent;
+    stroke-width: 8; /* make the "invisible hitbox" 8 pixels wide. This is the same width as the arrow head */
+}
+
 .sprotty-edge.selected {
     stroke-width: 2;
 }

@@ -97,6 +97,13 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
                 path += ` L ${p.x},${p.y}`;
             }
         }
-        return <path d={path} />;
+        return (
+            <g>
+                {/* This is the actual path being rendered */}
+                <path d={path} />
+                {/* This is a transparent path that is rendered on top of the actual path to make it easier to select the edge */}
+                <path d={path} class-select-path={true} />
+            </g>
+        );
     }
 }
