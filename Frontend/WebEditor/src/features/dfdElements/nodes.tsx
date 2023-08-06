@@ -37,7 +37,7 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
         schema.children = [
             {
                 type: "label",
-                text: schema.text,
+                text: schema.text ?? "",
                 id: schema.id + "-label",
             } as SLabelSchema,
         ];

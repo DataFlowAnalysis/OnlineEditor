@@ -13,6 +13,7 @@ import { LoadDiagramAction } from "../features/serialize/load";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
 import { SaveDiagramAction } from "../features/serialize/save";
 import { LoadDefaultDiagramAction } from "../features/serialize/loadDefaultDiagram";
+import { LayoutModelAction } from "../features/autoLayout/di.config";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
@@ -42,6 +43,11 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
+            new LabeledAction(
+                "Layout diagram",
+                [LayoutModelAction.create(), commitAction, fitToScreenAction],
+                "layout",
+            ),
         ];
     }
 }
