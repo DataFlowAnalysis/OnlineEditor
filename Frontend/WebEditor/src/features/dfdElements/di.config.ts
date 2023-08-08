@@ -8,9 +8,10 @@ import {
     configureModelElement,
     editLabelFeature,
     withEditLabelFeature,
+    SLabelView,
 } from "sprotty";
 import {
-    DfdLabelView,
+    DfdPositionalLabelView,
     FunctionNode,
     FunctionNodeView,
     IONode,
@@ -31,7 +32,10 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     configureModelElement(context, "edge:arrow", ArrowEdge, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });
-    configureModelElement(context, "label", SLabel, DfdLabelView, {
+    configureModelElement(context, "label", SLabel, SLabelView, {
+        enable: [editLabelFeature],
+    });
+    configureModelElement(context, "label:positional", SLabel, DfdPositionalLabelView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "routing-point", SRoutingHandle, SRoutingHandleView);
