@@ -29,9 +29,10 @@ import { constructorInject } from "../../utils";
 class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
     protected override graphOptions(_sgraph: SGraph, _index: SModelIndex): LayoutOptions {
         return {
-            "org.eclipse.elk.algorithm": "org.eclipse.elk.layered",
-            "org.eclipse.elk.direction": "DOWN",
-            "org.eclipse.elk.spacing.nodeNode": "30.0",
+            "org.eclipse.elk.algorithm": "org.eclipse.elk.stress",
+            "org.eclipse.elk.spacing.nodeNode": "45.0",
+            "org.eclipse.elk.spacing.edgeLabel": "10.0",
+            "org.eclipse.elk.edgeLabels.inline": "false",
             "org.eclipse.elk.layered.spacing.edgeNodeBetweenLayers": "30.0",
         };
     }
@@ -39,7 +40,7 @@ class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
 
 const elkFactory = () =>
     new ElkConstructor({
-        algorithms: ["layered"],
+        algorithms: ["stress"],
     });
 
 @injectable()
@@ -58,8 +59,8 @@ class CustomElkLayoutEngine extends ElkLayoutEngine {
             elkShape.y = sshape.position.y;
         }
         if ("bounds" in sshape) {
-            elkShape.width = sshape.bounds.width;
-            elkShape.height = sshape.bounds.height;
+            elkShape.width = sshape.bounds.width ?? sshape.size.width;
+            elkShape.height = sshape.bounds.height ?? sshape.size.height;
         }
     }
 }
