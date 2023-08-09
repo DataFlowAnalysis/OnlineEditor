@@ -14,5 +14,6 @@
         --color-primary: #222;
         --color-tool-palette-hover: #444;
         --color-tool-palette-selected: #555;
+        color-scheme: dark;
     }
 }
