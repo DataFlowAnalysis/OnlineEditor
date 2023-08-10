@@ -78,7 +78,7 @@ export class StorageNode extends RectangularDFDNode {
         return {
             x: this.position.x,
             y: this.position.y,
-            width: Math.max(calculateTextWidth(this.editableLabel?.text), 40),
+            width: Math.max(calculateTextWidth(this.editableLabel?.text), 50),
             height: this.calculateHeight(),
         };
     }
@@ -171,7 +171,7 @@ export class IONode extends RectangularDFDNode {
         return {
             x: this.position.x,
             y: this.position.y,
-            width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 40),
+            width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 60),
             height: this.calculateHeight(),
         };
     }
