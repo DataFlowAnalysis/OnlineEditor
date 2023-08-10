@@ -15,4 +15,9 @@
         --color-tool-palette-hover: #444;
         --color-tool-palette-selected: #555;
     }
+
+    #sprotty div {
+        /* Use default dark theme browser styles for scrollbars etc. inside all UI extensions */
+        color-scheme: dark;
+    }
 }
