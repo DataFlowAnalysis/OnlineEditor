@@ -17,6 +17,7 @@
     }
 
     #sprotty div {
+        /* Use default dark theme browser styles for scrollbars etc. inside all UI extensions */
         color-scheme: dark;
     }
 }
