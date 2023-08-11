@@ -29,18 +29,22 @@ import { constructorInject } from "../../utils";
 class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
     protected override graphOptions(_sgraph: SGraph, _index: SModelIndex): LayoutOptions {
         return {
-            "org.eclipse.elk.algorithm": "org.eclipse.elk.stress",
+            "org.eclipse.elk.algorithm": "org.eclipse.elk.layered",
             "org.eclipse.elk.spacing.nodeNode": "45.0",
             "org.eclipse.elk.spacing.edgeLabel": "10.0",
             "org.eclipse.elk.edgeLabels.inline": "false",
             "org.eclipse.elk.layered.spacing.edgeNodeBetweenLayers": "30.0",
+            "org.eclipse.elk.omitNodeMicroLayout": "true",
+            "org.eclipse.elk.force.temperature": "0.0002",
+            "org.eclipse.elk.stress.desiredEdgeLength": "200",
+            "org.eclipse.elk.nodeSize.minimum": "new KVector(40, 40)",
         };
     }
 }
 
 const elkFactory = () =>
     new ElkConstructor({
-        algorithms: ["stress"],
+        algorithms: ["layered", "force", "stress"],
     });
 
 @injectable()
