@@ -1,5 +1,3 @@
-import { injectable } from "inversify";
-
 export interface LabelType {
     id: string;
     name: string;
@@ -16,7 +14,6 @@ export interface LabelAssignment {
     labelTypeValueId: string;
 }
 
-@injectable()
 export class LabelTypeRegistry {
     private labelTypes: LabelType[] = [];
     private updateCallbacks: (() => void)[] = [];
@@ -52,3 +49,11 @@ export class LabelTypeRegistry {
         return this.labelTypes.find((type) => type.id === id);
     }
 }
+
+// Usually we would add the registry to a inversify container module and inject it using dependency injection where needed.
+// Sadly some places where the registry is used are not inside a inversify container.
+// An example for this are the node implementation classes that need the registry to compute the bounds of the node.
+// These classes are not managed by inversify and therefore we cannot inject the registry there.
+// To solve this we export this registry instance as a global variable for these situations.
+// For all other situations where inversify can be used this exact same instance is available to be injected as well.
+export const globalLabelTypeRegistry = new LabelTypeRegistry();

@@ -1,5 +1,5 @@
 import { ContainerModule } from "inversify";
-import { LabelTypeRegistry } from "./labelTypeRegistry";
+import { LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DfdNodeLabelRenderer } from "./labelRenderer";
 import { EDITOR_TYPES } from "../../utils";
 import { DfdLabelDropTool, DfdLabelMouseDropListener } from "./dropTool";
@@ -17,7 +17,7 @@ import {
 // a renderer to display them inside nodes and commands to add/delete them to nodes.
 
 export const dfdLabelModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(LabelTypeRegistry).toSelf().inSingletonScope();
+    bind(LabelTypeRegistry).toConstantValue(globalLabelTypeRegistry);
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();
     bind(DfdLabelMouseDropListener).toSelf().inSingletonScope();
     bind(DfdLabelDropTool).toSelf().inSingletonScope();
