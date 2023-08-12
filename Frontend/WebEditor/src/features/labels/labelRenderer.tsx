@@ -3,7 +3,7 @@ import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { Hoverable, IActionDispatcher, SShapeElement, TYPES, svg } from "sprotty";
 import { calculateTextWidth, constructorInject } from "../../utils";
-import { LabelAssignment, LabelTypeRegistry } from "./labelTypeRegistry";
+import { LabelAssignment, LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DeleteLabelAssignmentAction } from "./commands";
 import { ContainsDfdLabels } from "./elementFeature";
 
@@ -14,20 +14,31 @@ export class DfdNodeLabelRenderer {
         @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {}
 
+    /**
+     * Gets the label type of the assignment and builds the text to display.
+     * From this text the width of the label is calculated using the corresponding font size and padding.
+     * @returns a tuple containing the text and the width of the label in pixel
+     */
+    static computeLabelContent(label: LabelAssignment): [string, number] {
+        const labelType = globalLabelTypeRegistry.getLabelType(label.labelTypeId);
+        const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
+        if (!labelType || !labelTypeValue) {
+            return ["", 0];
+        }
+
+        const text = `${labelType.name}: ${labelTypeValue.text}`;
+        const width = calculateTextWidth(text, "5pt sans-serif") + 8;
+
+        return [text, width];
+    }
+
     renderSingleNodeLabel(
         node: ContainsDfdLabels & SShapeElement & Hoverable,
         label: LabelAssignment,
         x: number,
         y: number,
     ): VNode {
-        const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
-        const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
-        if (!labelType || !labelTypeValue) {
-            return <g />;
-        }
-
-        const text = `${labelType.name}: ${labelTypeValue.text}`;
-        const width = calculateTextWidth(text, "5pt sans-serif") + 8;
+        const [text, width] = DfdNodeLabelRenderer.computeLabelContent(label);
         const xLeft = x - width / 2;
         const xRight = x + width / 2;
         const height = 10;

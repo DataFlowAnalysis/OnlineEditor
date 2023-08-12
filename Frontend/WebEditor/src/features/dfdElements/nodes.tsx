@@ -72,11 +72,20 @@ export class StorageNode extends RectangularDFDNode {
         }
     }
 
+    private calculateWidth(): number {
+        const textWidth = calculateTextWidth(this.editableLabel?.text);
+        const labelWidths = this.labels.map(
+            (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
+        );
+
+        return Math.max(...labelWidths, textWidth, 40);
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
-            width: Math.max(calculateTextWidth(this.editableLabel?.text), 40),
+            width: this.calculateWidth(),
             height: this.calculateHeight(),
         };
     }
@@ -114,22 +123,43 @@ export class FunctionNode extends RectangularDFDNode {
         return ELLIPTIC_ANCHOR_KIND;
     }
 
+    /**
+     * Calculates the diameter needed to fit just the text inside the node.
+     * The diameter is clamped between 30 and 60 to make sure the node is not too small or too big.
+     * This clamping especially important for when no or little labels are set because having a big function circle
+     * for a long text would look bad.
+     */
     calculateBaseDiameter(): number {
         const baseDiameter = calculateTextWidth(this.editableLabel?.text) + 5;
+
         // Clamp diameter to be between 30 and 60
         const clampedBaseDiameter = Math.min(Math.max(baseDiameter, 30), 60);
         return clampedBaseDiameter;
     }
 
-    override get bounds(): Bounds {
+    /**
+     * Calculates the diameter needed to fit the text and all labels inside the node.
+     * Includes the vertical space needed for the tables as well as the width required for the label texts
+     * in the calculation.
+     */
+    private calculateDiameterWithLabels(): number {
         const baseDiameter = this.calculateBaseDiameter();
-        const labelDiameter = baseDiameter + (this.labels.length > 0 ? this.labels.length * 12 - 5 : 0);
+        const heightWithLabels = baseDiameter + (this.labels.length > 0 ? this.labels.length * 12 - 5 : 0);
+        const labelWidths = this.labels.map(
+            (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
+        );
+        const finalDiameter = Math.max(...labelWidths, heightWithLabels);
+        return finalDiameter;
+    }
+
+    override get bounds(): Bounds {
+        const d = this.calculateDiameterWithLabels();
 
         return {
             x: this.position.x,
             y: this.position.y,
-            width: labelDiameter,
-            height: labelDiameter,
+            width: d,
+            height: d,
         };
     }
 }
@@ -165,11 +195,21 @@ export class IONode extends RectangularDFDNode {
         }
     }
 
+    private calculateWidth(): number {
+        const widthPadding = 5;
+        const textWidth = calculateTextWidth(this.editableLabel?.text) + widthPadding;
+        const labelWidths = this.labels.map(
+            (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1] + widthPadding,
+        );
+
+        return Math.max(...labelWidths, textWidth, 40);
+    }
+
     override get bounds(): Bounds {
         return {
             x: this.position.x,
             y: this.position.y,
-            width: Math.max(calculateTextWidth(this.editableLabel?.text) + 5, 40),
+            width: this.calculateWidth(),
             height: this.calculateHeight(),
         };
     }
