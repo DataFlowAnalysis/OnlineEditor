@@ -13,7 +13,7 @@ import { LoadDiagramAction } from "../features/serialize/load";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
 import { SaveDiagramAction } from "../features/serialize/save";
 import { LoadDefaultDiagramAction } from "../features/serialize/loadDefaultDiagram";
-import { LayoutModelAction } from "../features/autoLayout/di.config";
+import { LayoutModelAction } from "../features/autoLayout/command";
 
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
