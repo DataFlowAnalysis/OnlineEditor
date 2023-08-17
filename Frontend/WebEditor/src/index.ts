@@ -25,6 +25,8 @@ import {
     viewportModule,
     zorderModule,
 } from "sprotty";
+import { elkLayoutModule } from "sprotty-elk";
+import { dfdAutoLayoutModule } from "./features/autoLayout/di.config";
 import { dfdCommonModule } from "./common/di.config";
 import { dfdLabelModule } from "./features/labels/di.config";
 import { toolPaletteModule } from "./features/toolPalette/di.config";
@@ -71,9 +73,11 @@ container.load(
     edgeLayoutModule,
     hoverModule,
     commandPaletteModule,
+    elkLayoutModule,
 
     // Custom modules
     dfdCommonModule,
+    dfdAutoLayoutModule,
     dfdElementsModule,
     serializeModule,
     dfdLabelModule,

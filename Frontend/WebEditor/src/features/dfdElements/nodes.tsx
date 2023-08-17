@@ -36,21 +36,23 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
     override setChildren(schema: DFDNodeSchema): void {
         schema.children = [
             {
-                type: "label",
-                text: schema.text,
+                type: "label:positional",
+                text: schema.text ?? "",
                 id: schema.id + "-label",
             } as SLabelSchema,
         ];
     }
 
     override removeChildren(schema: DFDNodeSchema): void {
-        const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
+        const label = schema.children?.find((element) => element.type === "label:positional") as
+            | SLabelSchema
+            | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];
     }
 
     get editableLabel() {
-        const label = this.children.find((element) => element.type === "label");
+        const label = this.children.find((element) => element.type === "label:positional");
         if (label && isEditableLabel(label)) {
             return label;
         }
@@ -78,7 +80,7 @@ export class StorageNode extends RectangularDFDNode {
             (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
         );
 
-        return Math.max(...labelWidths, textWidth, 40);
+        return Math.max(...labelWidths, textWidth, 50);
     }
 
     override get bounds(): Bounds {
@@ -110,7 +112,7 @@ export class StorageNodeView implements IView {
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: 20,
-                } as DfdLabelArgs)}
+                } as DfdPositionalLabelArgs)}
                 {this.labelRenderer.renderNodeLabels(node, 25)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
@@ -178,7 +180,7 @@ export class FunctionNodeView implements IView {
                 {context.renderChildren(node, {
                     xPosition: fullRadius,
                     yPosition: baseRadius + 4,
-                } as DfdLabelArgs)}
+                } as DfdPositionalLabelArgs)}
                 {this.labelRenderer.renderNodeLabels(node, baseRadius + 10)}
             </g>
         );
@@ -202,7 +204,7 @@ export class IONode extends RectangularDFDNode {
             (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1] + widthPadding,
         );
 
-        return Math.max(...labelWidths, textWidth, 40);
+        return Math.max(...labelWidths, textWidth, 60);
     }
 
     override get bounds(): Bounds {
@@ -229,21 +231,21 @@ export class IONodeView implements IView {
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: 25,
-                } as DfdLabelArgs)}
+                } as DfdPositionalLabelArgs)}
                 {this.labelRenderer.renderNodeLabels(node, 30)}
             </g>
         );
     }
 }
 
-interface DfdLabelArgs extends IViewArgs {
+interface DfdPositionalLabelArgs extends IViewArgs {
     xPosition: number;
     yPosition: number;
 }
 
 @injectable()
-export class DfdLabelView extends ShapeView {
-    private getPosition(label: Readonly<SLabel>, args?: DfdLabelArgs | IViewArgs): Point {
+export class DfdPositionalLabelView extends ShapeView {
+    private getPosition(label: Readonly<SLabel>, args?: DfdPositionalLabelArgs | IViewArgs): Point {
         if (args && "xPosition" in args && "yPosition" in args) {
             return { x: args.xPosition, y: args.yPosition };
         } else {
@@ -254,7 +256,7 @@ export class DfdLabelView extends ShapeView {
         }
     }
 
-    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DfdLabelArgs): VNode | undefined {
+    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DfdPositionalLabelArgs): VNode | undefined {
         const position = this.getPosition(label, args);
 
         return (
