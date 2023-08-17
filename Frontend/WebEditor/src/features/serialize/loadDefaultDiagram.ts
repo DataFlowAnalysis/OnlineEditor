@@ -15,7 +15,7 @@ import { generateRandomSprottyId } from "../../utils";
 import { DFDNodeSchema } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { fitToScreenAfterLoad } from "./load";
+import { postLoadActions } from "./load";
 
 const storageId = generateRandomSprottyId();
 const functionId = generateRandomSprottyId();
@@ -125,12 +125,12 @@ export class LoadDefaultDiagramCommand extends Command {
         this.newRoot = context.modelFactory.createRoot(graphCopy);
 
         this.logger.info(this, "Default Model loaded successfully");
-        fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
 
         this.labelTypeRegistry.clearLabelTypes();
         this.labelTypeRegistry.registerLabelType(locationLabelType);
         this.logger.info(this, "Default Label Types loaded successfully");
 
+        postLoadActions(this.newRoot, this.actionDispatcher);
         return this.newRoot;
     }
 

@@ -6,7 +6,9 @@ import {
     ILogger,
     NullLogger,
     SModelRoot,
+    SNode,
     TYPES,
+    isLocateable,
 } from "sprotty";
 import { Action, FitToScreenAction, SModelRoot as SModelRootSchema } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
@@ -14,6 +16,7 @@ import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../../utils";
 import { SavedDiagram } from "./save";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { LayoutModelAction } from "../autoLayout/command";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -106,7 +109,6 @@ export class LoadDiagramCommand extends Command {
             this.newRoot = context.modelFactory.createRoot(newSchema);
 
             this.logger.info(this, "Model loaded successfully");
-            fitToScreenAfterLoad(this.newRoot, this.actionDispatcher);
 
             // Load label types
             this.labelTypeRegistry.clearLabelTypes();
@@ -118,6 +120,7 @@ export class LoadDiagramCommand extends Command {
                 this.logger.info(this, "Label types loaded successfully");
             }
 
+            postLoadActions(this.newRoot, this.actionDispatcher);
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
@@ -162,8 +165,22 @@ export class LoadDiagramCommand extends Command {
 /**
  * Utility function to fit the diagram to the screen after loading a model inside a command.
  * Captures all element ids and dispatches a FitToScreenAction in the next event loop tick.
+ * Also performs auto layouting if there are unpositioned nodes.
  */
-export function fitToScreenAfterLoad(newRoot: SModelRoot | undefined, actionDispatcher: ActionDispatcher): void {
+export function postLoadActions(newRoot: SModelRoot | undefined, actionDispatcher: ActionDispatcher): void {
+    if (!newRoot) {
+        return;
+    }
+
+    // Layouting:
+    const containsUnPositionedNodes = newRoot.children
+        .filter((child) => child instanceof SNode)
+        .some((child) => isLocateable(child) && (child.position.x === 0 || child.position.y === 0));
+    if (containsUnPositionedNodes) {
+        actionDispatcher.dispatch(LayoutModelAction.create());
+    }
+
+    // Fitting to screen:
     // After loading a model the InitializeCanvasBoundsCommand is automatically dispatched after.
     // We can only fit the diagram to the screen after this command has finished.
     // Because of this we need to dispatch our command after the load command has finished.
@@ -171,14 +188,12 @@ export function fitToScreenAfterLoad(newRoot: SModelRoot | undefined, actionDisp
 
     // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 10ms timeout.
     // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
-    setTimeout(() => {
-        if (newRoot) {
-            const elements = newRoot?.children.map((child) => child.id);
-            const fitToScreenAction = FitToScreenAction.create(elements, {
-                animate: false,
-                padding: FIT_TO_SCREEN_PADDING,
-            });
-            actionDispatcher.dispatch(fitToScreenAction);
-        }
-    }, 10);
+    setTimeout(async () => {
+        const elements = newRoot?.children.map((child) => child.id);
+        const fitToScreenAction = FitToScreenAction.create(elements, {
+            animate: false,
+            padding: FIT_TO_SCREEN_PADDING,
+        });
+        await actionDispatcher.dispatch(fitToScreenAction);
+    }, 100);
 }
