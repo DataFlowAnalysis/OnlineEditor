@@ -17,7 +17,7 @@ export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
         // Elk settings. See https://eclipse.dev/elk/reference.html for available options.
         return {
             "org.eclipse.elk.algorithm": "org.eclipse.elk.layered",
-            "org.eclipse.elk.spacing.nodeNode": "45.0",
+            "org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers": "30.0",
             "org.eclipse.elk.layered.spacing.edgeNodeBetweenLayers": "30.0",
             // Do not do micro layout for nodes, which includes the node dimensions etc.
             // These are all automatically determined by our dfd node views
