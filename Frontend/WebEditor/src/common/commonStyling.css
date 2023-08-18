@@ -3,3 +3,58 @@
     border-radius: 10px;
     background-color: var(--color-primary);
 }
+
+/* accordion */
+.accordion-content {
+    display: grid;
+    transition: grid-template-rows 300ms ease, padding-top 300ms ease;
+
+    grid-template-rows: 0fr;
+    padding-top: 0;
+}
+
+.accordion-state:checked ~ .accordion-content {
+    grid-template-rows: 1fr;
+
+    /* space between accordion button and the content, otherwise they would be directly next to each other without any spacing */
+    padding-top: 8px;
+}
+
+/* needed to hide the content when the accordion is closed */
+.accordion-content * {
+    overflow: hidden;
+}
+
+/* drop-down icon */
+.accordion-button {
+    /* space for the icon */
+    padding-right: 2em;
+
+    /* Make the text unselectable. When rapidly clicking the accordion button,
+       the text would be selected otherwise due to a double click. */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.accordion-button::after {
+    content: "";
+    background-image: url("@fortawesome/fontawesome-free/svgs/solid/chevron-down.svg");
+    right: 1em;
+    position: absolute;
+    display: inline-block;
+
+    /* only filter=invert(1) if dark mode is enabled aka --dark-mode is set to 1 */
+    filter: invert(var(--dark-mode));
+
+    width: 16px;
+    height: 16px;
+    background-size: 16px 16px;
+
+    vertical-align: middle;
+    transition: transform 500ms ease;
+    transform: rotate(0deg);
+}
+
+.accordion-state:checked ~ .accordion-button::after {
+    transform: rotate(180deg);
+}
