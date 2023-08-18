@@ -55,7 +55,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
         containerElement.innerHTML = `
             <input type="checkbox" id="accordion-state-label-types" class="accordion-state" hidden>
             <label for="accordion-state-label-types">
-                <div class="accordion-button">Keyboard Shortcuts</div>
+                <div class="accordion-button">Label Types</div>
             </label>
             <div class="accordion-content">
                 <div class="label-type-edit-ui-inner"></div>

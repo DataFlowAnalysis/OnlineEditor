@@ -19,8 +19,10 @@ export class HelpUI extends AbstractUIExtension {
         containerElement.classList.add("ui-float");
         containerElement.innerHTML = `
             <input type="checkbox" id="accordion-state-help" class="accordion-state" hidden>
-            <label for="accordion-state-help">
-                <div class="accordion-button">Keyboard Shortcuts</div>
+            <label id="help-ui-accordion-label" for="accordion-state-help">
+                <div class="accordion-button">
+                    Keyboard Shortcuts
+                </div>
             </label>
             <div class="accordion-content">
                 <div>
