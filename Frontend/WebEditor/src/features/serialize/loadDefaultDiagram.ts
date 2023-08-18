@@ -56,7 +56,7 @@ const defaultDiagramSchema: SGraphSchema = {
             type: "node:input-output",
             id: outputId,
             text: "Customer",
-            position: { x: 325, y: 210 },
+            position: { x: 325, y: 212.5 },
             labels: [],
         } as DFDNodeSchema,
         {
