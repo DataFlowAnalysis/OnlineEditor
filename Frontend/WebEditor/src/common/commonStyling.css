@@ -52,9 +52,10 @@
 
     vertical-align: text-top;
     transition: transform 500ms ease;
-    transform: rotate(0deg);
+    transform: scaleY(1);
 }
 
-.accordion-state:checked ~ .accordion-button::after {
-    transform: rotate(180deg);
+.accordion-state:checked ~ label .accordion-button::after {
+    /* flip arrow in y direction */
+    transform: scaleY(-1);
 }
