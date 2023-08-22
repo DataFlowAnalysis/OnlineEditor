@@ -8,7 +8,8 @@
 .accordion-content {
     display: grid;
     transition: grid-template-rows 300ms,
-        /* bezier vs code preset ease-out quintic */ grid-template-columns 300ms cubic-bezier(0.23, 1, 0.32, 1),
+        /* ease-out animation: https://cubic-bezier.com/#0,1,.4,1 */ grid-template-columns 300ms
+            cubic-bezier(0, 1, 0.4, 1),
         padding-top 300ms ease;
 
     visibility: collapse;
