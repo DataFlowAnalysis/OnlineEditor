@@ -1,7 +1,7 @@
 div.help-ui {
     left: 20px;
     bottom: 20px;
-    padding: 0px 10px;
+    padding: 10px 10px;
 }
 
 /* Styling for keyboard symbols.
@@ -20,4 +20,15 @@ div.help-ui kbd {
     line-height: 1;
     padding: 2px 4px;
     white-space: nowrap;
+}
+
+#help-ui-accordion-label .accordion-button::before {
+    content: "";
+    background-image: url("@fortawesome/fontawesome-free/svgs/regular/circle-question.svg");
+    display: inline-block;
+    filter: invert(var(--dark-mode));
+    height: 16px;
+    width: 16px;
+    background-size: 16px 16px;
+    vertical-align: text-top;
 }

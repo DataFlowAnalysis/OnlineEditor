@@ -5,6 +5,7 @@
     --color-primary: #eee;
     --color-tool-palette-hover: #ccc;
     --color-tool-palette-selected: #bbb;
+    --dark-mode: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +15,7 @@
         --color-primary: #222;
         --color-tool-palette-hover: #444;
         --color-tool-palette-selected: #555;
+        --dark-mode: 1;
     }
 
     #sprotty div {

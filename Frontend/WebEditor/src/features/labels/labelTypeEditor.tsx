@@ -52,13 +52,28 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
 
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
+        containerElement.innerHTML = `
+            <input type="checkbox" id="accordion-state-label-types" class="accordion-state" hidden>
+            <label for="accordion-state-label-types">
+                <div class="accordion-button">Label Types</div>
+            </label>
+            <div class="accordion-content">
+                <div class="label-type-edit-ui-inner"></div>
+            </div>
+        `;
+
+        const innerContainerElement = containerElement.querySelector(".label-type-edit-ui-inner");
+        if (!innerContainerElement) {
+            throw new Error("Could not find inner container element");
+        }
+
         this.labelTypeRegistry.getLabelTypes().forEach((labelType, idx) => {
-            containerElement.appendChild(this.renderLabelType(labelType));
+            innerContainerElement.appendChild(this.renderLabelType(labelType));
 
             if (idx < this.labelTypeRegistry.getLabelTypes().length - 1) {
                 // Add a horizontal line between label types
                 const horizontalLine = document.createElement("hr");
-                containerElement.appendChild(horizontalLine);
+                innerContainerElement.appendChild(horizontalLine);
             }
         });
 
@@ -79,12 +94,12 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
             this.labelTypeRegistry.registerLabelType(labelType);
 
             // Select the text input element of the new label type to allow entering the name
-            const inputElement: HTMLElement | null = this.containerElement.querySelector(
+            const inputElement: HTMLElement | null = innerContainerElement.querySelector(
                 `.label-type-${labelType.id} input`,
             );
             inputElement?.focus();
         };
-        containerElement.appendChild(addButton);
+        innerContainerElement.appendChild(addButton);
     }
 
     private renderLabelType(labelType: LabelType): HTMLElement {
