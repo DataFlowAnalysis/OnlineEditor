@@ -3,12 +3,10 @@ import {
     IView,
     SNode,
     WithEditableLabel,
-    hoverFeedbackFeature,
     isEditableLabel,
     svg,
     withEditLabelFeature,
     RenderingContext,
-    ELLIPTIC_ANCHOR_KIND,
     SLabel,
     ShapeView,
     IViewArgs,
@@ -22,18 +20,20 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextWidth, constructorInject } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 
-export interface DFDNodeSchema extends SNodeSchema {
+export interface DfdNodeSchema extends SNodeSchema {
     text: string;
     labels: LabelAssignment[];
 }
 
-class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabel {
+export abstract class DfdNode extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
+    static readonly DEFAULT_WIDTH = 50;
+    static readonly WIDTH_PADDING = 8;
 
     text: string = "";
     labels: LabelAssignment[] = [];
 
-    override setChildren(schema: DFDNodeSchema): void {
+    override setChildren(schema: DfdNodeSchema): void {
         schema.children = [
             {
                 type: "label:positional",
@@ -43,7 +43,7 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
         ];
     }
 
-    override removeChildren(schema: DFDNodeSchema): void {
+    override removeChildren(schema: DfdNodeSchema): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as
             | SLabelSchema
             | undefined;
@@ -59,29 +59,18 @@ class RectangularDFDNode extends DynamicChildrenNode implements WithEditableLabe
 
         return undefined;
     }
-}
 
-@injectable()
-export class StorageNode extends RectangularDFDNode {
-    static readonly DEFAULT_FEATURES = [...RectangularDFDNode.DEFAULT_FEATURES, hoverFeedbackFeature];
-
-    private calculateHeight(): number {
-        const hasLabels = this.labels.length > 0;
-        if (hasLabels) {
-            return 26 + this.labels.length * 12;
-        } else {
-            return 30;
-        }
-    }
-
-    private calculateWidth(): number {
+    protected calculateWidth(): number {
         const textWidth = calculateTextWidth(this.editableLabel?.text);
         const labelWidths = this.labels.map(
             (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
         );
 
-        return Math.max(...labelWidths, textWidth, 50);
+        const neededWidth = Math.max(...labelWidths, textWidth, DfdNode.DEFAULT_WIDTH);
+        return neededWidth + DfdNode.WIDTH_PADDING;
     }
+
+    protected abstract calculateHeight(): number;
 
     override get bounds(): Bounds {
         return {
@@ -94,12 +83,32 @@ export class StorageNode extends RectangularDFDNode {
 }
 
 @injectable()
+export class StorageNode extends DfdNode {
+    protected override calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return (
+                StorageNode.LABEL_START_HEIGHT +
+                this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
+                DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
+            );
+        } else {
+            return StorageNode.TEXT_HEIGHT;
+        }
+    }
+
+    static readonly TEXT_HEIGHT = 32;
+    static readonly LABEL_START_HEIGHT = 28;
+}
+
+@injectable()
 export class StorageNodeView implements IView {
     constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
-    render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
+    render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
+
         return (
             <g class-sprotty-node={true} class-storage={true}>
                 {/* This transparent rect exists only to make this element easily selectable.
@@ -111,59 +120,37 @@ export class StorageNodeView implements IView {
                 <line x1="0" y1="0" x2={width} y2="0" />
                 {context.renderChildren(node, {
                     xPosition: width / 2,
-                    yPosition: 20,
+                    yPosition: StorageNode.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, 25)}
+                {this.labelRenderer.renderNodeLabels(node, StorageNode.LABEL_START_HEIGHT)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
     }
 }
 
-export class FunctionNode extends RectangularDFDNode {
-    override get anchorKind() {
-        return ELLIPTIC_ANCHOR_KIND;
+export class FunctionNode extends DfdNode {
+    protected override calculateHeight(): number {
+        const hasLabels = this.labels.length > 0;
+        if (hasLabels) {
+            return (
+                // height for text
+                FunctionNode.LABEL_START_HEIGHT +
+                // height for the labels
+                this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
+                // Spacing between last label and the under edge of the node rectangle
+                DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
+            );
+        } else {
+            return FunctionNode.LABEL_START_HEIGHT + FunctionNode.SEPARATOR_NO_LABEL_PADDING;
+        }
     }
 
-    /**
-     * Calculates the diameter needed to fit just the text inside the node.
-     * The diameter is clamped between 30 and 60 to make sure the node is not too small or too big.
-     * This clamping especially important for when no or little labels are set because having a big function circle
-     * for a long text would look bad.
-     */
-    calculateBaseDiameter(): number {
-        const baseDiameter = calculateTextWidth(this.editableLabel?.text) + 5;
-
-        // Clamp diameter to be between 30 and 60
-        const clampedBaseDiameter = Math.min(Math.max(baseDiameter, 30), 60);
-        return clampedBaseDiameter;
-    }
-
-    /**
-     * Calculates the diameter needed to fit the text and all labels inside the node.
-     * Includes the vertical space needed for the tables as well as the width required for the label texts
-     * in the calculation.
-     */
-    private calculateDiameterWithLabels(): number {
-        const baseDiameter = this.calculateBaseDiameter();
-        const heightWithLabels = baseDiameter + (this.labels.length > 0 ? this.labels.length * 12 - 5 : 0);
-        const labelWidths = this.labels.map(
-            (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
-        );
-        const finalDiameter = Math.max(...labelWidths, heightWithLabels);
-        return finalDiameter;
-    }
-
-    override get bounds(): Bounds {
-        const d = this.calculateDiameterWithLabels();
-
-        return {
-            x: this.position.x,
-            y: this.position.y,
-            width: d,
-            height: d,
-        };
-    }
+    static readonly TEXT_HEIGHT = 28;
+    static readonly SEPARATOR_NO_LABEL_PADDING = 4;
+    static readonly SEPARATOR_LABEL_PADDING = 4;
+    static readonly LABEL_START_HEIGHT = this.TEXT_HEIGHT + this.SEPARATOR_LABEL_PADDING;
+    static readonly BORDER_RADIUS = 5;
 }
 
 @injectable()
@@ -171,68 +158,65 @@ export class FunctionNodeView implements IView {
     constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
-        const baseRadius = node.calculateBaseDiameter() / 2;
-        const fullRadius = node.bounds.width / 2;
+        const width = node.bounds.width;
+        const height = node.bounds.height;
+        const r = FunctionNode.BORDER_RADIUS;
 
         return (
             <g class-sprotty-node={true} class-function={true}>
-                <circle r={fullRadius} cx={fullRadius} cy={fullRadius} />
+                <rect x="0" y="0" width={width} height={height} rx={r} ry={r} />
                 {context.renderChildren(node, {
-                    xPosition: fullRadius,
-                    yPosition: baseRadius + 4,
+                    xPosition: width / 2,
+                    yPosition: FunctionNode.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, baseRadius + 10)}
+                <line x1="0" y1={FunctionNode.TEXT_HEIGHT} x2={width} y2={FunctionNode.TEXT_HEIGHT} />
+                {this.labelRenderer.renderNodeLabels(node, FunctionNode.LABEL_START_HEIGHT)}
             </g>
         );
     }
 }
 
-export class IONode extends RectangularDFDNode {
-    private calculateHeight(): number {
+export class IONode extends DfdNode {
+    protected override calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
-            return 36 + this.labels.length * 12;
+            return (
+                IONode.LABEL_START_HEIGHT +
+                this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
+                DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
+            );
         } else {
-            return 40;
+            return IONode.TEXT_HEIGHT;
         }
     }
 
-    private calculateWidth(): number {
-        const widthPadding = 5;
-        const textWidth = calculateTextWidth(this.editableLabel?.text) + widthPadding;
-        const labelWidths = this.labels.map(
-            (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1] + widthPadding,
-        );
-
-        return Math.max(...labelWidths, textWidth, 60);
+    protected override calculateWidth(): number {
+        return super.calculateWidth() + IONode.LEFT_PADDING;
     }
 
-    override get bounds(): Bounds {
-        return {
-            x: this.position.x,
-            y: this.position.y,
-            width: this.calculateWidth(),
-            height: this.calculateHeight(),
-        };
-    }
+    static readonly TEXT_HEIGHT = 32;
+    static readonly LABEL_START_HEIGHT = 28;
+    static readonly LEFT_PADDING = 10;
 }
 
 @injectable()
 export class IONodeView implements IView {
     constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
-    render(node: Readonly<RectangularDFDNode>, context: RenderingContext): VNode {
+    render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
+        const leftPadding = IONode.LEFT_PADDING / 2;
 
         return (
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
+                <line x1={IONode.LEFT_PADDING} y1="0" x2={IONode.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
-                    xPosition: width / 2,
-                    yPosition: 25,
+                    xPosition: width / 2 + leftPadding,
+                    yPosition: IONode.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, 30)}
+                {this.labelRenderer.renderNodeLabels(node, IONode.LABEL_START_HEIGHT, leftPadding)}
             </g>
         );
     }
@@ -252,7 +236,7 @@ export class DfdPositionalLabelView extends ShapeView {
             const parentSize = (label.parent as SNode | undefined)?.bounds;
             const width = parentSize?.width ?? 0;
             const height = parentSize?.height ?? 0;
-            return { x: width / 2, y: height / 2 + 5 };
+            return { x: width / 2, y: height / 2 };
         }
     }
 

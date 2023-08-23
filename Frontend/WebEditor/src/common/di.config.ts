@@ -9,7 +9,7 @@ import {
     configureCommand,
 } from "sprotty";
 import { ServerCommandPaletteActionProvider } from "./commandPalette";
-import { DFDToolManager } from "./toolManager";
+import { DfdToolManager } from "./toolManager";
 import { HelpUI } from "./helpUi";
 import { DelKeyDeleteTool } from "./deleteKeyTool";
 import { EDITOR_TYPES } from "../utils";
@@ -28,8 +28,8 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(TYPES.IUIExtension).toService(HelpUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(HelpUI);
 
-    bind(DFDToolManager).toSelf().inSingletonScope();
-    rebind(TYPES.IToolManager).toService(DFDToolManager);
+    bind(DfdToolManager).toSelf().inSingletonScope();
+    rebind(TYPES.IToolManager).toService(DfdToolManager);
 
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();

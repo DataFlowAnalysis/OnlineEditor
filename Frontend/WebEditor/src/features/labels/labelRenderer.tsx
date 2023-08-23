@@ -9,6 +9,10 @@ import { ContainsDfdLabels } from "./elementFeature";
 
 @injectable()
 export class DfdNodeLabelRenderer {
+    static readonly LABEL_HEIGHT = 10;
+    static readonly LABEL_SPACE_BETWEEN = 2;
+    static readonly LABEL_SPACING_HEIGHT = DfdNodeLabelRenderer.LABEL_HEIGHT + DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN;
+
     constructor(
         @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
@@ -41,7 +45,7 @@ export class DfdNodeLabelRenderer {
         const [text, width] = DfdNodeLabelRenderer.computeLabelContent(label);
         const xLeft = x - width / 2;
         const xRight = x + width / 2;
-        const height = 10;
+        const height = DfdNodeLabelRenderer.LABEL_HEIGHT;
         const radius = height / 2;
 
         const deleteLabelHandler = () => {
@@ -52,7 +56,7 @@ export class DfdNodeLabelRenderer {
         return (
             <g class-node-label={true}>
                 <rect x={xLeft} y={y} width={width} height={height} rx={radius} ry={radius} />
-                <text x={node.bounds.width / 2} y={y + 7.25}>
+                <text x={x} y={y + height / 2}>
                     {text}
                 </text>
                 {
@@ -60,8 +64,8 @@ export class DfdNodeLabelRenderer {
                     node.hoverFeedback ? (
                         <g class-label-delete={true} on={{ click: deleteLabelHandler }}>
                             <circle cx={xRight} cy={y} r={radius * 0.8}></circle>
-                            <text x={xRight} y={y + 2}>
-                                x
+                            <text x={xRight} y={y}>
+                                X
                             </text>
                         </g>
                     ) : (
@@ -101,14 +105,19 @@ export class DfdNodeLabelRenderer {
         });
     }
 
-    renderNodeLabels(node: ContainsDfdLabels & SShapeElement & Hoverable, baseY: number, labelSpacing = 12): VNode {
+    renderNodeLabels(
+        node: ContainsDfdLabels & SShapeElement & Hoverable,
+        baseY: number,
+        xOffset = 0,
+        labelSpacing = DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT,
+    ): VNode {
         this.sortLabels(node.labels);
         return (
             <g>
                 {node.labels.map((label, i) => {
                     const x = node.bounds.width / 2;
                     const y = baseY + i * labelSpacing;
-                    return this.renderSingleNodeLabel(node, label, x, y);
+                    return this.renderSingleNodeLabel(node, label, x + xOffset, y);
                 })}
             </g>
         );
