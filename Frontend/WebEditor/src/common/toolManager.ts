@@ -7,7 +7,7 @@ import { EDITOR_TYPES } from "../utils";
  * Default tools are automatically enabled when the editor is loaded.
  */
 @injectable()
-export class DFDToolManager extends ToolManager {
+export class DfdToolManager extends ToolManager {
     @multiInject(EDITOR_TYPES.ITool) @optional() override tools: Tool[] = [];
     @multiInject(EDITOR_TYPES.IDefaultTool) @optional() override defaultTools: Tool[] = [];
 
