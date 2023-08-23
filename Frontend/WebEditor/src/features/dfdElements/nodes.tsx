@@ -25,7 +25,7 @@ export interface DfdNodeSchema extends SNodeSchema {
     labels: LabelAssignment[];
 }
 
-abstract class DfdNode extends DynamicChildrenNode implements WithEditableLabel {
+export abstract class DfdNode extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
     static readonly DEFAULT_WIDTH = 50;
     static readonly WIDTH_PADDING = 8;

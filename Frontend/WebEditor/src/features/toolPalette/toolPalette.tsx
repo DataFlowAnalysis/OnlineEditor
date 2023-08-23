@@ -57,12 +57,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             containerElement,
             NodeCreationTool.ID,
             "Storage node",
-            () =>
-                this.nodeCreationToolMouseListener.setNodeMetadata({
-                    type: "node:storage",
-                    height: 30,
-                    width: 60,
-                }),
+            () => this.nodeCreationToolMouseListener.setNodeType("node:storage"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
                 <text x="50%" y="50%">
@@ -75,12 +70,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             containerElement,
             NodeCreationTool.ID,
             "Input/Output node",
-            () =>
-                this.nodeCreationToolMouseListener.setNodeMetadata({
-                    type: "node:input-output",
-                    height: 40,
-                    width: 70,
-                }),
+            () => this.nodeCreationToolMouseListener.setNodeType("node:input-output"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
                 <line x1="25%" y1="20%" x2="25%" y2="80%" stroke-width="1" />
@@ -94,12 +84,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             containerElement,
             NodeCreationTool.ID,
             "Function node",
-            () =>
-                this.nodeCreationToolMouseListener.setNodeMetadata({
-                    type: "node:function",
-                    height: 50,
-                    width: 50,
-                }),
+            () => this.nodeCreationToolMouseListener.setNodeType("node:function"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" rx="20%" ry="20%" />
                 <line x1="10%" y1="65%" x2="90%" y2="65%" />

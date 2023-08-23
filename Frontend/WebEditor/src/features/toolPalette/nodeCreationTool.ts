@@ -11,17 +11,8 @@ import {
     Tool,
 } from "sprotty";
 import { Action, CreateElementAction } from "sprotty-protocol";
-import { DfdNodeSchema } from "../dfdElements/nodes";
+import { DfdNode, DfdNodeSchema } from "../dfdElements/nodes";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-
-/**
- * The type and size of the node to be created by the NodeCreationTool.
- */
-export interface NodeMetadata {
-    type: string;
-    height: number;
-    width: number;
-}
 
 /**
  * Mouse Listener for the NodeCreationTool.
@@ -34,11 +25,7 @@ export class NodeCreationToolMouseListener extends MouseListener {
     constructor(
         @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
         @constructorInject(DynamicChildrenProcessor) protected dynamicChildrenProcessor: DynamicChildrenProcessor,
-        private nodeMetadata: NodeMetadata = {
-            type: "node:storage",
-            height: 30,
-            width: 70,
-        },
+        private nodeType = "node:storage",
     ) {
         super();
     }
@@ -46,8 +33,8 @@ export class NodeCreationToolMouseListener extends MouseListener {
     /**
      * Method to set the type and size of the node to be created.
      */
-    public setNodeMetadata(nodeMetadata: NodeMetadata) {
-        this.nodeMetadata = nodeMetadata;
+    public setNodeType(nodeType: string) {
+        this.nodeType = nodeType;
     }
 
     override mouseDown(target: SGraph, event: MouseEvent): (Action | Promise<Action>)[] {
@@ -59,7 +46,7 @@ export class NodeCreationToolMouseListener extends MouseListener {
 
         // Create node
         const nodeSchema = {
-            type: this.nodeMetadata.type,
+            type: this.nodeType,
             id: generateRandomSprottyId(),
             text: "Storage",
             position: {
@@ -67,8 +54,8 @@ export class NodeCreationToolMouseListener extends MouseListener {
                 y: event.screenY,
             },
             size: {
-                width: this.nodeMetadata.width,
-                height: this.nodeMetadata.height,
+                width: -1,
+                height: -1,
             },
         } as DfdNodeSchema;
 
@@ -77,8 +64,8 @@ export class NodeCreationToolMouseListener extends MouseListener {
             return offset / target.zoom - size / 2;
         };
         nodeSchema.position = {
-            x: target.scroll.x + adjust(event.offsetX, nodeSchema.size?.width ?? 0),
-            y: target.scroll.y + adjust(event.offsetY, nodeSchema.size?.height ?? 0),
+            x: target.scroll.x + adjust(event.offsetX, DfdNode.DEFAULT_WIDTH),
+            y: target.scroll.y + adjust(event.offsetY, 30),
         };
 
         // Add any dynamically declared children to the node schema.
