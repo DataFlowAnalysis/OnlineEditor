@@ -64,9 +64,8 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
                     width: 60,
                 }),
             <g>
-                <line x1="10%" y1="20%" x2="90%" y2="20%" stroke-width="1" />
-                <line x1="10%" y1="80%" x2="90%" y2="80%" stroke-width="1" />
-                <text x="50%" y="53%">
+                <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
+                <text x="50%" y="50%">
                     Sto
                 </text>
             </g>,
@@ -84,7 +83,8 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
                 }),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
-                <text x="50%" y="53%">
+                <line x1="25%" y1="20%" x2="25%" y2="80%" stroke-width="1" />
+                <text x="55%" y="50%">
                     IO
                 </text>
             </g>,
@@ -101,8 +101,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
                     width: 50,
                 }),
             <g>
-                <circle cx="50%" cy="50%" r="40%" stroke-width="1" />
-                <text x="50%" y="53%">
+                <rect x="10%" y="20%" width="80%" height="60%" rx="20%" ry="20%" />
+                <line x1="10%" y1="65%" x2="90%" y2="65%" />
+                <text x="50%" y="44%">
                     Fun
                 </text>
             </g>,
