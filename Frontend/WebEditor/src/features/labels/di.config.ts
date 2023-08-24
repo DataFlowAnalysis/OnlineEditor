@@ -22,7 +22,9 @@ export const dfdLabelModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(DfdLabelMouseDropListener).toSelf().inSingletonScope();
     bind(DfdLabelDropTool).toSelf().inSingletonScope();
     bind(EDITOR_TYPES.IDefaultTool).to(DfdLabelDropTool);
+
     bind(LabelTypeEditorUI).toSelf().inSingletonScope();
+    bind(TYPES.KeyListener).to(LabelTypeEditorUI);
     bind(TYPES.IUIExtension).to(LabelTypeEditorUI);
     bind(EDITOR_TYPES.DefaultUIElement).to(LabelTypeEditorUI);
 

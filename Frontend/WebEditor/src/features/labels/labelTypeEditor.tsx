@@ -1,21 +1,29 @@
 import { injectable } from "inversify";
 import { constructorInject, generateRandomSprottyId } from "../../utils";
-import { AbstractUIExtension, CommitModelAction, IActionDispatcher, TYPES } from "sprotty";
+import { AbstractUIExtension, CommitModelAction, IActionDispatcher, KeyListener, SModelElement, TYPES } from "sprotty";
 import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from "./labelTypeRegistry";
 import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropTool";
+import { Action } from "sprotty-protocol";
 
 import "../../common/commonStyling.css";
 import "./labelTypeEditor.css";
 
 @injectable()
-export class LabelTypeEditorUI extends AbstractUIExtension {
+export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListener {
+    private accordionStateElement: HTMLInputElement = document.createElement("input");
+
     constructor(
         @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {
         super();
         labelTypeRegistry.onUpdate(() => this.reRender());
+
+        this.accordionStateElement.type = "checkbox";
+        this.accordionStateElement.id = "accordion-state-label-types";
+        this.accordionStateElement.classList.add("accordion-state");
+        this.accordionStateElement.hidden = true;
     }
 
     static readonly ID = "label-type-editor-ui";
@@ -53,7 +61,6 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
         containerElement.innerHTML = `
-            <input type="checkbox" id="accordion-state-label-types" class="accordion-state" hidden>
             <label for="accordion-state-label-types">
                 <div class="accordion-button">Label Types</div>
             </label>
@@ -61,6 +68,9 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
                 <div class="label-type-edit-ui-inner"></div>
             </div>
         `;
+        // Add input used by the label and the accordion-content div
+        // This element is not re-created on new renders and reused to save the expansion state of the accordion
+        containerElement.prepend(this.accordionStateElement);
 
         const innerContainerElement = containerElement.querySelector(".label-type-edit-ui-inner");
         if (!innerContainerElement) {
@@ -208,5 +218,25 @@ export class LabelTypeEditorUI extends AbstractUIExtension {
             const rawSize = inputElement.value.length || inputElement.placeholder.length;
             inputElement.size = Math.round(rawSize * factor);
         };
+    }
+
+    keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
+        // For some reason accessing the accordion state element directly through the class/object variable
+        // does not work so we get it from the dom again.
+        const accordionStateElement = document.getElementById("accordion-state-label-types") as HTMLInputElement | null;
+        if (!accordionStateElement) {
+            this.logger.error(this, "Could not find accordion state element");
+            return [];
+        }
+
+        if (event.key === "t") {
+            accordionStateElement.checked = !accordionStateElement.checked;
+        }
+
+        return [];
+    }
+
+    keyUp(_element: SModelElement, _event: KeyboardEvent): Action[] {
+        return [];
     }
 }
