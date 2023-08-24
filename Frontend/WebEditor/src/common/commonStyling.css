@@ -7,21 +7,26 @@
 /* accordion */
 .accordion-content {
     display: grid;
-    transition: grid-template-rows 300ms,
-        /* ease-out animation: https://cubic-bezier.com/#0,1,.4,1 */ grid-template-columns 300ms
-            cubic-bezier(0, 1, 0.4, 1),
+    /* This transition is used when closing the accordion. Here the x direction should start slow and then end fast, thus ease-out */
+    transition: grid-template-rows 300ms ease,
+        /* ease-in animation: https://cubic-bezier.com/#.7,0,1,.6 */ grid-template-columns 300ms
+            cubic-bezier(0.7, 0, 1, 0.6),
         padding-top 300ms ease;
 
-    visibility: collapse;
     grid-template-rows: 0fr;
     grid-template-columns: 0fr;
     padding-top: 0;
 }
 
 .accordion-state:checked ~ .accordion-content {
-    visibility: visible;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr;
+
+    /* This transition is used when opening the accordion. Here the x direction should start fast and then end slow, thus ease-in */
+    transition: grid-template-rows 300ms ease,
+        /* ease-out animation: https://cubic-bezier.com/#0,.7,.4,1 */ /* mirrored version of the curve above */
+            grid-template-columns 300ms cubic-bezier(0, 0.7, 0.4, 1),
+        padding-top 300ms ease;
 
     /* space between accordion button and the content, otherwise they would be directly next to each other without any spacing */
     padding-top: 8px;
