@@ -12,11 +12,11 @@ import {
 } from "sprotty";
 import {
     DfdPositionalLabelView,
-    FunctionNode,
+    FunctionNodeImpl,
     FunctionNodeView,
-    IONode,
+    IONodeImpl,
     IONodeView,
-    StorageNode,
+    StorageNodeImpl,
     StorageNodeView,
 } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
@@ -26,9 +26,9 @@ import "./styles.css";
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
-    configureModelElement(context, "node:storage", StorageNode, StorageNodeView);
-    configureModelElement(context, "node:function", FunctionNode, FunctionNodeView);
-    configureModelElement(context, "node:input-output", IONode, IONodeView);
+    configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
+    configureModelElement(context, "node:function", FunctionNodeImpl, FunctionNodeView);
+    configureModelElement(context, "node:input-output", IONodeImpl, IONodeView);
     configureModelElement(context, "edge:arrow", ArrowEdgeImpl, ArrowEdgeView, {
         enable: [withEditLabelFeature],
     });

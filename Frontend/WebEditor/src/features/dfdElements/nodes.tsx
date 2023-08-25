@@ -20,12 +20,12 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextWidth } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 
-export interface DfdNodeSchema extends SNode {
+export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
 }
 
-export abstract class DfdNode extends DynamicChildrenNode implements WithEditableLabel {
+export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNodeImpl.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
     static readonly DEFAULT_WIDTH = 50;
     static readonly WIDTH_PADDING = 8;
@@ -33,7 +33,7 @@ export abstract class DfdNode extends DynamicChildrenNode implements WithEditabl
     text: string = "";
     labels: LabelAssignment[] = [];
 
-    override setChildren(schema: DfdNodeSchema): void {
+    override setChildren(schema: DfdNode): void {
         schema.children = [
             {
                 type: "label:positional",
@@ -43,7 +43,7 @@ export abstract class DfdNode extends DynamicChildrenNode implements WithEditabl
         ];
     }
 
-    override removeChildren(schema: DfdNodeSchema): void {
+    override removeChildren(schema: DfdNode): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as
             | SLabel
             | undefined;
@@ -66,8 +66,8 @@ export abstract class DfdNode extends DynamicChildrenNode implements WithEditabl
             (labelAssignment) => DfdNodeLabelRenderer.computeLabelContent(labelAssignment)[1],
         );
 
-        const neededWidth = Math.max(...labelWidths, textWidth, DfdNode.DEFAULT_WIDTH);
-        return neededWidth + DfdNode.WIDTH_PADDING;
+        const neededWidth = Math.max(...labelWidths, textWidth, DfdNodeImpl.DEFAULT_WIDTH);
+        return neededWidth + DfdNodeImpl.WIDTH_PADDING;
     }
 
     protected abstract calculateHeight(): number;
@@ -83,17 +83,17 @@ export abstract class DfdNode extends DynamicChildrenNode implements WithEditabl
 }
 
 @injectable()
-export class StorageNode extends DfdNode {
+export class StorageNodeImpl extends DfdNodeImpl {
     protected override calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
             return (
-                StorageNode.LABEL_START_HEIGHT +
+                StorageNodeImpl.LABEL_START_HEIGHT +
                 this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
                 DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
             );
         } else {
-            return StorageNode.TEXT_HEIGHT;
+            return StorageNodeImpl.TEXT_HEIGHT;
         }
     }
 
@@ -105,7 +105,7 @@ export class StorageNode extends DfdNode {
 export class StorageNodeView implements IView {
     constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
-    render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
+    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
 
@@ -120,29 +120,29 @@ export class StorageNodeView implements IView {
                 <line x1="0" y1="0" x2={width} y2="0" />
                 {context.renderChildren(node, {
                     xPosition: width / 2,
-                    yPosition: StorageNode.TEXT_HEIGHT / 2,
+                    yPosition: StorageNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, StorageNode.LABEL_START_HEIGHT)}
+                {this.labelRenderer.renderNodeLabels(node, StorageNodeImpl.LABEL_START_HEIGHT)}
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
     }
 }
 
-export class FunctionNode extends DfdNode {
+export class FunctionNodeImpl extends DfdNodeImpl {
     protected override calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
             return (
                 // height for text
-                FunctionNode.LABEL_START_HEIGHT +
+                FunctionNodeImpl.LABEL_START_HEIGHT +
                 // height for the labels
                 this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
                 // Spacing between last label and the under edge of the node rectangle
                 DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
             );
         } else {
-            return FunctionNode.LABEL_START_HEIGHT + FunctionNode.SEPARATOR_NO_LABEL_PADDING;
+            return FunctionNodeImpl.LABEL_START_HEIGHT + FunctionNodeImpl.SEPARATOR_NO_LABEL_PADDING;
         }
     }
 
@@ -157,41 +157,41 @@ export class FunctionNode extends DfdNode {
 export class FunctionNodeView implements IView {
     constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
-    render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
+    render(node: Readonly<FunctionNodeImpl>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
-        const r = FunctionNode.BORDER_RADIUS;
+        const r = FunctionNodeImpl.BORDER_RADIUS;
 
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <rect x="0" y="0" width={width} height={height} rx={r} ry={r} />
                 {context.renderChildren(node, {
                     xPosition: width / 2,
-                    yPosition: FunctionNode.TEXT_HEIGHT / 2,
+                    yPosition: FunctionNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                <line x1="0" y1={FunctionNode.TEXT_HEIGHT} x2={width} y2={FunctionNode.TEXT_HEIGHT} />
-                {this.labelRenderer.renderNodeLabels(node, FunctionNode.LABEL_START_HEIGHT)}
+                <line x1="0" y1={FunctionNodeImpl.TEXT_HEIGHT} x2={width} y2={FunctionNodeImpl.TEXT_HEIGHT} />
+                {this.labelRenderer.renderNodeLabels(node, FunctionNodeImpl.LABEL_START_HEIGHT)}
             </g>
         );
     }
 }
 
-export class IONode extends DfdNode {
+export class IONodeImpl extends DfdNodeImpl {
     protected override calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels) {
             return (
-                IONode.LABEL_START_HEIGHT +
+                IONodeImpl.LABEL_START_HEIGHT +
                 this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
                 DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
             );
         } else {
-            return IONode.TEXT_HEIGHT;
+            return IONodeImpl.TEXT_HEIGHT;
         }
     }
 
     protected override calculateWidth(): number {
-        return super.calculateWidth() + IONode.LEFT_PADDING;
+        return super.calculateWidth() + IONodeImpl.LEFT_PADDING;
     }
 
     static readonly TEXT_HEIGHT = 32;
@@ -203,20 +203,20 @@ export class IONode extends DfdNode {
 export class IONodeView implements IView {
     constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
-    render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
+    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode {
         const width = node.bounds.width;
         const height = node.bounds.height;
-        const leftPadding = IONode.LEFT_PADDING / 2;
+        const leftPadding = IONodeImpl.LEFT_PADDING / 2;
 
         return (
             <g class-sprotty-node={true} class-io={true}>
                 <rect x="0" y="0" width={width} height={height} />
-                <line x1={IONode.LEFT_PADDING} y1="0" x2={IONode.LEFT_PADDING} y2={height} />
+                <line x1={IONodeImpl.LEFT_PADDING} y1="0" x2={IONodeImpl.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
                     xPosition: width / 2 + leftPadding,
-                    yPosition: IONode.TEXT_HEIGHT / 2,
+                    yPosition: IONodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, IONode.LABEL_START_HEIGHT, leftPadding)}
+                {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT, leftPadding)}
             </g>
         );
     }

@@ -11,7 +11,7 @@ import {
     Tool,
 } from "sprotty";
 import { Action, CreateElementAction } from "sprotty-protocol";
-import { DfdNode, DfdNodeSchema } from "../dfdElements/nodes";
+import { DfdNodeImpl, DfdNode } from "../dfdElements/nodes";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 
 /**
@@ -57,14 +57,14 @@ export class NodeCreationToolMouseListener extends MouseListener {
                 width: -1,
                 height: -1,
             },
-        } as DfdNodeSchema;
+        } as DfdNode;
 
         // Adjust the position of the node so that it is centered on the cursor.
         const adjust = (offset: number, size: number) => {
             return offset / target.zoom - size / 2;
         };
         nodeSchema.position = {
-            x: target.scroll.x + adjust(event.offsetX, DfdNode.DEFAULT_WIDTH),
+            x: target.scroll.x + adjust(event.offsetX, DfdNodeImpl.DEFAULT_WIDTH),
             y: target.scroll.y + adjust(event.offsetY, 30),
         };
 

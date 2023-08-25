@@ -12,7 +12,7 @@ import {
 } from "sprotty";
 import { Action, SGraph, SEdge } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
-import { DfdNodeSchema } from "../dfdElements/nodes";
+import { DfdNode } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { postLoadActions } from "./load";
@@ -39,7 +39,7 @@ const defaultDiagramSchema: SGraph = {
                 },
             ],
             position: { x: 100, y: 100 },
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "node:function",
             id: functionId,
@@ -51,14 +51,14 @@ const defaultDiagramSchema: SGraph = {
                 },
             ],
             position: { x: 200, y: 200 },
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "node:input-output",
             id: outputId,
             text: "Customer",
             position: { x: 325, y: 207 },
             labels: [],
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "edge:arrow",
             id: generateRandomSprottyId(),
