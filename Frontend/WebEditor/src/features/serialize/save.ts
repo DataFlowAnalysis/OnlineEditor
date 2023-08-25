@@ -3,7 +3,6 @@ import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYP
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { constructorInject } from "../../utils";
 
 /**
  * Type that contains all data related to a diagram.
@@ -39,7 +38,7 @@ export class SaveDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     private labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
-    constructor(@constructorInject(TYPES.Action) private action: SaveDiagramAction) {
+    constructor(@inject(TYPES.Action) private action: SaveDiagramAction) {
         super();
     }
 

@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { VNode } from "snabbdom";
 import {
     svg,
@@ -13,7 +13,6 @@ import {
     PatcherProvider,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { constructorInject } from "../../utils";
 import { NodeCreationTool, NodeCreationToolMouseListener } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
 
@@ -29,10 +28,10 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     static readonly ID = "tool-palette";
 
     constructor(
-        @constructorInject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
-        @constructorInject(NodeCreationToolMouseListener)
+        @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
+        @inject(NodeCreationToolMouseListener)
         protected nodeCreationToolMouseListener: NodeCreationToolMouseListener,
-        @constructorInject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
+        @inject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
     ) {
         super();
     }

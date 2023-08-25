@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import {
     MouseListener,
     MouseTool,
@@ -11,7 +11,7 @@ import {
     SChildElementImpl,
 } from "sprotty";
 import { Action, CreateElementAction, SEdge, SLabel } from "sprotty-protocol";
-import { constructorInject, generateRandomSprottyId } from "../../utils";
+import { generateRandomSprottyId } from "../../utils";
 
 @injectable()
 export class EdgeCreationToolMouseListener extends MouseListener {
@@ -120,8 +120,8 @@ export class EdgeCreationTool implements Tool {
     static ID = "edge-creation-tool";
 
     constructor(
-        @constructorInject(MouseTool) protected mouseTool: MouseTool,
-        @constructorInject(EdgeCreationToolMouseListener)
+        @inject(MouseTool) protected mouseTool: MouseTool,
+        @inject(EdgeCreationToolMouseListener)
         protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener,
     ) {}
 

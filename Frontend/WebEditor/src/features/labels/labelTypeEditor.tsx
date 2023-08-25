@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { constructorInject, generateRandomSprottyId } from "../../utils";
+import { injectable, inject } from "inversify";
+import { generateRandomSprottyId } from "../../utils";
 import { AbstractUIExtension, CommitModelAction, IActionDispatcher, KeyListener, SModelElementImpl, TYPES } from "sprotty";
 import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from "./labelTypeRegistry";
 import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
@@ -14,8 +14,8 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
     private accordionStateElement: HTMLInputElement = document.createElement("input");
 
     constructor(
-        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {
         super();
         labelTypeRegistry.onUpdate(() => this.reRender());

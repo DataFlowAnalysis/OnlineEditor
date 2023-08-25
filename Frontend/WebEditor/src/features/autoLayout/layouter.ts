@@ -1,5 +1,5 @@
 import ElkConstructor from "elkjs/lib/elk.bundled";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import {
     DefaultLayoutConfigurator,
     ElkFactory,
@@ -7,7 +7,6 @@ import {
     IElementFilter,
     ILayoutConfigurator,
 } from "sprotty-elk";
-import { constructorInject } from "../../utils";
 import { SShapeElementImpl } from "sprotty";
 import { SShapeElement, SGraph, SModelIndex } from "sprotty-protocol";
 import { ElkShape, LayoutOptions } from "elkjs";
@@ -41,9 +40,9 @@ export const elkFactory = () =>
 @injectable()
 export class DfdElkLayoutEngine extends ElkLayoutEngine {
     constructor(
-        @constructorInject(ElkFactory) elkFactory: ElkFactory,
-        @constructorInject(IElementFilter) elementFilter: IElementFilter,
-        @constructorInject(ILayoutConfigurator) configurator: ILayoutConfigurator,
+        @inject(ElkFactory) elkFactory: ElkFactory,
+        @inject(IElementFilter) elementFilter: IElementFilter,
+        @inject(ILayoutConfigurator) configurator: ILayoutConfigurator,
     ) {
         super(elkFactory, elementFilter, configurator);
     }

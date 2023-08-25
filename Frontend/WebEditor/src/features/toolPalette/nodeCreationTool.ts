@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { constructorInject, generateRandomSprottyId } from "../../utils";
+import { injectable, inject } from "inversify";
+import { generateRandomSprottyId } from "../../utils";
 import {
     CommitModelAction,
     EnableDefaultToolsAction,
@@ -23,8 +23,8 @@ import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 @injectable()
 export class NodeCreationToolMouseListener extends MouseListener {
     constructor(
-        @constructorInject(TYPES.ModelSource) protected modelSource: LocalModelSource,
-        @constructorInject(DynamicChildrenProcessor) protected dynamicChildrenProcessor: DynamicChildrenProcessor,
+        @inject(TYPES.ModelSource) protected modelSource: LocalModelSource,
+        @inject(DynamicChildrenProcessor) protected dynamicChildrenProcessor: DynamicChildrenProcessor,
         private nodeType = "node:storage",
     ) {
         super();
@@ -84,8 +84,8 @@ export class NodeCreationTool implements Tool {
     static ID = "node-creation-tool";
 
     constructor(
-        @constructorInject(MouseTool) protected mouseTool: MouseTool,
-        @constructorInject(NodeCreationToolMouseListener)
+        @inject(MouseTool) protected mouseTool: MouseTool,
+        @inject(NodeCreationToolMouseListener)
         protected nodeCreationToolMouseListener: NodeCreationToolMouseListener,
     ) {}
 

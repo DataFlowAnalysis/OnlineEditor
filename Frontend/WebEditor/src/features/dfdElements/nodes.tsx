@@ -12,12 +12,12 @@ import {
     IViewArgs,
 } from "sprotty";
 import { SNode, SLabel, Bounds, Point } from "sprotty-protocol";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
 import { DynamicChildrenNode } from "./dynamicChildren";
 import { containsDfdLabelFeature } from "../labels/elementFeature";
-import { calculateTextWidth, constructorInject } from "../../utils";
+import { calculateTextWidth } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 
 export interface DfdNodeSchema extends SNode {
@@ -103,7 +103,7 @@ export class StorageNode extends DfdNode {
 
 @injectable()
 export class StorageNodeView implements IView {
-    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
@@ -155,7 +155,7 @@ export class FunctionNode extends DfdNode {
 
 @injectable()
 export class FunctionNodeView implements IView {
-    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<FunctionNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;
@@ -201,7 +201,7 @@ export class IONode extends DfdNode {
 
 @injectable()
 export class IONodeView implements IView {
-    constructor(@constructorInject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
 
     render(node: Readonly<DfdNode>, context: RenderingContext): VNode {
         const width = node.bounds.width;

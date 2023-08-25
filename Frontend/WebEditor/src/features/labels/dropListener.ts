@@ -1,9 +1,8 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { LabelAssignment } from "./labelTypeRegistry";
 import { Action } from "sprotty-protocol";
 import { SModelElementImpl, SChildElementImpl, MouseListener, CommitModelAction, ILogger, TYPES } from "sprotty";
 import { AddLabelAssignmentAction } from "./commands";
-import { constructorInject } from "../../utils";
 import { getParentWithDfdLabels } from "./elementFeature";
 
 export const LABEL_ASSIGNMENT_MIME_TYPE = "application/x-label-assignment";
@@ -15,7 +14,7 @@ export const LABEL_ASSIGNMENT_MIME_TYPE = "application/x-label-assignment";
  */
 @injectable()
 export class DfdLabelMouseDropListener extends MouseListener {
-    constructor(@constructorInject(TYPES.ILogger) private logger: ILogger) {
+    constructor(@inject(TYPES.ILogger) private logger: ILogger) {
         super();
     }
 

@@ -1,6 +1,3 @@
-import { inject } from "inversify/lib/annotation/inject";
-import { ServiceIdentifierOrFunc } from "inversify/lib/annotation/lazy_service_identifier";
-
 /**
  * Type identifiers for use with inversify.
  */
@@ -16,21 +13,6 @@ export const EDITOR_TYPES = {
 };
 
 export const FIT_TO_SCREEN_PADDING = 75;
-
-/**
- * A wrapper decorator for inversify's `inject` decorator.
- * This is necessary because with TypeScript 5.x a decorator must accept targetKey as an optional parameter
- * when having a decoration inside a constructor parameter.
- */
-export function constructorInject<T>(
-    identifier: ServiceIdentifierOrFunc<T>,
-): (target: any, targetKey?: string, index?: number | PropertyDescriptor | undefined) => void {
-    return (target, targetKey, index) => {
-        // inversify is handling passing undefined as targetKey just fine.
-        // It is just the type definition of the inject function that is wrong.
-        inject(identifier)(target, targetKey!, index);
-    };
-}
 
 export function generateRandomSprottyId(): string {
     return Math.random().toString(36).substring(7);
