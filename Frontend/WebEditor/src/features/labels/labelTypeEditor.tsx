@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
 import { constructorInject, generateRandomSprottyId } from "../../utils";
-import { AbstractUIExtension, CommitModelAction, IActionDispatcher, KeyListener, SModelElement, TYPES } from "sprotty";
+import { AbstractUIExtension, CommitModelAction, IActionDispatcher, KeyListener, SModelElementImpl, TYPES } from "sprotty";
 import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from "./labelTypeRegistry";
 import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
-import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropTool";
+import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropListener";
 import { Action } from "sprotty-protocol";
 
 import "../../common/commonStyling.css";
@@ -220,7 +220,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         };
     }
 
-    keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
+    keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
         // For some reason accessing the accordion state element directly through the class/object variable
         // does not work so we get it from the dom again.
         const accordionStateElement = document.getElementById("accordion-state-label-types") as HTMLInputElement | null;
@@ -236,7 +236,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         return [];
     }
 
-    keyUp(_element: SModelElement, _event: KeyboardEvent): Action[] {
+    keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
         return [];
     }
 }

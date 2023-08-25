@@ -1,17 +1,17 @@
 /** @jsx svg */
 import {
     IView,
-    SNode,
+    SNodeImpl,
     WithEditableLabel,
     isEditableLabel,
     svg,
     withEditLabelFeature,
     RenderingContext,
-    SLabel,
+    SLabelImpl,
     ShapeView,
     IViewArgs,
 } from "sprotty";
-import { SNode as SNodeSchema, SLabel as SLabelSchema, Bounds, Point } from "sprotty-protocol";
+import { SNode, SLabel, Bounds, Point } from "sprotty-protocol";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
@@ -20,13 +20,13 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextWidth, constructorInject } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 
-export interface DfdNodeSchema extends SNodeSchema {
+export interface DfdNodeSchema extends SNode {
     text: string;
     labels: LabelAssignment[];
 }
 
 export abstract class DfdNode extends DynamicChildrenNode implements WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [...SNode.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
+    static readonly DEFAULT_FEATURES = [...SNodeImpl.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
     static readonly DEFAULT_WIDTH = 50;
     static readonly WIDTH_PADDING = 8;
 
@@ -39,13 +39,13 @@ export abstract class DfdNode extends DynamicChildrenNode implements WithEditabl
                 type: "label:positional",
                 text: schema.text ?? "",
                 id: schema.id + "-label",
-            } as SLabelSchema,
+            } as SLabel,
         ];
     }
 
     override removeChildren(schema: DfdNodeSchema): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as
-            | SLabelSchema
+            | SLabel
             | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];
@@ -229,18 +229,18 @@ interface DfdPositionalLabelArgs extends IViewArgs {
 
 @injectable()
 export class DfdPositionalLabelView extends ShapeView {
-    private getPosition(label: Readonly<SLabel>, args?: DfdPositionalLabelArgs | IViewArgs): Point {
+    private getPosition(label: Readonly<SLabelImpl>, args?: DfdPositionalLabelArgs | IViewArgs): Point {
         if (args && "xPosition" in args && "yPosition" in args) {
             return { x: args.xPosition, y: args.yPosition };
         } else {
-            const parentSize = (label.parent as SNode | undefined)?.bounds;
+            const parentSize = (label.parent as SNodeImpl | undefined)?.bounds;
             const width = parentSize?.width ?? 0;
             const height = parentSize?.height ?? 0;
             return { x: width / 2, y: height / 2 };
         }
     }
 
-    render(label: Readonly<SLabel>, _context: RenderingContext, args?: DfdPositionalLabelArgs): VNode | undefined {
+    render(label: Readonly<SLabelImpl>, _context: RenderingContext, args?: DfdPositionalLabelArgs): VNode | undefined {
         const position = this.getPosition(label, args);
 
         return (

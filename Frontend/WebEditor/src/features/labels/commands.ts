@@ -1,5 +1,5 @@
 import { Action } from "sprotty-protocol";
-import { Command, CommandExecutionContext, CommandReturn, SModelElement, SParentElement, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, CommandReturn, SModelElementImpl, SParentElementImpl, TYPES } from "sprotty";
 import { constructorInject } from "../../utils";
 import { injectable } from "inversify";
 import { ContainsDfdLabels, containsDfdLabels } from "./elementFeature";
@@ -113,7 +113,7 @@ export class DeleteLabelAssignmentCommand extends Command {
  * @param predicate a function deciding whether the label assignment should be kept
  */
 function removeLabelsFromGraph(
-    element: SModelElement | SParentElement,
+    element: SModelElementImpl | SParentElementImpl,
     predicate: (type: LabelAssignment) => boolean,
 ): void {
     if (containsDfdLabels(element)) {

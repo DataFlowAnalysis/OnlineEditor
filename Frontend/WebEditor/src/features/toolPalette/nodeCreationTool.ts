@@ -6,7 +6,7 @@ import {
     LocalModelSource,
     MouseListener,
     MouseTool,
-    SGraph,
+    SGraphImpl,
     TYPES,
     Tool,
 } from "sprotty";
@@ -37,7 +37,7 @@ export class NodeCreationToolMouseListener extends MouseListener {
         this.nodeType = nodeType;
     }
 
-    override mouseDown(target: SGraph, event: MouseEvent): (Action | Promise<Action>)[] {
+    override mouseDown(target: SGraphImpl, event: MouseEvent): (Action | Promise<Action>)[] {
         if (target.type !== "graph") {
             // Clicked on some element. Do nothing.
             // We only want to create a node when clicking on the root graph/background.

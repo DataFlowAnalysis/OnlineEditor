@@ -5,12 +5,12 @@ import {
     EMPTY_ROOT,
     ILogger,
     NullLogger,
-    SModelRoot,
+    SModelRootImpl,
     SNode,
     TYPES,
     isLocateable,
 } from "sprotty";
-import { Action, FitToScreenAction, SModelRoot as SModelRootSchema } from "sprotty-protocol";
+import { Action, FitToScreenAction, SModelRoot } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../../utils";
@@ -43,10 +43,10 @@ export class LoadDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
-    private oldRoot: SModelRoot | undefined;
-    private newRoot: SModelRoot | undefined;
+    private oldRoot: SModelRootImpl | undefined;
+    private newRoot: SModelRootImpl | undefined;
 
-    async execute(context: CommandExecutionContext): Promise<SModelRoot> {
+    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         // Open a file picker dialog.
         // The cleaner way to do this would be showOpenFilePicker(),
         // but safari and firefox don't support it at the time of writing this code:
@@ -144,7 +144,7 @@ export class LoadDiagramCommand extends Command {
      *
      * @param modelSchema The model schema to preprocess
      */
-    private preprocessModelSchema(modelSchema: SModelRootSchema): void {
+    private preprocessModelSchema(modelSchema: SModelRoot): void {
         // Feature is not included in the typing
         "features" in modelSchema && delete modelSchema["features"];
 
@@ -153,11 +153,11 @@ export class LoadDiagramCommand extends Command {
         }
     }
 
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): SModelRootImpl {
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
-    redo(context: CommandExecutionContext): SModelRoot {
+    redo(context: CommandExecutionContext): SModelRootImpl {
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }
@@ -167,7 +167,7 @@ export class LoadDiagramCommand extends Command {
  * Captures all element ids and dispatches a FitToScreenAction in the next event loop tick.
  * Also performs auto layouting if there are unpositioned nodes.
  */
-export function postLoadActions(newRoot: SModelRoot | undefined, actionDispatcher: ActionDispatcher): void {
+export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispatcher: ActionDispatcher): void {
     if (!newRoot) {
         return;
     }

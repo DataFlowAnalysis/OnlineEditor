@@ -2,7 +2,7 @@ import { ContainerModule } from "inversify";
 import { LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DfdNodeLabelRenderer } from "./labelRenderer";
 import { EDITOR_TYPES } from "../../utils";
-import { DfdLabelDropTool, DfdLabelMouseDropListener } from "./dropTool";
+import { DfdLabelMouseDropListener } from "./dropListener";
 import { LabelTypeEditorUI } from "./labelTypeEditor";
 import { TYPES, configureCommand } from "sprotty";
 import {
@@ -20,8 +20,7 @@ export const dfdLabelModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(LabelTypeRegistry).toConstantValue(globalLabelTypeRegistry);
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();
     bind(DfdLabelMouseDropListener).toSelf().inSingletonScope();
-    bind(DfdLabelDropTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.IDefaultTool).to(DfdLabelDropTool);
+    bind(TYPES.MouseListener).toService(DfdLabelMouseDropListener);
 
     bind(LabelTypeEditorUI).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).to(LabelTypeEditorUI);

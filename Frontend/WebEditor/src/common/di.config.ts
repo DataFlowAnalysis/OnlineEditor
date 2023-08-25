@@ -29,7 +29,7 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(EDITOR_TYPES.DefaultUIElement).toService(HelpUI);
 
     bind(DfdToolManager).toSelf().inSingletonScope();
-    rebind(TYPES.IToolManager).toService(DfdToolManager);
+    bind(TYPES.IToolManager).toService(DfdToolManager);
 
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();

@@ -3,7 +3,7 @@ import {
     ICommandPaletteActionProvider,
     RequestExportSvgAction,
     LabeledAction,
-    SModelRoot,
+    SModelRootImpl,
     EnableToolsAction,
     CommitModelAction,
 } from "sprotty";
@@ -25,7 +25,7 @@ import "./commandPalette.css";
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
-        root: Readonly<SModelRoot>,
+        root: Readonly<SModelRootImpl>,
         _text: string,
         _lastMousePosition?: Point,
         _index?: number,

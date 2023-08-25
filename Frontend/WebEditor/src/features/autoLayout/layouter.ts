@@ -8,8 +8,8 @@ import {
     ILayoutConfigurator,
 } from "sprotty-elk";
 import { constructorInject } from "../../utils";
-import { SShapeElement } from "sprotty";
-import { SShapeElement as SShapeElementSchema, SGraph, SModelIndex } from "sprotty-protocol";
+import { SShapeElementImpl } from "sprotty";
+import { SShapeElement, SGraph, SModelIndex } from "sprotty-protocol";
 import { ElkShape, LayoutOptions } from "elkjs";
 
 export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
@@ -48,7 +48,7 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
         super(elkFactory, elementFilter, configurator);
     }
 
-    protected override transformShape(elkShape: ElkShape, sshape: SShapeElement | SShapeElementSchema): void {
+    protected override transformShape(elkShape: ElkShape, sshape: SShapeElementImpl | SShapeElement): void {
         if (sshape.position) {
             elkShape.x = sshape.position.x;
             elkShape.y = sshape.position.y;
