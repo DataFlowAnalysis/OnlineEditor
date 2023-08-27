@@ -7,6 +7,7 @@ import {
     LogLevel,
     TYPES,
     configureCommand,
+    configureViewerOptions,
 } from "sprotty";
 import { ServerCommandPaletteActionProvider } from "./commandPalette";
 import { HelpUI } from "./helpUi";
@@ -36,4 +37,8 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
     const context = { bind, unbind, isBound, rebind };
     configureCommand(context, CreateElementCommand);
+
+    configureViewerOptions(context, {
+        zoomLimits: { min: 0.1, max: 20 },
+    });
 });
