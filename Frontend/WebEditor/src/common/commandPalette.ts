@@ -4,11 +4,9 @@ import {
     RequestExportSvgAction,
     LabeledAction,
     SModelRootImpl,
-    EnableToolsAction,
     CommitModelAction,
 } from "sprotty";
 import { FitToScreenAction, Point } from "sprotty-protocol";
-import { EdgeCreationTool } from "../features/toolPalette/edgeCreationTool";
 import { LoadDiagramAction } from "../features/serialize/load";
 import { FIT_TO_SCREEN_PADDING } from "../utils";
 import { SaveDiagramAction } from "../features/serialize/save";
@@ -38,7 +36,6 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
 
         return [
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
-            new LabeledAction("Create new edge", [EnableToolsAction.create([EdgeCreationTool.ID])], "link"),
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create("diagram.json")], "save"),
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),

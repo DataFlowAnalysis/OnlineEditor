@@ -2,29 +2,36 @@ import { injectable, inject } from "inversify";
 import {
     MouseListener,
     MouseTool,
-    Tool,
     isConnectable,
     SEdgeImpl,
-    EnableDefaultToolsAction,
     CommitModelAction,
     SModelElementImpl,
     SChildElementImpl,
 } from "sprotty";
 import { Action, CreateElementAction, SEdge, SLabel } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
+import { DfdTool } from "./tool";
 
 @injectable()
-export class EdgeCreationToolMouseListener extends MouseListener {
+export class EdgeCreationTool extends MouseListener implements DfdTool {
     private source?: SModelElementImpl;
     private target?: SModelElementImpl;
 
-    constructor(private edgeType: string = "edge:arrow") {
+    constructor(
+        @inject(MouseTool) private mouseTool: MouseTool,
+        private edgeType: string = "edge:arrow",
+    ) {
         super();
     }
 
-    reinitialize(): void {
+    enable(): void {
         this.source = undefined;
         this.target = undefined;
+        this.mouseTool.register(this);
+    }
+
+    disable(): void {
+        this.mouseTool.deregister(this);
     }
 
     override mouseDown(target: SModelElementImpl, _event: MouseEvent): Action[] {
@@ -86,13 +93,15 @@ export class EdgeCreationToolMouseListener extends MouseListener {
                 ],
             } as SEdge;
 
+            // Disable this tool. When another edge should be created, the user has to enable it again.
+            this.disable();
+
             return [
-                // Disables the EdgeCreationTool and only enables the default tools
-                EnableDefaultToolsAction.create(),
                 // Create the new edge
                 CreateElementAction.create(edge, {
                     containerId: this.source.root.id,
                 }),
+                // Save to model
                 CommitModelAction.create(),
             ];
         }
@@ -112,29 +121,5 @@ export class EdgeCreationToolMouseListener extends MouseListener {
         if (this.target) edge.targetId = this.target.id;
 
         return isConnectable(element) && element.canConnect(edge, type);
-    }
-}
-
-@injectable()
-export class EdgeCreationTool implements Tool {
-    static ID = "edge-creation-tool";
-
-    constructor(
-        @inject(MouseTool) protected mouseTool: MouseTool,
-        @inject(EdgeCreationToolMouseListener)
-        protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener,
-    ) {}
-
-    get id(): string {
-        return EdgeCreationTool.ID;
-    }
-
-    enable(): void {
-        this.edgeCreationToolMouseListener.reinitialize();
-        this.mouseTool.register(this.edgeCreationToolMouseListener);
-    }
-
-    disable(): void {
-        this.mouseTool.deregister(this.edgeCreationToolMouseListener);
     }
 }

@@ -1,14 +1,11 @@
-import { injectable, inject } from "inversify";
 import {
     CommitModelAction,
     DeleteElementAction,
     KeyListener,
-    KeyTool,
     SModelElementImpl,
-    Tool,
     isDeletable,
     isSelectable,
-    SConnectableElement,
+    SConnectableElementImpl,
     SRoutableElementImpl,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
@@ -29,7 +26,7 @@ export class DeleteKeyListener extends KeyListener {
             );
 
             const deleteElementIds = selectedElements.flatMap((e) => {
-                if (e instanceof SConnectableElement) {
+                if (e instanceof SConnectableElementImpl) {
                     // This element can be connected to other elements, so we need to delete all edges connected to it as well.
                     // Otherwise the edges would be left dangling in the graph.
                     const getEdgeId = (edge: SRoutableElementImpl) => edge.id;
@@ -47,29 +44,5 @@ export class DeleteKeyListener extends KeyListener {
             }
         }
         return [];
-    }
-}
-
-/**
- * A custom sprotty tool that registers a DeleteKeyListener by default (see below).
- */
-@injectable()
-export class DelKeyDeleteTool implements Tool {
-    static ID = "delete-keylistener";
-
-    protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
-
-    constructor(@inject(KeyTool) protected keytool: KeyTool) {}
-
-    get id(): string {
-        return DelKeyDeleteTool.ID;
-    }
-
-    enable(): void {
-        this.keytool.register(this.deleteKeyListener);
-    }
-
-    disable(): void {
-        this.keytool.deregister(this.deleteKeyListener);
     }
 }

@@ -9,9 +9,8 @@ import {
     configureCommand,
 } from "sprotty";
 import { ServerCommandPaletteActionProvider } from "./commandPalette";
-import { DfdToolManager } from "./toolManager";
 import { HelpUI } from "./helpUi";
-import { DelKeyDeleteTool } from "./deleteKeyTool";
+import { DeleteKeyListener } from "./deleteKeyListener";
 import { EDITOR_TYPES } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
 
@@ -21,15 +20,12 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
 
-    bind(DelKeyDeleteTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.IDefaultTool).toService(DelKeyDeleteTool);
+    bind(DeleteKeyListener).toSelf().inSingletonScope();
+    bind(TYPES.KeyListener).toService(DeleteKeyListener);
 
     bind(HelpUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(HelpUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(HelpUI);
-
-    bind(DfdToolManager).toSelf().inSingletonScope();
-    bind(TYPES.IToolManager).toService(DfdToolManager);
 
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();

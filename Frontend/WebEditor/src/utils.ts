@@ -2,11 +2,8 @@
  * Type identifiers for use with inversify.
  */
 export const EDITOR_TYPES = {
-    // All sprotty tools that are bound to this symbol will
-    // be loaded and enabled at editor startup.
-    IDefaultTool: Symbol("IDefaultTool"),
-    // sprotty tools that should be registered but not enabled by default.
-    ITool: Symbol("ITool"),
+    // Enableable and disableable tools that can be used to e.g. create new elements.
+    DfdTool: Symbol("DfdTool"),
     // All IUIExtension instances that are bound to this symbol will
     // be loaded and enabled at editor startup.
     DefaultUIElement: Symbol("DefaultUIElement"),
