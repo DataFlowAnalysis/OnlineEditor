@@ -1,7 +1,6 @@
 import { Action } from "sprotty-protocol";
-import { Command, CommandExecutionContext, CommandReturn, SModelElement, SParentElement, TYPES } from "sprotty";
-import { constructorInject } from "../../utils";
-import { injectable } from "inversify";
+import { Command, CommandExecutionContext, CommandReturn, SModelElementImpl, SParentElementImpl, TYPES } from "sprotty";
+import { injectable, inject } from "inversify";
 import { ContainsDfdLabels, containsDfdLabels } from "./elementFeature";
 import { LabelAssignment, LabelTypeRegistry } from "./labelTypeRegistry";
 
@@ -26,7 +25,7 @@ export class AddLabelAssignmentCommand extends Command {
     public static readonly KIND = AddLabelAssignmentAction.TYPE;
     private hasBeenAdded = false;
 
-    constructor(@constructorInject(TYPES.Action) private action: AddLabelAssignmentAction) {
+    constructor(@inject(TYPES.Action) private action: AddLabelAssignmentAction) {
         super();
     }
 
@@ -81,7 +80,7 @@ export namespace DeleteLabelAssignmentAction {
 export class DeleteLabelAssignmentCommand extends Command {
     public static readonly KIND = DeleteLabelAssignmentAction.TYPE;
 
-    constructor(@constructorInject(TYPES.Action) private action: DeleteLabelAssignmentAction) {
+    constructor(@inject(TYPES.Action) private action: DeleteLabelAssignmentAction) {
         super();
     }
 
@@ -113,7 +112,7 @@ export class DeleteLabelAssignmentCommand extends Command {
  * @param predicate a function deciding whether the label assignment should be kept
  */
 function removeLabelsFromGraph(
-    element: SModelElement | SParentElement,
+    element: SModelElementImpl | SParentElementImpl,
     predicate: (type: LabelAssignment) => boolean,
 ): void {
     if (containsDfdLabels(element)) {
@@ -151,7 +150,7 @@ export namespace DeleteLabelTypeValueAction {
 export class DeleteLabelTypeValueCommand extends Command {
     public static readonly KIND = DeleteLabelTypeValueAction.TYPE;
 
-    constructor(@constructorInject(TYPES.Action) private action: DeleteLabelTypeValueAction) {
+    constructor(@inject(TYPES.Action) private action: DeleteLabelTypeValueAction) {
         super();
     }
 
@@ -210,7 +209,7 @@ export namespace DeleteLabelTypeAction {
 export class DeleteLabelTypeCommand extends Command {
     public static readonly KIND = DeleteLabelTypeAction.TYPE;
 
-    constructor(@constructorInject(TYPES.Action) private action: DeleteLabelTypeAction) {
+    constructor(@inject(TYPES.Action) private action: DeleteLabelTypeAction) {
         super();
     }
 

@@ -2,7 +2,7 @@
 import { injectable } from "inversify";
 import {
     PolylineEdgeViewWithGapsOnIntersections,
-    SEdge,
+    SEdgeImpl,
     svg,
     RenderingContext,
     IViewArgs,
@@ -10,15 +10,15 @@ import {
     isEditableLabel,
 } from "sprotty";
 import { VNode } from "snabbdom";
-import { Point, angleOfPoint, toDegrees, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
+import { Point, angleOfPoint, toDegrees, SEdge, SLabel } from "sprotty-protocol";
 import { DynamicChildrenEdge } from "./dynamicChildren";
 
-export interface ArrowEdgeSchema extends SEdgeSchema {
+export interface ArrowEdge extends SEdge {
     text: string;
 }
 
-export class ArrowEdge extends DynamicChildrenEdge implements WithEditableLabel {
-    setChildren(schema: ArrowEdgeSchema): void {
+export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLabel {
+    setChildren(schema: ArrowEdge): void {
         schema.children = [
             {
                 type: "label",
@@ -29,12 +29,12 @@ export class ArrowEdge extends DynamicChildrenEdge implements WithEditableLabel 
                     side: "on",
                     rotate: false,
                 },
-            } as SLabelSchema,
+            } as SLabel,
         ];
     }
 
-    removeChildren(schema: ArrowEdgeSchema): void {
-        const label = schema.children?.find((element) => element.type === "label") as SLabelSchema | undefined;
+    removeChildren(schema: ArrowEdge): void {
+        const label = schema.children?.find((element) => element.type === "label") as SLabel | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];
     }
@@ -54,7 +54,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     /**
      * Renders an arrow at the end of the edge.
      */
-    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdgeImpl, segments: Point[], context: RenderingContext): VNode[] {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
         const p2 = segments[segments.length - 1];
@@ -77,7 +77,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
      * In contrast to the default implementation that we override here,
      * this implementation makes the edge line 10px shorter at the end to make space for the arrow without any overlap.
      */
-    protected renderLine(_edge: SEdge, segments: Point[], _context: RenderingContext, _args?: IViewArgs): VNode {
+    protected renderLine(_edge: SEdgeImpl, segments: Point[], _context: RenderingContext, _args?: IViewArgs): VNode {
         const firstPoint = segments[0];
         let path = `M ${firstPoint.x},${firstPoint.y}`;
         for (let i = 1; i < segments.length; i++) {

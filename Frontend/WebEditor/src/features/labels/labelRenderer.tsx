@@ -1,8 +1,8 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { VNode } from "snabbdom";
-import { Hoverable, IActionDispatcher, SShapeElement, TYPES, svg } from "sprotty";
-import { calculateTextWidth, constructorInject } from "../../utils";
+import { Hoverable, IActionDispatcher, SShapeElementImpl, TYPES, svg } from "sprotty";
+import { calculateTextWidth } from "../../utils";
 import { LabelAssignment, LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DeleteLabelAssignmentAction } from "./commands";
 import { ContainsDfdLabels } from "./elementFeature";
@@ -14,8 +14,8 @@ export class DfdNodeLabelRenderer {
     static readonly LABEL_SPACING_HEIGHT = DfdNodeLabelRenderer.LABEL_HEIGHT + DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN;
 
     constructor(
-        @constructorInject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @constructorInject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {}
 
     /**
@@ -37,7 +37,7 @@ export class DfdNodeLabelRenderer {
     }
 
     renderSingleNodeLabel(
-        node: ContainsDfdLabels & SShapeElement & Hoverable,
+        node: ContainsDfdLabels & SShapeElementImpl & Hoverable,
         label: LabelAssignment,
         x: number,
         y: number,
@@ -106,7 +106,7 @@ export class DfdNodeLabelRenderer {
     }
 
     renderNodeLabels(
-        node: ContainsDfdLabels & SShapeElement & Hoverable,
+        node: ContainsDfdLabels & SShapeElementImpl & Hoverable,
         baseY: number,
         xOffset = 0,
         labelSpacing = DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT,

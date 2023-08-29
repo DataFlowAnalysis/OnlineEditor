@@ -7,12 +7,12 @@ import {
     EMPTY_ROOT,
     ILogger,
     NullLogger,
-    SModelRoot,
+    SModelRootImpl,
     TYPES,
 } from "sprotty";
-import { Action, SGraph as SGraphSchema, SEdge as SEdgeSchema } from "sprotty-protocol";
+import { Action, SGraph, SEdge } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
-import { DfdNodeSchema } from "../dfdElements/nodes";
+import { DfdNode } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { postLoadActions } from "./load";
@@ -24,7 +24,7 @@ const locationLabelTypeId = generateRandomSprottyId();
 const locationOnPremId = generateRandomSprottyId();
 const locationCloudId = generateRandomSprottyId();
 
-const defaultDiagramSchema: SGraphSchema = {
+const defaultDiagramSchema: SGraph = {
     type: "graph",
     id: "root",
     children: [
@@ -39,7 +39,7 @@ const defaultDiagramSchema: SGraphSchema = {
                 },
             ],
             position: { x: 100, y: 100 },
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "node:function",
             id: functionId,
@@ -51,27 +51,27 @@ const defaultDiagramSchema: SGraphSchema = {
                 },
             ],
             position: { x: 200, y: 200 },
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "node:input-output",
             id: outputId,
             text: "Customer",
             position: { x: 325, y: 207 },
             labels: [],
-        } as DfdNodeSchema,
+        } as DfdNode,
         {
             type: "edge:arrow",
             id: generateRandomSprottyId(),
             sourceId: storageId,
             targetId: functionId,
             text: "Read",
-        } as SEdgeSchema,
+        } as SEdge,
         {
             type: "edge:arrow",
             id: generateRandomSprottyId(),
             sourceId: functionId,
             targetId: outputId,
-        } as SEdgeSchema,
+        } as SEdge,
     ],
 };
 const locationLabelType: LabelType = {
@@ -114,8 +114,8 @@ export class LoadDefaultDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
-    private oldRoot: SModelRoot | undefined;
-    private newRoot: SModelRoot | undefined;
+    private oldRoot: SModelRootImpl | undefined;
+    private newRoot: SModelRootImpl | undefined;
 
     execute(context: CommandExecutionContext): CommandReturn {
         this.oldRoot = context.root;
@@ -134,11 +134,11 @@ export class LoadDefaultDiagramCommand extends Command {
         return this.newRoot;
     }
 
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): SModelRootImpl {
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
-    redo(context: CommandExecutionContext): SModelRoot {
+    redo(context: CommandExecutionContext): SModelRootImpl {
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }

@@ -1,5 +1,5 @@
 import { inject } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
 import { Action, IModelLayoutEngine, SGraph } from "sprotty-protocol";
 
 export interface LayoutModelAction extends Action {
@@ -24,7 +24,7 @@ export class LayoutModelCommand extends Command {
     @inject(TYPES.ModelSource)
     protected readonly modelSource?: LocalModelSource;
 
-    async execute(context: CommandExecutionContext): Promise<SModelRoot> {
+    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         if (!this.layoutEngine || !this.modelSource) throw new Error("Missing injects");
 
         // Layouting is normally done on the graph schema.
@@ -35,14 +35,14 @@ export class LayoutModelCommand extends Command {
         // Using of the "bounds" property that the implementation classes have is done using DfdElkLayoutEngine.
         const newModel = await this.layoutEngine.layout(context.root as unknown as SGraph);
         // Here we need to cast back.
-        return newModel as unknown as SModelRoot;
+        return newModel as unknown as SModelRootImpl;
     }
 
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
 
-    redo(context: CommandExecutionContext): Promise<SModelRoot> {
+    redo(context: CommandExecutionContext): Promise<SModelRootImpl> {
         return this.execute(context);
     }
 }

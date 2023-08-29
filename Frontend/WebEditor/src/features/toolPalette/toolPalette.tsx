@@ -1,21 +1,21 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { injectable, inject, multiInject } from "inversify";
 import { VNode } from "snabbdom";
 import {
     svg,
     AbstractUIExtension,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
     IActionDispatcher,
     IActionHandler,
     ICommand,
     TYPES,
     PatcherProvider,
+    CommitModelAction,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { constructorInject } from "../../utils";
-import { NodeCreationTool, NodeCreationToolMouseListener } from "./nodeCreationTool";
+import { NodeCreationTool } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
+import { DfdTool } from "./tool";
+import { EDITOR_TYPES } from "../../utils";
 
 import "../../common/commonStyling.css";
 import "./toolPalette.css";
@@ -29,10 +29,11 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     static readonly ID = "tool-palette";
 
     constructor(
-        @constructorInject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
-        @constructorInject(NodeCreationToolMouseListener)
-        protected nodeCreationToolMouseListener: NodeCreationToolMouseListener,
-        @constructorInject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
+        @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
+        @inject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
+        @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
+        @inject(NodeCreationTool) protected readonly nodeCreationTool: NodeCreationTool,
+        @multiInject(EDITOR_TYPES.DfdTool) protected readonly allTools: DfdTool[],
     ) {
         super();
     }
@@ -55,9 +56,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         this.addTool(
             containerElement,
-            NodeCreationTool.ID,
+            this.nodeCreationTool,
             "Storage node",
-            () => this.nodeCreationToolMouseListener.setNodeType("node:storage"),
+            (tool) => tool.enable("node:storage"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
                 <text x="50%" y="50%">
@@ -68,9 +69,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         this.addTool(
             containerElement,
-            NodeCreationTool.ID,
+            this.nodeCreationTool,
             "Input/Output node",
-            () => this.nodeCreationToolMouseListener.setNodeType("node:input-output"),
+            (tool) => tool.enable("node:input-output"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
                 <line x1="25%" y1="20%" x2="25%" y2="80%" stroke-width="1" />
@@ -82,9 +83,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         this.addTool(
             containerElement,
-            NodeCreationTool.ID,
+            this.nodeCreationTool,
             "Function node",
-            () => this.nodeCreationToolMouseListener.setNodeType("node:function"),
+            (tool) => tool.enable("node:function"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" rx="20%" ry="20%" />
                 <line x1="10%" y1="65%" x2="90%" y2="65%" />
@@ -96,9 +97,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         this.addTool(
             containerElement,
-            EdgeCreationTool.ID,
+            this.edgeCreationTool,
             "Edge with an arrowhead",
-            () => {},
+            (tool) => tool.enable(),
             <g>
                 <defs>
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="2" orient="auto">
@@ -122,7 +123,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * @param clicked callback that is called when the tool is clicked. Can be used to configure the calling tool
      * @param svgCode vnode for the svg logo of the tool. Will be placed in a 32x32 svg element
      */
-    private addTool(container: HTMLElement, toolId: string, name: string, clicked: () => void, svgCode: VNode): void {
+    private addTool<T extends DfdTool>(container: HTMLElement, tool: T, name: string, enable: (tool: T) => void, svgCode: VNode): void {
         const toolElement = document.createElement("div");
         toolElement.classList.add("tool");
         const svgNode = (
@@ -134,20 +135,17 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
 
         toolElement.addEventListener("click", () => {
             if (toolElement.classList.contains("active")) {
-                // Disabling all tools will trigger a re-render of the tool palette
-                // so we don't need to remove the active class here
-                this.disableTools();
+                tool.disable();
+                toolElement.classList.remove("active");
             } else {
-                // Remove active class from all other tools
-                container.childNodes.forEach((node) => {
-                    if (node instanceof HTMLElement && node !== toolElement) {
-                        node.classList.remove("active");
-                    }
-                });
+                // Disable all other tools
+                this.disableTools();
 
+                // Enable the selected tool
+                enable(tool);
+
+                // Mark the tool as active
                 toolElement.classList.add("active");
-                clicked();
-                this.enableTool(toolId);
             }
         });
 
@@ -161,22 +159,27 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         this.patcherProvider.patcher(subElement, svgNode);
     }
 
-    private enableTool(id: string): void {
-        this.actionDispatcher.dispatch(EnableToolsAction.create([id]));
+    private disableTools(): void {
+        this.allTools.forEach((tool) => tool.disable());
+        this.markAllToolsInactive();
     }
 
-    private disableTools(): void {
-        this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
+    private markAllToolsInactive(): void {
+        if(!this.containerElement) return;
+
+        // Remove active class from all tools, resulting in none of the tools being shown as active
+        this.containerElement.childNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+                node.classList.remove("active");
+            }
+        });
     }
 
     handle(action: Action): void | Action | ICommand {
-        // Unsets all active classes of the tool icons when all non-default tools are disabled
-        if (action.kind === EnableDefaultToolsAction.KIND) {
-            this.containerElement.childNodes.forEach((node) => {
-                if (node instanceof HTMLElement) {
-                    node.classList.remove("active");
-                }
-            });
+        // Some change has been made to the model.
+        // This may indicate the end of a tool action, so we show all tools to be inactive.
+        if (action.kind === CommitModelAction.KIND) {
+            this.markAllToolsInactive();
         }
     }
 }

@@ -1,16 +1,15 @@
 import { inject, injectable } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRoot, TYPES } from "sprotty";
-import { Action, SModelRoot as SModelRootSchema } from "sprotty-protocol";
+import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
+import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { constructorInject } from "../../utils";
 
 /**
  * Type that contains all data related to a diagram.
  * This contains the sprotty diagram model and other data related to it.
  */
 export interface SavedDiagram {
-    model: SModelRootSchema;
+    model: SModelRoot;
     labelTypes: LabelType[];
 }
 
@@ -39,11 +38,11 @@ export class SaveDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     private labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
 
-    constructor(@constructorInject(TYPES.Action) private action: SaveDiagramAction) {
+    constructor(@inject(TYPES.Action) private action: SaveDiagramAction) {
         super();
     }
 
-    execute(context: CommandExecutionContext): SModelRoot {
+    execute(context: CommandExecutionContext): SModelRootImpl {
         // Convert the model to JSON
         // Do a copy because we're going to modify it
         const modelCopy = JSON.parse(JSON.stringify(this.modelSource.model));
@@ -77,11 +76,11 @@ export class SaveDiagramCommand extends Command {
 
     // Saving cannot be meaningfully undone/redone
 
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
 
-    redo(context: CommandExecutionContext): SModelRoot {
+    redo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
 }

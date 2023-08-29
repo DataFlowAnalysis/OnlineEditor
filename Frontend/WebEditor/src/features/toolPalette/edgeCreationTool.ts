@@ -1,33 +1,40 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import {
     MouseListener,
     MouseTool,
-    Tool,
-    SModelElement,
     isConnectable,
-    SEdge,
-    EnableDefaultToolsAction,
-    SChildElement,
+    SEdgeImpl,
     CommitModelAction,
+    SModelElementImpl,
+    SChildElementImpl,
 } from "sprotty";
-import { Action, CreateElementAction, SEdge as SEdgeSchema, SLabel as SLabelSchema } from "sprotty-protocol";
-import { constructorInject, generateRandomSprottyId } from "../../utils";
+import { Action, CreateElementAction, SEdge, SLabel } from "sprotty-protocol";
+import { generateRandomSprottyId } from "../../utils";
+import { DfdTool } from "./tool";
 
 @injectable()
-export class EdgeCreationToolMouseListener extends MouseListener {
-    private source?: SModelElement;
-    private target?: SModelElement;
+export class EdgeCreationTool extends MouseListener implements DfdTool {
+    private source?: SModelElementImpl;
+    private target?: SModelElementImpl;
 
-    constructor(private edgeType: string = "edge:arrow") {
+    constructor(
+        @inject(MouseTool) private mouseTool: MouseTool,
+        private edgeType: string = "edge:arrow",
+    ) {
         super();
     }
 
-    reinitialize(): void {
+    enable(): void {
         this.source = undefined;
         this.target = undefined;
+        this.mouseTool.register(this);
     }
 
-    override mouseDown(target: SModelElement, _event: MouseEvent): Action[] {
+    disable(): void {
+        this.mouseTool.deregister(this);
+    }
+
+    override mouseDown(target: SModelElementImpl, _event: MouseEvent): Action[] {
         // First click selects the source (if valid source element)
         // Second click selects the target and creates the edge (if valid target element)
         const element = this.findConnectableElement(target);
@@ -46,24 +53,24 @@ export class EdgeCreationToolMouseListener extends MouseListener {
      * To find the parent node that is intended we recursively go up the parent chain until we find a connectable element.
      * If none is found we return undefined. In this case the whole element is not connectable.
      */
-    private findConnectableElement(element: SModelElement): SModelElement | undefined {
+    private findConnectableElement(element: SModelElementImpl): SModelElementImpl | undefined {
         if (isConnectable(element)) {
             return element;
-        } else if (element instanceof SChildElement) {
+        } else if (element instanceof SChildElementImpl) {
             return this.findConnectableElement(element.parent);
         } else {
             return undefined;
         }
     }
 
-    private sourceClick(element: SModelElement): Action[] {
+    private sourceClick(element: SModelElementImpl): Action[] {
         if (this.canConnect(element, "source")) {
             this.source = element;
         }
         return [];
     }
 
-    private targetClick(element: SModelElement): Action[] {
+    private targetClick(element: SModelElementImpl): Action[] {
         if (this.source && this.source.id !== element.id && this.canConnect(element, "target")) {
             // Add edge to diagram
             this.target = element;
@@ -82,59 +89,37 @@ export class EdgeCreationToolMouseListener extends MouseListener {
                             side: "on",
                             rotate: false,
                         },
-                    } as SLabelSchema,
+                    } as SLabel,
                 ],
-            } as SEdgeSchema;
+            } as SEdge;
+
+            // Disable this tool. When another edge should be created, the user has to enable it again.
+            this.disable();
 
             return [
-                // Disables the EdgeCreationTool and only enables the default tools
-                EnableDefaultToolsAction.create(),
                 // Create the new edge
                 CreateElementAction.create(edge, {
                     containerId: this.source.root.id,
                 }),
+                // Save to model
                 CommitModelAction.create(),
             ];
         }
         return [];
     }
 
-    private canConnect(element: SModelElement, type: "source" | "target"): boolean {
+    private canConnect(element: SModelElementImpl, type: "source" | "target"): boolean {
         if (type === "target" && element.id === this.source?.id) {
             // Cannot connect to itself
             return false;
         }
 
         // Construct pseudo edge to check if it can be connected
-        const edge = new SEdge();
+        const edge = new SEdgeImpl();
         edge.type = "edge:arrow";
         if (this.source) edge.sourceId = this.source.id;
         if (this.target) edge.targetId = this.target.id;
 
         return isConnectable(element) && element.canConnect(edge, type);
-    }
-}
-
-@injectable()
-export class EdgeCreationTool implements Tool {
-    static ID = "edge-creation-tool";
-
-    constructor(
-        @constructorInject(MouseTool) protected mouseTool: MouseTool,
-        @constructorInject(EdgeCreationToolMouseListener)
-        protected edgeCreationToolMouseListener: EdgeCreationToolMouseListener,
-    ) {}
-
-    get id(): string {
-        return EdgeCreationTool.ID;
-    }
-
-    enable(): void {
-        this.edgeCreationToolMouseListener.reinitialize();
-        this.mouseTool.register(this.edgeCreationToolMouseListener);
-    }
-
-    disable(): void {
-        this.mouseTool.deregister(this.edgeCreationToolMouseListener);
     }
 }

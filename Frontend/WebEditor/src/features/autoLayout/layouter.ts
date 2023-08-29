@@ -1,5 +1,5 @@
 import ElkConstructor from "elkjs/lib/elk.bundled";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import {
     DefaultLayoutConfigurator,
     ElkFactory,
@@ -7,9 +7,8 @@ import {
     IElementFilter,
     ILayoutConfigurator,
 } from "sprotty-elk";
-import { constructorInject } from "../../utils";
-import { SShapeElement } from "sprotty";
-import { SShapeElement as SShapeElementSchema, SGraph, SModelIndex } from "sprotty-protocol";
+import { SShapeElementImpl } from "sprotty";
+import { SShapeElement, SGraph, SModelIndex } from "sprotty-protocol";
 import { ElkShape, LayoutOptions } from "elkjs";
 
 export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
@@ -41,14 +40,14 @@ export const elkFactory = () =>
 @injectable()
 export class DfdElkLayoutEngine extends ElkLayoutEngine {
     constructor(
-        @constructorInject(ElkFactory) elkFactory: ElkFactory,
-        @constructorInject(IElementFilter) elementFilter: IElementFilter,
-        @constructorInject(ILayoutConfigurator) configurator: ILayoutConfigurator,
+        @inject(ElkFactory) elkFactory: ElkFactory,
+        @inject(IElementFilter) elementFilter: IElementFilter,
+        @inject(ILayoutConfigurator) configurator: ILayoutConfigurator,
     ) {
         super(elkFactory, elementFilter, configurator);
     }
 
-    protected override transformShape(elkShape: ElkShape, sshape: SShapeElement | SShapeElementSchema): void {
+    protected override transformShape(elkShape: ElkShape, sshape: SShapeElementImpl | SShapeElement): void {
         if (sshape.position) {
             elkShape.x = sshape.position.x;
             elkShape.y = sshape.position.y;

@@ -1,6 +1,6 @@
 import { injectable, multiInject } from "inversify";
-import { SModelElementRegistration, SNode, SEdge, TYPES } from "sprotty";
-import { SModelElement as SModelElementSchema, SEdge as SEdgeSchema, SNode as SNodeSchema } from "sprotty-protocol";
+import { SModelElementRegistration, SNodeImpl, SEdgeImpl, TYPES } from "sprotty";
+import { SModelElement, SEdge, SNode } from "sprotty-protocol";
 
 // This file contains helpers to dynamically specify the children of a sprotty element.
 // Element children are generally used for e.g. labels in sprotty or other sub elements.
@@ -26,14 +26,14 @@ import { SModelElement as SModelElementSchema, SEdge as SEdgeSchema, SNode as SN
 
 // Abstract classes that define the both abstract methods setChildren and removeChildren
 
-export abstract class DynamicChildrenNode extends SNode {
-    abstract setChildren(schema: SNodeSchema): void;
-    abstract removeChildren(schema: SNodeSchema): void;
+export abstract class DynamicChildrenNode extends SNodeImpl {
+    abstract setChildren(schema: SNode): void;
+    abstract removeChildren(schema: SNode): void;
 }
 
-export abstract class DynamicChildrenEdge extends SEdge {
-    abstract setChildren(schema: SEdgeSchema): void;
-    abstract removeChildren(schema: SEdgeSchema): void;
+export abstract class DynamicChildrenEdge extends SEdgeImpl {
+    abstract setChildren(schema: SEdge): void;
+    abstract removeChildren(schema: SEdge): void;
 }
 
 @injectable()
@@ -46,7 +46,7 @@ export class DynamicChildrenProcessor {
      * Recursively traverses the graph, gets the registration of the corresponding element type,
      * checks whether it extends a DynamicChildren* abstract class and then calls the corresponding method.
      */
-    public processGraphChildren(graphElement: SModelElementSchema | SEdgeSchema, action: "set" | "remove"): void {
+    public processGraphChildren(graphElement: SModelElement | SEdge, action: "set" | "remove"): void {
         const registration = this.elementRegistrations.find((r) => r.type === graphElement.type);
         if (registration) {
             // If registration is undefined some element hasn't been registered but used, so this shouldn't happen
