@@ -39,6 +39,6 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, CreateElementCommand);
 
     configureViewerOptions(context, {
-        zoomLimits: { min: 0.1, max: 20 },
+        zoomLimits: { min: 0.05, max: 20 },
     });
 });
