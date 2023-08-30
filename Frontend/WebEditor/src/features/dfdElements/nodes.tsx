@@ -96,8 +96,13 @@ export class StorageNodeImpl extends DfdNodeImpl {
         }
     }
 
+    protected override calculateWidth(): number {
+        return super.calculateWidth() + StorageNodeImpl.LEFT_PADDING;
+    }
+
     static readonly TEXT_HEIGHT = 32;
     static readonly LABEL_START_HEIGHT = 28;
+    static readonly LEFT_PADDING = 10;
 }
 
 @injectable()
@@ -112,22 +117,17 @@ export class StorageNodeView extends ShapeView {
         }
 
         const { width, height } = node.bounds;
+        const leftPadding = StorageNodeImpl.LEFT_PADDING / 2;
 
         return (
-            <g class-sprotty-node={true} class-storage={true}>
-                {/* This transparent rect exists only to make this element easily selectable.
-                    Without this you would need click the text or exactly hit one of the lines.
-                    With this rect you can click anywhere between the two lines to select it.
-                    This is especially important when there is no text given or it is short. */}
-                <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
-
-                <line x1="0" y1="0" x2={width} y2="0" />
+            <g class-sprotty-node={true} class-io={true}>
+                <rect x="0" y="0" width={width} height={height} />
+                <line x1={StorageNodeImpl.LEFT_PADDING} y1="0" x2={StorageNodeImpl.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
-                    xPosition: width / 2,
+                    xPosition: width / 2 + leftPadding,
                     yPosition: StorageNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, StorageNodeImpl.LABEL_START_HEIGHT)}
-                <line x1="0" y1={height} x2={width} y2={height} />
+                {this.labelRenderer.renderNodeLabels(node, StorageNodeImpl.LABEL_START_HEIGHT, leftPadding)}
             </g>
         );
     }
@@ -185,6 +185,7 @@ export class FunctionNodeView extends ShapeView {
     }
 }
 
+@injectable()
 export class IONodeImpl extends DfdNodeImpl {
     protected override calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
@@ -199,13 +200,8 @@ export class IONodeImpl extends DfdNodeImpl {
         }
     }
 
-    protected override calculateWidth(): number {
-        return super.calculateWidth() + IONodeImpl.LEFT_PADDING;
-    }
-
     static readonly TEXT_HEIGHT = 32;
     static readonly LABEL_START_HEIGHT = 28;
-    static readonly LEFT_PADDING = 10;
 }
 
 @injectable()
@@ -220,17 +216,22 @@ export class IONodeView extends ShapeView {
         }
 
         const { width, height } = node.bounds;
-        const leftPadding = IONodeImpl.LEFT_PADDING / 2;
 
         return (
-            <g class-sprotty-node={true} class-io={true}>
-                <rect x="0" y="0" width={width} height={height} />
-                <line x1={IONodeImpl.LEFT_PADDING} y1="0" x2={IONodeImpl.LEFT_PADDING} y2={height} />
+            <g class-sprotty-node={true} class-storage={true}>
+                {/* This transparent rect exists only to make this element easily selectable.
+                    Without this you would need click the text or exactly hit one of the lines.
+                    With this rect you can click anywhere between the two lines to select it.
+                    This is especially important when there is no text given or it is short. */}
+                <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
+
+                <line x1="0" y1="0" x2={width} y2="0" />
                 {context.renderChildren(node, {
-                    xPosition: width / 2 + leftPadding,
+                    xPosition: width / 2,
                     yPosition: IONodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT, leftPadding)}
+                {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT)}
+                <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
     }
