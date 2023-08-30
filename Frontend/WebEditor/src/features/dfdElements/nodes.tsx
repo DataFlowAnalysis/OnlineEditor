@@ -1,6 +1,5 @@
 /** @jsx svg */
 import {
-    IView,
     SNodeImpl,
     WithEditableLabel,
     isEditableLabel,
@@ -102,12 +101,17 @@ export class StorageNodeImpl extends DfdNodeImpl {
 }
 
 @injectable()
-export class StorageNodeView implements IView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+export class StorageNodeView extends ShapeView {
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+        super();
+    }
 
-    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode {
-        const width = node.bounds.width;
-        const height = node.bounds.height;
+    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode | undefined {
+        if (!this.isVisible(node, context)) {
+            return undefined;
+        }
+
+        const { width, height } = node.bounds;
 
         return (
             <g class-sprotty-node={true} class-storage={true}>
@@ -154,12 +158,17 @@ export class FunctionNodeImpl extends DfdNodeImpl {
 }
 
 @injectable()
-export class FunctionNodeView implements IView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+export class FunctionNodeView extends ShapeView {
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+        super();
+    }
 
-    render(node: Readonly<FunctionNodeImpl>, context: RenderingContext): VNode {
-        const width = node.bounds.width;
-        const height = node.bounds.height;
+    render(node: Readonly<FunctionNodeImpl>, context: RenderingContext): VNode | undefined {
+        if(!this.isVisible(node, context)) {
+            return undefined;
+        }
+
+        const { width, height } = node.bounds;
         const r = FunctionNodeImpl.BORDER_RADIUS;
 
         return (
@@ -200,12 +209,17 @@ export class IONodeImpl extends DfdNodeImpl {
 }
 
 @injectable()
-export class IONodeView implements IView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {}
+export class IONodeView extends ShapeView {
+    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+        super();
+    }
 
-    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode {
-        const width = node.bounds.width;
-        const height = node.bounds.height;
+    render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode | undefined {
+        if (!this.isVisible(node, context)) {
+            return undefined;
+        }
+
+        const { width, height } = node.bounds;
         const leftPadding = IONodeImpl.LEFT_PADDING / 2;
 
         return (

@@ -51,6 +51,20 @@ export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLa
 
 @injectable()
 export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
+    override render(edge: Readonly<SEdgeImpl>, context: RenderingContext, args?: IViewArgs): VNode | undefined {
+        // In the default implementation children of the edge are always rendered, because they
+        // may be visible when the rest of the edge is not.
+        // We only have the edge label as an children which only must be rendered when the rest of the edge is visible.
+        // So as an optimization for big diagrams we don't render the label when the rest of the edge is not visible either.
+        // Otherwise all these labels would be added to the DOM, making it slow..
+        const route = this.edgeRouterRegistry.route(edge, args);
+        if (!this.isVisible(edge, route, context)) {
+            return undefined;
+        }
+
+        return super.render(edge, context, args);
+    }
+
     /**
      * Renders an arrow at the end of the edge.
      */
