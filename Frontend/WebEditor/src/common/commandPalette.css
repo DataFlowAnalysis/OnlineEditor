@@ -17,11 +17,3 @@
 .command-palette-suggestions > div.selected {
     background: var(--color-background);
 }
-
-div.autocomplete.command-palette-suggestions {
-    /* sprotty sets the position using inline style tags
-       The only way to override this is to use !important
-       Using important is bad practice but I don't see a good way to avoid it here. */
-    top: 50px !important;
-    left: 0px !important;
-}
