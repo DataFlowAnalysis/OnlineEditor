@@ -34,7 +34,8 @@ export function calculateTextWidth(text: string | undefined, font: string = "11p
     }
 
     // Get context for the given font or create a new one if it does not exist yet
-    if (!contextMap.has(font)) {
+    let contextObj = contextMap.get(font);
+    if (!contextObj) {
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
         if (!context) {
@@ -42,10 +43,11 @@ export function calculateTextWidth(text: string | undefined, font: string = "11p
         }
 
         context.font = font; // This is slow. Thats why we have one instance per font to avoid redoing this
-        contextMap.set(font, { context, cache: new Map<string, number>() });
+        contextObj = { context, cache: new Map<string, number>() };
+        contextMap.set(font, contextObj);
     }
 
-    const { context, cache } = contextMap.get(font)!;
+    const { context, cache } = contextObj;
 
     // Get text width from cache or compute it
     const cachedWidth = cache.get(text);
