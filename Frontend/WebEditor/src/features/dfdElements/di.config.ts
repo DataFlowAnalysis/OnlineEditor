@@ -20,6 +20,7 @@ import {
     StorageNodeView,
 } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
+import { DfdPortImpl, DfdPortView } from "./port";
 
 import "./styles.css";
 
@@ -38,6 +39,7 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     configureModelElement(context, "label:positional", SLabelImpl, DfdPositionalLabelView, {
         enable: [editLabelFeature],
     });
+    configureModelElement(context, "port:dfd", DfdPortImpl, DfdPortView);
     configureModelElement(context, "routing-point", SRoutingHandleImpl, SRoutingHandleView);
     configureModelElement(context, "volatile-routing-point", SRoutingHandleImpl, SRoutingHandleView);
 });

@@ -68,9 +68,7 @@ export class DfdNodeLabelRenderer {
                                 X
                             </text>
                         </g>
-                    ) : (
-                        <g />
-                    )
+                    ) : undefined
                 }
             </g>
         );

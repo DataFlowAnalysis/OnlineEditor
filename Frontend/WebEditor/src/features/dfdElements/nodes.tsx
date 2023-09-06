@@ -10,7 +10,7 @@ import {
     ShapeView,
     IViewArgs,
 } from "sprotty";
-import { SNode, SLabel, Bounds, Point } from "sprotty-protocol";
+import { SNode, SLabel, Bounds, Point, SPort } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
@@ -39,6 +39,20 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
                 text: schema.text ?? "",
                 id: schema.id + "-label",
             } as SLabel,
+            {
+                type: "port:dfd",
+                id: schema.id + "-port",
+                size: { width: 6, height: 6 },
+                position: { x: -3, y: 0 },
+                behaviour: "test123",
+            } as SPort,
+            {
+                type: "port:dfd",
+                id: schema.id + "-port2",
+                size: { width: 6, height: 6 },
+                position: { x: -3, y: 12 },
+                behaviour: "test123",
+            } as SPort,
         ];
     }
 
