@@ -31,6 +31,10 @@ export class HelpUI extends AbstractUIExtension {
                     <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>: Redo</p>
                     <p><kbd>Del</kbd>: Delete selected elements</p>
                     <p><kbd>T</kbd>: Toggle Label Type Edit UI</p>
+                    <p><kbd>STRG</kbd>+<kbd>O</kbd>: Open</p>
+                    <p><kbd>STRG</kbd>+<kbd>Alt</kbd><kbd>O</kbd>: Open Default</p>
+                    <p><kbd>STRG</kbd>+<kbd>S</kbd>: Save</p>
+                    <p><kbd>T</kbd>: Toggle Label Type Edit UI</p>
                 </div>
             </div>
         `;
