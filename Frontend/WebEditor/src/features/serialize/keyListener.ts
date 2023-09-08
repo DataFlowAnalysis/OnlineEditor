@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { KeyListener, SModelElementImpl } from "sprotty";
+import { CommitModelAction, KeyListener, SModelElementImpl } from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { LoadDefaultDiagramAction } from "./loadDefaultDiagram";
@@ -13,19 +13,15 @@ export class SerializeKeyListener extends KeyListener {
             // Prevent the browser file open dialog from opening
             event.preventDefault();
 
-            return [LoadDiagramAction.create()];
+            return [LoadDiagramAction.create(), CommitModelAction.create()];
         } else if (matchesKeystroke(event, "KeyO", "ctrl", "shift")) {
             event.preventDefault();
-            return [LoadDefaultDiagramAction.create()];
+            return [LoadDefaultDiagramAction.create(), CommitModelAction.create()];
         } else if (matchesKeystroke(event, "KeyS", "ctrl")) {
             event.preventDefault();
             return [SaveDiagramAction.create()];
         }
 
-        return [];
-    }
-
-    keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
         return [];
     }
 }
