@@ -21,7 +21,7 @@ export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLa
     setChildren(schema: ArrowEdge): void {
         schema.children = [
             {
-                type: "label",
+                type: "label:filled-background",
                 text: schema.text,
                 id: schema.id + "-label",
                 edgePlacement: {

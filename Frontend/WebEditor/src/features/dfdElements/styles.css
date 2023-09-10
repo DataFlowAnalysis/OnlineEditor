@@ -64,6 +64,11 @@
     stroke: none;
 }
 
+.sprotty-edge .label-background rect {
+    fill: var(--color-background);
+    stroke-width: 0;
+}
+
 /* Misc */
 
 text {
