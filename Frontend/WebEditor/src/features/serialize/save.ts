@@ -20,10 +20,10 @@ export interface SaveDiagramAction extends Action {
 export namespace SaveDiagramAction {
     export const KIND = "save-diagram";
 
-    export function create(suggestedFileName: string): SaveDiagramAction {
+    export function create(suggestedFileName?: string): SaveDiagramAction {
         return {
             kind: KIND,
-            suggestedFileName,
+            suggestedFileName: suggestedFileName ?? "diagram.json",
         };
     }
 }

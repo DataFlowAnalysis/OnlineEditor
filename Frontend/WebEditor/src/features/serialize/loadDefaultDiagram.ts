@@ -116,6 +116,7 @@ export class LoadDefaultDiagramCommand extends Command {
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
+    private oldLabelTypes: LabelType[] | undefined;
 
     execute(context: CommandExecutionContext): CommandReturn {
         this.oldRoot = context.root;
@@ -126,6 +127,7 @@ export class LoadDefaultDiagramCommand extends Command {
 
         this.logger.info(this, "Default Model loaded successfully");
 
+        this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
         this.labelTypeRegistry.clearLabelTypes();
         this.labelTypeRegistry.registerLabelType(locationLabelType);
         this.logger.info(this, "Default Label Types loaded successfully");
@@ -135,10 +137,14 @@ export class LoadDefaultDiagramCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
+        this.labelTypeRegistry.clearLabelTypes();
+        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
+        this.labelTypeRegistry.clearLabelTypes();
+        this.labelTypeRegistry.registerLabelType(locationLabelType);
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }

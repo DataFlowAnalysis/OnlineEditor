@@ -2,7 +2,7 @@
 import { injectable, inject } from "inversify";
 import { VNode } from "snabbdom";
 import { Hoverable, IActionDispatcher, SShapeElementImpl, TYPES, svg } from "sprotty";
-import { calculateTextWidth } from "../../utils";
+import { calculateTextSize } from "../../utils";
 import { LabelAssignment, LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DeleteLabelAssignmentAction } from "./commands";
 import { ContainsDfdLabels } from "./elementFeature";
@@ -31,7 +31,7 @@ export class DfdNodeLabelRenderer {
         }
 
         const text = `${labelType.name}: ${labelTypeValue.text}`;
-        const width = calculateTextWidth(text, "5pt sans-serif") + 8;
+        const width = calculateTextSize(text, "5pt sans-serif").width + 8;
 
         return [text, width];
     }

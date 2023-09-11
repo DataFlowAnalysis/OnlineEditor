@@ -11,7 +11,6 @@ import {
     SRoutingHandleImpl,
 } from "sprotty";
 import {
-    DfdPositionalLabelView,
     FunctionNodeImpl,
     FunctionNodeView,
     IONodeImpl,
@@ -21,6 +20,7 @@ import {
 } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
 import { DfdPortImpl, DfdPortView } from "./port";
+import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 
 import "./styles.css";
 
@@ -34,6 +34,9 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
         enable: [withEditLabelFeature],
     });
     configureModelElement(context, "label", SLabelImpl, SLabelView, {
+        enable: [editLabelFeature],
+    });
+    configureModelElement(context, "label:filled-background", SLabelImpl, FilledBackgroundLabelView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "label:positional", SLabelImpl, DfdPositionalLabelView, {

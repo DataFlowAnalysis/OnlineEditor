@@ -15,7 +15,7 @@ import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject } from "inversify";
 import { FIT_TO_SCREEN_PADDING } from "../../utils";
 import { SavedDiagram } from "./save";
-import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
 
 export interface LoadDiagramAction extends Action {
@@ -45,6 +45,8 @@ export class LoadDiagramCommand extends Command {
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
+    private oldLabelTypes: LabelType[] | undefined;
+    private newLabelTypes: LabelType[] | undefined;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         // Open a file picker dialog.
@@ -111,6 +113,8 @@ export class LoadDiagramCommand extends Command {
             this.logger.info(this, "Model loaded successfully");
 
             // Load label types
+            this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
+            this.newLabelTypes = newDiagram?.labelTypes;
             this.labelTypeRegistry.clearLabelTypes();
             if (newDiagram?.labelTypes) {
                 newDiagram.labelTypes.forEach((labelType) => {
@@ -154,10 +158,14 @@ export class LoadDiagramCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
+        this.labelTypeRegistry.clearLabelTypes();
+        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
+        this.labelTypeRegistry.clearLabelTypes();
+        this.newLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }
