@@ -42,14 +42,14 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
                 type: "port:dfd",
                 id: schema.id + "-port",
                 size: { width: 6, height: 6 },
-                position: { x: -3, y: 0 },
+                position: { x: -6, y: 3 },
                 behaviour: "test123",
             } as SPort,
             {
                 type: "port:dfd",
                 id: schema.id + "-port2",
                 size: { width: 6, height: 6 },
-                position: { x: -3, y: 12 },
+                position: { x: -6, y: 15 },
                 behaviour: "test123",
             } as SPort,
         ];

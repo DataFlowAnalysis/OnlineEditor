@@ -9,22 +9,19 @@ import {
     withEditLabelFeature,
     SLabelView,
     SRoutingHandleImpl,
+    TYPES,
 } from "sprotty";
-import {
-    FunctionNodeImpl,
-    FunctionNodeView,
-    IONodeImpl,
-    IONodeView,
-    StorageNodeImpl,
-    StorageNodeView,
-} from "./nodes";
+import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
 import { DfdPortImpl, DfdPortView } from "./port";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
+import { PortAwareSnapper } from "./portSnapper";
 
 import "./styles.css";
 
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
+
     const context = { bind, unbind, isBound, rebind };
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
