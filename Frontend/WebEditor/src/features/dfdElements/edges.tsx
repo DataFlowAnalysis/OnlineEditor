@@ -40,7 +40,7 @@ export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLa
     }
 
     get editableLabel() {
-        const label = this.children.find((element) => element.type === "label");
+        const label = this.children.find((element) => element.type.startsWith("label"));
         if (label && isEditableLabel(label)) {
             return label;
         }
