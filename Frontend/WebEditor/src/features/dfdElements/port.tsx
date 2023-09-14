@@ -1,6 +1,6 @@
 /** @jsx svg */
 import { svg, ShapeView, SPortImpl, RenderingContext, moveFeature, deletableFeature } from "sprotty";
-import { SPort } from "sprotty-protocol";
+import { Bounds, SPort } from "sprotty-protocol";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 
@@ -13,6 +13,15 @@ export class DfdPortImpl extends SPortImpl {
     static readonly DEFAULT_FEATURES = [...super.DEFAULT_FEATURES, moveFeature, deletableFeature];
 
     behaviour: string = "";
+
+    override get bounds(): Bounds {
+        return {
+            x: this.position.x,
+            y: this.position.y,
+            width: 6,
+            height: 6,
+        };
+    }
 }
 
 @injectable()
@@ -22,8 +31,8 @@ export class DfdPortView extends ShapeView {
             return undefined;
         }
 
-        const width = Math.max(node.size.width, 0);
-        const height = Math.max(node.size.height, 0);
+        const width = Math.max(node.bounds.width, 0);
+        const height = Math.max(node.bounds.height, 0);
 
         return (
             <g class-sprotty-port={true} class-selected={node.selected}>

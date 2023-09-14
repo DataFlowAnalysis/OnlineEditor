@@ -8,7 +8,7 @@ import {
     RenderingContext,
     ShapeView,
 } from "sprotty";
-import { SNode, SLabel, Bounds, SPort } from "sprotty-protocol";
+import { SNode, SLabel, Bounds, SModelElement } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
@@ -17,10 +17,12 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextSize } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 import { DfdPositionalLabelArgs } from "./labels";
+import { DfdPort } from "./port";
 
 export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
+    ports: DfdPort[];
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
@@ -30,36 +32,29 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
 
     text: string = "";
     labels: LabelAssignment[] = [];
+    ports: DfdPort[] = [];
 
     override setChildren(schema: DfdNode): void {
-        schema.children = [
+        const children: SModelElement[] = [
             {
                 type: "label:positional",
                 text: schema.text ?? "",
                 id: schema.id + "-label",
             } as SLabel,
-            {
-                type: "port:dfd",
-                id: schema.id + "-port",
-                size: { width: 6, height: 6 },
-                position: { x: -6, y: 3 },
-                behaviour: "test123",
-            } as SPort,
-            {
-                type: "port:dfd",
-                id: schema.id + "-port2",
-                size: { width: 6, height: 6 },
-                position: { x: -6, y: 15 },
-                behaviour: "test123",
-            } as SPort,
         ];
+
+        schema.ports?.forEach((port) => children.push(port));
+        schema.children = children;
     }
 
     override removeChildren(schema: DfdNode): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as
             | SLabel
             | undefined;
+        const ports = schema.children?.filter((element) => element.type === "port") ?? [];
+
         schema.text = label?.text ?? "";
+        schema.ports = ports as DfdPort[];
         schema.children = [];
     }
 
