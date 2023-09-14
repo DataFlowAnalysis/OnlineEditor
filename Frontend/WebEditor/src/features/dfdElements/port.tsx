@@ -1,18 +1,46 @@
 /** @jsx svg */
-import { svg, ShapeView, SPortImpl, RenderingContext, moveFeature, deletableFeature } from "sprotty";
-import { Bounds, SPort } from "sprotty-protocol";
+import {
+    svg,
+    ShapeView,
+    SPortImpl,
+    RenderingContext,
+    moveFeature,
+    deletableFeature,
+    withEditLabelFeature,
+    WithEditableLabel,
+    isEditableLabel,
+} from "sprotty";
+import { Bounds, SLabel, SPort } from "sprotty-protocol";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
+import { DynamicChildrenPort } from "./dynamicChildren";
 
 export interface DfdPort extends SPort {
     behaviour: string;
 }
 
 @injectable()
-export class DfdPortImpl extends SPortImpl {
-    static readonly DEFAULT_FEATURES = [...super.DEFAULT_FEATURES, moveFeature, deletableFeature];
+export class DfdPortImpl extends DynamicChildrenPort implements WithEditableLabel {
+    static readonly DEFAULT_FEATURES = [...super.DEFAULT_FEATURES, moveFeature, deletableFeature, withEditLabelFeature];
 
     behaviour: string = "";
+
+    setChildren(schema: DfdPort): void {
+        schema.children = [
+            {
+                id: schema.id + "-label",
+                type: "label:invisible",
+                text: schema.behaviour ?? "",
+            } as SLabel,
+        ];
+    }
+
+    removeChildren(schema: DfdPort): void {
+        const label = schema.children?.find((element) => element.type === "label:invisible") as SLabel | undefined;
+
+        schema.behaviour = label?.text ?? "";
+        schema.children = [];
+    }
 
     override get bounds(): Bounds {
         return {
@@ -21,6 +49,15 @@ export class DfdPortImpl extends SPortImpl {
             width: 6,
             height: 6,
         };
+    }
+
+    get editableLabel() {
+        const label = this.children.find((element) => element.type === "label:invisible");
+        if (label && isEditableLabel(label)) {
+            return label;
+        }
+
+        return undefined;
     }
 }
 

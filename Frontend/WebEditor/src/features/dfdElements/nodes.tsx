@@ -7,6 +7,8 @@ import {
     withEditLabelFeature,
     RenderingContext,
     ShapeView,
+    IViewArgs,
+    SChildElementImpl,
 } from "sprotty";
 import { SNode, SLabel, Bounds, SModelElement } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
@@ -43,13 +45,21 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
             } as SLabel,
         ];
 
-        schema.ports?.forEach((port) => children.push(port));
+        schema.ports?.forEach((port) => {
+            // Remove wrongly serialized features Set.
+            // Refer to preprocessModelSchema in the load action for more information.
+            if ("features" in port) {
+                delete port.features;
+            }
+
+            children.push(port);
+        });
         schema.children = children;
     }
 
     override removeChildren(schema: DfdNode): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as SLabel | undefined;
-        const ports = schema.children?.filter((element) => element.type === "port") ?? [];
+        const ports = schema.children?.filter((element) => element.type === "port:dfd") ?? [];
 
         schema.text = label?.text ?? "";
         schema.ports = ports as DfdPort[];
@@ -240,5 +250,20 @@ export class IONodeView extends ShapeView {
                 <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
+    }
+}
+
+/**
+ * A sprotty view that renders nothing. Can be used to make invisible elements
+ * that only serve some utility function but should not render anything.
+ */
+@injectable()
+export class EmptyView extends ShapeView {
+    render(
+        _model: Readonly<SChildElementImpl>,
+        _context: RenderingContext,
+        _args?: IViewArgs | undefined,
+    ): VNode | undefined {
+        return undefined;
     }
 }

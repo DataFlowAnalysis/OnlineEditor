@@ -10,6 +10,7 @@ import {
     SLabelView,
     SRoutingHandleImpl,
     TYPES,
+    EmptyView,
 } from "sprotty";
 import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
@@ -37,6 +38,9 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
         enable: [editLabelFeature],
     });
     configureModelElement(context, "label:positional", SLabelImpl, DfdPositionalLabelView, {
+        enable: [editLabelFeature],
+    });
+    configureModelElement(context, "label:invisible", SLabelImpl, EmptyView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "port:dfd", DfdPortImpl, DfdPortView);

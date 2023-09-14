@@ -1,5 +1,5 @@
 import { injectable, multiInject } from "inversify";
-import { SModelElementRegistration, SNodeImpl, SEdgeImpl, TYPES } from "sprotty";
+import { SModelElementRegistration, SNodeImpl, SEdgeImpl, TYPES, SPortImpl } from "sprotty";
 import { SModelElement, SEdge, SNode } from "sprotty-protocol";
 
 // This file contains helpers to dynamically specify the children of a sprotty element.
@@ -36,6 +36,11 @@ export abstract class DynamicChildrenEdge extends SEdgeImpl {
     abstract removeChildren(schema: SEdge): void;
 }
 
+export abstract class DynamicChildrenPort extends SPortImpl {
+    abstract setChildren(schema: SNode): void;
+    abstract removeChildren(schema: SNode): void;
+}
+
 @injectable()
 export class DynamicChildrenProcessor {
     @multiInject(TYPES.SModelElementRegistration)
@@ -47,6 +52,15 @@ export class DynamicChildrenProcessor {
      * checks whether it extends a DynamicChildren* abstract class and then calls the corresponding method.
      */
     public processGraphChildren(graphElement: SModelElement | SEdge, action: "set" | "remove"): void {
+        console.log(graphElement.type, graphElement.id, graphElement);
+
+        // When removing children we need to remove them from children to parents to do it correctly.
+        // When setting children we need to do it the other way around to set the children
+        // of the elements that have been set by the parent first.
+        if (action === "remove") {
+            graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        }
+
         const registration = this.elementRegistrations.find((r) => r.type === graphElement.type);
         if (registration) {
             // If registration is undefined some element hasn't been registered but used, so this shouldn't happen
@@ -72,8 +86,18 @@ export class DynamicChildrenProcessor {
                     impl.removeChildren(graphElement);
                 }
             }
+
+            if (impl instanceof DynamicChildrenPort) {
+                if (action === "set") {
+                    impl.setChildren(graphElement);
+                } else {
+                    impl.removeChildren(graphElement);
+                }
+            }
         }
 
-        graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        if (action === "set") {
+            graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        }
     }
 }
