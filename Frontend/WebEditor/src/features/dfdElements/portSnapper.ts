@@ -2,9 +2,28 @@ import { injectable } from "inversify";
 import { CenterGridSnapper, ISnapper, SModelElementImpl, SPortImpl, isBoundsAware } from "sprotty";
 import { Point } from "sprotty-protocol";
 
+/**
+ * A grid snapper that snaps to the nearest grid point.
+ * Same as CenterGridSnapper but allows to specify the grid size at construction time.
+ */
+class ConfigurableGridSnapper extends CenterGridSnapper {
+    constructor(private readonly gridSize: number) {
+        super();
+    }
+
+    override get gridX() {
+        return this.gridSize;
+    }
+
+    override get gridY() {
+        return this.gridSize;
+    }
+}
+
 @injectable()
 export class PortAwareSnapper implements ISnapper {
-    private readonly gridSnapper = new CenterGridSnapper();
+    private readonly nodeSnapper = new ConfigurableGridSnapper(5);
+    private readonly portSnapper = new ConfigurableGridSnapper(2);
 
     private snapPort(position: Point, element: SPortImpl): Point {
         const parentElement = element.parent;
@@ -19,6 +38,7 @@ export class PortAwareSnapper implements ISnapper {
         // Clamp the position to be inside the parent bounds
         const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
+        position = this.portSnapper.snap(position, element);
         const clampX = clamp(position.x, 0, parentBounds.width);
         const clampY = clamp(position.y, 0, parentBounds.height);
 
@@ -53,7 +73,7 @@ export class PortAwareSnapper implements ISnapper {
         if (element instanceof SPortImpl) {
             return this.snapPort(position, element);
         } else {
-            return this.gridSnapper.snap(position, element);
+            return this.nodeSnapper.snap(position, element);
         }
     }
 }
