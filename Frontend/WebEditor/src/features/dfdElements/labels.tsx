@@ -1,6 +1,6 @@
 /** @jsx svg */
 import { IViewArgs, SLabelImpl, SNodeImpl, ShapeView, RenderingContext, svg } from "sprotty";
-import {VNode} from "snabbdom";
+import { VNode } from "snabbdom";
 import { injectable } from "inversify";
 import { Point } from "sprotty-protocol";
 import { calculateTextSize } from "../../utils";
@@ -51,9 +51,11 @@ export class FilledBackgroundLabelView extends ShapeView {
         const width = size.width + FilledBackgroundLabelView.PADDING;
         const height = size.height + FilledBackgroundLabelView.PADDING;
 
-        return <g class-label-background={true}>
-            <rect x={-width / 2} y={-height / 2} width={width} height={height} />
-            <text class-sprotty-label={true}>{label.text}</text>
-        </g>
+        return (
+            <g class-label-background={true}>
+                <rect x={-width / 2} y={-height / 2} width={width} height={height} />
+                <text class-sprotty-label={true}>{label.text}</text>
+            </g>
+        );
     }
 }

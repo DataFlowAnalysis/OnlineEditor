@@ -123,7 +123,13 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * @param clicked callback that is called when the tool is clicked. Can be used to configure the calling tool
      * @param svgCode vnode for the svg logo of the tool. Will be placed in a 32x32 svg element
      */
-    private addTool<T extends DfdTool>(container: HTMLElement, tool: T, name: string, enable: (tool: T) => void, svgCode: VNode): void {
+    private addTool<T extends DfdTool>(
+        container: HTMLElement,
+        tool: T,
+        name: string,
+        enable: (tool: T) => void,
+        svgCode: VNode,
+    ): void {
         const toolElement = document.createElement("div");
         toolElement.classList.add("tool");
         const svgNode = (
@@ -165,7 +171,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     }
 
     private markAllToolsInactive(): void {
-        if(!this.containerElement) return;
+        if (!this.containerElement) return;
 
         // Remove active class from all tools, resulting in none of the tools being shown as active
         this.containerElement.childNodes.forEach((node) => {

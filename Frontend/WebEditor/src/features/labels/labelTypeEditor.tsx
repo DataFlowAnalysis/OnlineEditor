@@ -1,6 +1,13 @@
 import { injectable, inject } from "inversify";
 import { generateRandomSprottyId } from "../../utils";
-import { AbstractUIExtension, CommitModelAction, IActionDispatcher, KeyListener, SModelElementImpl, TYPES } from "sprotty";
+import {
+    AbstractUIExtension,
+    CommitModelAction,
+    IActionDispatcher,
+    KeyListener,
+    SModelElementImpl,
+    TYPES,
+} from "sprotty";
 import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from "./labelTypeRegistry";
 import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropListener";

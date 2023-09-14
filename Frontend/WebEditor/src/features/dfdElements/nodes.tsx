@@ -48,9 +48,7 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
     }
 
     override removeChildren(schema: DfdNode): void {
-        const label = schema.children?.find((element) => element.type === "label:positional") as
-            | SLabel
-            | undefined;
+        const label = schema.children?.find((element) => element.type === "label:positional") as SLabel | undefined;
         const ports = schema.children?.filter((element) => element.type === "port") ?? [];
 
         schema.text = label?.text ?? "";
@@ -172,7 +170,7 @@ export class FunctionNodeView extends ShapeView {
     }
 
     render(node: Readonly<FunctionNodeImpl>, context: RenderingContext): VNode | undefined {
-        if(!this.isVisible(node, context)) {
+        if (!this.isVisible(node, context)) {
             return undefined;
         }
 
