@@ -32,7 +32,7 @@ export class HelpUI extends AbstractUIExtension {
                     <p><kbd>Del</kbd>: Delete selected elements</p>
                     <p><kbd>T</kbd>: Toggle Label Type Edit UI</p>
                     <p><kbd>CTRL</kbd>+<kbd>O</kbd>: Load diagram from json</p>
-                    <p><kbd>CTRL</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>: Open default diagram</p>
+                    <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>: Open default diagram</p>
                     <p><kbd>CTRL</kbd>+<kbd>S</kbd>: Save diagram to json</p>
                     <p><kbd>CTRL</kbd>+<kbd>L</kbd>: Automatically layout diagram</p>
                 </div>

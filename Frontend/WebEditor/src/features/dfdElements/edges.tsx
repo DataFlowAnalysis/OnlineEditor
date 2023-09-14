@@ -34,13 +34,13 @@ export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLa
     }
 
     removeChildren(schema: ArrowEdge): void {
-        const label = schema.children?.find((element) => element.type === "label") as SLabel | undefined;
+        const label = schema.children?.find((element) => element.type.startsWith("label")) as SLabel | undefined;
         schema.text = label?.text ?? "";
         schema.children = [];
     }
 
     get editableLabel() {
-        const label = this.children.find((element) => element.type === "label");
+        const label = this.children.find((element) => element.type.startsWith("label"));
         if (label && isEditableLabel(label)) {
             return label;
         }

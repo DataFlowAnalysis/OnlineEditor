@@ -82,6 +82,9 @@ text {
     font-size: 11pt;
     text-anchor: middle;
     dominant-baseline: central;
+
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* elements with the sprotty-missing class use a node type that has not been registered.
