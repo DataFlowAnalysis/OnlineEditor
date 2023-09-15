@@ -14,7 +14,7 @@ import {
 } from "sprotty";
 import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
-import { DfdPortImpl, DfdPortView } from "./port";
+import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
 
@@ -43,7 +43,8 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     configureModelElement(context, "label:invisible", SLabelImpl, EmptyView, {
         enable: [editLabelFeature],
     });
-    configureModelElement(context, "port:dfd", DfdPortImpl, DfdPortView);
+    configureModelElement(context, "port:dfd-input", DfdInputPortImpl, DfdInputPortView);
+    configureModelElement(context, "port:dfd-output", DfdOutputPortImpl, DfdOutputPortView);
     configureModelElement(context, "routing-point", SRoutingHandleImpl, SRoutingHandleView);
     configureModelElement(context, "volatile-routing-point", SRoutingHandleImpl, SRoutingHandleView);
 });

@@ -16,6 +16,7 @@ import { DfdNode } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { postLoadActions } from "./load";
+import { DfdOutputPort } from "../dfdElements/ports";
 
 const storageId = generateRandomSprottyId();
 const storagePortId = generateRandomSprottyId();
@@ -48,11 +49,11 @@ const defaultDiagramSchema: SGraph = {
             ],
             ports: [
                 {
-                    type: "port:dfd",
+                    type: "port:dfd-output",
                     id: storagePortId,
                     position: { x: 52, y: 42 },
                     behaviour: "Hallo I bims einz Text",
-                },
+                } as DfdOutputPort,
             ],
         } as DfdNode,
         {
@@ -68,17 +69,16 @@ const defaultDiagramSchema: SGraph = {
             ],
             ports: [
                 {
-                    type: "port:dfd",
+                    type: "port:dfd-input",
                     id: functionPort1Id,
                     position: { x: 10, y: -6 },
-                    behaviour: "",
                 },
                 {
-                    type: "port:dfd",
+                    type: "port:dfd-output",
                     id: functionPort2Id,
                     position: { x: 74, y: 20 },
-                    behaviour: "",
-                },
+                    behaviour: "was auch immer",
+                } as DfdOutputPort,
             ],
         } as DfdNode,
         {
@@ -89,10 +89,9 @@ const defaultDiagramSchema: SGraph = {
             labels: [],
             ports: [
                 {
-                    type: "port:dfd",
+                    type: "port:dfd-input",
                     id: outputPortId,
                     position: { x: -6, y: 13 },
-                    behaviour: "",
                 },
             ],
         } as DfdNode,

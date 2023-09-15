@@ -59,10 +59,16 @@
     stroke-width: 0;
 }
 
+/* Ports */
+
 .sprotty-port rect {
     stroke: var(--color-foreground);
     fill: var(--color-background);
     stroke-width: 1;
+}
+
+.sprotty-port .port-text {
+    font-size: 4pt;
 }
 
 /* All nodes/misc */

@@ -10,7 +10,7 @@ import {
     IViewArgs,
     SChildElementImpl,
 } from "sprotty";
-import { SNode, SLabel, Bounds, SModelElement } from "sprotty-protocol";
+import { SNode, SLabel, Bounds, SModelElement, SPort } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
@@ -19,12 +19,11 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextSize } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 import { DfdPositionalLabelArgs } from "./labels";
-import { DfdPort } from "./port";
 
 export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
-    ports: DfdPort[];
+    ports: SPort[];
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
@@ -34,7 +33,7 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
 
     text: string = "";
     labels: LabelAssignment[] = [];
-    ports: DfdPort[] = [];
+    ports: SPort[] = [];
 
     override setChildren(schema: DfdNode): void {
         const children: SModelElement[] = [
@@ -59,10 +58,10 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
 
     override removeChildren(schema: DfdNode): void {
         const label = schema.children?.find((element) => element.type === "label:positional") as SLabel | undefined;
-        const ports = schema.children?.filter((element) => element.type === "port:dfd") ?? [];
+        const ports = schema.children?.filter((element) => element.type.startsWith("port")) ?? [];
 
         schema.text = label?.text ?? "";
-        schema.ports = ports as DfdPort[];
+        schema.ports = ports as SPort[];
         schema.children = [];
     }
 
