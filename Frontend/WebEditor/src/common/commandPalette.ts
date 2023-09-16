@@ -23,7 +23,7 @@ import "./commandPalette.css";
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
-        root: Readonly<SModelRootImpl>,
+        _root: Readonly<SModelRootImpl>,
         _text: string,
         _lastMousePosition?: Point,
         _index?: number,
