@@ -29,7 +29,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
         _index?: number,
     ): Promise<LabeledAction[]> {
         const fitToScreenAction = FitToScreenAction.create(
-            root.children.map((child) => child.id), // Fit screen to all children
+            [], // empty elementIds means fit the whole diagram
             { padding: FIT_TO_SCREEN_PADDING },
         );
         const commitAction = CommitModelAction.create();
