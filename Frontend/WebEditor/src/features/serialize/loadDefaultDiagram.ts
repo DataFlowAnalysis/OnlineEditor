@@ -51,7 +51,7 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-output",
                     id: storagePortId,
-                    position: { x: 52, y: 42 },
+                    position: { x: 52, y: 38.5 },
                     behaviour: "Hallo I bims einz Text",
                 } as DfdOutputPort,
             ],
@@ -71,12 +71,12 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-input",
                     id: functionPort1Id,
-                    position: { x: 10, y: -6 },
+                    position: { x: 10, y: -3.5 },
                 },
                 {
                     type: "port:dfd-output",
                     id: functionPort2Id,
-                    position: { x: 74, y: 20 },
+                    position: { x: 74.5, y: 20 },
                     behaviour: "was auch immer",
                 } as DfdOutputPort,
             ],
@@ -91,7 +91,7 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-input",
                     id: outputPortId,
-                    position: { x: -6, y: 13 },
+                    position: { x: -3.5, y: 13 },
                 },
             ],
         } as DfdNode,

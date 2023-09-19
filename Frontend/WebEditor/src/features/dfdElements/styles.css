@@ -64,11 +64,12 @@
 .sprotty-port rect {
     stroke: var(--color-foreground);
     fill: var(--color-background);
-    stroke-width: 1;
+    stroke-width: 0.5;
 }
 
 .sprotty-port .port-text {
     font-size: 4pt;
+    font-family: monospace;
 }
 
 /* All nodes/misc */

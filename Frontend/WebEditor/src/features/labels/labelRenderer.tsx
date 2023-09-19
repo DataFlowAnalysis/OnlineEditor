@@ -12,6 +12,7 @@ export class DfdNodeLabelRenderer {
     static readonly LABEL_HEIGHT = 10;
     static readonly LABEL_SPACE_BETWEEN = 2;
     static readonly LABEL_SPACING_HEIGHT = DfdNodeLabelRenderer.LABEL_HEIGHT + DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN;
+    static readonly LABEL_TEXT_PADDING = 8;
 
     constructor(
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
@@ -31,7 +32,7 @@ export class DfdNodeLabelRenderer {
         }
 
         const text = `${labelType.name}: ${labelTypeValue.text}`;
-        const width = calculateTextSize(text, "5pt sans-serif").width + 8;
+        const width = calculateTextSize(text, "5pt sans-serif").width + DfdNodeLabelRenderer.LABEL_TEXT_PADDING;
 
         return [text, width];
     }

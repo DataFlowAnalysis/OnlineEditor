@@ -16,7 +16,7 @@ import { VNode } from "snabbdom";
 import { DynamicChildrenPort } from "./dynamicChildren";
 
 const defaultPortFeatures = [...SPortImpl.DEFAULT_FEATURES, moveFeature, deletableFeature];
-const portSize = 8;
+const portSize = 7;
 
 export interface DfdInputPort extends SPort {}
 

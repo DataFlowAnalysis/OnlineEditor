@@ -56,15 +56,12 @@ export class PortAwareSnapper implements ISnapper {
                 : prev,
         );
 
-        // Move the port from being on top of the edge on the side of the edge.
-        // Before this step x and y are the point of the top left point of the port inside the parent element.
-        // After this step the port will be moved on the side of the edge.
-        // So if it is on the top edge it will be above the edge and contact it at the bottom.
-        // If it is on the left edge it will be on the left of the edge and contact it on the right.
-        // For bottom and right we don't need to do anything because the port is already on the side of the edge.
-        // The movement is scaled by the position to make a smooth transition in the four corners possible.
-        const snappedX = closestEdge.x - element.bounds.width * (1 - closestEdge.x / parentBounds.width);
-        const snappedY = closestEdge.y - element.bounds.height * (1 - closestEdge.y / parentBounds.height);
+        // The position currently points exactly on the edge.
+        // This position is used as the top left point when the port is drawn.
+        // However we want the port to be centered on the node edge instead of the top left being on top of the edge.
+        // So we move the port by half of the width/height to the left/top to center it on the node edge.
+        const snappedX = closestEdge.x - element.bounds.width / 2;
+        const snappedY = closestEdge.y - element.bounds.height / 2;
 
         return { x: snappedX, y: snappedY };
     }
