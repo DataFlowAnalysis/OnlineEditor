@@ -69,7 +69,17 @@
 
 .sprotty-port .port-text {
     font-size: 4pt;
-    font-family: monospace;
+}
+
+/* Label edit UI */
+
+.label-edit .labelEditAvailableInputs {
+    color: white;
+    position: absolute;
+    top: -20px;
+    left: 0px;
+    right: 0px;
+    background-color: var(--color-primary);
 }
 
 /* All nodes/misc */
@@ -77,9 +87,12 @@
 .sprotty-node.selected circle,
 .sprotty-node.selected rect,
 .sprotty-node.selected line,
-.sprotty-edge.selected,
-.sprotty-port.selected rect {
+.sprotty-edge.selected {
     stroke-width: 2;
+}
+
+.sprotty-port.selected rect {
+    stroke-width: 1;
 }
 
 text {

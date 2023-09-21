@@ -11,6 +11,9 @@ import {
     SRoutingHandleImpl,
     TYPES,
     EmptyView,
+    configureActionHandler,
+    EditLabelAction,
+    EditLabelActionHandler,
 } from "sprotty";
 import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
@@ -19,11 +22,17 @@ import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
 
 import "./styles.css";
+import { CustomEditLabelUI } from "./editUi";
 
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
-
     const context = { bind, unbind, isBound, rebind };
+
+    rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
+    configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
+
+    bind(CustomEditLabelUI).toSelf().inSingletonScope();
+    bind(TYPES.IUIExtension).toService(CustomEditLabelUI);
+
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
     configureModelElement(context, "node:function", FunctionNodeImpl, FunctionNodeView);

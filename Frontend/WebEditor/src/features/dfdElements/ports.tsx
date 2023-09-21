@@ -14,6 +14,7 @@ import { Bounds, SLabel, SPort } from "sprotty-protocol";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { DynamicChildrenPort } from "./dynamicChildren";
+import { ArrowEdgeImpl } from "./edges";
 
 const defaultPortFeatures = [...SPortImpl.DEFAULT_FEATURES, moveFeature, deletableFeature];
 const portSize = 7;
@@ -31,6 +32,28 @@ export class DfdInputPortImpl extends SPortImpl {
             width: portSize,
             height: portSize,
         };
+    }
+
+    getName(): string | undefined {
+        const edgeNames: string[] = [];
+
+        this.incomingEdges.forEach((edge) => {
+            if (edge instanceof ArrowEdgeImpl) {
+                console.log("labellol", edge);
+                const name = edge.editableLabel?.text;
+                if (name !== undefined) {
+                    edgeNames.push(name);
+                }
+            } else {
+                return undefined;
+            }
+        });
+
+        if (edgeNames.length === 0) {
+            return undefined;
+        } else {
+            return edgeNames.join("");
+        }
     }
 }
 
@@ -97,6 +120,14 @@ export class DfdOutputPortImpl extends DynamicChildrenPort implements WithEditab
         }
 
         return undefined;
+    }
+
+    getAvailableInputs(): string[] {
+        return this.parent.children
+            .filter((child) => child instanceof DfdInputPortImpl)
+            .map((child) => child as DfdInputPortImpl)
+            .map((child) => child.getName())
+            .filter((name) => name !== undefined) as string[];
     }
 }
 
