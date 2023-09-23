@@ -197,8 +197,7 @@ export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispa
     // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 10ms timeout.
     // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
     setTimeout(async () => {
-        const elements = newRoot?.children.map((child) => child.id);
-        const fitToScreenAction = FitToScreenAction.create(elements, {
+        const fitToScreenAction = FitToScreenAction.create([], {
             animate: false,
             padding: FIT_TO_SCREEN_PADDING,
         });

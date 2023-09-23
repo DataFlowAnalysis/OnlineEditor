@@ -1,6 +1,7 @@
 import { ContainerModule } from "inversify";
 import {
     CenterGridSnapper,
+    CenterKeyboardListener,
     ConsoleLogger,
     CreateElementCommand,
     LocalModelSource,
@@ -14,6 +15,7 @@ import { HelpUI } from "./helpUi";
 import { DeleteKeyListener } from "./deleteKeyListener";
 import { EDITOR_TYPES } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
+import { FitToScreenKeyListener as CenterDiagramKeyListener } from "./fitToScreenKeyListener";
 
 import "./commonStyling.css";
 
@@ -23,6 +25,8 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
 
     bind(DeleteKeyListener).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).toService(DeleteKeyListener);
+    bind(CenterDiagramKeyListener).toSelf().inSingletonScope();
+    rebind(CenterKeyboardListener).toService(CenterDiagramKeyListener);
 
     bind(HelpUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(HelpUI);

@@ -49,7 +49,7 @@ export class NodeCreationTool extends MouseListener implements DfdTool {
         const nodeSchema = {
             type: this.nodeType,
             id: generateRandomSprottyId(),
-            text: "Storage",
+            text: this.nodeType.replace("node:", ""),
             position: {
                 x: event.screenX,
                 y: event.screenY,

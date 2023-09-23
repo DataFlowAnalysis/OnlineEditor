@@ -23,13 +23,13 @@ import "./commandPalette.css";
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
-        root: Readonly<SModelRootImpl>,
+        _root: Readonly<SModelRootImpl>,
         _text: string,
         _lastMousePosition?: Point,
         _index?: number,
     ): Promise<LabeledAction[]> {
         const fitToScreenAction = FitToScreenAction.create(
-            root.children.map((child) => child.id), // Fit screen to all children
+            [], // empty elementIds means fit the whole diagram
             { padding: FIT_TO_SCREEN_PADDING },
         );
         const commitAction = CommitModelAction.create();

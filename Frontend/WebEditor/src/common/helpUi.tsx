@@ -35,6 +35,7 @@ export class HelpUI extends AbstractUIExtension {
                     <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>: Open default diagram</p>
                     <p><kbd>CTRL</kbd>+<kbd>S</kbd>: Save diagram to json</p>
                     <p><kbd>CTRL</kbd>+<kbd>L</kbd>: Automatically layout diagram</p>
+                    <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>: Fit diagram to screen</p>
                 </div>
             </div>
         `;

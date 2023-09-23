@@ -9,15 +9,15 @@ import { SaveDiagramAction } from "./save";
 @injectable()
 export class SerializeKeyListener extends KeyListener {
     keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
-        if (matchesKeystroke(event, "KeyO", "ctrl")) {
+        if (matchesKeystroke(event, "KeyO", "ctrlCmd")) {
             // Prevent the browser file open dialog from opening
             event.preventDefault();
 
             return [LoadDiagramAction.create(), CommitModelAction.create()];
-        } else if (matchesKeystroke(event, "KeyO", "ctrl", "shift")) {
+        } else if (matchesKeystroke(event, "KeyO", "ctrlCmd", "shift")) {
             event.preventDefault();
             return [LoadDefaultDiagramAction.create(), CommitModelAction.create()];
-        } else if (matchesKeystroke(event, "KeyS", "ctrl")) {
+        } else if (matchesKeystroke(event, "KeyS", "ctrlCmd")) {
             event.preventDefault();
             return [SaveDiagramAction.create()];
         }
