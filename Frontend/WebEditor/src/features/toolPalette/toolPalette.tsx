@@ -19,6 +19,7 @@ import { EDITOR_TYPES } from "../../utils";
 
 import "../../common/commonStyling.css";
 import "./toolPalette.css";
+import { PortCreationTool } from "./portCreationTool";
 
 /**
  * UI extension that adds a tool palette to the diagram in the upper right.
@@ -31,8 +32,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     constructor(
         @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
         @inject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
-        @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
         @inject(NodeCreationTool) protected readonly nodeCreationTool: NodeCreationTool,
+        @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
+        @inject(PortCreationTool) protected readonly portCreationTool: PortCreationTool,
         @multiInject(EDITOR_TYPES.DfdTool) protected readonly allTools: DfdTool[],
     ) {
         super();
@@ -108,6 +110,32 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
                 </defs>
 
                 <line x1="10%" y1="10%" x2="75%" y2="75%" attrs-stroke-width="2" attrs-marker-end="url(#arrowhead)" />
+            </g>,
+        );
+
+        this.addTool(
+            containerElement,
+            this.portCreationTool,
+            "Input port",
+            (tool) => tool.enable("port:dfd-input"),
+            <g>
+                <rect x="25%" y="25%" width="50%" height="50%" />
+                <text x="50%" y="50%">
+                    I
+                </text>
+            </g>,
+        );
+
+        this.addTool(
+            containerElement,
+            this.portCreationTool,
+            "Output port",
+            (tool) => tool.enable("port:dfd-output"),
+            <g>
+                <rect x="25%" y="25%" width="50%" height="50%" />
+                <text x="50%" y="50%">
+                    O
+                </text>
             </g>,
         );
 

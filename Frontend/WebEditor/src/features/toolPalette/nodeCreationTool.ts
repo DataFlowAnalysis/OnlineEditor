@@ -1,10 +1,11 @@
 import { injectable, inject } from "inversify";
 import { generateRandomSprottyId } from "../../utils";
 import { CommitModelAction, LocalModelSource, MouseListener, MouseTool, SGraphImpl, TYPES } from "sprotty";
-import { Action, CreateElementAction } from "sprotty-protocol";
+import { Action } from "sprotty-protocol";
 import { DfdNodeImpl, DfdNode } from "../dfdElements/nodes";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { DfdTool } from "./tool";
+import { CreateSnappedElementAction } from "./createSnappedElementAction";
 
 /**
  * Creates a node when the user clicks somewhere on the root graph.
@@ -75,7 +76,7 @@ export class NodeCreationTool extends MouseListener implements DfdTool {
         this.disable();
 
         return [
-            CreateElementAction.create(nodeSchema, { containerId: this.modelSource.model.id }), // Create node
+            CreateSnappedElementAction.create(nodeSchema, target.id), // Create node and snap it to grid
             CommitModelAction.create(), // Save to ModelSource
         ];
     }
