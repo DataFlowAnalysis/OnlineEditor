@@ -61,7 +61,8 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             (tool) => tool.enable("node:storage"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
-                <text x="50%" y="50%">
+                <line x1="25%" y1="20%" x2="25%" y2="80%" stroke-width="1" />
+                <text x="55%" y="50%">
                     Sto
                 </text>
             </g>,
@@ -74,8 +75,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             (tool) => tool.enable("node:input-output"),
             <g>
                 <rect x="10%" y="20%" width="80%" height="60%" stroke-width="1" />
-                <line x1="25%" y1="20%" x2="25%" y2="80%" stroke-width="1" />
-                <text x="55%" y="50%">
+                <text x="50%" y="50%">
                     IO
                 </text>
             </g>,

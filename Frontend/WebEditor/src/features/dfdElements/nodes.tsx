@@ -119,7 +119,7 @@ export class StorageNodeView extends ShapeView {
         const leftPadding = StorageNodeImpl.LEFT_PADDING / 2;
 
         return (
-            <g class-sprotty-node={true} class-io={true}>
+            <g class-sprotty-node={true} class-storage={true}>
                 <rect x="0" y="0" width={width} height={height} />
                 <line x1={StorageNodeImpl.LEFT_PADDING} y1="0" x2={StorageNodeImpl.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
@@ -217,20 +217,14 @@ export class IONodeView extends ShapeView {
         const { width, height } = node.bounds;
 
         return (
-            <g class-sprotty-node={true} class-storage={true}>
-                {/* This transparent rect exists only to make this element easily selectable.
-                    Without this you would need click the text or exactly hit one of the lines.
-                    With this rect you can click anywhere between the two lines to select it.
-                    This is especially important when there is no text given or it is short. */}
-                <rect x="0" y="0" width={width} height={height} class-select-rect={true} />
+            <g class-sprotty-node={true} class-io={true}>
+                <rect x="0" y="0" width={width} height={height}/>
 
-                <line x1="0" y1="0" x2={width} y2="0" />
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: IONodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
                 {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT)}
-                <line x1="0" y1={height} x2={width} y2={height} />
             </g>
         );
     }
