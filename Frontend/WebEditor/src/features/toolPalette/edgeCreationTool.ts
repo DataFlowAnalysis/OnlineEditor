@@ -8,7 +8,7 @@ import {
     SModelElementImpl,
     SChildElementImpl,
 } from "sprotty";
-import { Action, CreateElementAction, SEdge, SLabel } from "sprotty-protocol";
+import { Action, CreateElementAction, SEdge } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdTool } from "./tool";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
