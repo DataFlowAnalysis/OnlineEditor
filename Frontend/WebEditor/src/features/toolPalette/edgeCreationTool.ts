@@ -11,6 +11,7 @@ import {
 import { Action, CreateElementAction, SEdge, SLabel } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdTool } from "./tool";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 
 @injectable()
 export class EdgeCreationTool extends MouseListener implements DfdTool {
@@ -19,6 +20,7 @@ export class EdgeCreationTool extends MouseListener implements DfdTool {
 
     constructor(
         @inject(MouseTool) private mouseTool: MouseTool,
+        @inject(DynamicChildrenProcessor) private dynamicChildrenProcessor: DynamicChildrenProcessor,
         private edgeType: string = "edge:arrow",
     ) {
         super();
@@ -79,19 +81,8 @@ export class EdgeCreationTool extends MouseListener implements DfdTool {
                 id: generateRandomSprottyId(),
                 sourceId: this.source.id,
                 targetId: this.target.id,
-                children: [
-                    {
-                        type: "label",
-                        id: generateRandomSprottyId(),
-                        text: "",
-                        edgePlacement: {
-                            position: 0.5,
-                            side: "on",
-                            rotate: false,
-                        },
-                    } as SLabel,
-                ],
             } as SEdge;
+            this.dynamicChildrenProcessor.processGraphChildren(edge, "set");
 
             // Disable this tool. When another edge should be created, the user has to enable it again.
             this.disable();
