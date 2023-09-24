@@ -7,13 +7,11 @@ import {
     moveFeature,
     deletableFeature,
     withEditLabelFeature,
-    WithEditableLabel,
     isEditableLabel,
 } from "sprotty";
-import { Bounds, SLabel, SPort } from "sprotty-protocol";
+import { Bounds, SPort } from "sprotty-protocol";
 import { injectable } from "inversify";
 import { VNode } from "snabbdom";
-import { DynamicChildrenPort } from "./dynamicChildren";
 import { ArrowEdgeImpl } from "./edges";
 
 const defaultPortFeatures = [...SPortImpl.DEFAULT_FEATURES, moveFeature, deletableFeature];
@@ -39,9 +37,8 @@ export class DfdInputPortImpl extends SPortImpl {
 
         this.incomingEdges.forEach((edge) => {
             if (edge instanceof ArrowEdgeImpl) {
-                console.log("labellol", edge);
                 const name = edge.editableLabel?.text;
-                if (name !== undefined) {
+                if (name) {
                     edgeNames.push(name);
                 }
             } else {
@@ -82,27 +79,10 @@ export interface DfdOutputPort extends SPort {
 }
 
 @injectable()
-export class DfdOutputPortImpl extends DynamicChildrenPort implements WithEditableLabel {
+export class DfdOutputPortImpl extends SPortImpl {
     static readonly DEFAULT_FEATURES = [...defaultPortFeatures, withEditLabelFeature];
 
     behaviour: string = "";
-
-    setChildren(schema: DfdOutputPort): void {
-        schema.children = [
-            {
-                id: schema.id + "-label",
-                type: "label:invisible",
-                text: schema.behaviour ?? "",
-            } as SLabel,
-        ];
-    }
-
-    removeChildren(schema: DfdOutputPort): void {
-        const label = schema.children?.find((element) => element.type === "label:invisible") as SLabel | undefined;
-
-        schema.behaviour = label?.text ?? "";
-        schema.children = [];
-    }
 
     override get bounds(): Bounds {
         return {
@@ -122,12 +102,11 @@ export class DfdOutputPortImpl extends DynamicChildrenPort implements WithEditab
         return undefined;
     }
 
-    getAvailableInputs(): string[] {
+    getAvailableInputs(): (string | undefined)[] {
         return this.parent.children
             .filter((child) => child instanceof DfdInputPortImpl)
             .map((child) => child as DfdInputPortImpl)
-            .map((child) => child.getName())
-            .filter((name) => name !== undefined) as string[];
+            .map((child) => child.getName());
     }
 }
 

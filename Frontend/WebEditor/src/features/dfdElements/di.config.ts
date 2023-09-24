@@ -10,28 +10,25 @@ import {
     SLabelView,
     SRoutingHandleImpl,
     TYPES,
-    EmptyView,
-    configureActionHandler,
-    EditLabelAction,
-    EditLabelActionHandler,
+    configureCommand,
 } from "sprotty";
 import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
 import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
+import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviourCommand } from "./outputPortEditUi";
 
 import "./styles.css";
-import { CustomEditLabelUI } from "./editUi";
 
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
 
     rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
-    configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
 
-    bind(CustomEditLabelUI).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(CustomEditLabelUI);
+    bind(TYPES.IUIExtension).to(OutputPortEditUI).inSingletonScope();
+    bind(TYPES.MouseListener).to(OutputPortEditUIMouseListener).inSingletonScope();
+    configureCommand(context, SetDfdOutputPortBehaviourCommand);
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
@@ -47,9 +44,6 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
         enable: [editLabelFeature],
     });
     configureModelElement(context, "label:positional", SLabelImpl, DfdPositionalLabelView, {
-        enable: [editLabelFeature],
-    });
-    configureModelElement(context, "label:invisible", SLabelImpl, EmptyView, {
         enable: [editLabelFeature],
     });
     configureModelElement(context, "port:dfd-input", DfdInputPortImpl, DfdInputPortView);

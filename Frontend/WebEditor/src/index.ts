@@ -15,6 +15,7 @@ import {
     exportModule,
     hoverModule,
     labelEditModule,
+    labelEditUiModule,
     modelSourceModule,
     moveModule,
     routingModule,
@@ -66,7 +67,7 @@ container.load(
     zorderModule,
     undoRedoModule,
     labelEditModule,
-    // labelEditUiModule is not added here, because a custom UI is provided by the dfdElementsModule down below
+    labelEditUiModule,
     edgeEditModule,
     exportModule,
     edgeLayoutModule,

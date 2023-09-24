@@ -1,5 +1,5 @@
 import { injectable, multiInject } from "inversify";
-import { SModelElementRegistration, SNodeImpl, SEdgeImpl, TYPES, SPortImpl } from "sprotty";
+import { SModelElementRegistration, SNodeImpl, SEdgeImpl, TYPES } from "sprotty";
 import { SModelElement, SEdge, SNode } from "sprotty-protocol";
 
 // This file contains helpers to dynamically specify the children of a sprotty element.
@@ -34,11 +34,6 @@ export abstract class DynamicChildrenNode extends SNodeImpl {
 export abstract class DynamicChildrenEdge extends SEdgeImpl {
     abstract setChildren(schema: SEdge): void;
     abstract removeChildren(schema: SEdge): void;
-}
-
-export abstract class DynamicChildrenPort extends SPortImpl {
-    abstract setChildren(schema: SNode): void;
-    abstract removeChildren(schema: SNode): void;
 }
 
 @injectable()
@@ -78,14 +73,6 @@ export class DynamicChildrenProcessor {
 
             // sourceId is only present in edges and ensures that the graphElement is an edge (to calm the type system)
             if (impl instanceof DynamicChildrenEdge && "sourceId" in graphElement) {
-                if (action === "set") {
-                    impl.setChildren(graphElement);
-                } else {
-                    impl.removeChildren(graphElement);
-                }
-            }
-
-            if (impl instanceof DynamicChildrenPort) {
                 if (action === "set") {
                     impl.setChildren(graphElement);
                 } else {
