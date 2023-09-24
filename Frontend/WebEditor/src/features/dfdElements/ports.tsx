@@ -75,14 +75,14 @@ export class DfdInputPortView extends ShapeView {
 }
 
 export interface DfdOutputPort extends SPort {
-    behaviour: string;
+    behavior: string;
 }
 
 @injectable()
 export class DfdOutputPortImpl extends SPortImpl {
     static readonly DEFAULT_FEATURES = [...defaultPortFeatures, withEditLabelFeature];
 
-    behaviour: string = "";
+    behavior: string = "";
 
     override get bounds(): Bounds {
         return {

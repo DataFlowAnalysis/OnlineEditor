@@ -61,7 +61,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
     private port: DfdOutputPortImpl | undefined;
     private availableInputs: HTMLSpanElement = document.createElement("div");
-    private behaviourText: HTMLTextAreaElement = document.createElement("textarea");
+    private behaviorText: HTMLTextAreaElement = document.createElement("textarea");
 
     constructor(
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
@@ -82,7 +82,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.appendChild(this.availableInputs);
-        containerElement.appendChild(this.behaviourText);
+        containerElement.appendChild(this.behaviorText);
 
         containerElement.classList.add("ui-float");
         this.availableInputs.classList.add("available-inputs");
@@ -92,7 +92,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
     private configureHandlers(containerElement: HTMLElement): void {
         // If the user unfocuses the textarea, save the changes.
-        this.behaviourText.addEventListener("blur", () => {
+        this.behaviorText.addEventListener("blur", () => {
             this.save();
         });
 
@@ -135,7 +135,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         }
         this.availableInputs.innerText = availableInputsText;
 
-        this.behaviourText.value = this.port.behaviour;
+        this.behaviorText.value = this.port.behavior;
 
         setTimeout(() => {
             containerElement.focus();
@@ -156,48 +156,48 @@ export class OutputPortEditUI extends AbstractUIExtension {
         if (!this.port) {
             throw new Error("Cannot save without set port.");
         }
-        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviourAction.create(this.port.id, this.behaviourText.value));
+        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, this.behaviorText.value));
         this.actionDispatcher.dispatch(CommitModelAction.create());
     }
 }
 
-export interface SetDfdOutputPortBehaviourAction extends Action {
-    kind: typeof SetDfdOutputPortBehaviourAction.KIND;
+export interface SetDfdOutputPortBehaviorAction extends Action {
+    kind: typeof SetDfdOutputPortBehaviorAction.KIND;
     portId: string;
-    behaviour: string;
+    behavior: string;
 }
-export namespace SetDfdOutputPortBehaviourAction {
-    export const KIND = "setDfdOutputPortBehaviour";
-    export function create(portId: string, behaviour: string): SetDfdOutputPortBehaviourAction {
+export namespace SetDfdOutputPortBehaviorAction {
+    export const KIND = "setDfdOutputPortBehavior";
+    export function create(portId: string, behavior: string): SetDfdOutputPortBehaviorAction {
         return {
             kind: KIND,
             portId,
-            behaviour,
+            behavior,
         };
     }
 }
 
 @injectable()
-export class SetDfdOutputPortBehaviourCommand extends Command {
-    static readonly KIND = SetDfdOutputPortBehaviourAction.KIND;
+export class SetDfdOutputPortBehaviorCommand extends Command {
+    static readonly KIND = SetDfdOutputPortBehaviorAction.KIND;
 
-    constructor(@inject(TYPES.Action) private action: SetDfdOutputPortBehaviourAction) {
+    constructor(@inject(TYPES.Action) private action: SetDfdOutputPortBehaviorAction) {
         super();
     }
 
-    private oldBehaviour: string | undefined;
+    private oldBehavior: string | undefined;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const port = context.root.index.getById(this.action.portId) as DfdOutputPortImpl;
-        this.oldBehaviour = port.behaviour;
-        port.behaviour = this.action.behaviour;
+        this.oldBehavior = port.behavior;
+        port.behavior = this.action.behavior;
         return context.root;
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
         const port = context.root.index.getById(this.action.portId) as DfdOutputPortImpl;
-        if (this.oldBehaviour) {
-            port.behaviour = this.oldBehaviour;
+        if (this.oldBehavior) {
+            port.behavior = this.oldBehavior;
         }
 
         return context.root;

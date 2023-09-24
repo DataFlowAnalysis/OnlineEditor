@@ -17,7 +17,7 @@ import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
 import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
-import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviourCommand } from "./outputPortEditUi";
+import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
 
 import "./styles.css";
 
@@ -28,7 +28,7 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
 
     bind(TYPES.IUIExtension).to(OutputPortEditUI).inSingletonScope();
     bind(TYPES.MouseListener).to(OutputPortEditUIMouseListener).inSingletonScope();
-    configureCommand(context, SetDfdOutputPortBehaviourCommand);
+    configureCommand(context, SetDfdOutputPortBehaviorCommand);
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
