@@ -1,10 +1,10 @@
 {
-    "name": "palladio-supporting-data-flow-confidentiality-web-based-editor",
+    "name": "data-flow-analysis-web-editor",
     "version": "0.1.0",
     "private": true,
     "repository": {
         "type": "git",
-        "url": "https://github.com/PalladioSimulator/Palladio-Supporting-DataFlowConfidentiality-WebBasedEditor.git"
+        "url": "https://github.com/DataFlowAnalysis/WebEditor.git"
     },
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^6.4.2",
