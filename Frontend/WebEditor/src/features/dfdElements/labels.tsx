@@ -43,7 +43,7 @@ export class FilledBackgroundLabelView extends ShapeView {
     static readonly PADDING = 5;
 
     render(label: Readonly<SLabelImpl>, context: RenderingContext): VNode | undefined {
-        if (!this.isVisible(label, context) || !label.text) {
+        if (!this.isVisible(label, context)) {
             return undefined;
         }
 
@@ -53,7 +53,7 @@ export class FilledBackgroundLabelView extends ShapeView {
 
         return (
             <g class-label-background={true}>
-                <rect x={-width / 2} y={-height / 2} width={width} height={height} />
+                {label.text ? <rect x={-width / 2} y={-height / 2} width={width} height={height} /> : undefined}
                 <text class-sprotty-label={true}>{label.text}</text>
             </g>
         );

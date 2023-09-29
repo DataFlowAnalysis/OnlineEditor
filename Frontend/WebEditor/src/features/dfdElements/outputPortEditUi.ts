@@ -15,9 +15,10 @@ import {
     getAbsoluteClientBounds,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { DfdOutputPortImpl } from "./ports";
 import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+import { DfdOutputPortImpl } from "./ports";
+import { DfdNodeImpl } from "./nodes";
 
 import "./outputPortEditUi.css";
 
@@ -117,11 +118,14 @@ export class OutputPortEditUI extends AbstractUIExtension {
         this.port = root.index.getById(contextElementIds[0]) as DfdOutputPortImpl;
         this.setPosition(containerElement);
 
-        const availableInputNames = this.port.getAvailableInputs();
+        const parent = this.port.parent;
+        if (!(parent instanceof DfdNodeImpl)) {
+            throw new Error("Expected parent to be a DfdNodeImpl.");
+        }
+
+        const availableInputNames = parent.getAvailableInputs();
         const countUnavailableDueToMissingName = availableInputNames.filter((name) => name === undefined).length;
         const definedInputNames = availableInputNames.filter((name) => name !== undefined);
-
-        console.log(availableInputNames, countUnavailableDueToMissingName, definedInputNames);
 
         let availableInputsText = "";
         if (definedInputNames.length === 0) {

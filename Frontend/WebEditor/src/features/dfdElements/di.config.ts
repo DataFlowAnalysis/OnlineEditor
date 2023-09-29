@@ -18,8 +18,9 @@ import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortVie
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
 import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
+import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 
-import "./styles.css";
+import "./elementStyles.css";
 
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -29,6 +30,9 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     bind(TYPES.IUIExtension).to(OutputPortEditUI).inSingletonScope();
     bind(TYPES.MouseListener).to(OutputPortEditUIMouseListener).inSingletonScope();
     configureCommand(context, SetDfdOutputPortBehaviorCommand);
+
+    bind(TYPES.IEditLabelValidator).to(DfdEditLabelValidator).inSingletonScope();
+    bind(TYPES.IEditLabelValidationDecorator).to(DfdEditLabelValidatorDecorator).inSingletonScope();
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);

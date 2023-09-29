@@ -81,6 +81,7 @@ export class EdgeCreationTool extends MouseListener implements DfdTool {
                 id: generateRandomSprottyId(),
                 sourceId: this.source.id,
                 targetId: this.target.id,
+                text: "",
             } as SEdge;
             this.dynamicChildrenProcessor.processGraphChildren(edge, "set");
 

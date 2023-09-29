@@ -101,13 +101,6 @@ export class DfdOutputPortImpl extends SPortImpl {
 
         return undefined;
     }
-
-    getAvailableInputs(): (string | undefined)[] {
-        return this.parent.children
-            .filter((child) => child instanceof DfdInputPortImpl)
-            .map((child) => child as DfdInputPortImpl)
-            .map((child) => child.getName());
-    }
 }
 
 @injectable()

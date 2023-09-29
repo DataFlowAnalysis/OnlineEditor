@@ -71,17 +71,6 @@
     font-size: 4pt;
 }
 
-/* Label edit UI */
-
-.label-edit .labelEditAvailableInputs {
-    color: white;
-    position: absolute;
-    top: -20px;
-    left: 0px;
-    right: 0px;
-    background-color: var(--color-primary);
-}
-
 /* All nodes/misc */
 
 .sprotty-node.selected circle,

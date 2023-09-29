@@ -19,6 +19,8 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextSize } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 import { DfdPositionalLabelArgs } from "./labels";
+import { DfdInputPortImpl } from "./ports";
+import { ArrowEdgeImpl } from "./edges";
 
 export interface DfdNode extends SNode {
     text: string;
@@ -93,6 +95,36 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
             width: this.calculateWidth(),
             height: this.calculateHeight(),
         };
+    }
+
+    /**
+     * Gets the names of all available input ports.
+     * @returns a list of the names of all available input ports.
+     *          Can include undefined if a port has no named edges connected to it.
+     */
+    getAvailableInputs(): (string | undefined)[] {
+        return this.children
+            .filter((child) => child instanceof DfdInputPortImpl)
+            .map((child) => child as DfdInputPortImpl)
+            .map((child) => child.getName());
+    }
+
+    /**
+     * Gets the text of all dfd edges that are connected to the input ports of this node.
+     * Applies the passed filter to the edges.
+     * If a edge has no label, the empty string is returned.
+     */
+    getEdgeTexts(edgePredicate: (e: ArrowEdgeImpl) => boolean): string[] {
+        const inputPorts = this.children
+            .filter((child) => child instanceof DfdInputPortImpl)
+            .map((child) => child as DfdInputPortImpl);
+
+        return inputPorts
+            .flatMap((port) => port.incomingEdges)
+            .filter((edge) => edge instanceof ArrowEdgeImpl)
+            .map((edge) => edge as ArrowEdgeImpl)
+            .filter(edgePredicate)
+            .map((edge) => edge.editableLabel?.text ?? "");
     }
 }
 
@@ -234,7 +266,7 @@ export class IONodeView extends ShapeView {
 
         return (
             <g class-sprotty-node={true} class-io={true}>
-                <rect x="0" y="0" width={width} height={height}/>
+                <rect x="0" y="0" width={width} height={height} />
 
                 {context.renderChildren(node, {
                     xPosition: width / 2,
