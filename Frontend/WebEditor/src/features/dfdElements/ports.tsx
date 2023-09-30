@@ -8,6 +8,7 @@ import {
     deletableFeature,
     withEditLabelFeature,
     isEditableLabel,
+    SRoutableElementImpl,
 } from "sprotty";
 import { Bounds, SPort } from "sprotty-protocol";
 import { injectable } from "inversify";
@@ -32,6 +33,10 @@ export class DfdInputPortImpl extends SPortImpl {
         };
     }
 
+    /**
+     * Builds the name of the input port from the names of the incoming dfd edges.
+     * @returns either the concatenated names of the incoming edges or undefined if there are no named incoming edges.
+     */
     getName(): string | undefined {
         const edgeNames: string[] = [];
 
@@ -51,6 +56,11 @@ export class DfdInputPortImpl extends SPortImpl {
         } else {
             return edgeNames.join("");
         }
+    }
+
+    canConnect(_routable: SRoutableElementImpl, role: "source" | "target"): boolean {
+        // Only allow edges into this port
+        return role === "target";
     }
 }
 
@@ -100,6 +110,11 @@ export class DfdOutputPortImpl extends SPortImpl {
         }
 
         return undefined;
+    }
+
+    canConnect(_routable: SRoutableElementImpl, role: "source" | "target"): boolean {
+        // Only allow edges from this port outwards
+        return role === "source";
     }
 }
 
