@@ -3,7 +3,7 @@ import { CommitModelAction, MouseListener, MouseTool, SChildElementImpl, SGraphI
 import { DfdTool } from "./tool";
 import { Action, SPort, SelectAction } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
-import { CreateSnappedElementAction } from "./createSnappedElementAction";
+import { CreateSnappedElementAction } from "./createSnappedElementCommand";
 
 @injectable()
 export class PortCreationTool extends MouseListener implements DfdTool {
@@ -24,6 +24,12 @@ export class PortCreationTool extends MouseListener implements DfdTool {
         this.mouseTool.deregister(this);
     }
 
+    /**
+     * Find the node that the port should be created in.
+     * This is the node that the user clicked on.
+     * If the user clicked on a label or other element that is not a node, we need to find the node that contains this element.
+     * If no node is found, undefined is returned.
+     */
     private findNodeElement(target: SShapeElementImpl): SShapeElementImpl | undefined {
         if (target.type.startsWith("node")) {
             return target;

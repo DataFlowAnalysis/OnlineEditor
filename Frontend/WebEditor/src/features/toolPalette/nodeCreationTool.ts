@@ -5,7 +5,7 @@ import { Action } from "sprotty-protocol";
 import { DfdNodeImpl, DfdNode } from "../dfdElements/nodes";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { DfdTool } from "./tool";
-import { CreateSnappedElementAction } from "./createSnappedElementAction";
+import { CreateSnappedElementAction } from "./createSnappedElementCommand";
 
 /**
  * Creates a node when the user clicks somewhere on the root graph.
@@ -46,10 +46,13 @@ export class NodeCreationTool extends MouseListener implements DfdTool {
         }
 
         // Create node
+        let text = this.nodeType.replace("node:", "");
+        text = text.charAt(0).toUpperCase() + text.slice(1); // Capitalize first letter
+
         const nodeSchema = {
             type: this.nodeType,
             id: generateRandomSprottyId(),
-            text: this.nodeType.replace("node:", ""),
+            text: text,
             position: {
                 x: event.screenX,
                 y: event.screenY,

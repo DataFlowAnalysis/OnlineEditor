@@ -6,7 +6,7 @@ import { ToolPaletteUI } from "./toolPalette";
 import { CommitModelAction, TYPES, configureActionHandler, configureCommand } from "sprotty";
 import { DfdToolDisableKeyListener } from "./tool";
 import { PortCreationTool } from "./portCreationTool";
-import { CreateSnappedElementCommand } from "./createSnappedElementAction";
+import { CreateSnappedElementCommand } from "./createSnappedElementCommand";
 
 // This module contains an UI extension that adds a tool palette to the editor.
 // This tool palette allows the user to create new nodes and edges.

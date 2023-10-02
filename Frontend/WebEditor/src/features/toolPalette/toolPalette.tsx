@@ -14,12 +14,12 @@ import {
 import { Action } from "sprotty-protocol";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
+import { PortCreationTool } from "./portCreationTool";
 import { DfdTool } from "./tool";
 import { EDITOR_TYPES } from "../../utils";
 
 import "../../common/commonStyling.css";
 import "./toolPalette.css";
-import { PortCreationTool } from "./portCreationTool";
 
 /**
  * UI extension that adds a tool palette to the diagram in the upper right.

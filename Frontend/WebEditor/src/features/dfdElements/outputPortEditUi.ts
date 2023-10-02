@@ -22,6 +22,10 @@ import { DfdNodeImpl } from "./nodes";
 
 import "./outputPortEditUi.css";
 
+/**
+ * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
+ * with the clicked port as context element.
+ */
 @injectable()
 export class OutputPortEditUIMouseListener extends MouseListener {
     // State for double click detection.
@@ -56,6 +60,9 @@ export class OutputPortEditUIMouseListener extends MouseListener {
     }
 }
 
+/**
+ * UI that allows editing the behavior text of a dfd output port (DfdOutputPortImpl).
+ */
 @injectable()
 export class OutputPortEditUI extends AbstractUIExtension {
     static readonly ID = "output-port-edit-ui";
@@ -110,6 +117,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         root: Readonly<SModelRootImpl>,
         ...contextElementIds: string[]
     ): void {
+        // Loads data for the port that shall be edited, which is defined by the context element id.
         if (contextElementIds.length !== 1) {
             throw new Error(
                 "Expected exactly one context element id which should be the port that shall be shown in the UI.",
@@ -141,11 +149,19 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
         this.behaviorText.value = this.port.behavior;
 
+        // Wait for the next event loop tick to focus the port edit UI.
+        // The user may have clicked more times before the show click was processed
+        // (showing the UI takes some time due to finding the element in the graph, etc.).
+        // There might still be some clicks in the event loop queue queue which would de-focus the port edit UI.
+        // Instead process them (fast as no UI is shown or similar slow tasks are done) and then focus the UI.
         setTimeout(() => {
             containerElement.focus();
-        }, 0);
+        }, 0); // 0ms => next event loop tick
     }
 
+    /**
+     * Sets the position of the UI to the position of the port that is currently edited.
+     */
     private setPosition(containerElement: HTMLElement) {
         if (!this.port) {
             return;
@@ -156,6 +172,9 @@ export class OutputPortEditUI extends AbstractUIExtension {
         containerElement.style.top = `${bounds.y}px`;
     }
 
+    /**
+     * Saves the current behavior text inside the textinput element to the port.
+     */
     private save(): void {
         if (!this.port) {
             throw new Error("Cannot save without set port.");
@@ -165,6 +184,10 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 }
 
+/**
+ * Sets the behavior property of a dfd output port (DfdOutputPortImpl).
+ * This is used by the OutputPortEditUI but implemented as an action for undo/redo support.
+ */
 export interface SetDfdOutputPortBehaviorAction extends Action {
     kind: typeof SetDfdOutputPortBehaviorAction.KIND;
     portId: string;

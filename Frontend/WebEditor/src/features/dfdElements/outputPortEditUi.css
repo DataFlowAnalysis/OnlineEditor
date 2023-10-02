@@ -9,5 +9,6 @@
 }
 
 .output-port-edit-ui div.available-inputs {
+    /* spacing between textarea and available inputs text */
     padding-bottom: 5px;
 }

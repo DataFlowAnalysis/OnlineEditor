@@ -7,8 +7,6 @@ import {
     withEditLabelFeature,
     RenderingContext,
     ShapeView,
-    IViewArgs,
-    SChildElementImpl,
 } from "sprotty";
 import { SNode, SLabel, Bounds, SModelElement, SPort } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
@@ -275,20 +273,5 @@ export class IONodeView extends ShapeView {
                 {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT)}
             </g>
         );
-    }
-}
-
-/**
- * A sprotty view that renders nothing. Can be used to make invisible elements
- * that only serve some utility function but should not render anything.
- */
-@injectable()
-export class EmptyView extends ShapeView {
-    render(
-        _model: Readonly<SChildElementImpl>,
-        _context: RenderingContext,
-        _args?: IViewArgs | undefined,
-    ): VNode | undefined {
-        return undefined;
     }
 }

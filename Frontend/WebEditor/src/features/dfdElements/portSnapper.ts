@@ -20,6 +20,11 @@ class ConfigurableGridSnapper extends CenterGridSnapper {
     }
 }
 
+/**
+ * A snapper that snaps ports to be on top of the nearest edge of the node.
+ * For nodes this snapper uses a grid with a grid size of 5 while for ports it uses a grid size of 2
+ * to allow for more precise positioning of ports.
+ */
 @injectable()
 export class PortAwareSnapper implements ISnapper {
     private readonly nodeSnapper = new ConfigurableGridSnapper(5);
