@@ -8,6 +8,7 @@ import {
     IViewArgs,
     WithEditableLabel,
     isEditableLabel,
+    SRoutingHandleView,
 } from "sprotty";
 import { VNode } from "snabbdom";
 import { Point, angleOfPoint, toDegrees, SEdge, SLabel } from "sprotty-protocol";
@@ -119,5 +120,15 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
                 <path d={path} class-select-path={true} />
             </g>
         );
+    }
+}
+
+/**
+ * Smaller version of the default edge routing handle.
+ */
+@injectable()
+export class CustomRoutingHandleView extends SRoutingHandleView {
+    getRadius(): number {
+        return 5;
     }
 }

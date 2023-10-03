@@ -3,7 +3,6 @@ import {
     SGraphImpl,
     SGraphView,
     SLabelImpl,
-    SRoutingHandleView,
     configureModelElement,
     editLabelFeature,
     withEditLabelFeature,
@@ -13,7 +12,7 @@ import {
     configureCommand,
 } from "sprotty";
 import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
-import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
+import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges";
 import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { PortAwareSnapper } from "./portSnapper";
@@ -52,6 +51,6 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     });
     configureModelElement(context, "port:dfd-input", DfdInputPortImpl, DfdInputPortView);
     configureModelElement(context, "port:dfd-output", DfdOutputPortImpl, DfdOutputPortView);
-    configureModelElement(context, "routing-point", SRoutingHandleImpl, SRoutingHandleView);
-    configureModelElement(context, "volatile-routing-point", SRoutingHandleImpl, SRoutingHandleView);
+    configureModelElement(context, "routing-point", SRoutingHandleImpl, CustomRoutingHandleView);
+    configureModelElement(context, "volatile-routing-point", SRoutingHandleImpl, CustomRoutingHandleView);
 });
