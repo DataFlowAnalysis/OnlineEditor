@@ -1,0 +1,14 @@
+.output-port-edit-ui {
+    position: absolute;
+    padding: 10px;
+
+    -webkit-user-select: none;
+    user-select: none;
+
+    background: var(--color-primary);
+}
+
+.output-port-edit-ui div.available-inputs {
+    /* spacing between textarea and available inputs text */
+    padding-bottom: 5px;
+}

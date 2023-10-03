@@ -47,6 +47,13 @@ export class DynamicChildrenProcessor {
      * checks whether it extends a DynamicChildren* abstract class and then calls the corresponding method.
      */
     public processGraphChildren(graphElement: SModelElement | SEdge, action: "set" | "remove"): void {
+        // When removing children we need to remove them from children to parents to do it correctly.
+        // When setting children we need to do it the other way around to set the children
+        // of the elements that have been set by the parent first.
+        if (action === "remove") {
+            graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        }
+
         const registration = this.elementRegistrations.find((r) => r.type === graphElement.type);
         if (registration) {
             // If registration is undefined some element hasn't been registered but used, so this shouldn't happen
@@ -74,6 +81,8 @@ export class DynamicChildrenProcessor {
             }
         }
 
-        graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        if (action === "set") {
+            graphElement.children?.forEach((child) => this.processGraphChildren(child, action));
+        }
     }
 }

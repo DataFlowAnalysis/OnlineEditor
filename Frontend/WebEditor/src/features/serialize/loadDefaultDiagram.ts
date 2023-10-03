@@ -16,10 +16,18 @@ import { DfdNode } from "../dfdElements/nodes";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { postLoadActions } from "./load";
+import { DfdOutputPort } from "../dfdElements/ports";
 
 const storageId = generateRandomSprottyId();
+const storagePortId = generateRandomSprottyId();
+
 const functionId = generateRandomSprottyId();
+const functionPort1Id = generateRandomSprottyId();
+const functionPort2Id = generateRandomSprottyId();
+
 const outputId = generateRandomSprottyId();
+const outputPortId = generateRandomSprottyId();
+
 const locationLabelTypeId = generateRandomSprottyId();
 const locationOnPremId = generateRandomSprottyId();
 const locationCloudId = generateRandomSprottyId();
@@ -31,6 +39,7 @@ const defaultDiagramSchema: SGraph = {
         {
             type: "node:storage",
             id: storageId,
+            position: { x: 100, y: 100 },
             text: "Database",
             labels: [
                 {
@@ -38,11 +47,19 @@ const defaultDiagramSchema: SGraph = {
                     labelTypeValueId: locationOnPremId,
                 },
             ],
-            position: { x: 100, y: 100 },
+            ports: [
+                {
+                    type: "port:dfd-output",
+                    id: storagePortId,
+                    position: { x: 52, y: 38.5 },
+                    behavior: "Irgendein Text",
+                } as DfdOutputPort,
+            ],
         } as DfdNode,
         {
             type: "node:function",
             id: functionId,
+            position: { x: 200, y: 200 },
             text: "System",
             labels: [
                 {
@@ -50,27 +67,47 @@ const defaultDiagramSchema: SGraph = {
                     labelTypeValueId: locationCloudId,
                 },
             ],
-            position: { x: 200, y: 200 },
+            ports: [
+                {
+                    type: "port:dfd-input",
+                    id: functionPort1Id,
+                    position: { x: 10, y: -3.5 },
+                },
+                {
+                    type: "port:dfd-output",
+                    id: functionPort2Id,
+                    position: { x: 74.5, y: 20 },
+                    behavior: "Irgendein anderer Text",
+                } as DfdOutputPort,
+            ],
         } as DfdNode,
         {
             type: "node:input-output",
             id: outputId,
-            text: "Customer",
             position: { x: 325, y: 207 },
+            text: "Customer",
             labels: [],
+            ports: [
+                {
+                    type: "port:dfd-input",
+                    id: outputPortId,
+                    position: { x: -3.5, y: 13 },
+                },
+            ],
         } as DfdNode,
         {
             type: "edge:arrow",
             id: generateRandomSprottyId(),
-            sourceId: storageId,
-            targetId: functionId,
+            sourceId: storagePortId,
+            targetId: functionPort1Id,
             text: "Read",
         } as SEdge,
         {
             type: "edge:arrow",
             id: generateRandomSprottyId(),
-            sourceId: functionId,
-            targetId: outputId,
+            sourceId: functionPort2Id,
+            targetId: outputPortId,
+            text: "",
         } as SEdge,
     ],
 };

@@ -9,22 +9,31 @@ import {
     withEditLabelFeature,
     SLabelView,
     SRoutingHandleImpl,
+    TYPES,
+    configureCommand,
 } from "sprotty";
-import {
-    FunctionNodeImpl,
-    FunctionNodeView,
-    IONodeImpl,
-    IONodeView,
-    StorageNodeImpl,
-    StorageNodeView,
-} from "./nodes";
+import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNodeImpl, StorageNodeView } from "./nodes";
 import { ArrowEdgeImpl, ArrowEdgeView } from "./edges";
+import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
+import { PortAwareSnapper } from "./portSnapper";
+import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
+import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 
-import "./styles.css";
+import "./elementStyles.css";
 
 export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
+
+    rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
+
+    bind(TYPES.IUIExtension).to(OutputPortEditUI).inSingletonScope();
+    bind(TYPES.MouseListener).to(OutputPortEditUIMouseListener).inSingletonScope();
+    configureCommand(context, SetDfdOutputPortBehaviorCommand);
+
+    bind(TYPES.IEditLabelValidator).to(DfdEditLabelValidator).inSingletonScope();
+    bind(TYPES.IEditLabelValidationDecorator).to(DfdEditLabelValidatorDecorator).inSingletonScope();
+
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);
     configureModelElement(context, "node:function", FunctionNodeImpl, FunctionNodeView);
@@ -41,6 +50,8 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     configureModelElement(context, "label:positional", SLabelImpl, DfdPositionalLabelView, {
         enable: [editLabelFeature],
     });
+    configureModelElement(context, "port:dfd-input", DfdInputPortImpl, DfdInputPortView);
+    configureModelElement(context, "port:dfd-output", DfdOutputPortImpl, DfdOutputPortView);
     configureModelElement(context, "routing-point", SRoutingHandleImpl, SRoutingHandleView);
     configureModelElement(context, "volatile-routing-point", SRoutingHandleImpl, SRoutingHandleView);
 });

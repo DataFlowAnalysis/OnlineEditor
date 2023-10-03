@@ -8,7 +8,7 @@ import {
     RenderingContext,
     ShapeView,
 } from "sprotty";
-import { SNode, SLabel, Bounds } from "sprotty-protocol";
+import { SNode, SLabel, Bounds, SModelElement, SPort } from "sprotty-protocol";
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
@@ -17,35 +17,51 @@ import { containsDfdLabelFeature } from "../labels/elementFeature";
 import { calculateTextSize } from "../../utils";
 import { DfdNodeLabelRenderer } from "../labels/labelRenderer";
 import { DfdPositionalLabelArgs } from "./labels";
+import { DfdInputPortImpl } from "./ports";
+import { ArrowEdgeImpl } from "./edges";
 
 export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
+    ports: SPort[];
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
     static readonly DEFAULT_FEATURES = [...SNodeImpl.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
     static readonly DEFAULT_WIDTH = 50;
-    static readonly WIDTH_PADDING = 8;
+    static readonly WIDTH_PADDING = 12;
 
     text: string = "";
     labels: LabelAssignment[] = [];
+    ports: SPort[] = [];
 
     override setChildren(schema: DfdNode): void {
-        schema.children = [
+        const children: SModelElement[] = [
             {
                 type: "label:positional",
                 text: schema.text ?? "",
                 id: schema.id + "-label",
             } as SLabel,
         ];
+
+        schema.ports?.forEach((port) => {
+            // Remove wrongly serialized features Set.
+            // Refer to preprocessModelSchema in the load action for more information.
+            if ("features" in port) {
+                delete port.features;
+            }
+
+            children.push(port);
+        });
+        schema.children = children;
     }
 
     override removeChildren(schema: DfdNode): void {
-        const label = schema.children?.find((element) => element.type === "label:positional") as
-            | SLabel
-            | undefined;
+        const label = schema.children?.find((element) => element.type === "label:positional") as SLabel | undefined;
+        const ports = schema.children?.filter((element) => element.type.startsWith("port")) ?? [];
+
         schema.text = label?.text ?? "";
+        schema.ports = ports as SPort[];
         schema.children = [];
     }
 
@@ -77,6 +93,36 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
             width: this.calculateWidth(),
             height: this.calculateHeight(),
         };
+    }
+
+    /**
+     * Gets the names of all available input ports.
+     * @returns a list of the names of all available input ports.
+     *          Can include undefined if a port has no named edges connected to it.
+     */
+    getAvailableInputs(): (string | undefined)[] {
+        return this.children
+            .filter((child) => child instanceof DfdInputPortImpl)
+            .map((child) => child as DfdInputPortImpl)
+            .map((child) => child.getName());
+    }
+
+    /**
+     * Gets the text of all dfd edges that are connected to the input ports of this node.
+     * Applies the passed filter to the edges.
+     * If a edge has no label, the empty string is returned.
+     */
+    getEdgeTexts(edgePredicate: (e: ArrowEdgeImpl) => boolean): string[] {
+        const inputPorts = this.children
+            .filter((child) => child instanceof DfdInputPortImpl)
+            .map((child) => child as DfdInputPortImpl);
+
+        return inputPorts
+            .flatMap((port) => port.incomingEdges)
+            .filter((edge) => edge instanceof ArrowEdgeImpl)
+            .map((edge) => edge as ArrowEdgeImpl)
+            .filter(edgePredicate)
+            .map((edge) => edge.editableLabel?.text ?? "");
     }
 }
 
@@ -163,7 +209,7 @@ export class FunctionNodeView extends ShapeView {
     }
 
     render(node: Readonly<FunctionNodeImpl>, context: RenderingContext): VNode | undefined {
-        if(!this.isVisible(node, context)) {
+        if (!this.isVisible(node, context)) {
             return undefined;
         }
 
@@ -218,7 +264,7 @@ export class IONodeView extends ShapeView {
 
         return (
             <g class-sprotty-node={true} class-io={true}>
-                <rect x="0" y="0" width={width} height={height}/>
+                <rect x="0" y="0" width={width} height={height} />
 
                 {context.renderChildren(node, {
                     xPosition: width / 2,
@@ -229,5 +275,3 @@ export class IONodeView extends ShapeView {
         );
     }
 }
-
-

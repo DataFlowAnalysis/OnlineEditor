@@ -13,12 +13,6 @@
     fill: transparent;
 }
 
-.sprotty-node.selected circle,
-.sprotty-node.selected rect,
-.sprotty-node.selected line {
-    stroke-width: 3;
-}
-
 .sprotty-node .node-label text {
     font-size: 5pt;
 }
@@ -50,10 +44,6 @@
     stroke-width: 8; /* make the "invisible hitbox" 8 pixels wide. This is the same width as the arrow head */
 }
 
-.sprotty-edge.selected {
-    stroke-width: 2;
-}
-
 .sprotty-edge .arrow {
     fill: var(--color-foreground);
     stroke: none;
@@ -69,12 +59,35 @@
     stroke-width: 0;
 }
 
-/* Misc */
+/* Ports */
+
+.sprotty-port rect {
+    stroke: var(--color-foreground);
+    fill: var(--color-background);
+    stroke-width: 0.5;
+}
+
+.sprotty-port .port-text {
+    font-size: 4pt;
+}
+
+/* All nodes/misc */
+
+.sprotty-node.selected circle,
+.sprotty-node.selected rect,
+.sprotty-node.selected line,
+.sprotty-edge.selected {
+    stroke-width: 2;
+}
+
+.sprotty-port.selected rect {
+    stroke-width: 1;
+}
 
 text {
     stroke-width: 0;
     fill: var(--color-foreground);
-    font-family: sans-serif;
+    font-family: "Arial", sans-serif;
     font-size: 11pt;
     text-anchor: middle;
     dominant-baseline: central;
@@ -91,6 +104,4 @@ text {
     stroke-width: 1;
     stroke: var(--color-error);
     fill: var(--color-error);
-    font-size: 14pt;
-    text-anchor: middle;
 }

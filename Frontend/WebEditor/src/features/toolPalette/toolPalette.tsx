@@ -14,6 +14,7 @@ import {
 import { Action } from "sprotty-protocol";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
+import { PortCreationTool } from "./portCreationTool";
 import { DfdTool } from "./tool";
 import { EDITOR_TYPES } from "../../utils";
 
@@ -31,8 +32,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     constructor(
         @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher,
         @inject(TYPES.PatcherProvider) protected readonly patcherProvider: PatcherProvider,
-        @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
         @inject(NodeCreationTool) protected readonly nodeCreationTool: NodeCreationTool,
+        @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
+        @inject(PortCreationTool) protected readonly portCreationTool: PortCreationTool,
         @multiInject(EDITOR_TYPES.DfdTool) protected readonly allTools: DfdTool[],
     ) {
         super();
@@ -111,6 +113,32 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             </g>,
         );
 
+        this.addTool(
+            containerElement,
+            this.portCreationTool,
+            "Input port",
+            (tool) => tool.enable("port:dfd-input"),
+            <g>
+                <rect x="25%" y="25%" width="50%" height="50%" />
+                <text x="50%" y="50%">
+                    I
+                </text>
+            </g>,
+        );
+
+        this.addTool(
+            containerElement,
+            this.portCreationTool,
+            "Output port",
+            (tool) => tool.enable("port:dfd-output"),
+            <g>
+                <rect x="25%" y="25%" width="50%" height="50%" />
+                <text x="50%" y="50%">
+                    O
+                </text>
+            </g>,
+        );
+
         containerElement.classList.add("tool-palette");
     }
 
@@ -123,7 +151,13 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * @param clicked callback that is called when the tool is clicked. Can be used to configure the calling tool
      * @param svgCode vnode for the svg logo of the tool. Will be placed in a 32x32 svg element
      */
-    private addTool<T extends DfdTool>(container: HTMLElement, tool: T, name: string, enable: (tool: T) => void, svgCode: VNode): void {
+    private addTool<T extends DfdTool>(
+        container: HTMLElement,
+        tool: T,
+        name: string,
+        enable: (tool: T) => void,
+        svgCode: VNode,
+    ): void {
         const toolElement = document.createElement("div");
         toolElement.classList.add("tool");
         const svgNode = (
@@ -165,7 +199,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     }
 
     private markAllToolsInactive(): void {
-        if(!this.containerElement) return;
+        if (!this.containerElement) return;
 
         // Remove active class from all tools, resulting in none of the tools being shown as active
         this.containerElement.childNodes.forEach((node) => {
