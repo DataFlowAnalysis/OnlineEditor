@@ -54,13 +54,11 @@ export class CreateSnappedElementCommand extends Command {
         if (container instanceof SParentElementImpl) {
             this.container = container;
             this.newElement = context.modelFactory.createElement(this.action.elementSchema);
+            this.container.add(this.newElement);
 
-            // Snapping requires the implementation object to be an SShapeElementImpl
             if (this.snapper && this.newElement instanceof SShapeElementImpl) {
                 this.newElement.position = this.snapper.snap(this.newElement.position, this.newElement);
             }
-
-            this.container.add(this.newElement);
         }
 
         return context.root;
