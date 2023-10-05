@@ -18,6 +18,7 @@ import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildre
 import { FitToScreenKeyListener as CenterDiagramKeyListener } from "./fitToScreenKeyListener";
 
 import "./commonStyling.css";
+import { CopyPaste } from "./copyPaste";
 
 export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
@@ -27,6 +28,8 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(TYPES.KeyListener).toService(DeleteKeyListener);
     bind(CenterDiagramKeyListener).toSelf().inSingletonScope();
     rebind(CenterKeyboardListener).toService(CenterDiagramKeyListener);
+
+    bind(TYPES.KeyListener).to(CopyPaste).inSingletonScope();
 
     bind(HelpUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(HelpUI);
