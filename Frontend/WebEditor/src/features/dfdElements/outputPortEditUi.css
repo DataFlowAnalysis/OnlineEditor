@@ -12,3 +12,7 @@
     /* spacing between textarea and available inputs text */
     padding-bottom: 5px;
 }
+
+.output-port-edit-ui div.validation-label {
+    color: var(--color-error);
+}

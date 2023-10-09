@@ -70,11 +70,13 @@ export class OutputPortEditUI extends AbstractUIExtension {
     private port: DfdOutputPortImpl | undefined;
     private availableInputs: HTMLSpanElement = document.createElement("div");
     private behaviorText: HTMLTextAreaElement = document.createElement("textarea");
+    private validationLabel: HTMLSpanElement = document.createElement("div");
 
     constructor(
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
+        private validator: PortBehaviorValidator = new PortBehaviorValidator(),
     ) {
         super();
     }
@@ -89,11 +91,17 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
+        this.behaviorText.autocomplete = "off";
+        this.behaviorText.spellcheck = false;
+        this.behaviorText.placeholder = "Enter behavior here";
+
         containerElement.appendChild(this.availableInputs);
         containerElement.appendChild(this.behaviorText);
+        containerElement.appendChild(this.validationLabel);
 
         containerElement.classList.add("ui-float");
         this.availableInputs.classList.add("available-inputs");
+        this.validationLabel.classList.add("validation-label");
 
         this.configureHandlers(containerElement);
     }
@@ -103,6 +111,11 @@ export class OutputPortEditUI extends AbstractUIExtension {
         this.behaviorText.addEventListener("blur", () => {
             this.save();
         });
+
+        // Run behavior validation on each key press and when
+        // changing the text through other ways(e.g. move text via mouse drag and drop)
+        this.behaviorText.addEventListener("keydown", () => this.validateBehavior());
+        this.behaviorText.addEventListener("input", () => this.validateBehavior());
 
         // Hide/"close this window" when pressing escape and don't save changes in that case.
         containerElement.addEventListener("keydown", (event) => {
@@ -172,6 +185,17 @@ export class OutputPortEditUI extends AbstractUIExtension {
         containerElement.style.top = `${bounds.y}px`;
     }
 
+    private validateBehavior(): void {
+        if (!this.port) {
+            return;
+        }
+
+        const behaviorText = this.behaviorText.value;
+        const results = this.validator.validate(behaviorText, this.port);
+        const validationResultString = results.map((result) => `Line ${result.line}: ${result.message}`).join("\n");
+        this.validationLabel.innerText = validationResultString;
+    }
+
     /**
      * Saves the current behavior text inside the textinput element to the port.
      */
@@ -181,6 +205,137 @@ export class OutputPortEditUI extends AbstractUIExtension {
         }
         this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, this.behaviorText.value));
         this.actionDispatcher.dispatch(CommitModelAction.create());
+    }
+}
+
+interface PortBehaviorValidationError {
+    message: string;
+    line: number;
+}
+
+class PortBehaviorValidator {
+    private static readonly SET_REGEX =
+        /^set\s+[A-z][A-z0-9.]*\s*=\s*(?:\s+|!|TRUE|FALSE|\|\||&&|\(|\)|[A-z][A-z0-9]*(?:\.[A-z][A-z0-9]*)*)+$/;
+    private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)(?:\.[A-z][A-z0-9]*)*/g;
+
+    /**
+     * validates the whole behavior text of a port.
+     * @param behaviorText the behavior text to validate
+     * @param port the port that the behavior text should be tested against (relevant for available inputs)
+     * @returns errors, if everything is fine the array is empty
+     */
+    validate(behaviorText: string, port: DfdOutputPortImpl): PortBehaviorValidationError[] {
+        const lines = behaviorText.split("\n");
+        const errors: PortBehaviorValidationError[] = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const error = this.validateLine(line, port);
+            if (error) {
+                errors.push({
+                    message: error,
+                    line: i + 1,
+                });
+            }
+        }
+
+        return errors;
+    }
+
+    /**
+     * Validates a single line and returns an error message if the line is invalid.
+     * Otherwise returns undefined.
+     */
+    private validateLine(line: string, port: DfdOutputPortImpl): string | undefined {
+        if (line === "" || line.startsWith("#") || line.startsWith("//")) {
+            return;
+        }
+
+        if (line.startsWith("forward")) {
+            return this.validateForwardStatement(line, port);
+        }
+
+        if (line.startsWith("set")) {
+            return this.validateSetStatement(line, port);
+        }
+
+        return `Unknown statement: ${line}`;
+    }
+
+    private validateForwardStatement(line: string, port: DfdOutputPortImpl): string | undefined {
+        const inputsString = line.replace("forward", "");
+        const inputs = inputsString
+            .split(",")
+            .map((input) => input.trim())
+            .filter((input) => input !== "");
+        if (inputs.length === 0) {
+            return "forward needs at least one input";
+        }
+
+        const duplicateInputs = inputs.filter((input, index) => inputs.indexOf(input) !== index);
+        if (duplicateInputs.length > 0) {
+            return "forward statements must not contain duplicate inputs";
+        }
+
+        const node = port.parent;
+        if (!(node instanceof DfdNodeImpl)) {
+            throw new Error("Expected port parent to be a DfdNodeImpl.");
+        }
+
+        const availableInputs = node.getAvailableInputs();
+
+        const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
+        if (unavailableInputs.length > 0) {
+            return `forward statements contains invalid input(s): ${unavailableInputs.join(", ")}`;
+        }
+
+        return undefined;
+    }
+
+    private validateSetStatement(line: string, port: DfdOutputPortImpl): string | undefined {
+        const match = line.match(PortBehaviorValidator.SET_REGEX);
+        if (!match) {
+            return "invalid set statement";
+        }
+
+        // Parenthesis must be balanced.
+        let parenthesisLevel = 0;
+        for (const char of line) {
+            if (char === "(") {
+                parenthesisLevel++;
+            } else if (char === ")") {
+                parenthesisLevel--;
+            }
+
+            if (parenthesisLevel < 0) {
+                return "invalid set statement: missing opening parenthesis";
+            }
+        }
+
+        if (parenthesisLevel !== 0) {
+            return "invalid set statement: missing closing parenthesis";
+        }
+
+        // Extract all used inputs
+        const expression = line.split("=")[1].trim(); // get everything after the =
+        const matches = expression.match(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS);
+        // Get root object/input and strip away any .property access
+        const inputs = matches
+            ? matches.map((match) => match.split(".")[0]).filter((i) => !["TRUE", "FALSE"].includes(i))
+            : [];
+
+        // Check if all inputs are available
+        const node = port.parent;
+        if (!(node instanceof DfdNodeImpl)) {
+            throw new Error("Expected port parent to be a DfdNodeImpl.");
+        }
+
+        const availableInputs = node.getAvailableInputs();
+        const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
+        if (unavailableInputs.length > 0) {
+            return `set statement contains invalid input(s): ${unavailableInputs.join(", ")}`;
+        }
+
+        return undefined;
     }
 }
 
