@@ -76,7 +76,7 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-output",
                     id: functionPort2Id,
-                    position: { x: 74.5, y: 20 },
+                    position: { x: 76.5, y: 20 },
                     behavior: "forward Read\nset t1.z2 = Read.t1.x1",
                 } as DfdOutputPort,
             ],
