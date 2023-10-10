@@ -113,11 +113,11 @@ const defaultDiagramSchema: SGraph = {
 };
 const locationLabelType: LabelType = {
     id: locationLabelTypeId,
-    name: "DC Location",
+    name: "DC_Location",
     values: [
         {
             id: locationOnPremId,
-            text: "On-Premise",
+            text: "On_Premise",
         },
         {
             id: locationCloudId,

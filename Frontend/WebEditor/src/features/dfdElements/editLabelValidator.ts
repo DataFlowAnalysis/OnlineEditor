@@ -31,6 +31,11 @@ export class DfdEditLabelValidator implements IEditLabelValidator {
             return { severity: "ok" };
         }
 
+        // Labels on edges are not allowed to have spaces in them
+        if (value.includes(" ")) {
+            return { severity: "error", message: "Input name cannot contain spaces" };
+        }
+
         // Get node and edge names that are in use
         const edge = labelParent;
         const edgeTarget = edge.target;
