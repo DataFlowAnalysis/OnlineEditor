@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { CenterGridSnapper, ISnapper, SModelElementImpl, SPortImpl, isBoundsAware } from "sprotty";
+import { CenterGridSnapper, ISnapper, MoveMouseListener, SModelElementImpl, SPortImpl, isBoundsAware } from "sprotty";
 import { Point } from "sprotty-protocol";
 
 /**
@@ -76,6 +76,24 @@ export class PortAwareSnapper implements ISnapper {
             return this.snapPort(position, element);
         } else {
             return this.nodeSnapper.snap(position, element);
+        }
+    }
+}
+
+/**
+ * Custom MoveMouseListener that only allows to disable snapping for nodes.
+ * For use with PortAwareSnapper which snaps the ports to the node edges.
+ * Snapping can normally be temporarily disabled by holding down the Shift key.
+ * This would allow you to move a port to any position in the diagram and not just on the node edges.
+ * This is not wanted why we disallow fine moving without snapping for ports.
+ */
+export class AlwaysSnapPortsMoveMouseListener extends MoveMouseListener {
+    protected snap(position: Point, element: SModelElementImpl, isSnap: boolean): Point {
+        // Snap if it is active or always for ports
+        if (this.snapper && (isSnap || element instanceof SPortImpl)) {
+            return this.snapper.snap(position, element);
+        } else {
+            return position;
         }
     }
 }
