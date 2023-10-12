@@ -334,6 +334,8 @@ export class OutputPortEditUI extends AbstractUIExtension {
         this.availableInputs.innerText = availableInputsText;
 
         this.behaviorText.value = this.port.behavior;
+        // Validation of loaded behavior text.
+        this.validateBehavior();
 
         // Wait for the next event loop tick to focus the port edit UI.
         // The user may have clicked more times before the show click was processed
@@ -365,8 +367,18 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
         const behaviorText = this.behaviorText.value;
         const results = this.validator.validate(behaviorText, this.port);
-        const validationResultString = results.map((result) => `Line ${result.line}: ${result.message}`).join("\n");
-        this.validationLabel.innerText = validationResultString;
+        if (results.length === 0) {
+            // Everything fine
+            this.validationLabel.innerText = "Behavior is valid.";
+            this.validationLabel.classList.remove("validation-error");
+            this.validationLabel.classList.add("validation-success");
+        } else {
+            // Some error
+            const validationResultString = results.map((result) => `Line ${result.line}: ${result.message}`).join("\n");
+            this.validationLabel.innerText = validationResultString;
+            this.validationLabel.classList.remove("validation-success");
+            this.validationLabel.classList.add("validation-error");
+        }
     }
 
     /**

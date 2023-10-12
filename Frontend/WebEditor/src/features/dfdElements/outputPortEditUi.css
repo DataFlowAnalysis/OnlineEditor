@@ -13,6 +13,10 @@
     padding-bottom: 5px;
 }
 
-.output-port-edit-ui div.validation-label {
+.output-port-edit-ui div.validation-label.validation-error {
     color: var(--color-error);
+}
+
+.output-port-edit-ui div.validation-label.validation-success {
+    color: var(--color-valid);
 }
