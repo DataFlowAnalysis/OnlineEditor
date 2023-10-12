@@ -43,7 +43,7 @@ export class PortBehaviorValidator {
         /^set +([A-z][A-z0-9-]*)\.([A-z][A-z0-9-]*) *= *(?: +|!|TRUE|FALSE|\|\||&&|\(|\)|[A-z][A-z0-9-]*(?:\.[A-z][A-z0-9-]*){2})+$/;
     // Regex that is used to extract all inputs, their label types and label values from a set statement.
     // Each input is a match with the input name, label type and label value as capturing groups.
-    private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)(?:\.[A-z][A-z0-9]*)*/g;
+    private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
 
     constructor(@inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {}
 
@@ -155,26 +155,42 @@ export class PortBehaviorValidator {
             return "invalid set statement: missing closing parenthesis";
         }
 
-        // Extract all used inputs
+        // Extract all used inputs, label types and the corresponding label values.
         const expression = line.split("=")[1].trim(); // get everything after the =
-        const matches = expression.match(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS);
-        // Get root object/input and strip away any .property access
-        const inputs = matches
-            ? matches.map((match) => match.split(".")[0]).filter((i) => !["TRUE", "FALSE"].includes(i))
-            : [];
+        const matches = expression.matchAll(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS);
+        if (!matches) {
+            return undefined;
+        }
 
-        // Check if all inputs are available
         const node = port.parent;
         if (!(node instanceof DfdNodeImpl)) {
             throw new Error("Expected port parent to be a DfdNodeImpl.");
         }
-
         const availableInputs = node.getAvailableInputs();
-        const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
-        if (unavailableInputs.length > 0) {
-            return `set statement contains invalid input(s): ${unavailableInputs.join(", ")}`;
+
+        // Check for each input access that the input exists and that the label type and value are valid.
+        for (const inputMatch of matches) {
+            const inputName = inputMatch[1];
+            const inputLabelType = inputMatch[2];
+            const inputLabelValue = inputMatch[3];
+
+            if (!availableInputs.includes(inputName)) {
+                return `unknown input (for set statement): ${inputName}`;
+            }
+
+            const inputLabelTypeObject = this.labelTypeRegistry
+                .getLabelTypes()
+                .find((type) => type.name === inputLabelType);
+            if (!inputLabelTypeObject) {
+                return `unknown label type: ${inputLabelType}`;
+            }
+
+            if (!inputLabelTypeObject.values.find((value) => value.text === inputLabelValue)) {
+                return `unknown label value of label type ${inputLabelType}: ${inputLabelValue}`;
+            }
         }
 
+        // All fine
         return undefined;
     }
 }
