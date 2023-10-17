@@ -4,51 +4,27 @@ import {
     CommandExecutionContext,
     CommandReturn,
     ISnapper,
-    SChildElementImpl,
     SModelElementImpl,
+    SNodeImpl,
     SParentElementImpl,
-    SPortImpl,
     TYPES,
 } from "sprotty";
 import { injectable, inject } from "inversify";
 import { ContainsDfdLabels, containsDfdLabels } from "./elementFeature";
 import { LabelAssignment, LabelTypeRegistry } from "./labelTypeRegistry";
-import { PortAwareSnapper } from "../dfdElements/portSnapper";
-
-/**
- * Snaps all ports of the given node to the grid using the given snapper.
- * Useful to ensure all ports are on are snapped onto an node edge using
- * {@link PortAwareSnapper} after resizing the node.
- */
-function snapPortsOfNode(node: ContainsDfdLabels, snapper: ISnapper): void {
-    if (!(node instanceof SChildElementImpl)) {
-        // Element has no children which could be ports
-        return;
-    }
-
-    node.children.forEach((child) => {
-        if (child instanceof SPortImpl) {
-            // PortAwareSnapper expects the center of the port as input.
-            // However the stored position points to the top left of the port,
-            // so we need to adjust the position by half of the width/height.
-            const pos = { ...child.position };
-            const { width, height } = child.bounds;
-            pos.x += width / 2;
-            pos.y += height / 2;
-
-            child.position = snapper.snap(pos, child);
-        }
-    });
-}
+import { snapPortsOfNode } from "../dfdElements/portSnapper";
 
 export interface AddLabelAssignmentAction extends Action {
     kind: typeof AddLabelAssignmentAction.TYPE;
-    element: ContainsDfdLabels;
+    element: ContainsDfdLabels & SNodeImpl;
     labelAssignment: LabelAssignment;
 }
 export namespace AddLabelAssignmentAction {
     export const TYPE = "add-label-assignment";
-    export function create(element: ContainsDfdLabels, labelAssignment: LabelAssignment): AddLabelAssignmentAction {
+    export function create(
+        element: ContainsDfdLabels & SNodeImpl,
+        labelAssignment: LabelAssignment,
+    ): AddLabelAssignmentAction {
         return {
             kind: TYPE,
             element,
@@ -105,12 +81,15 @@ export class AddLabelAssignmentCommand extends Command {
 
 export interface DeleteLabelAssignmentAction extends Action {
     kind: typeof DeleteLabelAssignmentAction.TYPE;
-    element: ContainsDfdLabels;
+    element: ContainsDfdLabels & SNodeImpl;
     labelAssignment: LabelAssignment;
 }
 export namespace DeleteLabelAssignmentAction {
     export const TYPE = "delete-label-assignment";
-    export function create(element: ContainsDfdLabels, labelAssignment: LabelAssignment): DeleteLabelAssignmentAction {
+    export function create(
+        element: ContainsDfdLabels & SNodeImpl,
+        labelAssignment: LabelAssignment,
+    ): DeleteLabelAssignmentAction {
         return {
             kind: TYPE,
             element,
@@ -168,7 +147,9 @@ function removeLabelsFromGraph(
         const filteredLabels = element.labels.filter(predicate);
         if (filteredLabels.length !== element.labels.length) {
             element.labels = filteredLabels;
-            snapPortsOfNode(element, snapper);
+            if (containsDfdLabels(element) && element instanceof SNodeImpl) {
+                snapPortsOfNode(element, snapper);
+            }
         }
     }
 
