@@ -71,7 +71,7 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-input",
                     id: functionPort1Id,
-                    position: { x: 10, y: -3.5 },
+                    position: { x: 11, y: -3.5 },
                 },
                 {
                     type: "port:dfd-output",

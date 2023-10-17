@@ -219,11 +219,11 @@ export class FunctionNodeView extends ShapeView {
         return (
             <g class-sprotty-node={true} class-function={true}>
                 <rect x="0" y="0" width={width} height={height} rx={r} ry={r} />
+                <line x1="0" y1={FunctionNodeImpl.TEXT_HEIGHT} x2={width} y2={FunctionNodeImpl.TEXT_HEIGHT} />
                 {context.renderChildren(node, {
                     xPosition: width / 2,
                     yPosition: FunctionNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                <line x1="0" y1={FunctionNodeImpl.TEXT_HEIGHT} x2={width} y2={FunctionNodeImpl.TEXT_HEIGHT} />
                 {this.labelRenderer.renderNodeLabels(node, FunctionNodeImpl.LABEL_START_HEIGHT)}
             </g>
         );
