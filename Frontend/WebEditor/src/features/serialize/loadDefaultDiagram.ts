@@ -52,7 +52,7 @@ const defaultDiagramSchema: SGraph = {
                     type: "port:dfd-output",
                     id: storagePortId,
                     position: { x: 52, y: 38.5 },
-                    behavior: "Irgendein Text",
+                    behavior: "set DC_Location.On_Premise = TRUE",
                 } as DfdOutputPort,
             ],
         } as DfdNode,
@@ -71,13 +71,13 @@ const defaultDiagramSchema: SGraph = {
                 {
                     type: "port:dfd-input",
                     id: functionPort1Id,
-                    position: { x: 10, y: -3.5 },
+                    position: { x: 11, y: -3.5 },
                 },
                 {
                     type: "port:dfd-output",
                     id: functionPort2Id,
-                    position: { x: 74.5, y: 20 },
-                    behavior: "Irgendein anderer Text",
+                    position: { x: 76.5, y: 20 },
+                    behavior: "forward Read\nset DC_Location.Cloud = Read.t1.x1",
                 } as DfdOutputPort,
             ],
         } as DfdNode,
@@ -113,11 +113,11 @@ const defaultDiagramSchema: SGraph = {
 };
 const locationLabelType: LabelType = {
     id: locationLabelTypeId,
-    name: "DC Location",
+    name: "DC_Location",
     values: [
         {
             id: locationOnPremId,
-            text: "On-Premise",
+            text: "On_Premise",
         },
         {
             id: locationCloudId,

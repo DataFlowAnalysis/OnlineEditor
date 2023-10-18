@@ -1,7 +1,7 @@
 /** @jsx svg */
 import { injectable, inject } from "inversify";
 import { VNode } from "snabbdom";
-import { Hoverable, IActionDispatcher, SShapeElementImpl, TYPES, svg } from "sprotty";
+import { IActionDispatcher, SNodeImpl, TYPES, svg } from "sprotty";
 import { calculateTextSize } from "../../utils";
 import { LabelAssignment, LabelTypeRegistry, globalLabelTypeRegistry } from "./labelTypeRegistry";
 import { DeleteLabelAssignmentAction } from "./commands";
@@ -37,12 +37,7 @@ export class DfdNodeLabelRenderer {
         return [text, width];
     }
 
-    renderSingleNodeLabel(
-        node: ContainsDfdLabels & SShapeElementImpl & Hoverable,
-        label: LabelAssignment,
-        x: number,
-        y: number,
-    ): VNode {
+    renderSingleNodeLabel(node: ContainsDfdLabels & SNodeImpl, label: LabelAssignment, x: number, y: number): VNode {
         const [text, width] = DfdNodeLabelRenderer.computeLabelContent(label);
         const xLeft = x - width / 2;
         const xRight = x + width / 2;
@@ -105,7 +100,7 @@ export class DfdNodeLabelRenderer {
     }
 
     renderNodeLabels(
-        node: ContainsDfdLabels & SShapeElementImpl & Hoverable,
+        node: ContainsDfdLabels & SNodeImpl,
         baseY: number,
         xOffset = 0,
         labelSpacing = DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT,

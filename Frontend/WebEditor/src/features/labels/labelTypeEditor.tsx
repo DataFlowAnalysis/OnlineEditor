@@ -131,6 +131,13 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
 
         this.dynamicallySetInputSize(labelTypeNameInput);
 
+        // Disallow spaces in label type names
+        labelTypeNameInput.onbeforeinput = (event) => {
+            if (event.data?.includes(" ")) {
+                event.preventDefault();
+            }
+        };
+
         labelTypeNameInput.onchange = () => {
             labelType.name = labelTypeNameInput.value;
             this.labelTypeRegistry.labelTypeChanged();
@@ -180,6 +187,13 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         valueInput.value = labelTypeValue.text;
         valueInput.placeholder = "Value";
         this.dynamicallySetInputSize(valueInput);
+
+        // Disallow spaces in label type values
+        valueInput.onbeforeinput = (event) => {
+            if (event.data?.includes(" ")) {
+                event.preventDefault();
+            }
+        };
 
         valueInput.onchange = () => {
             labelTypeValue.text = valueInput.value;

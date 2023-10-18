@@ -15,8 +15,13 @@ import { FunctionNodeImpl, FunctionNodeView, IONodeImpl, IONodeView, StorageNode
 import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges";
 import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
-import { PortAwareSnapper } from "./portSnapper";
-import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
+import { AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand, PortAwareSnapper } from "./portSnapper";
+import {
+    OutputPortEditUIMouseListener,
+    OutputPortEditUI,
+    SetDfdOutputPortBehaviorCommand,
+    PortBehaviorValidator,
+} from "./outputPortEditUi";
 import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 
 import "./elementStyles.css";
@@ -25,7 +30,10 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     const context = { bind, unbind, isBound, rebind };
 
     rebind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
+    bind(TYPES.MouseListener).to(AlwaysSnapPortsMoveMouseListener).inSingletonScope();
+    configureCommand(context, ReSnapPortsAfterLabelChangeCommand);
 
+    bind(PortBehaviorValidator).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).to(OutputPortEditUI).inSingletonScope();
     bind(TYPES.MouseListener).to(OutputPortEditUIMouseListener).inSingletonScope();
     configureCommand(context, SetDfdOutputPortBehaviorCommand);

@@ -1,7 +1,15 @@
 import { injectable, inject } from "inversify";
 import { LabelAssignment } from "./labelTypeRegistry";
 import { Action } from "sprotty-protocol";
-import { SModelElementImpl, SChildElementImpl, MouseListener, CommitModelAction, ILogger, TYPES } from "sprotty";
+import {
+    SModelElementImpl,
+    SChildElementImpl,
+    MouseListener,
+    CommitModelAction,
+    ILogger,
+    TYPES,
+    SNodeImpl,
+} from "sprotty";
 import { AddLabelAssignmentAction } from "./commands";
 import { getParentWithDfdLabels } from "./elementFeature";
 
@@ -37,6 +45,11 @@ export class DfdLabelMouseDropListener extends MouseListener {
                 this,
                 "Aborted drop of label assignment because the target element nor the parent elements have the dfd label feature",
             );
+            return [];
+        }
+
+        if (!(dfdLabelElement instanceof SNodeImpl)) {
+            this.logger.info(this, "Aborted drop of label assignment because the target element is not a node");
             return [];
         }
 

@@ -1,6 +1,20 @@
-import { injectable } from "inversify";
-import { CenterGridSnapper, ISnapper, SModelElementImpl, SPortImpl, isBoundsAware } from "sprotty";
-import { Point } from "sprotty-protocol";
+import { inject, injectable } from "inversify";
+import {
+    CenterGridSnapper,
+    Command,
+    CommandExecutionContext,
+    ApplyLabelEditCommand,
+    CommandReturn,
+    ISnapper,
+    MoveMouseListener,
+    SChildElementImpl,
+    SModelElementImpl,
+    SNodeImpl,
+    SPortImpl,
+    TYPES,
+    isBoundsAware,
+} from "sprotty";
+import { ApplyLabelEditAction, Point } from "sprotty-protocol";
 
 /**
  * A grid snapper that snaps to the nearest grid point.
@@ -78,4 +92,92 @@ export class PortAwareSnapper implements ISnapper {
             return this.nodeSnapper.snap(position, element);
         }
     }
+}
+
+/**
+ * Custom MoveMouseListener that only allows to disable snapping for nodes.
+ * For use with PortAwareSnapper which snaps the ports to the node edges.
+ * Snapping can normally be temporarily disabled by holding down the Shift key.
+ * This would allow you to move a port to any position in the diagram and not just on the node edges.
+ * This is not wanted why we disallow fine moving without snapping for ports.
+ */
+export class AlwaysSnapPortsMoveMouseListener extends MoveMouseListener {
+    protected snap(position: Point, element: SModelElementImpl, isSnap: boolean): Point {
+        // Snap if it is active or always for ports
+        if (this.snapper && (isSnap || element instanceof SPortImpl)) {
+            return this.snapper.snap(position, element);
+        } else {
+            return position;
+        }
+    }
+}
+
+/**
+ * Command that snaps all ports of the node to the grid after a label was added/removed.
+ * Runs after {@link ApplyLabelEditAction} to ensure the ports are snapped to the grid after the label was moved.
+ *
+ * This is done by implementing another command for {@link ApplyLabelEditAction}
+ * and registering it as well. That way this command will be executed after the {@link ApplyLabelEditCommand}
+ */
+@injectable()
+export class ReSnapPortsAfterLabelChangeCommand extends Command {
+    static readonly KIND = ApplyLabelEditAction.KIND;
+
+    @inject(TYPES.ISnapper)
+    private snapper?: ISnapper;
+
+    constructor(@inject(TYPES.Action) private readonly action: ApplyLabelEditAction) {
+        super();
+    }
+
+    execute(context: CommandExecutionContext): CommandReturn {
+        const label = context.root.index.getById(this.action.labelId);
+        if (!(label instanceof SChildElementImpl) || !this.snapper) {
+            return context.root;
+        }
+
+        const node = label.parent;
+        if (!(node instanceof SNodeImpl)) {
+            return context.root;
+        }
+
+        snapPortsOfNode(node, this.snapper);
+        return context.root;
+    }
+
+    // undo/redo: resnap aswell. Same as execute
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        return this.execute(context);
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        return this.execute(context);
+    }
+}
+
+/**
+ * Snaps all ports of the given node to the grid using the given snapper.
+ * Useful to ensure all ports are on are snapped onto an node edge using
+ * {@link PortAwareSnapper} after resizing the node.
+ */
+export function snapPortsOfNode(node: SNodeImpl, snapper: ISnapper): void {
+    if (!(node instanceof SChildElementImpl)) {
+        // Element has no children which could be ports
+        return;
+    }
+
+    node.children.forEach((child) => {
+        if (child instanceof SPortImpl) {
+            // PortAwareSnapper expects the center of the port as input.
+            // However the stored position points to the top left of the port,
+            // so we need to adjust the position by half of the width/height.
+            const pos = { ...child.position };
+            const { width, height } = child.bounds;
+            pos.x += width / 2;
+            pos.y += height / 2;
+
+            child.position = snapper.snap(pos, child);
+        }
+    });
 }
