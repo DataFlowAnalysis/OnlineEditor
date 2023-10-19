@@ -16,11 +16,13 @@ import { DeleteKeyListener } from "./deleteKeyListener";
 import { EDITOR_TYPES } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
 import { FitToScreenKeyListener as CenterDiagramKeyListener } from "./fitToScreenKeyListener";
+import { CopyPasteFeature, PasteClipboardCommand } from "./copyPaste";
 
 import "./commonStyling.css";
-import { CopyPasteFeature } from "./copyPaste";
 
 export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
 
@@ -30,6 +32,7 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     rebind(CenterKeyboardListener).toService(CenterDiagramKeyListener);
 
     bind(TYPES.KeyListener).to(CopyPasteFeature).inSingletonScope();
+    configureCommand(context, PasteClipboardCommand);
 
     bind(HelpUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(HelpUI);
@@ -42,7 +45,6 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
 
     // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
-    const context = { bind, unbind, isBound, rebind };
     configureCommand(context, CreateElementCommand);
 
     configureViewerOptions(context, {

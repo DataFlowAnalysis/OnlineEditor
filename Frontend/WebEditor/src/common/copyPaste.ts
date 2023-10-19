@@ -1,6 +1,8 @@
 import {
+    Command,
+    CommandExecutionContext,
+    CommandReturn,
     CommitModelAction,
-    IModelFactory,
     KeyListener,
     SChildElementImpl,
     SEdgeImpl,
@@ -8,9 +10,10 @@ import {
     SModelRootImpl,
     SNodeImpl,
     TYPES,
+    isSelectable,
     isSelected,
 } from "sprotty";
-import { Action, SPort, SelectAction } from "sprotty-protocol";
+import { Action, SPort } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { generateRandomSprottyId } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
@@ -28,11 +31,6 @@ import { ArrowEdge, ArrowEdgeImpl } from "../features/dfdElements/edges";
 export class CopyPasteFeature implements KeyListener {
     private copyElements: SModelElementImpl[] = [];
 
-    constructor(
-        @inject(DynamicChildrenProcessor) private readonly dynamicChildrenProcessor: DynamicChildrenProcessor,
-        @inject(TYPES.IModelFactory) private readonly modelFactory: IModelFactory,
-    ) {}
-
     keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
         return [];
     }
@@ -41,7 +39,7 @@ export class CopyPasteFeature implements KeyListener {
         if (matchesKeystroke(event, "KeyC", "ctrl")) {
             return this.copy(element.root);
         } else if (matchesKeystroke(event, "KeyV", "ctrl")) {
-            return this.paste(element.root);
+            return this.paste();
         }
 
         return [];
@@ -64,14 +62,67 @@ export class CopyPasteFeature implements KeyListener {
 
     /**
      * Pastes elements by creating new elements and copying the properties of the copied elements.
+     * This is done inside a command, so that it can be undone/redone.
      */
-    private paste(root: SModelRootImpl): Action[] {
-        // This maps the element id of the copy source element to the
-        // id that the newly created copy target element has.
-        const copyElementIdMapping: Record<string, string> = {};
+    private paste(): Action[] {
+        return [PasteClipboardAction.create(this.copyElements), CommitModelAction.create()];
+    }
+}
 
+interface PasteClipboardAction extends Action {
+    kind: typeof PasteClipboardAction.KIND;
+    copyElements: SModelElementImpl[];
+}
+export namespace PasteClipboardAction {
+    export const KIND = "paste-clipboard";
+    export function create(copyElements: SModelElementImpl[]): PasteClipboardAction {
+        return {
+            kind: KIND,
+            copyElements,
+        };
+    }
+}
+
+/**
+ * This command is used to paste elements that were copied by the CopyPasteFeature.
+ * It creates new elements and copies the properties of the copied elements.
+ * This is done inside a command, so that it can be undone/redone.
+ */
+@injectable()
+export class PasteClipboardCommand extends Command {
+    public static readonly KIND = PasteClipboardAction.KIND;
+
+    @inject(DynamicChildrenProcessor)
+    private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
+    private newElements: SChildElementImpl[] = [];
+    // This maps the element id of the copy source element to the
+    // id that the newly created copy target element has.
+    private copyElementIdMapping: Record<string, string> = {};
+
+    constructor(@inject(TYPES.Action) private readonly action: PasteClipboardAction) {
+        super();
+    }
+
+    /**
+     * Selectes the newly created copy and deselects the copy source.
+     */
+    private setSelection(context: CommandExecutionContext, selection: "old" | "new"): void {
+        Object.entries(this.copyElementIdMapping).forEach(([oldId, newId]) => {
+            const oldElement = context.root.index.getById(oldId);
+            const newElement = context.root.index.getById(newId);
+
+            if (oldElement && isSelectable(oldElement)) {
+                oldElement.selected = selection === "old";
+            }
+            if (newElement && isSelectable(newElement)) {
+                newElement.selected = selection === "new";
+            }
+        });
+    }
+
+    execute(context: CommandExecutionContext): CommandReturn {
         // Step 1: copy nodes and their ports
-        this.copyElements.forEach((element) => {
+        this.action.copyElements.forEach((element) => {
             if (!(element instanceof SNodeImpl)) {
                 return;
             }
@@ -86,7 +137,7 @@ export class CopyPasteFeature implements KeyListener {
                 ports: [],
             } as DfdNode;
 
-            copyElementIdMapping[element.id] = schema.id;
+            this.copyElementIdMapping[element.id] = schema.id;
 
             if (element instanceof DfdNodeImpl) {
                 schema.text = element.text;
@@ -97,7 +148,7 @@ export class CopyPasteFeature implements KeyListener {
                         id: generateRandomSprottyId(),
                     } as SPort;
 
-                    copyElementIdMapping[port.id] = portSchema.id;
+                    this.copyElementIdMapping[port.id] = portSchema.id;
 
                     if ("position" in port && port.position) {
                         portSchema.position = { x: port.position.x, y: port.position.y };
@@ -110,20 +161,20 @@ export class CopyPasteFeature implements KeyListener {
             // Generate dynamic sub elements
             this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
-            const newElement = this.modelFactory.createElement(schema);
-            root.add(newElement as SChildElementImpl);
+            const newElement = context.modelFactory.createElement(schema);
+            this.newElements.push(newElement);
         });
 
         // Step 2: copy edges
         // If the source and target element of an edge are copied, the edge can be copied as well.
         // If only one of them is copied, the edge is not copied.
-        this.copyElements.forEach((element) => {
+        this.action.copyElements.forEach((element) => {
             if (!(element instanceof SEdgeImpl)) {
                 return;
             }
 
-            const newSourceId = copyElementIdMapping[element.sourceId];
-            const newTargetId = copyElementIdMapping[element.targetId];
+            const newSourceId = this.copyElementIdMapping[element.sourceId];
+            const newTargetId = this.copyElementIdMapping[element.targetId];
 
             console.log("edge", newSourceId, newTargetId, element);
 
@@ -138,7 +189,7 @@ export class CopyPasteFeature implements KeyListener {
                 sourceId: newSourceId,
                 targetId: newTargetId,
             } as ArrowEdge;
-            copyElementIdMapping[element.id] = schema.id;
+            this.copyElementIdMapping[element.id] = schema.id;
 
             if (element instanceof ArrowEdgeImpl) {
                 schema.text = element.editableLabel?.text ?? "";
@@ -147,18 +198,36 @@ export class CopyPasteFeature implements KeyListener {
             // Generate dynamic sub elements (the edge label)
             this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
-            const newElement = this.modelFactory.createElement(schema);
-            root.add(newElement as SChildElementImpl);
+            const newElement = context.modelFactory.createElement(schema);
+            this.newElements.push(newElement);
         });
 
-        return [
-            CommitModelAction.create(),
-            SelectAction.create({
-                // Select newly created elements
-                selectedElementsIDs: Object.values(copyElementIdMapping),
-                // Deselect all old elements that were used as a source for the copy
-                deselectedElementsIDs: Object.keys(copyElementIdMapping),
-            }),
-        ];
+        // Step 3: add new elements to the model and select them
+        this.newElements.forEach((element) => {
+            context.root.add(element);
+        });
+        this.setSelection(context, "new");
+
+        return context.root;
+    }
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        // Remove elements from the model
+        this.newElements.forEach((element) => {
+            context.root.remove(element);
+        });
+        // Select the old elements
+        this.setSelection(context, "old");
+
+        return context.root;
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        this.newElements.forEach((element) => {
+            context.root.add(element);
+        });
+        this.setSelection(context, "new");
+
+        return context.root;
     }
 }
