@@ -1,81 +1,28 @@
+import { inject, injectable } from "inversify";
 import {
     Command,
     CommandExecutionContext,
     CommandReturn,
-    CommitModelAction,
-    KeyListener,
     SChildElementImpl,
     SEdgeImpl,
     SModelElementImpl,
-    SModelRootImpl,
     SNodeImpl,
     TYPES,
     isSelectable,
-    isSelected,
 } from "sprotty";
+import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
+import { generateRandomSprottyId } from "../../utils";
+import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
 import { Action, SPort } from "sprotty-protocol";
-import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
-import { generateRandomSprottyId } from "../utils";
-import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
-import { injectable, inject } from "inversify";
-import { DfdNode, DfdNodeImpl } from "../features/dfdElements/nodes";
-import { ArrowEdge, ArrowEdgeImpl } from "../features/dfdElements/edges";
+import { ArrowEdge, ArrowEdgeImpl } from "../dfdElements/edges";
 
-/**
- * This feature allows the user to copy and paste elements.
- * When ctrl+c is pressed, all selected elements are copied into an internal array.
- * When ctrl+v is pressed, all elements in the internal array are pasted with an fixed offset.
- * Nodes are copied with their ports and edges are copied if source and target were copied as well.
- */
-@injectable()
-export class CopyPasteFeature implements KeyListener {
-    private copyElements: SModelElementImpl[] = [];
-
-    keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
-        return [];
-    }
-
-    keyDown(element: SModelElementImpl, event: KeyboardEvent): Action[] {
-        if (matchesKeystroke(event, "KeyC", "ctrl")) {
-            return this.copy(element.root);
-        } else if (matchesKeystroke(event, "KeyV", "ctrl")) {
-            return this.paste();
-        }
-
-        return [];
-    }
-
-    /**
-     * Copy all selected elements into the "clipboard" (the internal element array)
-     */
-    private copy(root: SModelRootImpl): Action[] {
-        this.copyElements = []; // Clear the clipboard
-
-        // Find selected elements
-        root.index
-            .all()
-            .filter((element) => isSelected(element))
-            .forEach((e) => this.copyElements.push(e));
-
-        return [];
-    }
-
-    /**
-     * Pastes elements by creating new elements and copying the properties of the copied elements.
-     * This is done inside a command, so that it can be undone/redone.
-     */
-    private paste(): Action[] {
-        return [PasteClipboardAction.create(this.copyElements), CommitModelAction.create()];
-    }
-}
-
-interface PasteClipboardAction extends Action {
-    kind: typeof PasteClipboardAction.KIND;
+export interface PasteElementsAction extends Action {
+    kind: typeof PasteElementsAction.KIND;
     copyElements: SModelElementImpl[];
 }
-export namespace PasteClipboardAction {
-    export const KIND = "paste-clipboard";
-    export function create(copyElements: SModelElementImpl[]): PasteClipboardAction {
+export namespace PasteElementsAction {
+    export const KIND = "paste-clipboard-elements";
+    export function create(copyElements: SModelElementImpl[]): PasteElementsAction {
         return {
             kind: KIND,
             copyElements,
@@ -89,8 +36,8 @@ export namespace PasteClipboardAction {
  * This is done inside a command, so that it can be undone/redone.
  */
 @injectable()
-export class PasteClipboardCommand extends Command {
-    public static readonly KIND = PasteClipboardAction.KIND;
+export class PasteElementsCommand extends Command {
+    public static readonly KIND = PasteElementsAction.KIND;
 
     @inject(DynamicChildrenProcessor)
     private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
@@ -99,7 +46,7 @@ export class PasteClipboardCommand extends Command {
     // id that the newly created copy target element has.
     private copyElementIdMapping: Record<string, string> = {};
 
-    constructor(@inject(TYPES.Action) private readonly action: PasteClipboardAction) {
+    constructor(@inject(TYPES.Action) private readonly action: PasteElementsAction) {
         super();
     }
 
@@ -175,8 +122,6 @@ export class PasteClipboardCommand extends Command {
 
             const newSourceId = this.copyElementIdMapping[element.sourceId];
             const newTargetId = this.copyElementIdMapping[element.targetId];
-
-            console.log("edge", newSourceId, newTargetId, element);
 
             if (!newSourceId || !newTargetId) {
                 // Not both source and target are copied, ignore this edge

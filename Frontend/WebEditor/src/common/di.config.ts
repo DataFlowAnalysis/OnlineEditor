@@ -16,13 +16,10 @@ import { DeleteKeyListener } from "./deleteKeyListener";
 import { EDITOR_TYPES } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
 import { FitToScreenKeyListener as CenterDiagramKeyListener } from "./fitToScreenKeyListener";
-import { CopyPasteFeature, PasteClipboardCommand } from "./copyPaste";
 
 import "./commonStyling.css";
 
 export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
 
@@ -30,9 +27,6 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(TYPES.KeyListener).toService(DeleteKeyListener);
     bind(CenterDiagramKeyListener).toSelf().inSingletonScope();
     rebind(CenterKeyboardListener).toService(CenterDiagramKeyListener);
-
-    bind(TYPES.KeyListener).to(CopyPasteFeature).inSingletonScope();
-    configureCommand(context, PasteClipboardCommand);
 
     bind(HelpUI).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(HelpUI);
@@ -45,8 +39,12 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
 
     // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
+    const context = { bind, unbind, isBound, rebind };
     configureCommand(context, CreateElementCommand);
 
+    // Configure zoom limits
+    // Without these you could zoom in/out to infinity by accident resulting in your diagram being "gone".
+    // You can still get back to the diagram using the fit to screen action but these zoom limits prevents this from happening in the most cases.
     configureViewerOptions(context, {
         zoomLimits: { min: 0.05, max: 20 },
     });
