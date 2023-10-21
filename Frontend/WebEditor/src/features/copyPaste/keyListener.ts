@@ -1,6 +1,13 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { PasteElementsAction } from "./pasteCommand";
-import { CommitModelAction, KeyListener, SModelElementImpl, SModelRootImpl, isSelected } from "sprotty";
+import {
+    CommitModelAction,
+    KeyListener,
+    MousePositionTracker,
+    SModelElementImpl,
+    SModelRootImpl,
+    isSelected,
+} from "sprotty";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
@@ -13,6 +20,8 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 @injectable()
 export class CopyPasteKeyListener implements KeyListener {
     private copyElements: SModelElementImpl[] = [];
+
+    constructor(@inject(MousePositionTracker) private readonly mousePositionTracker: MousePositionTracker) {}
 
     keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
         return [];
@@ -48,6 +57,7 @@ export class CopyPasteKeyListener implements KeyListener {
      * This is done inside a command, so that it can be undone/redone.
      */
     private paste(): Action[] {
-        return [PasteElementsAction.create(this.copyElements), CommitModelAction.create()];
+        const targetPosition = this.mousePositionTracker.lastPositionOnDiagram ?? { x: 0, y: 0 };
+        return [PasteElementsAction.create(this.copyElements, targetPosition), CommitModelAction.create()];
     }
 }

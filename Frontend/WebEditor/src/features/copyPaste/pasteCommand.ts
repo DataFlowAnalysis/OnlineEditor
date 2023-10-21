@@ -13,19 +13,21 @@ import {
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
-import { Action, SPort } from "sprotty-protocol";
+import { Action, Point, SPort } from "sprotty-protocol";
 import { ArrowEdge, ArrowEdgeImpl } from "../dfdElements/edges";
 
 export interface PasteElementsAction extends Action {
     kind: typeof PasteElementsAction.KIND;
     copyElements: SModelElementImpl[];
+    targetPosition: Point;
 }
 export namespace PasteElementsAction {
     export const KIND = "paste-clipboard-elements";
-    export function create(copyElements: SModelElementImpl[]): PasteElementsAction {
+    export function create(copyElements: SModelElementImpl[], targetPosition: Point): PasteElementsAction {
         return {
             kind: KIND,
             copyElements,
+            targetPosition,
         };
     }
 }
@@ -51,7 +53,7 @@ export class PasteElementsCommand extends Command {
     }
 
     /**
-     * Selectes the newly created copy and deselects the copy source.
+     * Selects the newly created copy and deselects the copy source.
      */
     private setSelection(context: CommandExecutionContext, selection: "old" | "new"): void {
         Object.entries(this.copyElementIdMapping).forEach(([oldId, newId]) => {
@@ -67,8 +69,39 @@ export class PasteElementsCommand extends Command {
         });
     }
 
+    /**
+     * Calculates the offset between the copy source elements and the set paste target position.
+     * Does this by finding the top left position of the copy source elements and subtracting it from the target position.
+     *
+     * @returns The offset between the top left position of the copy source elements and the target position.
+     */
+    private computeElementOffset(): Point {
+        const sourcePosition = { x: Infinity, y: Infinity };
+
+        this.action.copyElements.forEach((element) => {
+            if (!(element instanceof SNodeImpl)) {
+                return;
+            }
+
+            if (element.position.x < sourcePosition.x) {
+                sourcePosition.x = element.position.x;
+            }
+            if (element.position.y < sourcePosition.y) {
+                sourcePosition.y = element.position.y;
+            }
+        });
+
+        if (sourcePosition.x === Infinity || sourcePosition.y === Infinity) {
+            return { x: 0, y: 0 };
+        }
+
+        // Compute delta between top left position of copy source elements and the target position
+        return Point.subtract(this.action.targetPosition, sourcePosition);
+    }
+
     execute(context: CommandExecutionContext): CommandReturn {
         // Step 1: copy nodes and their ports
+        const positionOffset = this.computeElementOffset();
         this.action.copyElements.forEach((element) => {
             if (!(element instanceof SNodeImpl)) {
                 return;
@@ -77,7 +110,7 @@ export class PasteElementsCommand extends Command {
             const schema = {
                 id: generateRandomSprottyId(),
                 type: element.type,
-                position: { x: element.position.x + 30, y: element.position.y + 30 },
+                position: Point.add(element.position, positionOffset),
                 size: { height: -1, width: -1 },
                 text: "",
                 labels: [],
