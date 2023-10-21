@@ -36,6 +36,8 @@ export class HelpUI extends AbstractUIExtension {
                     <p><kbd>CTRL</kbd>+<kbd>S</kbd>: Save diagram to json</p>
                     <p><kbd>CTRL</kbd>+<kbd>L</kbd>: Automatically layout diagram</p>
                     <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>: Fit diagram to screen</p>
+                    <p><kbd>CTRL</kbd>+<kbd>C</kbd>: Copy selected elements</p>
+                    <p><kbd>CTRL</kbd>+<kbd>V</kbd>: Paste previously copied elements</p>
                 </div>
             </div>
         `;
