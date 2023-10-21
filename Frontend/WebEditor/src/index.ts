@@ -33,6 +33,7 @@ import { toolPaletteModule } from "./features/toolPalette/di.config";
 import { serializeModule } from "./features/serialize/di.config";
 import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagram";
 import { dfdElementsModule } from "./features/dfdElements/di.config";
+import { copyPasteModule } from "./features/copyPaste/di.config";
 import { EDITOR_TYPES } from "./utils";
 
 import "sprotty/css/sprotty.css";
@@ -82,6 +83,7 @@ container.load(
     serializeModule,
     dfdLabelModule,
     toolPaletteModule,
+    copyPasteModule,
 );
 
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);

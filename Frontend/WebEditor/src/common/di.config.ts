@@ -42,6 +42,9 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     const context = { bind, unbind, isBound, rebind };
     configureCommand(context, CreateElementCommand);
 
+    // Configure zoom limits
+    // Without these you could zoom in/out to infinity by accident resulting in your diagram being "gone".
+    // You can still get back to the diagram using the fit to screen action but these zoom limits prevents this from happening in the most cases.
     configureViewerOptions(context, {
         zoomLimits: { min: 0.05, max: 20 },
     });
