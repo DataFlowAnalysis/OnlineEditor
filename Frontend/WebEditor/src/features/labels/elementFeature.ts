@@ -1,9 +1,9 @@
-import { SChildElementImpl, SModelElementImpl, SModelExtension, SParentElementImpl, SShapeElementImpl } from "sprotty";
+import { SChildElementImpl, SModelElementImpl, SParentElementImpl, SShapeElementImpl } from "sprotty";
 import { LabelAssignment } from "./labelTypeRegistry";
 
 export const containsDfdLabelFeature = Symbol("dfd-label-feature");
 
-export interface ContainsDfdLabels extends SModelExtension {
+export interface ContainsDfdLabels extends SModelElementImpl {
     labels: LabelAssignment[];
 }
 

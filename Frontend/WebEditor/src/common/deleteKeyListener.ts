@@ -1,6 +1,5 @@
 import {
     CommitModelAction,
-    DeleteElementAction,
     KeyListener,
     SModelElementImpl,
     isDeletable,
@@ -8,7 +7,7 @@ import {
     SConnectableElementImpl,
     SRoutableElementImpl,
 } from "sprotty";
-import { Action } from "sprotty-protocol";
+import { Action, DeleteElementAction } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 /**

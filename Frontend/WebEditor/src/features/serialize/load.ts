@@ -6,7 +6,7 @@ import {
     ILogger,
     NullLogger,
     SModelRootImpl,
-    SNode,
+    SNodeImpl,
     TYPES,
     isLocateable,
 } from "sprotty";
@@ -182,7 +182,7 @@ export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispa
 
     // Layouting:
     const containsUnPositionedNodes = newRoot.children
-        .filter((child) => child instanceof SNode)
+        .filter((child) => child instanceof SNodeImpl)
         .some((child) => isLocateable(child) && (child.position.x === 0 || child.position.y === 0));
     if (containsUnPositionedNodes) {
         actionDispatcher.dispatch(LayoutModelAction.create());
