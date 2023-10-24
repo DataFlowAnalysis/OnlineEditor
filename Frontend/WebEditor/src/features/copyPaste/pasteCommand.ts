@@ -13,7 +13,7 @@ import {
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
-import { Action, Point, SPort } from "sprotty-protocol";
+import { Action, Point } from "sprotty-protocol";
 import { ArrowEdge, ArrowEdgeImpl } from "../dfdElements/edges";
 
 export interface PasteElementsAction extends Action {
@@ -123,15 +123,24 @@ export class PasteElementsCommand extends Command {
                 schema.text = element.text;
                 element.labels.forEach((label) => schema.labels.push(label));
                 element.ports.forEach((port) => {
-                    const portSchema = {
+                    const portSchema: {
+                        type: string;
+                        id: string;
+                        position?: Point;
+                        behavior?: string;
+                    } = {
                         type: port.type,
                         id: generateRandomSprottyId(),
-                    } as SPort;
+                    };
 
                     this.copyElementIdMapping[port.id] = portSchema.id;
 
                     if ("position" in port && port.position) {
                         portSchema.position = { x: port.position.x, y: port.position.y };
+                    }
+
+                    if ("behavior" in port && typeof port.behavior === "string") {
+                        portSchema.behavior = port.behavior;
                     }
 
                     schema.ports.push(portSchema);
