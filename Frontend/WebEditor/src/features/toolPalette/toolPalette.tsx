@@ -11,6 +11,7 @@ import {
     PatcherProvider,
     CommitModelAction,
 } from "sprotty";
+import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { Action } from "sprotty-protocol";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
@@ -55,6 +56,11 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      */
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
+        document.addEventListener("keydown", (event) => {
+            if (matchesKeystroke(event, "Escape")) {
+                this.disableTools();
+            }
+        });
 
         this.addTool(
             containerElement,
