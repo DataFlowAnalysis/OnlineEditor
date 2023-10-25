@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 import { EDITOR_TYPES } from "../../utils";
 import { EdgeCreationTool } from "./edgeCreationTool";
-import { NodeCreationTool } from "./nodeCreationTool";
+import { AddElementToGraphCommand, NodeCreationTool } from "./nodeCreationTool";
 import { ToolPaletteUI } from "./toolPalette";
 import { CommitModelAction, TYPES, configureActionHandler, configureCommand } from "sprotty";
 import { DfdToolDisableKeyListener } from "./tool";
@@ -22,6 +22,7 @@ export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, reb
 
     bind(NodeCreationTool).toSelf().inSingletonScope();
     bind(EDITOR_TYPES.DfdTool).toService(NodeCreationTool);
+    configureCommand(context, AddElementToGraphCommand);
 
     bind(EdgeCreationTool).toSelf().inSingletonScope();
     bind(EDITOR_TYPES.DfdTool).toService(EdgeCreationTool);

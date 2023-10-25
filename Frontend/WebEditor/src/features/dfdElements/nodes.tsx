@@ -165,7 +165,7 @@ export class StorageNodeView extends ShapeView {
         const leftPadding = StorageNodeImpl.LEFT_PADDING / 2;
 
         return (
-            <g class-sprotty-node={true} class-storage={true}>
+            <g class-sprotty-node={true} class-storage={true} style={{ opacity: node.opacity.toString() }}>
                 <rect x="0" y="0" width={width} height={height} />
                 <line x1={StorageNodeImpl.LEFT_PADDING} y1="0" x2={StorageNodeImpl.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
@@ -217,7 +217,7 @@ export class FunctionNodeView extends ShapeView {
         const r = FunctionNodeImpl.BORDER_RADIUS;
 
         return (
-            <g class-sprotty-node={true} class-function={true}>
+            <g class-sprotty-node={true} class-function={true} style={{ opacity: node.opacity.toString() }}>
                 <rect x="0" y="0" width={width} height={height} rx={r} ry={r} />
                 <line x1="0" y1={FunctionNodeImpl.TEXT_HEIGHT} x2={width} y2={FunctionNodeImpl.TEXT_HEIGHT} />
                 {context.renderChildren(node, {
@@ -263,7 +263,7 @@ export class IONodeView extends ShapeView {
         const { width, height } = node.bounds;
 
         return (
-            <g class-sprotty-node={true} class-io={true}>
+            <g class-sprotty-node={true} class-io={true} style={{ opacity: node.opacity.toString() }}>
                 <rect x="0" y="0" width={width} height={height} />
 
                 {context.renderChildren(node, {
