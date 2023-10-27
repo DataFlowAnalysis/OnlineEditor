@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { SChildElementImpl, SModelElementImpl, SPortImpl, SShapeElementImpl } from "sprotty";
+import { CommitModelAction, SChildElementImpl, SModelElementImpl, SPortImpl, SShapeElementImpl } from "sprotty";
 import { Action, SPort } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
 import { CreationTool } from "./creationTool";
@@ -54,7 +54,13 @@ export class PortCreationTool extends CreationTool<SPort, SPortImpl> {
     }
 
     mouseDown(target: SModelElementImpl, event: MouseEvent): Action[] {
-        // TODO: cancel addition of port if not inside a node right now
+        if (this.element?.parent === target.root) {
+            this.disable();
+            // Run some action to re-render the tool palette ui
+            // showing that the tool is disabled
+            return [CommitModelAction.create()];
+        }
+
         return super.mouseDown(target, event);
     }
 
