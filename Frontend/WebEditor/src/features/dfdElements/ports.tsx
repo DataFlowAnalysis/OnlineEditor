@@ -73,7 +73,7 @@ export class DfdInputPortView extends ShapeView {
         const { width, height } = node.bounds;
 
         return (
-            <g class-sprotty-port={true} class-selected={node.selected}>
+            <g class-sprotty-port={true} class-selected={node.selected} style={{ opacity: node.opacity.toString() }}>
                 <rect x="0" y="0" width={width} height={height} />
                 <text x={width / 2} y={height / 2} class-port-text={true}>
                     I
@@ -128,7 +128,7 @@ export class DfdOutputPortView extends ShapeView {
         const { width, height } = node.bounds;
 
         return (
-            <g class-sprotty-port={true} class-selected={node.selected}>
+            <g class-sprotty-port={true} class-selected={node.selected} style={{ opacity: node.opacity.toString() }}>
                 <rect x="0" y="0" width={width} height={height} />
                 <text x={width / 2} y={height / 2} class-port-text={true}>
                     O
