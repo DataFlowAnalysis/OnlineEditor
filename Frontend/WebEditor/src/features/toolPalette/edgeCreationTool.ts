@@ -1,5 +1,12 @@
 import { injectable } from "inversify";
-import { isConnectable, SChildElementImpl, SEdgeImpl, SModelElementImpl } from "sprotty";
+import {
+    Connectable,
+    isConnectable,
+    SChildElementImpl,
+    SEdgeImpl,
+    SModelElementImpl,
+    SParentElementImpl,
+} from "sprotty";
 import { Action, SEdge } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
 import { CreationTool } from "./creationTool";
@@ -35,25 +42,26 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
             return [];
         }
 
-        if (!isConnectable(target)) {
-            // Nothing can be connected to this element, invalid choice
+        const clickedElement = this.findConnectable(target);
+        if (!clickedElement) {
+            // Nothing can be connected to this element or its parents, invalid choice
             return [];
         }
 
         if (this.element.source) {
             // Source already set, so we're setting the target now
 
-            if (target.canConnect(this.element, "target")) {
-                this.element.targetId = target.id;
+            if (clickedElement.canConnect(this.element, "target")) {
+                this.element.targetId = clickedElement.id;
 
                 // super: Finalize creation and disable the tool
-                return super.mouseDown(target, event);
+                return super.mouseDown(clickedElement, event);
             }
         } else {
             // Source not set yet, so we're setting the source now
 
-            if (target.canConnect(this.element, "source")) {
-                this.element.sourceId = target.id;
+            if (clickedElement.canConnect(this.element, "source")) {
+                this.element.sourceId = clickedElement.id;
 
                 // Create a new target element
                 // For previewing the edge it must be able to be rendered
@@ -75,5 +83,27 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
         // Trigger re-rendering of the edge
         this.commandStack.update(this.element.root);
         return [];
+    }
+
+    /**
+     * Recursively searches through the element's parents until a connectable element is found.
+     * This is required because the user may click on elements inside a node, which are not connectable.
+     * E.g. a the user clicks on a label inside the node but in this case the edge should be connected to the node itself.
+     *
+     * @param element Element to start searching from
+     * @returns The first connectable element found or undefined if none was found
+     */
+    private findConnectable(
+        element: SChildElementImpl | SParentElementImpl | SModelElementImpl,
+    ): (Connectable & SModelElementImpl) | undefined {
+        if (isConnectable(element)) {
+            return element;
+        }
+
+        if ("parent" in element && element.parent) {
+            return this.findConnectable(element.parent);
+        } else {
+            return undefined;
+        }
     }
 }
