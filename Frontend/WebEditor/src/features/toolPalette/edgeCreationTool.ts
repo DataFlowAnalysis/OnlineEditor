@@ -7,7 +7,7 @@ import {
     SModelElementImpl,
     SParentElementImpl,
 } from "sprotty";
-import { Action, SEdge } from "sprotty-protocol";
+import { Action, SEdge, SNode } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
 import { CreationTool } from "./creationTool";
 
@@ -73,7 +73,8 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
                 this.edgeTargetElement = this.modelFactory.createElement({
                     id: generateRandomSprottyId(),
                     type: "empty-node",
-                });
+                    position: this.calculateMousePosition(event),
+                } as SNode);
                 // Add empty node to the graph and as a edge target
                 this.element.root.add(this.edgeTargetElement);
                 this.element.targetId = this.edgeTargetElement.id;

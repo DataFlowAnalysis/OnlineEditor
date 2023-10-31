@@ -99,23 +99,7 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
             return [];
         }
 
-        // Calculate the position of the mouse in the graph
-
-        const calculateMousePosition = (axis: "x" | "y") => {
-            // Position of the top left viewport corner in the whole graph
-            const rootPosition = root.scroll[axis];
-            // Offset of the mouse position from the top left viewport corner in screen pixels
-            const screenOffset = axis === "x" ? event.offsetX : event.offsetY;
-            // Offset of the mouse position from the top left viewport corner in graph coordinates
-            const screenOffsetNormalized = screenOffset / root.zoom;
-
-            // Add position
-            return rootPosition + screenOffsetNormalized;
-        };
-        const newPosition = {
-            x: calculateMousePosition("x"),
-            y: calculateMousePosition("y"),
-        };
+        const newPosition = { ...this.calculateMousePosition(event) };
 
         if (this.element instanceof SEdgeImpl) {
             // Snap the edge target to the mouse position, if there is a target element.
@@ -169,6 +153,35 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         return [
             CommitModelAction.create(), // Save to element ModelSource
         ];
+    }
+
+    /**
+     * Calculates the mouse position in graph coordinates.
+     */
+    protected calculateMousePosition(event: MouseEvent): Point {
+        const root = this.element?.root as SGraphImpl | undefined;
+        if (!root) {
+            return {
+                x: -Infinity,
+                y: -Infinity,
+            };
+        }
+
+        const calcPos = (axis: "x" | "y") => {
+            // Position of the top left viewport corner in the whole graph
+            const rootPosition = root.scroll[axis];
+            // Offset of the mouse position from the top left viewport corner in screen pixels
+            const screenOffset = axis === "x" ? event.offsetX : event.offsetY;
+            // Offset of the mouse position from the top left viewport corner in graph coordinates
+            const screenOffsetNormalized = screenOffset / root.zoom;
+
+            // Add position
+            return rootPosition + screenOffsetNormalized;
+        };
+        return {
+            x: calcPos("x"),
+            y: calcPos("y"),
+        };
     }
 }
 
