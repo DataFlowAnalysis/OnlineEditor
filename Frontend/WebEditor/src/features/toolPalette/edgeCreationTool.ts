@@ -1,117 +1,110 @@
-import { injectable, inject } from "inversify";
+import { injectable } from "inversify";
 import {
-    MouseListener,
-    MouseTool,
+    Connectable,
     isConnectable,
-    SEdgeImpl,
-    CommitModelAction,
-    SModelElementImpl,
     SChildElementImpl,
+    SEdgeImpl,
+    SModelElementImpl,
+    SParentElementImpl,
 } from "sprotty";
-import { Action, CreateElementAction, SEdge } from "sprotty-protocol";
+import { Action, SEdge, SNode } from "sprotty-protocol";
 import { generateRandomSprottyId } from "../../utils";
-import { DfdTool } from "./tool";
-import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
+import { CreationTool } from "./creationTool";
 
 @injectable()
-export class EdgeCreationTool extends MouseListener implements DfdTool {
-    private source?: SModelElementImpl;
-    private target?: SModelElementImpl;
+export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
+    // Pseudo element that is used as a target for the edge while it is being created
+    private edgeTargetElement?: SChildElementImpl;
 
-    constructor(
-        @inject(MouseTool) private mouseTool: MouseTool,
-        @inject(DynamicChildrenProcessor) private dynamicChildrenProcessor: DynamicChildrenProcessor,
-        private edgeType: string = "edge:arrow",
-    ) {
-        super();
-    }
-
-    enable(): void {
-        this.source = undefined;
-        this.target = undefined;
-        this.mouseTool.register(this);
+    createElementSchema(): SEdge {
+        return {
+            id: generateRandomSprottyId(),
+            type: "edge:arrow",
+            sourceId: "",
+            targetId: "",
+        };
     }
 
     disable(): void {
-        this.mouseTool.deregister(this);
+        if (this.edgeTargetElement) {
+            // Pseudo edge target element must always be removed
+            // regardless of whether the edge creation was successful or cancelled
+            this.element?.root.remove(this.edgeTargetElement);
+            this.edgeTargetElement = undefined;
+        }
+
+        super.disable();
     }
 
-    override mouseDown(target: SModelElementImpl, _event: MouseEvent): Action[] {
-        // First click selects the source (if valid source element)
-        // Second click selects the target and creates the edge (if valid target element)
-        const element = this.findConnectableElement(target);
-        if (!element) return [];
-
-        if (this.source === undefined) {
-            return this.sourceClick(element);
-        } else {
-            return this.targetClick(element);
+    mouseDown(target: SModelElementImpl, event: MouseEvent): Action[] {
+        if (!this.element) {
+            // This shouldn't happen
+            return [];
         }
+
+        const clickedElement = this.findConnectable(target);
+        if (!clickedElement) {
+            // Nothing can be connected to this element or its parents, invalid choice
+            return [];
+        }
+
+        if (this.element.source) {
+            // Source already set, so we're setting the target now
+
+            if (clickedElement.canConnect(this.element, "target")) {
+                this.element.targetId = clickedElement.id;
+
+                // super: Finalize creation and disable the tool
+                return super.mouseDown(clickedElement, event);
+            }
+        } else {
+            // Source not set yet, so we're setting the source now
+
+            if (clickedElement.canConnect(this.element, "source")) {
+                this.element.sourceId = clickedElement.id;
+
+                // Create a new target element
+                // For previewing the edge it must be able to be rendered
+                // which means source and target *must* be set even though
+                // we don't know the target yet.
+                // To work around this we create a dummy target element
+                // that is snapped to the current mouse position.
+                // It is a SPort because a normal node
+                this.edgeTargetElement = this.modelFactory.createElement({
+                    id: generateRandomSprottyId(),
+                    type: "empty-node",
+                    position: this.calculateMousePosition(event),
+                } as SNode);
+                // Add empty node to the graph and as a edge target
+                this.element.root.add(this.edgeTargetElement);
+                this.element.targetId = this.edgeTargetElement.id;
+            }
+        }
+
+        // Trigger re-rendering of the edge
+        this.commandStack.update(this.element.root);
+        return [];
     }
 
     /**
-     * A graph node may contain other elements (e.g. labels).
-     * The user may click on this but they want to add a edge to the parent node.
-     * To find the parent node that is intended we recursively go up the parent chain until we find a connectable element.
-     * If none is found we return undefined. In this case the whole element is not connectable.
+     * Recursively searches through the element's parents until a connectable element is found.
+     * This is required because the user may click on elements inside a node, which are not connectable.
+     * E.g. a the user clicks on a label inside the node but in this case the edge should be connected to the node itself.
+     *
+     * @param element Element to start searching from
+     * @returns The first connectable element found or undefined if none was found
      */
-    private findConnectableElement(element: SModelElementImpl): SModelElementImpl | undefined {
+    private findConnectable(
+        element: SChildElementImpl | SParentElementImpl | SModelElementImpl,
+    ): (Connectable & SModelElementImpl) | undefined {
         if (isConnectable(element)) {
             return element;
-        } else if (element instanceof SChildElementImpl) {
-            return this.findConnectableElement(element.parent);
+        }
+
+        if ("parent" in element && element.parent) {
+            return this.findConnectable(element.parent);
         } else {
             return undefined;
         }
-    }
-
-    private sourceClick(element: SModelElementImpl): Action[] {
-        if (this.canConnect(element, "source")) {
-            this.source = element;
-        }
-        return [];
-    }
-
-    private targetClick(element: SModelElementImpl): Action[] {
-        if (this.source && this.source.id !== element.id && this.canConnect(element, "target")) {
-            // Add edge to diagram
-            this.target = element;
-            const edge = {
-                type: this.edgeType,
-                id: generateRandomSprottyId(),
-                sourceId: this.source.id,
-                targetId: this.target.id,
-                text: "",
-            } as SEdge;
-            this.dynamicChildrenProcessor.processGraphChildren(edge, "set");
-
-            // Disable this tool. When another edge should be created, the user has to enable it again.
-            this.disable();
-
-            return [
-                // Create the new edge
-                CreateElementAction.create(edge, {
-                    containerId: this.source.root.id,
-                }),
-                // Save to model
-                CommitModelAction.create(),
-            ];
-        }
-        return [];
-    }
-
-    private canConnect(element: SModelElementImpl, type: "source" | "target"): boolean {
-        if (type === "target" && element.id === this.source?.id) {
-            // Cannot connect to itself
-            return false;
-        }
-
-        // Construct pseudo edge to check if it can be connected
-        const edge = new SEdgeImpl();
-        edge.type = "edge:arrow";
-        if (this.source) edge.sourceId = this.source.id;
-        if (this.target) edge.targetId = this.target.id;
-
-        return isConnectable(element) && element.canConnect(edge, type);
     }
 }

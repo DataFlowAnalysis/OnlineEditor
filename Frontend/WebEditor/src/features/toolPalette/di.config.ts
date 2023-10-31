@@ -1,12 +1,21 @@
 import { ContainerModule } from "inversify";
 import { EDITOR_TYPES } from "../../utils";
+import { DfdToolDisableKeyListener } from "./tool";
+import { AddElementToGraphCommand } from "./creationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
 import { NodeCreationTool } from "./nodeCreationTool";
-import { ToolPaletteUI } from "./toolPalette";
-import { CommitModelAction, TYPES, configureActionHandler, configureCommand } from "sprotty";
-import { DfdToolDisableKeyListener } from "./tool";
 import { PortCreationTool } from "./portCreationTool";
+import { ToolPaletteUI } from "./toolPalette";
 import { CreateSnappedElementCommand } from "./createSnappedElementCommand";
+import {
+    CommitModelAction,
+    EmptyView,
+    SNodeImpl,
+    TYPES,
+    configureActionHandler,
+    configureCommand,
+    configureModelElement,
+} from "sprotty";
 
 // This module contains an UI extension that adds a tool palette to the editor.
 // This tool palette allows the user to create new nodes and edges.
@@ -19,6 +28,9 @@ export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, reb
 
     bind(DfdToolDisableKeyListener).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).toService(DfdToolDisableKeyListener);
+
+    configureModelElement(context, "empty-node", SNodeImpl, EmptyView);
+    configureCommand(context, AddElementToGraphCommand);
 
     bind(NodeCreationTool).toSelf().inSingletonScope();
     bind(EDITOR_TYPES.DfdTool).toService(NodeCreationTool);

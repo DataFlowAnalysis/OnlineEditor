@@ -75,12 +75,12 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
         const p2 = segments[segments.length - 1];
         const arrow = (
             <path
-                class-sprotty-edge={true}
                 class-arrow={true}
                 d="M 0.5,0 L 10,-4 L 10,4 Z"
                 transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${
                     p2.y
                 }) translate(${p2.x} ${p2.y})`}
+                style={{ opacity: edge.opacity.toString() }}
             />
         );
         additionals.push(arrow);
@@ -92,7 +92,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
      * In contrast to the default implementation that we override here,
      * this implementation makes the edge line 10px shorter at the end to make space for the arrow without any overlap.
      */
-    protected renderLine(_edge: SEdgeImpl, segments: Point[], _context: RenderingContext, _args?: IViewArgs): VNode {
+    protected renderLine(edge: SEdgeImpl, segments: Point[], _context: RenderingContext, _args?: IViewArgs): VNode {
         const firstPoint = segments[0];
         let path = `M ${firstPoint.x},${firstPoint.y}`;
         for (let i = 1; i < segments.length; i++) {
@@ -115,7 +115,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
         return (
             <g>
                 {/* This is the actual path being rendered */}
-                <path d={path} />
+                <path d={path} class-sprotty-edge={true} style={{ opacity: edge.opacity.toString() }} />
                 {/* This is a transparent path that is rendered on top of the actual path to make it easier to select the edge */}
                 <path d={path} class-select-path={true} />
             </g>
