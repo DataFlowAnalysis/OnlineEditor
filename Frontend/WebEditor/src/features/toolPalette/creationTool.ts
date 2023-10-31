@@ -94,36 +94,49 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
     }
 
     mouseMove(target: SModelElementImpl, event: MouseEvent): (Action | Promise<Action>)[] {
-        const root = this.findRoot(target);
+        const root = target.root as SGraphImpl;
         if (!this.element || !root) {
             return [];
         }
 
+        // Calculate the position of the mouse in the graph
+
+        const calculateMousePosition = (axis: "x" | "y") => {
+            // Position of the top left viewport corner in the whole graph
+            const rootPosition = root.scroll[axis];
+            // Offset of the mouse position from the top left viewport corner in screen pixels
+            const screenOffset = axis === "x" ? event.offsetX : event.offsetY;
+            // Offset of the mouse position from the top left viewport corner in graph coordinates
+            const screenOffsetNormalized = screenOffset / root.zoom;
+
+            // Add position
+            return rootPosition + screenOffsetNormalized;
+        };
+        const newPosition = {
+            x: calculateMousePosition("x"),
+            y: calculateMousePosition("y"),
+        };
+
         if (this.element instanceof SEdgeImpl) {
-            // TODO: implement
-        } else {
-            // Adjust the position of the node/port so that it is centered on the cursor.
-            const { width, height } = this.element.bounds;
-            const adjust = (offset: number, size: number) => {
-                const mousePosition = offset / root.zoom;
-                if (this.element instanceof SNodeImpl) {
-                    // The element should be created to have its center at the mouse position.
-                    // Because of this, we need to adjust the position by half the size of the element.
-                    return mousePosition - size / 2;
-                } else {
-                    // For ports we can leave the position as is because the correction to center the element
-                    //  around the mouse pointer is done by the PortAwareSnapper
-                    return mousePosition;
+            // Snap the edge target to the mouse position, if there is a target element.
+            if (this.element.target) {
+                if (!Point.equals(this.element.target.position, newPosition)) {
+                    this.element.target.position = newPosition;
+                    // Trigger re-rendering of the edge
+                    this.commandStack.update(this.element.root);
                 }
-            };
-
+            }
+        } else {
             const previousPosition = this.element.position;
-            const newPosition = {
-                x: root.scroll.x + adjust(event.offsetX, width),
-                y: root.scroll.y + adjust(event.offsetY, height),
-            };
 
-            if (this.element instanceof SPortImpl) {
+            // Adapt the mouse position depending on element type
+            if (this.element instanceof SNodeImpl) {
+                // The node should be created to have its center at the mouse position.
+                // Because of this, we need to adjust the position by half the size of the element.
+                const { width, height } = this.element.bounds;
+                newPosition.x -= width / 2;
+                newPosition.y -= height / 2;
+            } else if (this.element instanceof SPortImpl) {
                 // Port positions must be relative to the target node.
                 // So we need to convert the absolute graph position of the mouse
                 // to a position relative to the target node.
@@ -134,10 +147,11 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
                 }
             }
 
+            // Snap the element to the corresponding grid
             const newPositionSnapped = this.snapper.snap(newPosition, this.element);
 
+            // Only update if the position after snapping has changed (aka the effective position).
             if (!Point.equals(previousPosition, newPositionSnapped)) {
-                // Only update if the position after snapping has changed (aka the effective position).
                 this.element.position = newPositionSnapped;
                 // Trigger re-rendering of the node/port
                 this.commandStack.update(this.element.root);
@@ -155,16 +169,6 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         return [
             CommitModelAction.create(), // Save to element ModelSource
         ];
-    }
-
-    private findRoot(target: SModelElementImpl): SGraphImpl | undefined {
-        if (target instanceof SGraphImpl) {
-            return target;
-        } else if (target instanceof SChildElementImpl) {
-            return this.findRoot(target.parent);
-        } else {
-            return undefined;
-        }
     }
 }
 
