@@ -10,10 +10,10 @@ import {
     TYPES,
     isLocateable,
 } from "sprotty";
-import { Action, FitToScreenAction, SModelRoot } from "sprotty-protocol";
+import { Action, SModelRoot } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject } from "inversify";
-import { FIT_TO_SCREEN_PADDING } from "../../utils";
+import { createDefaultFitToScreenAction } from "../../utils";
 import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
@@ -197,10 +197,6 @@ export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispa
     // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 10ms timeout.
     // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
     setTimeout(async () => {
-        const fitToScreenAction = FitToScreenAction.create([], {
-            animate: false,
-            padding: FIT_TO_SCREEN_PADDING,
-        });
-        await actionDispatcher.dispatch(fitToScreenAction);
+        await actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
     }, 100);
 }

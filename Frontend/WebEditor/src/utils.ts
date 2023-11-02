@@ -1,3 +1,6 @@
+import { SModelRootImpl } from "sprotty";
+import { FitToScreenAction, getBasicType } from "sprotty-protocol";
+
 /**
  * Type identifiers for use with inversify.
  */
@@ -10,6 +13,19 @@ export const EDITOR_TYPES = {
 };
 
 export const FIT_TO_SCREEN_PADDING = 75;
+
+/**
+ * Generates a fit to screen action that fits all nodes on the screen
+ * with the default padding.
+ */
+export function createDefaultFitToScreenAction(root: SModelRootImpl, animate = true): FitToScreenAction {
+    const elementIds = root.children.filter((child) => getBasicType(child) === "node").map((child) => child.id);
+
+    return FitToScreenAction.create(elementIds, {
+        padding: FIT_TO_SCREEN_PADDING,
+        animate,
+    });
+}
 
 export function generateRandomSprottyId(): string {
     return Math.random().toString(36).substring(7);
