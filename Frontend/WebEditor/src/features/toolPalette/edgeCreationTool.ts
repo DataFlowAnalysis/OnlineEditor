@@ -16,6 +16,13 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
     // Pseudo element that is used as a target for the edge while it is being created
     private edgeTargetElement?: SChildElementImpl;
 
+    // We will insert the edge ourselves once we determined the source element.
+    // Then we can also insert the edge target element at the mouse position
+    // and have the source and target element inserted.
+    // Otherwise sprotty would not be able to compute the path of the edge
+    // and show dangling elements.
+    protected override insertIntoGraphRootAfterCreation = false;
+
     createElementSchema(): SEdge {
         return {
             id: generateRandomSprottyId(),
@@ -48,7 +55,7 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
             return [];
         }
 
-        if (this.element.source) {
+        if (this.element.sourceId) {
             // Source already set, so we're setting the target now
 
             if (clickedElement.canConnect(this.element, "target")) {
@@ -59,9 +66,12 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
             }
         } else {
             // Source not set yet, so we're setting the source now
-
             if (clickedElement.canConnect(this.element, "source")) {
                 this.element.sourceId = clickedElement.id;
+
+                // Insert the edge to make it visible.
+                const root = target.root;
+                root.add(this.element);
 
                 // Create a new target element
                 // For previewing the edge it must be able to be rendered
@@ -73,16 +83,13 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
                 this.edgeTargetElement = this.modelFactory.createElement({
                     id: generateRandomSprottyId(),
                     type: "empty-node",
-                    position: this.calculateMousePosition(event),
+                    position: this.calculateMousePosition(target, event),
                 } as SNode);
                 // Add empty node to the graph and as a edge target
-                this.element.root.add(this.edgeTargetElement);
+                root.add(this.edgeTargetElement);
                 this.element.targetId = this.edgeTargetElement.id;
             }
         }
-
-        // Trigger re-rendering of the edge
-        this.commandStack.update(this.element.root);
         return [];
     }
 
