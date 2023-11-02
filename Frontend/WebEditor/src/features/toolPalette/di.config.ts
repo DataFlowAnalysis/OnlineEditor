@@ -6,7 +6,6 @@ import { EdgeCreationTool } from "./edgeCreationTool";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { PortCreationTool } from "./portCreationTool";
 import { ToolPaletteUI } from "./toolPalette";
-import { CreateSnappedElementCommand } from "./createSnappedElementCommand";
 import {
     CommitModelAction,
     EmptyView,
@@ -23,8 +22,6 @@ import {
 
 export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-
-    configureCommand(context, CreateSnappedElementCommand);
 
     bind(DfdToolDisableKeyListener).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).toService(DfdToolDisableKeyListener);
