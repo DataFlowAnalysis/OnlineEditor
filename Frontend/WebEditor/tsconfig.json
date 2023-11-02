@@ -24,7 +24,8 @@
         // JSX is used for sprotty node elements
         "jsx": "react",
         // Required for inversify decorators like @injectable
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "sourceMap": true
     },
     "include": ["src"]
 }
