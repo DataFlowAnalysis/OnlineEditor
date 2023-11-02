@@ -32,6 +32,7 @@ type Impl = SNodeImpl | SEdgeImpl | SPortImpl;
 export abstract class CreationTool<S extends Schema, I extends Impl> extends MouseListener implements DfdTool {
     protected element?: I;
     protected readonly previewOpacity = 0.5;
+    protected insertIntoGraphRootAfterCreation = true;
 
     constructor(
         @inject(MouseTool) protected mouseTool: MouseTool,
@@ -66,8 +67,10 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
         const element = this.modelFactory.createElement(schema) as I;
-        const root = await this.commandStack.executeAll([]);
-        root.add(element);
+        if (this.insertIntoGraphRootAfterCreation) {
+            const root = await this.commandStack.executeAll([]);
+            root.add(element);
+        }
 
         return element;
     }
@@ -88,14 +91,28 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         this.mouseTool.deregister(this);
 
         if (this.element) {
-            const root = this.element.root;
             // Element is not placed yet but we're disabling the tool.
             // This means the creation was cancelled and the element should be deleted.
+
+            // Get root before removing the element, needed for re-render
+            let root: SGraphImpl | undefined;
+            try {
+                root = this.element.root as SGraphImpl;
+            } catch (error) {
+                // element has no assigned root
+            }
+
+            // Remove element from graph
             this.element.parent?.remove(this.element);
             this.element = undefined;
 
-            // Re-render the graph to remove the element from the preview
-            this.commandStack.update(root);
+            // Re-render the graph to remove the element from the preview.
+            // Root may be unavailable e.g. when the element hasn't been inserted into
+            // the diagram yet. Skipping the render in those cases is fine as the element
+            // wasn't rendered in such case anyway.
+            if (root) {
+                this.commandStack.update(root);
+            }
 
             this.logger.info(this, "Cancelled element creation");
         }
@@ -127,11 +144,11 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
             return [];
         }
 
-        const newPosition = { ...this.calculateMousePosition(event) };
+        const newPosition = { ...this.calculateMousePosition(target, event) };
 
         if (this.element instanceof SEdgeImpl) {
             // Snap the edge target to the mouse position, if there is a target element.
-            if (this.element.target) {
+            if (this.element.targetId && this.element.target) {
                 if (!Point.equals(this.element.target.position, newPosition)) {
                     this.element.target.position = newPosition;
                     // Trigger re-rendering of the edge
@@ -186,14 +203,8 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
     /**
      * Calculates the mouse position in graph coordinates.
      */
-    protected calculateMousePosition(event: MouseEvent): Point {
-        const root = this.element?.root as SGraphImpl | undefined;
-        if (!root) {
-            return {
-                x: -Infinity,
-                y: -Infinity,
-            };
-        }
+    protected calculateMousePosition(target: SModelElementImpl, event: MouseEvent): Point {
+        const root = target.root as SGraphImpl;
 
         const calcPos = (axis: "x" | "y") => {
             // Position of the top left viewport corner in the whole graph
