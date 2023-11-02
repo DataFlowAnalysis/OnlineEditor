@@ -5,6 +5,7 @@ import {
     CommandStack,
     CommitModelAction,
     ICommand,
+    ILogger,
     IModelFactory,
     ISnapper,
     MouseListener,
@@ -14,6 +15,7 @@ import {
     SGraphImpl,
     SModelElementImpl,
     SNodeImpl,
+    SParentElementImpl,
     SPortImpl,
     TYPES,
 } from "sprotty";
@@ -38,13 +40,14 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: ActionDispatcher,
         @inject(TYPES.ICommandStack) protected commandStack: CommandStack,
         @inject(TYPES.ISnapper) protected snapper: ISnapper,
+        @inject(TYPES.ILogger) protected logger: ILogger,
     ) {
         super();
     }
 
     abstract createElementSchema(): S;
 
-    protected createElement(): I {
+    protected async createElement(): Promise<I> {
         const schema = this.createElementSchema();
         if (getBasicType(schema) === "node" || getBasicType(schema) === "port") {
             // Move node/port to the top left corner of the graph.
@@ -63,31 +66,56 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
         const element = this.modelFactory.createElement(schema) as I;
-        this.actionDispatcher.dispatch(AddElementToGraphAction.create(element));
+        const root = await this.commandStack.executeAll([]);
+        root.add(element);
+
         return element;
     }
 
     enable(): void {
         this.mouseTool.register(this);
-        this.element = this.createElement();
+        this.createElement()
+            .then((element) => {
+                this.element = element;
+                this.logger.log(this, "Created element", element);
+            })
+            .catch((error) => {
+                this.logger.error(this, "Failed to create element", error);
+            });
     }
 
     disable(): void {
         this.mouseTool.deregister(this);
 
         if (this.element) {
+            const root = this.element.root;
             // Element is not placed yet but we're disabling the tool.
             // This means the creation was cancelled and the element should be deleted.
-            // We revert the last action to do this, which added the element to the graph.
-            this.commandStack.undo();
+            this.element.parent?.remove(this.element);
             this.element = undefined;
+
+            // Re-render the graph to remove the element from the preview
+            this.commandStack.update(root);
+
+            this.logger.info(this, "Cancelled element creation");
         }
     }
 
     protected finishPlacingElement(): void {
         if (this.element) {
+            const elementParent = this.element.parent;
+            // Remove the element as it was only added as a temporary preview element
+            elementParent.remove(this.element);
+
             // Make node fully visible
             this.element.opacity = 1;
+
+            // Set via a command for redo/undo support.
+            // This inserts the created element properly into the model in contrast to the
+            // temporary add done previously.
+            this.actionDispatcher.dispatch(AddElementToGraphAction.create(this.element, elementParent));
+
+            this.logger.log(this, "Finalized element creation of element", this.element);
             this.element = undefined; // Unset to prevent further actions
         }
         this.disable();
@@ -191,13 +219,15 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
 export interface AddElementToGraphAction extends Action {
     kind: typeof AddElementToGraphAction.TYPE;
     element: SChildElementImpl;
+    parent: SParentElementImpl;
 }
 export namespace AddElementToGraphAction {
     export const TYPE = "addElementToGraph";
-    export function create(element: SChildElementImpl): AddElementToGraphAction {
+    export function create(element: SChildElementImpl, parent: SParentElementImpl): AddElementToGraphAction {
         return {
             kind: TYPE,
             element,
+            parent,
         };
     }
 }
@@ -209,7 +239,7 @@ export class AddElementToGraphCommand implements ICommand {
     constructor(@inject(TYPES.Action) private action: AddElementToGraphAction) {}
 
     execute(context: CommandExecutionContext): CommandReturn {
-        context.root.add(this.action.element);
+        this.action.parent.add(this.action.element);
         return context.root;
     }
 
