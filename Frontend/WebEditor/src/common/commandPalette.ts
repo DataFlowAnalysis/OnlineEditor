@@ -6,9 +6,9 @@ import {
     SModelRootImpl,
     CommitModelAction,
 } from "sprotty";
-import { FitToScreenAction, Point } from "sprotty-protocol";
+import { Point } from "sprotty-protocol";
 import { LoadDiagramAction } from "../features/serialize/load";
-import { FIT_TO_SCREEN_PADDING } from "../utils";
+import { createDefaultFitToScreenAction } from "../utils";
 import { SaveDiagramAction } from "../features/serialize/save";
 import { LoadDefaultDiagramAction } from "../features/serialize/loadDefaultDiagram";
 import { LayoutModelAction } from "../features/autoLayout/command";
@@ -23,15 +23,12 @@ import "./commandPalette.css";
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
     async getActions(
-        _root: Readonly<SModelRootImpl>,
+        root: Readonly<SModelRootImpl>,
         _text: string,
         _lastMousePosition?: Point,
         _index?: number,
     ): Promise<LabeledAction[]> {
-        const fitToScreenAction = FitToScreenAction.create(
-            [], // empty elementIds means fit the whole diagram
-            { padding: FIT_TO_SCREEN_PADDING },
-        );
+        const fitToScreenAction = createDefaultFitToScreenAction(root);
         const commitAction = CommitModelAction.create();
 
         return [
