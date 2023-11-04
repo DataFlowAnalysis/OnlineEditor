@@ -2,8 +2,10 @@ import { injectable, inject } from "inversify";
 import { generateRandomSprottyId } from "../../utils";
 import {
     AbstractUIExtension,
+    CommandStack,
     CommitModelAction,
     IActionDispatcher,
+    ISnapper,
     KeyListener,
     SModelElementImpl,
     TYPES,
@@ -12,6 +14,8 @@ import { LabelAssignment, LabelType, LabelTypeRegistry, LabelTypeValue } from ".
 import { DeleteLabelTypeAction, DeleteLabelTypeValueAction } from "./commands";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropListener";
 import { Action } from "sprotty-protocol";
+import { snapPortsOfNode } from "../dfdElements/portSnapper";
+import { DfdNodeImpl } from "../dfdElements/nodes";
 
 import "../../common/commonStyling.css";
 import "./labelTypeEditor.css";
@@ -23,6 +27,8 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
     constructor(
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(TYPES.ICommandStack) private readonly commandStack: CommandStack,
+        @inject(TYPES.ISnapper) private readonly snapper: ISnapper,
     ) {
         super();
         labelTypeRegistry.onUpdate(() => this.reRender());
@@ -141,6 +147,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         labelTypeNameInput.onchange = () => {
             labelType.name = labelTypeNameInput.value;
             this.labelTypeRegistry.labelTypeChanged();
+            this.reSnapPorts(labelType.id);
         };
 
         labelTypeElement.appendChild(labelTypeNameInput);
@@ -198,6 +205,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         valueInput.onchange = () => {
             labelTypeValue.text = valueInput.value;
             this.labelTypeRegistry.labelTypeChanged();
+            this.reSnapPorts(labelType.id);
         };
 
         // Allow dragging to create a label assignment
@@ -259,5 +267,33 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
 
     keyUp(_element: SModelElementImpl, _event: KeyboardEvent): Action[] {
         return [];
+    }
+
+    /**
+     * Re-snaps the ports of all nodes that have a label of the changed label type.
+     * When a label type or label type value is changed the size of nodes that
+     * use that label type could be changed to fit the longer/shorter label text
+     * more appropriately. Because of the node size change the ports may be out of
+     * place and need to be re-snapped.
+     *
+     * This is called only for changes made by the UI because label type deletions
+     * handle the resnapping in the corresponding commands and for addition
+     * it is not necessary because the label type or value cannot be used already.
+     */
+    private async reSnapPorts(changedLabelTypeId: string): Promise<void> {
+        const root = await this.commandStack.executeAll([]);
+        root.children.forEach((node) => {
+            if (!(node instanceof DfdNodeImpl)) {
+                return;
+            }
+
+            // Only do the snapping if the node contains a label of the changed label type
+            if (node.labels.some((labelAs) => labelAs.labelTypeId === changedLabelTypeId)) {
+                snapPortsOfNode(node, this.snapper);
+            }
+        });
+
+        // Commit the model to trigger a re-render and save the changes into the model source
+        this.actionDispatcher.dispatch(CommitModelAction.create());
     }
 }
