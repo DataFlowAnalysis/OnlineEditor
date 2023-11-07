@@ -15,7 +15,6 @@ import {
     exportModule,
     hoverModule,
     labelEditModule,
-    labelEditUiModule,
     modelSourceModule,
     moveModule,
     routingModule,
@@ -28,6 +27,7 @@ import {
 import { elkLayoutModule } from "sprotty-elk";
 import { dfdAutoLayoutModule } from "./features/autoLayout/di.config";
 import { dfdCommonModule } from "./common/di.config";
+import { noScrollLabelEditUiModule } from "./common/labelEditNoScroll";
 import { dfdLabelModule } from "./features/labels/di.config";
 import { toolPaletteModule } from "./features/toolPalette/di.config";
 import { serializeModule } from "./features/serialize/di.config";
@@ -68,7 +68,6 @@ container.load(
     zorderModule,
     undoRedoModule,
     labelEditModule,
-    labelEditUiModule,
     edgeEditModule,
     exportModule,
     edgeLayoutModule,
@@ -78,6 +77,8 @@ container.load(
 
     // Custom modules
     dfdCommonModule,
+    noScrollLabelEditUiModule,
+
     dfdAutoLayoutModule,
     dfdElementsModule,
     serializeModule,
