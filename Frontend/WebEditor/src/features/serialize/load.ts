@@ -187,7 +187,10 @@ export class LoadDiagramCommand extends Command {
  * Captures all element ids and dispatches a FitToScreenAction.
  * Also performs auto layouting if there are unpositioned nodes.
  */
-export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispatcher: ActionDispatcher): void {
+export async function postLoadActions(
+    newRoot: SModelRootImpl | undefined,
+    actionDispatcher: ActionDispatcher,
+): Promise<void> {
     if (!newRoot) {
         return;
     }
@@ -197,10 +200,10 @@ export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispa
         .filter((child) => child instanceof SNodeImpl)
         .some((child) => isLocateable(child) && (child.position.x === 0 || child.position.y === 0));
     if (containsUnPositionedNodes) {
-        actionDispatcher.dispatch(LayoutModelAction.create());
+        await actionDispatcher.dispatch(LayoutModelAction.create());
     }
 
     // fit to screen is done after auto layouting because that may change the bounds of the diagram
     // requiring another fit to screen.
-    actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
+    await actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
 }
