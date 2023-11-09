@@ -34,6 +34,18 @@ export namespace LoadDiagramAction {
 export class LoadDiagramCommand extends Command {
     static readonly KIND = LoadDiagramAction.KIND;
 
+    // After loading a diagram, this command dispatches other actions like fit to screen
+    // and optional auto layouting. However when returning a new model in the execute method,
+    // the diagram is not directly updated. We need to wait for the
+    // InitializeCanvasBoundsCommand to be fired and finish before we can do things like fit to screen.
+    // Because of that we block the execution newly dispatched actions including
+    // the actions we dispatched after loading the diagram until
+    //  the InitializeCanvasBoundsCommand has been processed.
+    readonly blockUntil = LoadDiagramCommand.loadBlockUntilFn;
+    static readonly loadBlockUntilFn = (action: Action) => {
+        return action.kind === "initializeCanvasBounds";
+    };
+
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
     @inject(DynamicChildrenProcessor)
@@ -172,7 +184,7 @@ export class LoadDiagramCommand extends Command {
 
 /**
  * Utility function to fit the diagram to the screen after loading a model inside a command.
- * Captures all element ids and dispatches a FitToScreenAction in the next event loop tick.
+ * Captures all element ids and dispatches a FitToScreenAction.
  * Also performs auto layouting if there are unpositioned nodes.
  */
 export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispatcher: ActionDispatcher): void {
@@ -188,15 +200,7 @@ export function postLoadActions(newRoot: SModelRootImpl | undefined, actionDispa
         actionDispatcher.dispatch(LayoutModelAction.create());
     }
 
-    // Fitting to screen:
-    // After loading a model the InitializeCanvasBoundsCommand is automatically dispatched after.
-    // We can only fit the diagram to the screen after this command has finished.
-    // Because of this we need to dispatch our command after the load command has finished.
-    // To do this we use a 0ms timeout to schedule it in the next tick of the browser event loop.
-
-    // Because sometimes the InitializeCanvasBoundsCommand is only dispatched after another tick, we use a 10ms timeout.
-    // This should be plenty of time for the InitializeCanvasBoundsCommand to be dispatched and isn't noticeable.
-    setTimeout(async () => {
-        await actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
-    }, 100);
+    // fit to screen is done after auto layouting because that may change the bounds of the diagram
+    // requiring another fit to screen.
+    actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
 }

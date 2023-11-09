@@ -13,7 +13,7 @@ import {
 import { Action } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { postLoadActions } from "./load";
+import { LoadDiagramCommand, postLoadActions } from "./load";
 import defaultDiagramData from "./defaultDiagram.json";
 
 export interface LoadDefaultDiagramAction extends Action {
@@ -31,6 +31,8 @@ export namespace LoadDefaultDiagramAction {
 
 @injectable()
 export class LoadDefaultDiagramCommand extends Command {
+    readonly blockUntil = LoadDiagramCommand.loadBlockUntilFn;
+
     static readonly KIND = LoadDefaultDiagramAction.KIND;
     @inject(TYPES.ILogger)
     private readonly logger: ILogger = new NullLogger();
