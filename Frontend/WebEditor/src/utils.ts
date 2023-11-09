@@ -42,7 +42,7 @@ const contextMap = new Map<string, { context: CanvasRenderingContext2D; cache: M
  * Because this operation requires interacting with the browser including styling etc.
  * this is rather expensive. Therefore the result is cached with the font and text as a cache key
  * The default width for empty text is 20px.
- * Big diagrams with hundereds of text elements (edges, nodes, labels) would not be possible without caching this operation.
+ * Big diagrams with hundreds of text elements (edges, nodes, labels) would not be possible without caching this operation.
  *
  * @param text the text you need the size for
  * @param font the font to use, defaults to "11pt sans-serif"
