@@ -69,7 +69,8 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         }
 
         // Create the element with the preview opacity to indicated it is not placed yet
-        schema.opacity = this.previewOpacity;
+        // Only set opacity if it is not already set in the schema
+        schema.opacity ??= this.previewOpacity;
 
         // Add any dynamically declared children to the node schema.
         this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
