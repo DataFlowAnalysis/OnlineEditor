@@ -8,6 +8,7 @@ import {
     ILogger,
     IModelFactory,
     ISnapper,
+    KeyListener,
     MouseListener,
     MouseTool,
     SChildElementImpl,
@@ -19,17 +20,24 @@ import {
     SPortImpl,
     TYPES,
 } from "sprotty";
-import { DfdTool } from "./tool";
-import { inject, injectable } from "inversify";
+import { inject, injectable, multiInject } from "inversify";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { Action, Point, SEdge, SNode, SPort, getBasicType } from "sprotty-protocol";
+import { EDITOR_TYPES } from "../../utils";
 
 type Positionable = { position?: Point };
 type Schema = (SNode | SEdge | SPort) & Positionable;
 type Impl = SNodeImpl | SEdgeImpl | SPortImpl;
+export type AnyCreationTool = CreationTool<Schema, Impl>;
 
+/**
+ * Common interface between all tools used by the tool palette to create new elements.
+ * These tools are meant to be enabled, allow the user to perform some action like creating a new node or edge,
+ * and then they should disable themselves when the action is done.
+ * Alternatively they can be disabled from the UI or other code to cancel the tool usage.
+ */
 @injectable()
-export abstract class CreationTool<S extends Schema, I extends Impl> extends MouseListener implements DfdTool {
+export abstract class CreationTool<S extends Schema, I extends Impl> extends MouseListener {
     protected element?: I;
     protected readonly previewOpacity = 0.5;
     protected insertIntoGraphRootAfterCreation = true;
@@ -261,5 +269,25 @@ export class AddElementToGraphCommand implements ICommand {
 
     redo(context: CommandExecutionContext): CommandReturn {
         return this.execute(context);
+    }
+}
+
+/**
+ * Util key listener that disables all registered creation tools when the escape key is pressed.
+ */
+@injectable()
+export class CreationToolDisableKeyListener extends KeyListener {
+    @multiInject(EDITOR_TYPES.CreationTool) protected tools: AnyCreationTool[] = [];
+
+    override keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
+        if (event.key === "Escape") {
+            this.disableAllTools();
+        }
+
+        return [];
+    }
+
+    private disableAllTools(): void {
+        this.tools.forEach((tool) => tool.disable());
     }
 }

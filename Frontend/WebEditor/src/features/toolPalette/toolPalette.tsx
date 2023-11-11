@@ -16,7 +16,7 @@ import { Action } from "sprotty-protocol";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
 import { PortCreationTool } from "./portCreationTool";
-import { DfdTool } from "./tool";
+import { AnyCreationTool } from "./creationTool";
 import { EDITOR_TYPES } from "../../utils";
 
 import "../../common/commonStyling.css";
@@ -36,7 +36,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         @inject(NodeCreationTool) protected readonly nodeCreationTool: NodeCreationTool,
         @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
         @inject(PortCreationTool) protected readonly portCreationTool: PortCreationTool,
-        @multiInject(EDITOR_TYPES.DfdTool) protected readonly allTools: DfdTool[],
+        @multiInject(EDITOR_TYPES.CreationTool) protected readonly allTools: AnyCreationTool[],
     ) {
         super();
     }
@@ -157,7 +157,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
      * @param clicked callback that is called when the tool is clicked. Can be used to configure the calling tool
      * @param svgCode vnode for the svg logo of the tool. Will be placed in a 32x32 svg element
      */
-    private addTool<T extends DfdTool>(
+    private addTool<T extends AnyCreationTool>(
         container: HTMLElement,
         tool: T,
         name: string,
