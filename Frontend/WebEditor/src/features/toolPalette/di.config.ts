@@ -40,5 +40,6 @@ export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, reb
     bind(ToolPaletteUI).toSelf().inSingletonScope();
     configureActionHandler(context, CommitModelAction.KIND, ToolPaletteUI);
     bind(TYPES.IUIExtension).toService(ToolPaletteUI);
+    bind(TYPES.KeyListener).toService(ToolPaletteUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(ToolPaletteUI);
 });
