@@ -10,6 +10,7 @@ import {
     ISnapper,
     KeyListener,
     MouseListener,
+    MousePositionTracker,
     MouseTool,
     SChildElementImpl,
     SEdgeImpl,
@@ -22,7 +23,7 @@ import {
 } from "sprotty";
 import { inject, injectable, multiInject } from "inversify";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { Action, Point, SEdge, SNode, SPort, getBasicType } from "sprotty-protocol";
+import { Action, Point, SEdge, SNode, SPort } from "sprotty-protocol";
 import { EDITOR_TYPES } from "../../utils";
 
 type Positionable = { position?: Point };
@@ -44,6 +45,7 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
 
     constructor(
         @inject(MouseTool) protected mouseTool: MouseTool,
+        @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker,
         @inject(DynamicChildrenProcessor) protected dynamicChildrenProcessor: DynamicChildrenProcessor,
         @inject(TYPES.IModelFactory) protected modelFactory: IModelFactory,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: ActionDispatcher,
@@ -58,15 +60,6 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
 
     protected async createElement(): Promise<I> {
         const schema = this.createElementSchema();
-        if (getBasicType(schema) === "node" || getBasicType(schema) === "port") {
-            // Move node/port to the top left corner of the graph.
-            // Otherwise it may be visible at the model origin till the first mouse move over the diagram.
-            // Only for nodes and ports. Edges don't have a given position
-            schema.position = {
-                x: -Infinity,
-                y: -Infinity,
-            };
-        }
 
         // Create the element with the preview opacity to indicated it is not placed yet
         // Only set opacity if it is not already set in the schema
@@ -90,6 +83,11 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
             .then((element) => {
                 this.element = element;
                 this.logger.log(this, "Created element", element);
+
+                // Show element at current mouse position
+                if (this.mousePositionTracker.lastPositionOnDiagram) {
+                    this.updateElementPosition(this.mousePositionTracker.lastPositionOnDiagram);
+                }
             })
             .catch((error) => {
                 this.logger.error(this, "Failed to create element", error);
@@ -147,13 +145,12 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         this.disable();
     }
 
-    mouseMove(target: SModelElementImpl, event: MouseEvent): (Action | Promise<Action>)[] {
-        const root = target.root as SGraphImpl;
-        if (!this.element || !root) {
-            return [];
+    private updateElementPosition(mousePosition: Point): void {
+        if (!this.element) {
+            return;
         }
 
-        const newPosition = { ...this.calculateMousePosition(target, event) };
+        const newPosition = { ...mousePosition };
 
         if (this.element instanceof SEdgeImpl) {
             // Snap the edge target to the mouse position, if there is a target element.
@@ -195,7 +192,11 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
                 this.commandStack.update(this.element.root);
             }
         }
+    }
 
+    mouseMove(target: SModelElementImpl, event: MouseEvent): (Action | Promise<Action>)[] {
+        const mousePosition = this.calculateMousePosition(target, event);
+        this.updateElementPosition(mousePosition);
         return [];
     }
 
