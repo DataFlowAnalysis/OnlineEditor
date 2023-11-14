@@ -177,12 +177,6 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
     ): void {
         const toolElement = document.createElement("div");
         toolElement.classList.add("tool");
-        const svgNode = (
-            <svg width="32" height="32">
-                <title>{name}</title>
-                {svgCode}
-            </svg>
-        );
 
         toolElement.addEventListener("click", () => {
             if (toolElement.classList.contains("active")) {
@@ -201,13 +195,25 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         });
 
         container.appendChild(toolElement);
+
         // When patching the snabbdom vnode into a DOM element, the element is replaced.
         // So we create a dummy sub element inside the tool element and patch the svg node into that.
         // This results in the toolElement holding the content. When patching directly onto the toolElement,
         // it would be replaced by the svg node and the tool class would be removed with it, which we don't want.
         const subElement = document.createElement("div");
         toolElement.appendChild(subElement);
+        const svgNode = (
+            <svg width="32" height="32">
+                <title>{name}</title>
+                {svgCode}
+            </svg>
+        );
         this.patcherProvider.patcher(subElement, svgNode);
+
+        const shortcutElement = document.createElement("kbd");
+        shortcutElement.classList.add("shortcut");
+        shortcutElement.textContent = enableKey?.replace("Key", "") ?? "";
+        toolElement.appendChild(shortcutElement);
 
         if (enableKey) {
             this.keyboardShortcuts.set(enableKey, () => {

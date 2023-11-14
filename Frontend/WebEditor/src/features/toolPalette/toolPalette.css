@@ -49,3 +49,17 @@
 .tool-palette .tool.active {
     background-color: var(--color-tool-palette-selected);
 }
+
+/* Show keyboard shortcuts for each tool when help is opened */
+.tool-palette .tool .shortcut {
+    position: relative;
+    bottom: 16px;
+    left: -4px;
+    font-size: 0.75em;
+
+    transition: opacity 300ms ease-in-out;
+    opacity: 0;
+}
+body.help-enabled .tool-palette .tool .shortcut {
+    opacity: 1;
+}
