@@ -20,6 +20,7 @@ export class PortCreationTool extends CreationTool<SPort, SPortImpl> {
         return {
             id: generateRandomSprottyId(),
             type: this.portType,
+            opacity: 0,
         };
     }
 

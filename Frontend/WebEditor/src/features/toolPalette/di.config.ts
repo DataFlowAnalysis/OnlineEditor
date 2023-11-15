@@ -1,7 +1,6 @@
 import { ContainerModule } from "inversify";
 import { EDITOR_TYPES } from "../../utils";
-import { DfdToolDisableKeyListener } from "./tool";
-import { AddElementToGraphCommand } from "./creationTool";
+import { AddElementToGraphCommand, CreationToolDisableKeyListener } from "./creationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
 import { NodeCreationTool } from "./nodeCreationTool";
 import { PortCreationTool } from "./portCreationTool";
@@ -23,23 +22,24 @@ import {
 export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
 
-    bind(DfdToolDisableKeyListener).toSelf().inSingletonScope();
-    bind(TYPES.KeyListener).toService(DfdToolDisableKeyListener);
+    bind(CreationToolDisableKeyListener).toSelf().inSingletonScope();
+    bind(TYPES.KeyListener).toService(CreationToolDisableKeyListener);
 
     configureModelElement(context, "empty-node", SNodeImpl, EmptyView);
     configureCommand(context, AddElementToGraphCommand);
 
     bind(NodeCreationTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.DfdTool).toService(NodeCreationTool);
+    bind(EDITOR_TYPES.CreationTool).toService(NodeCreationTool);
 
     bind(EdgeCreationTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.DfdTool).toService(EdgeCreationTool);
+    bind(EDITOR_TYPES.CreationTool).toService(EdgeCreationTool);
 
     bind(PortCreationTool).toSelf().inSingletonScope();
-    bind(EDITOR_TYPES.DfdTool).toService(PortCreationTool);
+    bind(EDITOR_TYPES.CreationTool).toService(PortCreationTool);
 
     bind(ToolPaletteUI).toSelf().inSingletonScope();
     configureActionHandler(context, CommitModelAction.KIND, ToolPaletteUI);
     bind(TYPES.IUIExtension).toService(ToolPaletteUI);
+    bind(TYPES.KeyListener).toService(ToolPaletteUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(ToolPaletteUI);
 });

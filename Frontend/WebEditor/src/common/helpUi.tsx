@@ -38,8 +38,21 @@ export class HelpUI extends AbstractUIExtension {
                     <p><kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>: Fit diagram to screen</p>
                     <p><kbd>CTRL</kbd>+<kbd>C</kbd>: Copy selected elements</p>
                     <p><kbd>CTRL</kbd>+<kbd>V</kbd>: Paste previously copied elements</p>
+                    <p><kbd>Esc</kbd>: Disable current creation tool</p>
+                    <p>Toggle Creation Tool: Refer to key in the tool palette</p>
                 </div>
             </div>
         `;
+
+        // Set `help-enabled` class on body element when keyboard shortcut overview is open.
+        const checkbox = containerElement.querySelector("#accordion-state-help") as HTMLInputElement;
+        const bodyElement = document.querySelector("body") as HTMLBodyElement;
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                bodyElement.classList.add("help-enabled");
+            } else {
+                bodyElement.classList.remove("help-enabled");
+            }
+        });
     }
 }
