@@ -32,11 +32,13 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(TYPES.IUIExtension).toService(HelpUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(HelpUI);
 
+    bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
+
+    // Sprotty configuration
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     bind(TYPES.ISnapper).to(CenterGridSnapper);
-    bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
 
     // For some reason the CreateElementAction and Command exist but in no sprotty module is the command registered, so we need to do this here.
     const context = { bind, unbind, isBound, rebind };
