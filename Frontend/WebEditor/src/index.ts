@@ -7,22 +7,8 @@ import {
     CommitModelAction,
     SetUIExtensionVisibilityAction,
     TYPES,
-    boundsModule,
-    commandPaletteModule,
-    defaultModule,
-    edgeEditModule,
-    edgeLayoutModule,
-    exportModule,
-    hoverModule,
-    labelEditModule,
-    modelSourceModule,
-    moveModule,
-    routingModule,
-    selectModule,
-    undoRedoModule,
-    updateModule,
-    viewportModule,
-    zorderModule,
+    labelEditUiModule,
+    loadDefaultModules,
 } from "sprotty";
 import { elkLayoutModule } from "sprotty-elk";
 import { dfdAutoLayoutModule } from "./features/autoLayout/di.config";
@@ -41,44 +27,22 @@ import "sprotty/css/edit-label.css";
 import "./theme.css";
 import "./page.css";
 
-// Load required sprotty and custom modules.
 const container = new Container();
-// For reference: these are the modules used in the sprotty examples that can be used
-// There may(?) be more modules available in sprotty but these are the most relevant ones
-// container.load(
-//     defaultModule, modelSourceModule, boundsModule, buttonModule,
-//     commandPaletteModule, contextMenuModule, decorationModule, edgeEditModule,
-//     edgeLayoutModule, expandModule, exportModule, fadeModule,
-//     hoverModule, labelEditModule, labelEditUiModule, moveModule,
-//     openModule, routingModule, selectModule, undoRedoModule,
-//     updateModule, viewportModule, zorderModule, graphModule,
-// );
-container.load(
-    // Sprotty modules, will create a sprotty diagram inside the html element with id "sprotty" by default
-    // TODO: it is unclear what all these modules do *exactly* and would be good
-    // to have a short description for each sprotty internal module
-    defaultModule,
-    modelSourceModule,
-    boundsModule,
-    viewportModule,
-    moveModule,
-    routingModule,
-    selectModule,
-    updateModule,
-    zorderModule,
-    undoRedoModule,
-    labelEditModule,
-    edgeEditModule,
-    exportModule,
-    edgeLayoutModule,
-    hoverModule,
-    commandPaletteModule,
-    elkLayoutModule,
 
-    // Custom modules
+// Load default sprotty provided modules
+loadDefaultModules(container, {
+    exclude: [
+        labelEditUiModule, // We provide our own label edit ui inheriting from the default one (noScrollLabelEditUiModule)
+    ],
+});
+
+// sprotty-elk layouting extension
+container.load(elkLayoutModule);
+
+// Custom modules that we provide ourselves
+container.load(
     dfdCommonModule,
     noScrollLabelEditUiModule,
-
     dfdAutoLayoutModule,
     dfdElementsModule,
     serializeModule,
