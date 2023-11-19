@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import { generateRandomSprottyId } from "../../utils";
+import { calculateTextSize, generateRandomSprottyId } from "../../utils";
 import {
     AbstractUIExtension,
     CommandStack,
@@ -239,14 +239,22 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
      * @param inputElement the html dom input element to set the size property for
      */
     private dynamicallySetInputSize(inputElement: HTMLInputElement): void {
-        const factor = 0.8;
-        const rawSize = inputElement.value.length || inputElement.placeholder.length;
-        inputElement.size = Math.round(rawSize * factor);
+        const handleResize = () => {
+            const displayText = inputElement.value || inputElement.placeholder;
+            const { width } = calculateTextSize(displayText, window.getComputedStyle(inputElement).font);
 
-        inputElement.onkeyup = () => {
-            const rawSize = inputElement.value.length || inputElement.placeholder.length;
-            inputElement.size = Math.round(rawSize * factor);
+            // Values have higher padding for the rounded border
+            const widthPadding = inputElement.classList.contains("label-type-name") ? 2 : 8;
+            const finalWidth = width + widthPadding;
+
+            inputElement.style.width = finalWidth + "px";
         };
+
+        inputElement.onkeyup = handleResize;
+
+        // The inputElement is not added to the DOM yet, so we cannot set the size now.
+        // Wait for next JS tick, after which the element has been added to the DOM and we can set the initial size
+        setTimeout(handleResize, 0);
     }
 
     keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
