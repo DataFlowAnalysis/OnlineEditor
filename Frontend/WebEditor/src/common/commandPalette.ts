@@ -1,11 +1,5 @@
 import { injectable } from "inversify";
-import {
-    ICommandPaletteActionProvider,
-    RequestExportSvgAction,
-    LabeledAction,
-    SModelRootImpl,
-    CommitModelAction,
-} from "sprotty";
+import { ICommandPaletteActionProvider, LabeledAction, SModelRootImpl, CommitModelAction } from "sprotty";
 import { Point } from "sprotty-protocol";
 import { LoadDiagramAction } from "../features/serialize/load";
 import { createDefaultFitToScreenAction } from "../utils";
@@ -35,7 +29,6 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Fit to Screen", [fitToScreenAction], "layout"),
             new LabeledAction("Save diagram as JSON", [SaveDiagramAction.create()], "save"),
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
-            new LabeledAction("Export as SVG", [RequestExportSvgAction.create()], "export"),
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
             new LabeledAction(
                 "Layout diagram",
