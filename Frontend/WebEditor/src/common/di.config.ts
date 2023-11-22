@@ -16,6 +16,7 @@ import { DeleteKeyListener } from "./deleteKeyListener";
 import { EDITOR_TYPES } from "../utils";
 import { DynamicChildrenProcessor } from "../features/dfdElements/dynamicChildren";
 import { FitToScreenKeyListener as CenterDiagramKeyListener } from "./fitToScreenKeyListener";
+import { DiagramModificationCommandStack } from "./customCommandStack";
 
 import "./commonStyling.css";
 
@@ -33,6 +34,9 @@ export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebin
     bind(EDITOR_TYPES.DefaultUIElement).toService(HelpUI);
 
     bind(DynamicChildrenProcessor).toSelf().inSingletonScope();
+
+    unbind(TYPES.ICommandStack);
+    bind(TYPES.ICommandStack).to(DiagramModificationCommandStack).inSingletonScope();
 
     // Sprotty configuration
     bind(TYPES.ModelSource).to(LocalModelSource).inSingletonScope();
