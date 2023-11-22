@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     ActionDispatcher,
     Command,
@@ -41,7 +41,8 @@ export class LoadDefaultDiagramCommand extends Command {
     @inject(TYPES.IActionDispatcher)
     private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
     @inject(LabelTypeRegistry)
-    private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
+    @optional()
+    private readonly labelTypeRegistry?: LabelTypeRegistry;
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
@@ -56,27 +57,29 @@ export class LoadDefaultDiagramCommand extends Command {
 
         this.logger.info(this, "Default Model loaded successfully");
 
-        this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
-        this.labelTypeRegistry.clearLabelTypes();
-        defaultDiagramData.labelTypes.forEach((labelType) => {
-            this.labelTypeRegistry.registerLabelType(labelType);
-        });
-        this.logger.info(this, "Default Label Types loaded successfully");
+        if (this.labelTypeRegistry) {
+            this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
+            this.labelTypeRegistry.clearLabelTypes();
+            defaultDiagramData.labelTypes.forEach((labelType) => {
+                this.labelTypeRegistry?.registerLabelType(labelType);
+            });
+            this.logger.info(this, "Default Label Types loaded successfully");
+        }
 
         postLoadActions(this.newRoot, this.actionDispatcher);
         return this.newRoot;
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
-        this.labelTypeRegistry.clearLabelTypes();
-        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
+        this.labelTypeRegistry?.clearLabelTypes();
+        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
-        this.labelTypeRegistry.clearLabelTypes();
+        this.labelTypeRegistry?.clearLabelTypes();
         defaultDiagramData.labelTypes.forEach((labelType) => {
-            this.labelTypeRegistry.registerLabelType(labelType);
+            this.labelTypeRegistry?.registerLabelType(labelType);
         });
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }

@@ -9,7 +9,7 @@ import {
     ShapeView,
 } from "sprotty";
 import { SNode, SLabel, Bounds, SModelElement, SPort } from "sprotty-protocol";
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import { VNode } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
 import { DynamicChildrenNode } from "./dynamicChildren";
@@ -152,7 +152,7 @@ export class StorageNodeImpl extends DfdNodeImpl {
 
 @injectable()
 export class StorageNodeView extends ShapeView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+    constructor(@inject(DfdNodeLabelRenderer) @optional() private readonly labelRenderer?: DfdNodeLabelRenderer) {
         super();
     }
 
@@ -172,7 +172,7 @@ export class StorageNodeView extends ShapeView {
                     xPosition: width / 2 + leftPadding,
                     yPosition: StorageNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, StorageNodeImpl.LABEL_START_HEIGHT, leftPadding)}
+                {this.labelRenderer?.renderNodeLabels(node, StorageNodeImpl.LABEL_START_HEIGHT, leftPadding)}
             </g>
         );
     }
@@ -204,7 +204,7 @@ export class FunctionNodeImpl extends DfdNodeImpl {
 
 @injectable()
 export class FunctionNodeView extends ShapeView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+    constructor(@inject(DfdNodeLabelRenderer) @optional() private readonly labelRenderer?: DfdNodeLabelRenderer) {
         super();
     }
 
@@ -224,7 +224,7 @@ export class FunctionNodeView extends ShapeView {
                     xPosition: width / 2,
                     yPosition: FunctionNodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, FunctionNodeImpl.LABEL_START_HEIGHT)}
+                {this.labelRenderer?.renderNodeLabels(node, FunctionNodeImpl.LABEL_START_HEIGHT)}
             </g>
         );
     }
@@ -251,7 +251,7 @@ export class IONodeImpl extends DfdNodeImpl {
 
 @injectable()
 export class IONodeView extends ShapeView {
-    constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
+    constructor(@inject(DfdNodeLabelRenderer) @optional() private readonly labelRenderer?: DfdNodeLabelRenderer) {
         super();
     }
 
@@ -270,7 +270,7 @@ export class IONodeView extends ShapeView {
                     xPosition: width / 2,
                     yPosition: IONodeImpl.TEXT_HEIGHT / 2,
                 } as DfdPositionalLabelArgs)}
-                {this.labelRenderer.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT)}
+                {this.labelRenderer?.renderNodeLabels(node, IONodeImpl.LABEL_START_HEIGHT)}
             </g>
         );
     }

@@ -12,7 +12,7 @@ import {
 } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { inject } from "inversify";
+import { inject, optional } from "inversify";
 import { createDefaultFitToScreenAction } from "../../utils";
 import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
@@ -53,7 +53,8 @@ export class LoadDiagramCommand extends Command {
     @inject(TYPES.IActionDispatcher)
     private readonly actionDispatcher: ActionDispatcher = new ActionDispatcher();
     @inject(LabelTypeRegistry)
-    private readonly labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
+    @optional()
+    private readonly labelTypeRegistry?: LabelTypeRegistry;
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
@@ -124,16 +125,18 @@ export class LoadDiagramCommand extends Command {
 
             this.logger.info(this, "Model loaded successfully");
 
-            // Load label types
-            this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
-            this.newLabelTypes = newDiagram?.labelTypes;
-            this.labelTypeRegistry.clearLabelTypes();
-            if (newDiagram?.labelTypes) {
-                newDiagram.labelTypes.forEach((labelType) => {
-                    this.labelTypeRegistry.registerLabelType(labelType);
-                });
+            if (this.labelTypeRegistry) {
+                // Load label types
+                this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
+                this.newLabelTypes = newDiagram?.labelTypes;
+                this.labelTypeRegistry.clearLabelTypes();
+                if (newDiagram?.labelTypes) {
+                    newDiagram.labelTypes.forEach((labelType) => {
+                        this.labelTypeRegistry?.registerLabelType(labelType);
+                    });
 
-                this.logger.info(this, "Label types loaded successfully");
+                    this.logger.info(this, "Label types loaded successfully");
+                }
             }
 
             postLoadActions(this.newRoot, this.actionDispatcher);
@@ -170,14 +173,14 @@ export class LoadDiagramCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
-        this.labelTypeRegistry.clearLabelTypes();
-        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
+        this.labelTypeRegistry?.clearLabelTypes();
+        this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
-        this.labelTypeRegistry.clearLabelTypes();
-        this.newLabelTypes?.forEach((labelType) => this.labelTypeRegistry.registerLabelType(labelType));
+        this.labelTypeRegistry?.clearLabelTypes();
+        this.newLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }

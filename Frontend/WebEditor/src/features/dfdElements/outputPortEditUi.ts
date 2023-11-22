@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     AbstractUIExtension,
     ActionDispatcher,
@@ -45,7 +45,7 @@ export class PortBehaviorValidator {
     // Each input is a match with the input name, label type and label value as capturing groups.
     private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
 
-    constructor(@inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {}
+    constructor(@inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry) {}
 
     /**
      * validates the whole behavior text of a port.
@@ -129,7 +129,7 @@ export class PortBehaviorValidator {
         // Check that the label type and value that this statement tries to set are valid.
         const setLabelType = match[1];
         const setLabelValue = match[2];
-        const labelType = this.labelTypeRegistry.getLabelTypes().find((type) => type.name === setLabelType);
+        const labelType = this.labelTypeRegistry?.getLabelTypes().find((type) => type.name === setLabelType);
         if (!labelType) {
             return `unknown label type: ${setLabelType}`;
         }
@@ -179,7 +179,7 @@ export class PortBehaviorValidator {
             }
 
             const inputLabelTypeObject = this.labelTypeRegistry
-                .getLabelTypes()
+                ?.getLabelTypes()
                 .find((type) => type.name === inputLabelType);
             if (!inputLabelTypeObject) {
                 return `unknown label type: ${inputLabelType}`;

@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { injectable, inject } from "inversify";
+import { injectable, inject, optional } from "inversify";
 import { VNode } from "snabbdom";
 import { IActionDispatcher, SNodeImpl, TYPES, svg } from "sprotty";
 import { calculateTextSize } from "../../utils";
@@ -15,8 +15,8 @@ export class DfdNodeLabelRenderer {
     static readonly LABEL_TEXT_PADDING = 8;
 
     constructor(
-        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry,
     ) {}
 
     /**
@@ -77,8 +77,8 @@ export class DfdNodeLabelRenderer {
      */
     private sortLabels(labels: LabelAssignment[]): void {
         labels.sort((a, b) => {
-            const labelTypeA = this.labelTypeRegistry.getLabelType(a.labelTypeId);
-            const labelTypeB = this.labelTypeRegistry.getLabelType(b.labelTypeId);
+            const labelTypeA = this.labelTypeRegistry?.getLabelType(a.labelTypeId);
+            const labelTypeB = this.labelTypeRegistry?.getLabelType(b.labelTypeId);
             if (!labelTypeA || !labelTypeB) {
                 return 0;
             }

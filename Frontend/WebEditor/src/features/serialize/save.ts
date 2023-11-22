@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
@@ -10,7 +10,7 @@ import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
  */
 export interface SavedDiagram {
     model: SModelRoot;
-    labelTypes: LabelType[];
+    labelTypes?: LabelType[];
 }
 
 export interface SaveDiagramAction extends Action {
@@ -36,7 +36,8 @@ export class SaveDiagramCommand extends Command {
     @inject(DynamicChildrenProcessor)
     private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
     @inject(LabelTypeRegistry)
-    private labelTypeRegistry: LabelTypeRegistry = new LabelTypeRegistry();
+    @optional()
+    private labelTypeRegistry?: LabelTypeRegistry;
 
     constructor(@inject(TYPES.Action) private action: SaveDiagramAction) {
         super();
@@ -52,7 +53,7 @@ export class SaveDiagramCommand extends Command {
         // Export the diagram as a JSON data URL.
         const diagram: SavedDiagram = {
             model: modelCopy,
-            labelTypes: this.labelTypeRegistry.getLabelTypes(),
+            labelTypes: this.labelTypeRegistry?.getLabelTypes(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
         const jsonBlob = new Blob([diagramJson], { type: "application/json" });
