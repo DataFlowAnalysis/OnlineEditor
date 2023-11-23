@@ -11,23 +11,13 @@ import { CreationTool } from "./creationTool";
  */
 @injectable()
 export class NodeCreationTool extends CreationTool<SNode, SNodeImpl> {
-    private nodeType: string = "node:storage";
-
-    enable(nodeType?: string): void {
-        if (nodeType) {
-            this.nodeType = nodeType;
-        }
-
-        super.enable();
-    }
-
     createElementSchema(): SNode {
-        const defaultText = this.nodeType.replace("node:", "");
+        const defaultText = this.elementType.replace("node:", "");
         const defaultTextCapitalized = defaultText.charAt(0).toUpperCase() + defaultText.slice(1);
 
         return {
             id: generateRandomSprottyId(),
-            type: this.nodeType,
+            type: this.elementType,
             text: defaultTextCapitalized,
         } as SNode;
     }

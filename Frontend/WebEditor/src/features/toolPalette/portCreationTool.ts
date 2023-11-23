@@ -6,20 +6,10 @@ import { CreationTool } from "./creationTool";
 
 @injectable()
 export class PortCreationTool extends CreationTool<SPort, SPortImpl> {
-    private portType: string = "port:dfd-input";
-
-    enable(portType?: string): void {
-        if (portType) {
-            this.portType = portType;
-        }
-
-        super.enable();
-    }
-
     createElementSchema(): SPort {
         return {
             id: generateRandomSprottyId(),
-            type: this.portType,
+            type: this.elementType,
             opacity: 0,
         };
     }

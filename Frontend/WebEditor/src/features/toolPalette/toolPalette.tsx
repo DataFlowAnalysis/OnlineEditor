@@ -113,7 +113,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             containerElement,
             this.edgeCreationTool,
             "Edge",
-            (tool) => tool.enable(),
+            (tool) => tool.enable("edge:arrow"),
             <g>
                 <defs>
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="2" orient="auto">

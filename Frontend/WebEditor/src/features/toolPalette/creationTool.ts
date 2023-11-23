@@ -42,6 +42,7 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
     protected element?: I;
     protected readonly previewOpacity = 0.5;
     protected insertIntoGraphRootAfterCreation = true;
+    protected elementType = "";
 
     constructor(
         @inject(MouseTool) protected mouseTool: MouseTool,
@@ -77,7 +78,8 @@ export abstract class CreationTool<S extends Schema, I extends Impl> extends Mou
         return element;
     }
 
-    enable(): void {
+    enable(elementType: string): void {
+        this.elementType = elementType;
         this.mouseTool.register(this);
         this.createElement()
             .then((element) => {

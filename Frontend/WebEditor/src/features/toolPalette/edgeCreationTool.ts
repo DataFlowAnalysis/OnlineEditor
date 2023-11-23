@@ -26,7 +26,7 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
     createElementSchema(): SEdge {
         return {
             id: generateRandomSprottyId(),
-            type: "edge:arrow",
+            type: this.elementType,
             sourceId: "",
             targetId: "",
         };
