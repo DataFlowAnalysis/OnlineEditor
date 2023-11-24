@@ -201,29 +201,39 @@ export class PortBehaviorValidator {
  */
 @injectable()
 export class OutputPortEditUIMouseListener extends MouseListener {
-    // State for double click detection.
-    private previouslyClicked = false;
+    private editUIVisible = false;
 
     mouseDown(target: SModelElementImpl, _event: MouseEvent): (Action | Promise<Action>)[] {
-        if (target instanceof DfdOutputPortImpl) {
-            if (this.previouslyClicked) {
-                return [
-                    SetUIExtensionVisibilityAction.create({
-                        extensionId: OutputPortEditUI.ID,
-                        visible: true,
-                        contextElementsId: [target.id],
-                    }),
-                ];
-            } else {
-                this.previouslyClicked = true;
-            }
-        } else if (this.previouslyClicked) {
-            // previouslyClicked => UI might be shown, clicked outside of UI => hide UI
-            this.previouslyClicked = false;
+        if (this.editUIVisible) {
+            // The user has clicked somewhere on the sprotty diagram (not the port edit UI)
+            // while the UI was open. In this case we hide the UI.
+            // This may not be exactly accurate because the UI can close itself when
+            // the change was saved but in those cases editUIVisible is still true.
+            // However hiding it one more time here for those cases is not a problem.
+            // Because it is already hidden, nothing will happen and after one click
+            // editUIVisible will be false again.
+            this.editUIVisible = false;
             return [
                 SetUIExtensionVisibilityAction.create({
                     extensionId: OutputPortEditUI.ID,
                     visible: false,
+                    contextElementsId: [target.id],
+                }),
+            ];
+        }
+
+        return [];
+    }
+
+    doubleClick(target: SModelElementImpl, _event: MouseEvent): (Action | Promise<Action>)[] {
+        if (target instanceof DfdOutputPortImpl) {
+            // The user has double clicked on a dfd output port
+            // => show the OutputPortEditUI for this port.
+            this.editUIVisible = true;
+            return [
+                SetUIExtensionVisibilityAction.create({
+                    extensionId: OutputPortEditUI.ID,
+                    visible: true,
                     contextElementsId: [target.id],
                 }),
             ];
