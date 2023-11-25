@@ -11,8 +11,8 @@ import {
     loadDefaultModules,
 } from "sprotty";
 import { elkLayoutModule } from "sprotty-elk";
-import { dfdAutoLayoutModule } from "./features/autoLayout/di.config";
-import { dfdCommonModule } from "./common/di.config";
+import { autoLayoutModule } from "./features/autoLayout/di.config";
+import { commonModule } from "./common/di.config";
 import { noScrollLabelEditUiModule } from "./common/labelEditNoScroll";
 import { dfdLabelModule } from "./features/labels/di.config";
 import { toolPaletteModule } from "./features/toolPalette/di.config";
@@ -41,9 +41,9 @@ container.load(elkLayoutModule);
 
 // Custom modules that we provide ourselves
 container.load(
-    dfdCommonModule,
+    commonModule,
     noScrollLabelEditUiModule,
-    dfdAutoLayoutModule,
+    autoLayoutModule,
     dfdElementsModule,
     serializeModule,
     dfdLabelModule,

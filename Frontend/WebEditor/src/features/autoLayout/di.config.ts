@@ -5,7 +5,7 @@ import { LayoutModelCommand } from "./command";
 import { DfdElkLayoutEngine, DfdLayoutConfigurator, elkFactory } from "./layouter";
 import { AutoLayoutKeyListener } from "./keyListener";
 
-export const dfdAutoLayoutModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const autoLayoutModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(DfdElkLayoutEngine).toSelf().inSingletonScope();
     bind(TYPES.IModelLayoutEngine).toService(DfdElkLayoutEngine);
     rebind(ILayoutConfigurator).to(DfdLayoutConfigurator);

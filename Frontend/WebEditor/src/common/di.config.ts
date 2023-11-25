@@ -20,7 +20,7 @@ import { DiagramModificationCommandStack } from "./customCommandStack";
 
 import "./commonStyling.css";
 
-export const dfdCommonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const commonModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProvider).toService(ServerCommandPaletteActionProvider);
 
