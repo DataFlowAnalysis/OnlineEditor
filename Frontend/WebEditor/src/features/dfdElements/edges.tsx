@@ -15,7 +15,7 @@ import { Point, angleOfPoint, toDegrees, SEdge, SLabel } from "sprotty-protocol"
 import { DynamicChildrenEdge } from "./dynamicChildren";
 
 export interface ArrowEdge extends SEdge {
-    text: string;
+    text?: string;
 }
 
 export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLabel {
@@ -23,7 +23,7 @@ export class ArrowEdgeImpl extends DynamicChildrenEdge implements WithEditableLa
         schema.children = [
             {
                 type: "label:filled-background",
-                text: schema.text,
+                text: schema.text ?? "",
                 id: schema.id + "-label",
                 edgePlacement: {
                     position: 0.5,
