@@ -119,7 +119,7 @@ export class LoadDiagramCommand extends Command {
             }
 
             // Load sprotty model
-            this.preprocessModelSchema(newSchema);
+            LoadDiagramCommand.preprocessModelSchema(newSchema);
             this.dynamicChildrenProcessor.processGraphChildren(newSchema, "set");
             this.newRoot = context.modelFactory.createRoot(newSchema);
 
@@ -163,7 +163,7 @@ export class LoadDiagramCommand extends Command {
      *
      * @param modelSchema The model schema to preprocess
      */
-    private preprocessModelSchema(modelSchema: SModelRoot): void {
+    public static preprocessModelSchema(modelSchema: SModelRoot): void {
         // Feature is not included in the typing
         "features" in modelSchema && delete modelSchema["features"];
 

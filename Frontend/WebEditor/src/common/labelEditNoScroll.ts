@@ -35,6 +35,9 @@ class NoScrollEditLabelUI extends EditLabelUI {
 }
 
 export const noScrollLabelEditUiModule = new ContainerModule((bind, _unbind, isBound) => {
+    // Provide the same stuff as the labelEditUiModule from sprotty but use our own EditLabelUI
+    // instead of the default one.
+    // When using this module the original sprotty labelEditUiModule must not be loaded aswell.
     const context = { bind, isBound };
     configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
     bind(NoScrollEditLabelUI).toSelf().inSingletonScope();

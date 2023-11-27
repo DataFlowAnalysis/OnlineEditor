@@ -52,6 +52,7 @@ export class LoadDefaultDiagramCommand extends Command {
         this.oldRoot = context.root;
 
         const graphCopy = JSON.parse(JSON.stringify(defaultDiagramData.model));
+        LoadDiagramCommand.preprocessModelSchema(graphCopy);
         this.dynamicChildrenProcessor.processGraphChildren(graphCopy, "set");
         this.newRoot = context.modelFactory.createRoot(graphCopy);
 
