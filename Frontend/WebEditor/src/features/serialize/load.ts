@@ -40,7 +40,9 @@ export class LoadDiagramCommand extends Command {
     // InitializeCanvasBoundsCommand to be fired and finish before we can do things like fit to screen.
     // Because of that we block the execution newly dispatched actions including
     // the actions we dispatched after loading the diagram until
-    //  the InitializeCanvasBoundsCommand has been processed.
+    // the InitializeCanvasBoundsCommand has been processed.
+    // This works because the canvasBounds property is always removed before loading a diagram,
+    // requiring the InitializeCanvasBoundsCommand to be fired.
     readonly blockUntil = LoadDiagramCommand.loadBlockUntilFn;
     static readonly loadBlockUntilFn = (action: Action) => {
         return action.kind === "initializeCanvasBounds";
@@ -150,8 +152,10 @@ export class LoadDiagramCommand extends Command {
 
     /**
      * Before a saved model schema can be loaded, it needs to be preprocessed.
-     * Currently this means that the features property is removed from all model elements recursively,
-     * but in the future more thing may be added here.
+     * Currently this means that the features property is removed from all model elements recursively.
+     * Additionally the canvasBounds property is removed from the root element, because it may change
+     * depending on browser window.
+     * In the future this method may be extended to preprocess other properties.
      *
      * The feature property at runtime is a js Set with the relevant features.
      * E.g. for the top graph this is the viewportFeature among others.
@@ -164,8 +168,9 @@ export class LoadDiagramCommand extends Command {
      * @param modelSchema The model schema to preprocess
      */
     public static preprocessModelSchema(modelSchema: SModelRoot): void {
-        // Feature is not included in the typing
+        // These properties are all not included in the root typing.
         "features" in modelSchema && delete modelSchema["features"];
+        "canvasBounds" in modelSchema && delete modelSchema["canvasBounds"];
 
         if (modelSchema.children) {
             modelSchema.children.forEach((child: any) => this.preprocessModelSchema(child));
