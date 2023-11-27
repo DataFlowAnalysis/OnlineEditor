@@ -206,7 +206,7 @@ export async function postLoadActions(
     // Layouting:
     const containsUnPositionedNodes = newRoot.children
         .filter((child) => child instanceof SNodeImpl)
-        .some((child) => isLocateable(child) && (child.position.x === 0 || child.position.y === 0));
+        .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
     if (containsUnPositionedNodes) {
         await actionDispatcher.dispatch(LayoutModelAction.create());
     }
