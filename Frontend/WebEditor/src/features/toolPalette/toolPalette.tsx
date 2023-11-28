@@ -115,13 +115,13 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
             "Edge",
             (tool) => tool.enable("edge:arrow"),
             <g>
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="2" orient="auto">
-                        <polygon points="0 0, 4 2, 0 4" />
-                    </marker>
-                </defs>
-
-                <line x1="10%" y1="10%" x2="75%" y2="75%" attrs-stroke-width="2" attrs-marker-end="url(#arrowhead)" />
+                <path d="M 4,4 L 22,22" attrs-stroke-width="2" />
+                <path
+                    d="M 0,0 L -3,3 L 6,6 L 3,-3 Z"
+                    transform="translate(22,22)"
+                    attrs-stroke-width="2"
+                    class-fill={true}
+                />
             </g>,
             "KeyE",
         );

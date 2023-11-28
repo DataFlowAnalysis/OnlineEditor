@@ -20,17 +20,15 @@
     margin: 2px;
 }
 
-.tool-palette .tool svg line {
-    stroke: var(--color-foreground);
-}
-.tool-palette .tool svg marker {
-    fill: var(--color-foreground);
-}
-
+.tool-palette .tool svg line,
+.tool-palette .tool svg path,
 .tool-palette .tool svg rect,
 .tool-palette .tool svg circle {
     stroke: var(--color-foreground);
     fill: transparent;
+}
+.tool-palette .tool svg .fill {
+    fill: var(--color-foreground);
 }
 
 .tool-palette .tool svg text {
