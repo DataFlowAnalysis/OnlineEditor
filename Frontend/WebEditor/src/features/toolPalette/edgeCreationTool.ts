@@ -61,8 +61,11 @@ export class EdgeCreationTool extends CreationTool<SEdge, SEdgeImpl> {
             if (clickedElement.canConnect(this.element, "target")) {
                 this.element.targetId = clickedElement.id;
 
-                // super: Finalize creation and disable the tool
-                return super.mouseDown(clickedElement, event);
+                // Finalize creation and disable the tool
+                super.mouseDown(clickedElement, event);
+                // mouseDown() calls the parent class disable implementation, but we overwrite it here, so we need to call it manually
+                this.disable();
+                return [];
             }
         } else {
             // Source not set yet, so we're setting the source now
