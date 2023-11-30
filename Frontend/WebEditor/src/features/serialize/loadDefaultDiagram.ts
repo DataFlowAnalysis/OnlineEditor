@@ -14,7 +14,10 @@ import { Action } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { LoadDiagramCommand, postLoadActions } from "./load";
+import { SavedDiagram } from "./save";
+
 import defaultDiagramData from "./defaultDiagram.json";
+const defaultDiagram = defaultDiagramData as SavedDiagram;
 
 export interface LoadDefaultDiagramAction extends Action {
     readonly kind: typeof LoadDefaultDiagramAction.KIND;
@@ -51,7 +54,7 @@ export class LoadDefaultDiagramCommand extends Command {
     execute(context: CommandExecutionContext): CommandReturn {
         this.oldRoot = context.root;
 
-        const graphCopy = JSON.parse(JSON.stringify(defaultDiagramData.model));
+        const graphCopy = JSON.parse(JSON.stringify(defaultDiagram.model));
         LoadDiagramCommand.preprocessModelSchema(graphCopy);
         this.dynamicChildrenProcessor.processGraphChildren(graphCopy, "set");
         this.newRoot = context.modelFactory.createRoot(graphCopy);
@@ -61,7 +64,7 @@ export class LoadDefaultDiagramCommand extends Command {
         if (this.labelTypeRegistry) {
             this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
             this.labelTypeRegistry.clearLabelTypes();
-            defaultDiagramData.labelTypes.forEach((labelType) => {
+            defaultDiagram.labelTypes?.forEach((labelType) => {
                 this.labelTypeRegistry?.registerLabelType(labelType);
             });
             this.logger.info(this, "Default Label Types loaded successfully");
@@ -79,7 +82,7 @@ export class LoadDefaultDiagramCommand extends Command {
 
     redo(context: CommandExecutionContext): SModelRootImpl {
         this.labelTypeRegistry?.clearLabelTypes();
-        defaultDiagramData.labelTypes.forEach((labelType) => {
+        defaultDiagram.labelTypes?.forEach((labelType) => {
             this.labelTypeRegistry?.registerLabelType(labelType);
         });
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
