@@ -13,8 +13,7 @@ import {
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
-import { Action, Point } from "sprotty-protocol";
-import { ArrowEdge, ArrowEdgeImpl } from "../dfdElements/edges";
+import { Action, Point, SEdge, SModelElement } from "sprotty-protocol";
 
 export interface PasteElementsAction extends Action {
     kind: typeof PasteElementsAction.KIND;
@@ -107,47 +106,32 @@ export class PasteElementsCommand extends Command {
                 return;
             }
 
-            const schema = {
-                id: generateRandomSprottyId(),
-                type: element.type,
-                position: Point.add(element.position, positionOffset),
-                size: { height: -1, width: -1 },
-                text: "",
-                labels: [],
-                ports: [],
-            } as DfdNode;
+            // createSchema only does a shallow copy, so we need to do an additional deep copy here because
+            // we want to support copying elements with objects and arrays in them.
+            const schema = JSON.parse(JSON.stringify(context.modelFactory.createSchema(element))) as SModelElement;
+            if ("features" in schema) {
+                // Features is a Set which does not survive the JSON.stringify/parse, delete it to regenerate it
+                delete schema.features;
+            }
 
+            schema.id = generateRandomSprottyId();
             this.copyElementIdMapping[element.id] = schema.id;
+            if ("position" in schema) {
+                schema.position = Point.add(element.position, positionOffset);
+            }
+
+            // Regenerate dynamic sub elements
+            this.dynamicChildrenProcessor.processGraphChildren(schema, "remove");
 
             if (element instanceof DfdNodeImpl) {
-                schema.text = element.text;
-                element.labels.forEach((label) => schema.labels.push(label));
-                element.ports.forEach((port) => {
-                    const portSchema: {
-                        type: string;
-                        id: string;
-                        position?: Point;
-                        behavior?: string;
-                    } = {
-                        type: port.type,
-                        id: generateRandomSprottyId(),
-                    };
-
-                    this.copyElementIdMapping[port.id] = portSchema.id;
-
-                    if ("position" in port && port.position) {
-                        portSchema.position = { x: port.position.x, y: port.position.y };
-                    }
-
-                    if ("behavior" in port && typeof port.behavior === "string") {
-                        portSchema.behavior = port.behavior;
-                    }
-
-                    schema.ports.push(portSchema);
+                // Special case for DfdNodes: copy ports and give the nodes new ids.
+                (schema as DfdNode).ports.forEach((port) => {
+                    const oldPortId = port.id;
+                    port.id = generateRandomSprottyId();
+                    this.copyElementIdMapping[oldPortId] = port.id;
                 });
             }
 
-            // Generate dynamic sub elements
             this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
             const newElement = context.modelFactory.createElement(schema);
@@ -170,19 +154,20 @@ export class PasteElementsCommand extends Command {
                 return;
             }
 
-            const schema = {
-                id: generateRandomSprottyId(),
-                type: element.type,
-                sourceId: newSourceId,
-                targetId: newTargetId,
-            } as ArrowEdge;
-            this.copyElementIdMapping[element.id] = schema.id;
-
-            if (element instanceof ArrowEdgeImpl) {
-                schema.text = element.editableLabel?.text ?? "";
+            const schema = JSON.parse(JSON.stringify(context.modelFactory.createSchema(element))) as SEdge;
+            if ("features" in schema) {
+                // Features is a Set which does not survive the JSON.stringify/parse, delete it to regenerate it
+                delete schema.features;
             }
 
-            // Generate dynamic sub elements (the edge label)
+            schema.id = generateRandomSprottyId();
+            this.copyElementIdMapping[element.id] = schema.id;
+
+            schema.sourceId = newSourceId;
+            schema.targetId = newTargetId;
+
+            // Regenerate dynamic sub elements (the edge label)
+            this.dynamicChildrenProcessor.processGraphChildren(schema, "remove");
             this.dynamicChildrenProcessor.processGraphChildren(schema, "set");
 
             const newElement = context.modelFactory.createElement(schema);
