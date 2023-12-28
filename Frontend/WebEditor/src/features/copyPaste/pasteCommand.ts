@@ -14,6 +14,7 @@ import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { generateRandomSprottyId } from "../../utils";
 import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
 import { Action, Point, SEdge, SModelElement } from "sprotty-protocol";
+import { LoadDiagramCommand } from "../serialize/load";
 
 export interface PasteElementsAction extends Action {
     kind: typeof PasteElementsAction.KIND;
@@ -109,10 +110,8 @@ export class PasteElementsCommand extends Command {
             // createSchema only does a shallow copy, so we need to do an additional deep copy here because
             // we want to support copying elements with objects and arrays in them.
             const schema = JSON.parse(JSON.stringify(context.modelFactory.createSchema(element))) as SModelElement;
-            if ("features" in schema) {
-                // Features is a Set which does not survive the JSON.stringify/parse, delete it to regenerate it
-                delete schema.features;
-            }
+            // Remove json artifacts
+            LoadDiagramCommand.preprocessModelSchema(schema);
 
             schema.id = generateRandomSprottyId();
             this.copyElementIdMapping[element.id] = schema.id;
@@ -155,10 +154,7 @@ export class PasteElementsCommand extends Command {
             }
 
             const schema = JSON.parse(JSON.stringify(context.modelFactory.createSchema(element))) as SEdge;
-            if ("features" in schema) {
-                // Features is a Set which does not survive the JSON.stringify/parse, delete it to regenerate it
-                delete schema.features;
-            }
+            LoadDiagramCommand.preprocessModelSchema(schema);
 
             schema.id = generateRandomSprottyId();
             this.copyElementIdMapping[element.id] = schema.id;

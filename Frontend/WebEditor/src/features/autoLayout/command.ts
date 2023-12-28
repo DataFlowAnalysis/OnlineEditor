@@ -1,6 +1,7 @@
 import { inject } from "inversify";
 import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
-import { Action, IModelLayoutEngine, SGraph } from "sprotty-protocol";
+import { Action, IModelLayoutEngine, SGraph, SModelRoot } from "sprotty-protocol";
+import { LoadDiagramCommand } from "../serialize/load";
 
 export interface LayoutModelAction extends Action {
     kind: typeof LayoutModelAction.KIND;
@@ -19,12 +20,17 @@ export class LayoutModelCommand extends Command {
     static readonly KIND = LayoutModelAction.KIND;
 
     @inject(TYPES.IModelLayoutEngine)
-    protected readonly layoutEngine?: IModelLayoutEngine;
+    private readonly layoutEngine?: IModelLayoutEngine;
 
     @inject(TYPES.ModelSource)
-    protected readonly modelSource?: LocalModelSource;
+    private readonly modelSource?: LocalModelSource;
+
+    private oldModelSchema?: SModelRoot;
+    private newModel?: SModelRootImpl;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
+        this.oldModelSchema = context.modelFactory.createSchema(context.root);
+
         if (!this.layoutEngine || !this.modelSource) throw new Error("Missing injects");
 
         // Layouting is normally done on the graph schema.
@@ -35,14 +41,26 @@ export class LayoutModelCommand extends Command {
         // Using of the "bounds" property that the implementation classes have is done using DfdElkLayoutEngine.
         const newModel = await this.layoutEngine.layout(context.root as unknown as SGraph);
         // Here we need to cast back.
-        return newModel as unknown as SModelRootImpl;
+        this.newModel = newModel as unknown as SModelRootImpl;
+        return this.newModel;
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
-        return context.root;
+        if (!this.oldModelSchema) {
+            // This should never happen because execute() is called before undo() is called.
+            throw new Error("No old model to restore");
+        }
+
+        LoadDiagramCommand.preprocessModelSchema(this.oldModelSchema);
+        return context.modelFactory.createRoot(this.oldModelSchema);
     }
 
-    redo(context: CommandExecutionContext): Promise<SModelRootImpl> {
-        return this.execute(context);
+    redo(_context: CommandExecutionContext): SModelRootImpl {
+        if (!this.newModel) {
+            // This should never happen because execute() is called before redo() is called.
+            throw new Error("No new model to restore");
+        }
+
+        return this.newModel;
     }
 }
