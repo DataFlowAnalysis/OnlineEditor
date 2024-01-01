@@ -3,7 +3,7 @@
     --color-background: #fff;
     --color-primary: #eee;
     --color-error: #f00;
-    --color-valid: #0f0;
+    --color-valid: #00b600;
     --color-tool-palette-hover: #ccc;
     --color-tool-palette-selected: #bbb;
     --dark-mode: 0;
@@ -14,6 +14,7 @@
         --color-foreground: #fff;
         --color-background: #000;
         --color-primary: #222;
+        --color-valid: #0f0;
         --color-tool-palette-hover: #444;
         --color-tool-palette-selected: #555;
         --dark-mode: 1;
