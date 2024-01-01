@@ -20,6 +20,7 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
 import "./outputPortEditUi.css";
 
@@ -250,10 +251,12 @@ export class OutputPortEditUIMouseListener extends MouseListener {
 export class OutputPortEditUI extends AbstractUIExtension {
     static readonly ID = "output-port-edit-ui";
 
+    private availableInputs: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+
     private port: DfdOutputPortImpl | undefined;
-    private availableInputs: HTMLSpanElement = document.createElement("div");
-    private behaviorText: HTMLTextAreaElement = document.createElement("textarea");
-    private validationLabel: HTMLSpanElement = document.createElement("div");
+    private editor?: monaco.editor.IStandaloneCodeEditor;
 
     constructor(
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
@@ -274,31 +277,45 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
-        this.behaviorText.autocomplete = "off";
-        this.behaviorText.spellcheck = false;
-        this.behaviorText.placeholder = "Enter behavior here";
-
         containerElement.appendChild(this.availableInputs);
-        containerElement.appendChild(this.behaviorText);
+        containerElement.appendChild(this.editorContainer);
         containerElement.appendChild(this.validationLabel);
 
         containerElement.classList.add("ui-float");
         this.availableInputs.classList.add("available-inputs");
+        this.editorContainer.classList.add("monaco-container");
         this.validationLabel.classList.add("validation-label");
+
+        const monacoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "vs";
+        this.editor = monaco.editor.create(this.editorContainer, {
+            minimap: {
+                enabled: false,
+            },
+            lineNumbersMinChars: 3,
+            folding: false,
+            wordBasedSuggestions: "off",
+            links: false,
+            theme: monacoTheme,
+        });
 
         this.configureHandlers(containerElement);
     }
 
     private configureHandlers(containerElement: HTMLElement): void {
-        // If the user unfocuses the textarea, save the changes.
-        this.behaviorText.addEventListener("blur", () => {
-            this.save();
+        // If the user unfocuses the editor, save the changes.
+        this.editor?.onDidBlurEditorText(() => {
+            // Check that the UI is still visible.
+            // When Esc pressed (handler below) this is still called due to the blur
+            // but the current state should not be saved in that case.
+            if (this.containerElement.style.visibility === "visible") {
+                this.save();
+            }
         });
 
-        // Run behavior validation on each key press and when
-        // changing the text through other ways(e.g. move text via mouse drag and drop)
-        this.behaviorText.addEventListener("keydown", () => this.validateBehavior());
-        this.behaviorText.addEventListener("input", () => this.validateBehavior());
+        // Run behavior validation when the behavior text changes.
+        this.editor?.onDidChangeModelContent(() => {
+            this.validateBehavior();
+        });
 
         // Hide/"close this window" when pressing escape and don't save changes in that case.
         containerElement.addEventListener("keydown", (event) => {
@@ -343,7 +360,10 @@ export class OutputPortEditUI extends AbstractUIExtension {
         }
         this.availableInputs.innerText = availableInputsText;
 
-        this.behaviorText.value = this.port.behavior;
+        // Load the current behavior text of the port into the text editor.
+        this.editor?.setValue(this.port.behavior);
+        this.editor?.layout();
+
         // Validation of loaded behavior text.
         this.validateBehavior();
 
@@ -353,7 +373,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         // There might still be some clicks in the event loop queue queue which would de-focus the port edit UI.
         // Instead process them (fast as no UI is shown or similar slow tasks are done) and then focus the UI.
         setTimeout(() => {
-            containerElement.focus();
+            this.editor?.focus();
         }, 0); // 0ms => next event loop tick
     }
 
@@ -375,7 +395,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
             return;
         }
 
-        const behaviorText = this.behaviorText.value;
+        const behaviorText = this.editor?.getValue() ?? "";
         const results = this.validator.validate(behaviorText, this.port);
         if (results.length === 0) {
             // Everything fine
@@ -392,13 +412,15 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 
     /**
-     * Saves the current behavior text inside the textinput element to the port.
+     * Saves the current behavior text inside the editor to the port.
      */
     private save(): void {
         if (!this.port) {
             throw new Error("Cannot save without set port.");
         }
-        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, this.behaviorText.value));
+
+        const behaviorText = this.editor?.getValue() ?? "";
+        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, behaviorText));
         this.actionDispatcher.dispatch(CommitModelAction.create());
     }
 }
