@@ -286,6 +286,55 @@ export class OutputPortEditUI extends AbstractUIExtension {
         this.editorContainer.classList.add("monaco-container");
         this.validationLabel.classList.add("validation-label");
 
+        // Initialize the monaco editor and setup the language for highlighting.
+        monaco.languages.register({ id: "dfd-behavior" });
+        monaco.languages.setMonarchTokensProvider("dfd-behavior", {
+            keywords: ["forward", "set", "TRUE", "FALSE"],
+
+            operators: ["=", "||", "&&", "!"],
+
+            brackets: [
+                {
+                    open: "(",
+                    close: ")",
+                    token: "delimiter.parenthesis",
+                },
+            ],
+
+            symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+            tokenizer: {
+                root: [
+                    // keywords and identifiers
+                    [
+                        /[a-zA-Z_$][\w$]*/,
+                        {
+                            cases: {
+                                "@keywords": "keyword",
+                                "@default": "identifier",
+                            },
+                        },
+                    ],
+
+                    // whitespace
+                    [/[ \t\r\n]+/, "white"],
+                    [/\/\/.*$/, "comment"],
+
+                    // delimiters and operators
+                    [/[()]/, "@brackets"],
+                    [
+                        /@symbols/,
+                        {
+                            cases: {
+                                "@operators": "operator",
+                                "@default": "",
+                            },
+                        },
+                    ],
+                ],
+            },
+        });
+
         const monacoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
             minimap: {
@@ -296,6 +345,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
             wordBasedSuggestions: "off",
             links: false,
             theme: monacoTheme,
+            language: "dfd-behavior",
         });
 
         this.configureHandlers(containerElement);
