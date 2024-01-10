@@ -21,6 +21,8 @@ import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+// Enable hover feature that is used to show validation errors.
+import "monaco-editor/esm/vs/editor/contrib/hover/browser/hover";
 
 import "./outputPortEditUi.css";
 
@@ -29,7 +31,10 @@ import "./outputPortEditUi.css";
  */
 interface PortBehaviorValidationError {
     message: string;
+    // line and column numbers start at 0!
     line: number;
+    colStart?: number;
+    colEnd?: number;
 }
 
 /**
@@ -45,6 +50,8 @@ export class PortBehaviorValidator {
     // Regex that is used to extract all inputs, their label types and label values from a set statement.
     // Each input is a match with the input name, label type and label value as capturing groups.
     private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
+    // Regex matching alphanumeric characters.
+    private static readonly REGEX_ALPHANUMERIC = /[a-zA-Z0-9]+/;
 
     constructor(@inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry) {}
 
@@ -59,12 +66,17 @@ export class PortBehaviorValidator {
         const errors: PortBehaviorValidationError[] = [];
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const error = this.validateLine(line, port);
-            if (error) {
-                errors.push({
-                    message: error,
-                    line: i + 1,
+            const lineErrors = this.validateLine(line, i, port);
+            if (lineErrors) {
+                const errorsCols = lineErrors.map((error) => {
+                    // Set cols to start/end of line if not set.
+                    error.colEnd ??= line.length;
+                    error.colStart ??= 0;
+
+                    return error;
                 });
+
+                errors.push(...errorsCols);
             }
         }
 
@@ -75,35 +87,80 @@ export class PortBehaviorValidator {
      * Validates a single line and returns an error message if the line is invalid.
      * Otherwise returns undefined.
      */
-    private validateLine(line: string, port: DfdOutputPortImpl): string | undefined {
+    private validateLine(
+        line: string,
+        lineNumber: number,
+        port: DfdOutputPortImpl,
+    ): PortBehaviorValidationError[] | undefined {
         if (line === "" || line.startsWith("#") || line.startsWith("//")) {
             return;
         }
 
         if (line.startsWith("forward")) {
-            return this.validateForwardStatement(line, port);
+            return this.validateForwardStatement(line, lineNumber, port);
         }
 
         if (line.startsWith("set")) {
-            return this.validateSetStatement(line, port);
+            return this.validateSetStatement(line, lineNumber, port);
         }
 
-        return `Unknown statement: ${line}`;
+        return [
+            {
+                line: lineNumber,
+                message: "Unknown statement",
+            },
+        ];
     }
 
-    private validateForwardStatement(line: string, port: DfdOutputPortImpl): string | undefined {
+    private validateForwardStatement(
+        line: string,
+        lineNumber: number,
+        port: DfdOutputPortImpl,
+    ): PortBehaviorValidationError[] | undefined {
         const inputsString = line.replace("forward", "");
         const inputs = inputsString
             .split(",")
             .map((input) => input.trim())
             .filter((input) => input !== "");
         if (inputs.length === 0) {
-            return "forward needs at least one input";
+            return [
+                {
+                    line: lineNumber,
+                    message: "forward needs at least one input",
+                },
+            ];
         }
 
-        const duplicateInputs = inputs.filter((input, index) => inputs.indexOf(input) !== index);
+        const duplicateInputs = inputs.filter((input) => inputs.filter((i) => i === input).length > 1);
         if (duplicateInputs.length > 0) {
-            return "forward statements must not contain duplicate inputs";
+            const distinctDuplicateInputs = [...new Set(duplicateInputs)];
+
+            return distinctDuplicateInputs.flatMap((input) => {
+                // find all occurrences of the duplicate input
+                const indices = [];
+                let idx = line.indexOf(input);
+                while (idx !== -1) {
+                    // Ensure this is not a substring of another input by
+                    // ensuring the character before and after the input are not alphanumeric.
+                    // E.g. Input "te" should not detect input "test" as a duplicate of "te".
+                    if (
+                        !line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
+                        !line[idx + input.length]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC)
+                    ) {
+                        indices.push(idx);
+                    }
+
+                    idx = line.indexOf(input, idx + 1);
+                }
+
+                // Create an error for each occurrence of the duplicate input
+                return indices.map((index) => ({
+                    line: lineNumber,
+                    message: `duplicate input: ${input}`,
+                    colStart: index,
+                    colEnd: index + input.length,
+                }));
+            });
         }
 
         const node = port.parent;
@@ -115,16 +172,46 @@ export class PortBehaviorValidator {
 
         const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
         if (unavailableInputs.length > 0) {
-            return `forward statements contains invalid input(s): ${unavailableInputs.join(", ")}`;
+            return unavailableInputs.map((input) => {
+                let foundCorrectInput = false;
+                let idx = line.indexOf(input);
+                while (!foundCorrectInput) {
+                    // Ensure this is not a substring of another input.
+                    // Same as above.
+                    foundCorrectInput =
+                        !line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
+                        !line[idx + input.length]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC);
+
+                    if (!foundCorrectInput) {
+                        idx = line.indexOf(input, idx + 1);
+                    }
+                }
+
+                return {
+                    line: lineNumber,
+                    message: `invalid/unknown input: ${input}`,
+                    colStart: idx,
+                    colEnd: idx + input.length,
+                };
+            });
         }
 
         return undefined;
     }
 
-    private validateSetStatement(line: string, port: DfdOutputPortImpl): string | undefined {
+    private validateSetStatement(
+        line: string,
+        lineNumber: number,
+        port: DfdOutputPortImpl,
+    ): PortBehaviorValidationError[] | undefined {
         const match = line.match(PortBehaviorValidator.SET_REGEX);
         if (!match) {
-            return "invalid set statement";
+            return [
+                {
+                    line: lineNumber,
+                    message: "invalid set statement",
+                },
+            ];
         }
 
         // Check that the label type and value that this statement tries to set are valid.
@@ -132,15 +219,30 @@ export class PortBehaviorValidator {
         const setLabelValue = match[2];
         const labelType = this.labelTypeRegistry?.getLabelTypes().find((type) => type.name === setLabelType);
         if (!labelType) {
-            return `unknown label type: ${setLabelType}`;
+            return [
+                {
+                    line: lineNumber,
+                    message: `unknown label type: ${setLabelType}`,
+                    colStart: line.indexOf(setLabelType),
+                    colEnd: line.indexOf(setLabelType) + setLabelType.length,
+                },
+            ];
         }
         if (!labelType.values.find((value) => value.text === setLabelValue)) {
-            return `unknown label value (for type ${setLabelType}): ${setLabelValue}`;
+            return [
+                {
+                    line: lineNumber,
+                    message: `unknown label value of label type ${setLabelType}: ${setLabelValue}`,
+                    colStart: line.indexOf(setLabelValue),
+                    colEnd: line.indexOf(setLabelValue) + setLabelValue.length,
+                },
+            ];
         }
 
         // Parenthesis must be balanced.
         let parenthesisLevel = 0;
-        for (const char of line) {
+        for (let strIdx = 0; strIdx < line.length; strIdx++) {
+            const char = line[strIdx];
             if (char === "(") {
                 parenthesisLevel++;
             } else if (char === ")") {
@@ -148,20 +250,38 @@ export class PortBehaviorValidator {
             }
 
             if (parenthesisLevel < 0) {
-                return "invalid set statement: missing opening parenthesis";
+                return [
+                    {
+                        line: lineNumber,
+                        message: "invalid set statement: missing opening parenthesis",
+                        colStart: strIdx,
+                        colEnd: strIdx + 1,
+                    },
+                ];
             }
         }
 
         if (parenthesisLevel !== 0) {
-            return "invalid set statement: missing closing parenthesis";
+            return [
+                {
+                    line: lineNumber,
+                    message: "invalid set statement: missing closing parenthesis",
+                },
+            ];
         }
 
         // Extract all used inputs, label types and the corresponding label values.
         const expression = line.split("=")[1].trim(); // get everything after the =
-        const matches = expression.matchAll(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS);
-        if (!matches) {
-            return undefined;
+        if (expression.length === 0) {
+            return [
+                {
+                    line: lineNumber,
+                    message: "invalid set statement: missing expression",
+                },
+            ];
         }
+
+        const matches = [...expression.matchAll(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS)];
 
         const node = port.parent;
         if (!(node instanceof DfdNodeImpl)) {
@@ -170,29 +290,83 @@ export class PortBehaviorValidator {
         const availableInputs = node.getAvailableInputs();
 
         // Check for each input access that the input exists and that the label type and value are valid.
+        const inputAccessErrors = [];
         for (const inputMatch of matches) {
             const inputName = inputMatch[1];
             const inputLabelType = inputMatch[2];
             const inputLabelValue = inputMatch[3];
 
             if (!availableInputs.includes(inputName)) {
-                return `unknown input (for set statement): ${inputName}`;
+                // Find all occurrences of the unavailable input.
+                let idx = line.indexOf(inputName);
+                while (idx !== -1) {
+                    // Check that this is not a substring of another input.
+                    if (
+                        // before must not be alphanumeric => start of this string must be the beginning of the input name
+                        line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
+                        line[idx + inputName.length] === "." // must be followed by a dot to access the label type of the input
+                    ) {
+                        inputAccessErrors.push({
+                            line: lineNumber,
+                            message: `invalid/unknown input: ${inputName}`,
+                            colStart: idx,
+                            colEnd: idx + inputName.length,
+                        });
+                    }
+
+                    idx = line.indexOf(inputName, idx + 1);
+                }
+
+                continue;
             }
 
             const inputLabelTypeObject = this.labelTypeRegistry
                 ?.getLabelTypes()
                 .find((type) => type.name === inputLabelType);
             if (!inputLabelTypeObject) {
-                return `unknown label type: ${inputLabelType}`;
-            }
+                let idx = line.indexOf(inputLabelType);
+                while (idx !== -1) {
+                    // Check that this is not a substring of another label type.
+                    if (
+                        // must start after a dot and end before a dot
+                        line[idx - 1] === "." &&
+                        line[idx + inputLabelType.length] === "."
+                    ) {
+                        inputAccessErrors.push({
+                            line: lineNumber,
+                            message: `unknown label type: ${inputLabelType}`,
+                            colStart: idx,
+                            colEnd: idx + inputLabelType.length,
+                        });
+                    }
 
-            if (!inputLabelTypeObject.values.find((value) => value.text === inputLabelValue)) {
-                return `unknown label value of label type ${inputLabelType}: ${inputLabelValue}`;
+                    idx = line.indexOf(inputLabelType, idx + 1);
+                }
+            } else if (!inputLabelTypeObject.values.find((value) => value.text === inputLabelValue)) {
+                let idx = line.indexOf(inputLabelValue);
+                while (idx !== -1) {
+                    // Check that this is not a substring of another label value.
+                    if (
+                        // must start after a dot and end at the end of the alphanumeric text
+                        line[idx - 1] === "." &&
+                        // Might be at the end of the line
+                        (!line[idx + inputLabelValue.length] ||
+                            !line[idx + inputLabelValue.length].match(PortBehaviorValidator.REGEX_ALPHANUMERIC))
+                    ) {
+                        inputAccessErrors.push({
+                            line: lineNumber,
+                            message: `unknown label value of label type ${inputLabelType}: ${inputLabelValue}`,
+                            colStart: idx,
+                            colEnd: idx + inputLabelValue.length,
+                        });
+                    }
+
+                    idx = line.indexOf(inputLabelValue, idx + 1);
+                }
             }
         }
 
-        // All fine
-        return undefined;
+        return inputAccessErrors.length > 0 ? inputAccessErrors : undefined;
     }
 }
 
@@ -319,6 +493,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
                     // whitespace
                     [/[ \t\r\n]+/, "white"],
                     [/\/\/.*$/, "comment"],
+                    [/#.*$/, "comment"],
 
                     // delimiters and operators
                     [/[()]/, "@brackets"],
@@ -454,10 +629,26 @@ export class OutputPortEditUI extends AbstractUIExtension {
             this.validationLabel.classList.add("validation-success");
         } else {
             // Some error
-            const validationResultString = results.map((result) => `Line ${result.line}: ${result.message}`).join("\n");
-            this.validationLabel.innerText = validationResultString;
+            this.validationLabel.innerText = `Behavior is invalid: ${results.length} error${
+                results.length === 1 ? "" : "s"
+            }.`;
             this.validationLabel.classList.remove("validation-success");
             this.validationLabel.classList.add("validation-error");
+        }
+
+        // Add markers for each error to monaco (if any)
+        const markers: monaco.editor.IMarkerData[] = results.map((result) => ({
+            severity: monaco.MarkerSeverity.Error,
+            message: result.message,
+            startLineNumber: result.line + 1,
+            startColumn: (result.colStart ?? 0) + 1,
+            endLineNumber: result.line + 1,
+            endColumn: (result.colEnd ?? 0) + 1,
+        }));
+
+        const model = this.editor?.getModel();
+        if (model) {
+            monaco.editor.setModelMarkers(model, "owner", markers);
         }
     }
 

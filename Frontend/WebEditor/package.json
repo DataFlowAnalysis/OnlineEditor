@@ -25,7 +25,7 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "format": "prettier --write ./**/*.{html,css,ts,tsx,json,yaml}",
+        "format": "prettier --write \"./**/*.{html,css,ts,tsx,json,yaml}\"",
         "prepare": "husky install"
     },
     "lint-staged": {
