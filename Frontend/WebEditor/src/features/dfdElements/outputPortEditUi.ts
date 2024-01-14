@@ -21,8 +21,11 @@ import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+
 // Enable hover feature that is used to show validation errors.
+// Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
 import "monaco-editor/esm/vs/editor/contrib/hover/browser/hover";
+import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
 
 import "./outputPortEditUi.css";
 
@@ -51,7 +54,7 @@ export class PortBehaviorValidator {
     // Each input is a match with the input name, label type and label value as capturing groups.
     private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
     // Regex matching alphanumeric characters.
-    private static readonly REGEX_ALPHANUMERIC = /[a-zA-Z0-9]+/;
+    private static readonly REGEX_ALPHANUMERIC = /[a-z0-9]+/;
 
     constructor(@inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry) {}
 
@@ -507,6 +510,73 @@ export class OutputPortEditUI extends AbstractUIExtension {
                         },
                     ],
                 ],
+            },
+        });
+        const ui = this;
+        monaco.languages.registerCompletionItemProvider("dfd-behavior", {
+            provideCompletionItems(model, position) {
+                // The first word of each line/statement is the statement type keyword
+                const statementType = model.getWordAtPosition({ column: 1, lineNumber: position.lineNumber });
+
+                // If we're currently at the first word of the statement, suggest the statement start keywords
+                // This also the case when the current line is empty.
+                const isAtFirstWord =
+                    position.column >= (statementType?.startColumn ?? 1) &&
+                    position.column <= (statementType?.endColumn ?? 1);
+                if (isAtFirstWord) {
+                    // Start of line: suggest statement start keywords
+                    return {
+                        suggestions: ["forward", "set"].map((keyword) => ({
+                            label: keyword,
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: keyword,
+                            // Replace full line with new statement start keyword
+                            range: new monaco.Range(
+                                position.lineNumber,
+                                1,
+                                position.lineNumber,
+                                model.getLineMaxColumn(position.lineNumber),
+                            ),
+                        })),
+                    };
+                }
+
+                const parent = ui.port?.parent;
+                if (!(parent instanceof DfdNodeImpl)) {
+                    return {
+                        suggestions: [],
+                    };
+                }
+
+                const availableInputs = parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
+
+                // Suggestions per statement type
+                switch (statementType?.word) {
+                    case "set":
+                        break;
+                    case "forward":
+                        const currentInput = model.getWordUntilPosition(position);
+
+                        return {
+                            suggestions: availableInputs.map((input) => ({
+                                label: input,
+                                kind: monaco.languages.CompletionItemKind.Variable,
+                                insertText: input,
+                                // Replace current input with new input
+                                range: new monaco.Range(
+                                    position.lineNumber,
+                                    currentInput.startColumn,
+                                    position.lineNumber,
+                                    currentInput.endColumn,
+                                ),
+                            })),
+                        };
+                }
+
+                // Unknown statement type, cannot suggest anything
+                return {
+                    suggestions: [],
+                };
             },
         });
 
