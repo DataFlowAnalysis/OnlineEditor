@@ -1,4 +1,4 @@
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import {
     AbstractUIExtension,
     ActionDispatcher,
@@ -17,10 +17,10 @@ import {
 import { Action } from "sprotty-protocol";
 import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
-import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 
 // Enable hover feature that is used to show validation errors.
 // Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
@@ -28,350 +28,7 @@ import "monaco-editor/esm/vs/editor/contrib/hover/browser/hover";
 import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
 
 import "./outputPortEditUi.css";
-
-/**
- * Validation error for a single line of the behavior text of a dfd output port.
- */
-interface PortBehaviorValidationError {
-    message: string;
-    // line and column numbers start at 0!
-    line: number;
-    colStart?: number;
-    colEnd?: number;
-}
-
-/**
- * Validates the behavior text of a dfd output port (DfdOutputPortImpl).
- * Used inside the OutputPortEditUI.
- */
-@injectable()
-export class PortBehaviorValidator {
-    // Regex that validates a set statement.
-    // Has the label type and label value that should be set as capturing groups.
-    private static readonly SET_REGEX =
-        /^set +([A-z][A-z0-9-]*)\.([A-z][A-z0-9-]*) *= *(?: +|!|TRUE|FALSE|\|\||&&|\(|\)|[A-z][A-z0-9-]*(?:\.[A-z][A-z0-9-]*){2})+$/;
-    // Regex that is used to extract all inputs, their label types and label values from a set statement.
-    // Each input is a match with the input name, label type and label value as capturing groups.
-    private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
-    // Regex matching alphanumeric characters.
-    private static readonly REGEX_ALPHANUMERIC = /[a-z0-9]+/;
-
-    constructor(@inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry) {}
-
-    /**
-     * validates the whole behavior text of a port.
-     * @param behaviorText the behavior text to validate
-     * @param port the port that the behavior text should be tested against (relevant for available inputs)
-     * @returns errors, if everything is fine the array is empty
-     */
-    validate(behaviorText: string, port: DfdOutputPortImpl): PortBehaviorValidationError[] {
-        const lines = behaviorText.split("\n");
-        const errors: PortBehaviorValidationError[] = [];
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const lineErrors = this.validateLine(line, i, port);
-            if (lineErrors) {
-                const errorsCols = lineErrors.map((error) => {
-                    // Set cols to start/end of line if not set.
-                    error.colEnd ??= line.length;
-                    error.colStart ??= 0;
-
-                    return error;
-                });
-
-                errors.push(...errorsCols);
-            }
-        }
-
-        return errors;
-    }
-
-    /**
-     * Validates a single line and returns an error message if the line is invalid.
-     * Otherwise returns undefined.
-     */
-    private validateLine(
-        line: string,
-        lineNumber: number,
-        port: DfdOutputPortImpl,
-    ): PortBehaviorValidationError[] | undefined {
-        if (line === "" || line.startsWith("#") || line.startsWith("//")) {
-            return;
-        }
-
-        if (line.startsWith("forward")) {
-            return this.validateForwardStatement(line, lineNumber, port);
-        }
-
-        if (line.startsWith("set")) {
-            return this.validateSetStatement(line, lineNumber, port);
-        }
-
-        return [
-            {
-                line: lineNumber,
-                message: "Unknown statement",
-            },
-        ];
-    }
-
-    private validateForwardStatement(
-        line: string,
-        lineNumber: number,
-        port: DfdOutputPortImpl,
-    ): PortBehaviorValidationError[] | undefined {
-        const inputsString = line.replace("forward", "");
-        const inputs = inputsString
-            .split(",")
-            .map((input) => input.trim())
-            .filter((input) => input !== "");
-        if (inputs.length === 0) {
-            return [
-                {
-                    line: lineNumber,
-                    message: "forward needs at least one input",
-                },
-            ];
-        }
-
-        const duplicateInputs = inputs.filter((input) => inputs.filter((i) => i === input).length > 1);
-        if (duplicateInputs.length > 0) {
-            const distinctDuplicateInputs = [...new Set(duplicateInputs)];
-
-            return distinctDuplicateInputs.flatMap((input) => {
-                // find all occurrences of the duplicate input
-                const indices = [];
-                let idx = line.indexOf(input);
-                while (idx !== -1) {
-                    // Ensure this is not a substring of another input by
-                    // ensuring the character before and after the input are not alphanumeric.
-                    // E.g. Input "te" should not detect input "test" as a duplicate of "te".
-                    if (
-                        !line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
-                        !line[idx + input.length]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC)
-                    ) {
-                        indices.push(idx);
-                    }
-
-                    idx = line.indexOf(input, idx + 1);
-                }
-
-                // Create an error for each occurrence of the duplicate input
-                return indices.map((index) => ({
-                    line: lineNumber,
-                    message: `duplicate input: ${input}`,
-                    colStart: index,
-                    colEnd: index + input.length,
-                }));
-            });
-        }
-
-        const node = port.parent;
-        if (!(node instanceof DfdNodeImpl)) {
-            throw new Error("Expected port parent to be a DfdNodeImpl.");
-        }
-
-        const availableInputs = node.getAvailableInputs();
-
-        const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
-        if (unavailableInputs.length > 0) {
-            return unavailableInputs.map((input) => {
-                let foundCorrectInput = false;
-                let idx = line.indexOf(input);
-                while (!foundCorrectInput) {
-                    // Ensure this is not a substring of another input.
-                    // Same as above.
-                    foundCorrectInput =
-                        !line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
-                        !line[idx + input.length]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC);
-
-                    if (!foundCorrectInput) {
-                        idx = line.indexOf(input, idx + 1);
-                    }
-                }
-
-                return {
-                    line: lineNumber,
-                    message: `invalid/unknown input: ${input}`,
-                    colStart: idx,
-                    colEnd: idx + input.length,
-                };
-            });
-        }
-
-        return undefined;
-    }
-
-    private validateSetStatement(
-        line: string,
-        lineNumber: number,
-        port: DfdOutputPortImpl,
-    ): PortBehaviorValidationError[] | undefined {
-        const match = line.match(PortBehaviorValidator.SET_REGEX);
-        if (!match) {
-            return [
-                {
-                    line: lineNumber,
-                    message: "invalid set statement",
-                },
-            ];
-        }
-
-        // Check that the label type and value that this statement tries to set are valid.
-        const setLabelType = match[1];
-        const setLabelValue = match[2];
-        const labelType = this.labelTypeRegistry?.getLabelTypes().find((type) => type.name === setLabelType);
-        if (!labelType) {
-            return [
-                {
-                    line: lineNumber,
-                    message: `unknown label type: ${setLabelType}`,
-                    colStart: line.indexOf(setLabelType),
-                    colEnd: line.indexOf(setLabelType) + setLabelType.length,
-                },
-            ];
-        }
-        if (!labelType.values.find((value) => value.text === setLabelValue)) {
-            return [
-                {
-                    line: lineNumber,
-                    message: `unknown label value of label type ${setLabelType}: ${setLabelValue}`,
-                    colStart: line.indexOf(setLabelValue),
-                    colEnd: line.indexOf(setLabelValue) + setLabelValue.length,
-                },
-            ];
-        }
-
-        // Parenthesis must be balanced.
-        let parenthesisLevel = 0;
-        for (let strIdx = 0; strIdx < line.length; strIdx++) {
-            const char = line[strIdx];
-            if (char === "(") {
-                parenthesisLevel++;
-            } else if (char === ")") {
-                parenthesisLevel--;
-            }
-
-            if (parenthesisLevel < 0) {
-                return [
-                    {
-                        line: lineNumber,
-                        message: "invalid set statement: missing opening parenthesis",
-                        colStart: strIdx,
-                        colEnd: strIdx + 1,
-                    },
-                ];
-            }
-        }
-
-        if (parenthesisLevel !== 0) {
-            return [
-                {
-                    line: lineNumber,
-                    message: "invalid set statement: missing closing parenthesis",
-                },
-            ];
-        }
-
-        // Extract all used inputs, label types and the corresponding label values.
-        const expression = line.split("=")[1].trim(); // get everything after the =
-        if (expression.length === 0) {
-            return [
-                {
-                    line: lineNumber,
-                    message: "invalid set statement: missing expression",
-                },
-            ];
-        }
-
-        const matches = [...expression.matchAll(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS)];
-
-        const node = port.parent;
-        if (!(node instanceof DfdNodeImpl)) {
-            throw new Error("Expected port parent to be a DfdNodeImpl.");
-        }
-        const availableInputs = node.getAvailableInputs();
-
-        // Check for each input access that the input exists and that the label type and value are valid.
-        const inputAccessErrors = [];
-        for (const inputMatch of matches) {
-            const inputName = inputMatch[1];
-            const inputLabelType = inputMatch[2];
-            const inputLabelValue = inputMatch[3];
-
-            if (!availableInputs.includes(inputName)) {
-                // Find all occurrences of the unavailable input.
-                let idx = line.indexOf(inputName);
-                while (idx !== -1) {
-                    // Check that this is not a substring of another input.
-                    if (
-                        // before must not be alphanumeric => start of this string must be the beginning of the input name
-                        line[idx - 1]?.match(PortBehaviorValidator.REGEX_ALPHANUMERIC) &&
-                        line[idx + inputName.length] === "." // must be followed by a dot to access the label type of the input
-                    ) {
-                        inputAccessErrors.push({
-                            line: lineNumber,
-                            message: `invalid/unknown input: ${inputName}`,
-                            colStart: idx,
-                            colEnd: idx + inputName.length,
-                        });
-                    }
-
-                    idx = line.indexOf(inputName, idx + 1);
-                }
-
-                continue;
-            }
-
-            const inputLabelTypeObject = this.labelTypeRegistry
-                ?.getLabelTypes()
-                .find((type) => type.name === inputLabelType);
-            if (!inputLabelTypeObject) {
-                let idx = line.indexOf(inputLabelType);
-                while (idx !== -1) {
-                    // Check that this is not a substring of another label type.
-                    if (
-                        // must start after a dot and end before a dot
-                        line[idx - 1] === "." &&
-                        line[idx + inputLabelType.length] === "."
-                    ) {
-                        inputAccessErrors.push({
-                            line: lineNumber,
-                            message: `unknown label type: ${inputLabelType}`,
-                            colStart: idx,
-                            colEnd: idx + inputLabelType.length,
-                        });
-                    }
-
-                    idx = line.indexOf(inputLabelType, idx + 1);
-                }
-            } else if (!inputLabelTypeObject.values.find((value) => value.text === inputLabelValue)) {
-                let idx = line.indexOf(inputLabelValue);
-                while (idx !== -1) {
-                    // Check that this is not a substring of another label value.
-                    if (
-                        // must start after a dot and end at the end of the alphanumeric text
-                        line[idx - 1] === "." &&
-                        // Might be at the end of the line
-                        (!line[idx + inputLabelValue.length] ||
-                            !line[idx + inputLabelValue.length].match(PortBehaviorValidator.REGEX_ALPHANUMERIC))
-                    ) {
-                        inputAccessErrors.push({
-                            line: lineNumber,
-                            message: `unknown label value of label type ${inputLabelType}: ${inputLabelValue}`,
-                            colStart: idx,
-                            colEnd: idx + inputLabelValue.length,
-                        });
-                    }
-
-                    idx = line.indexOf(inputLabelValue, idx + 1);
-                }
-            }
-        }
-
-        return inputAccessErrors.length > 0 ? inputAccessErrors : undefined;
-    }
-}
+import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 
 /**
  * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
@@ -421,6 +78,262 @@ export class OutputPortEditUIMouseListener extends MouseListener {
     }
 }
 
+// More information and playground website for testing: https://microsoft.github.io/monaco-editor/monarch.html
+const statementKeywords = ["forward", "set"];
+const constantsKeywords = ["TRUE", "FALSE"];
+const dfdBehaviorLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = {
+    keywords: [...statementKeywords, ...constantsKeywords],
+
+    operators: ["=", "||", "&&", "!"],
+
+    brackets: [
+        {
+            open: "(",
+            close: ")",
+            token: "delimiter.parenthesis",
+        },
+    ],
+
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+    tokenizer: {
+        root: [
+            // keywords and identifiers
+            [
+                /[a-zA-Z_$][\w$]*/,
+                {
+                    cases: {
+                        "@keywords": "keyword",
+                        "@default": "identifier",
+                    },
+                },
+            ],
+
+            // whitespace and comments
+            [/[ \t\r\n]+/, "white"],
+            [/\/\/.*$/, "comment"],
+            [/#.*$/, "comment"],
+
+            // delimiters and operators
+            [/[()]/, "@brackets"],
+            [
+                /@symbols/,
+                {
+                    cases: {
+                        "@operators": "operator",
+                        "@default": "",
+                    },
+                },
+            ],
+        ],
+    },
+};
+
+class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.CompletionItemProvider {
+    constructor(
+        private readonly ui: OutputPortEditUI,
+        private readonly labelTypeRegistry: LabelTypeRegistry,
+    ) {}
+
+    // Auto open completions after typing a dot. Useful for the set statement where
+    // components are delimited by dots.
+    triggerCharacters = ["."];
+
+    provideCompletionItems(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+        // The first word of each line/statement is the statement type keyword
+        const statementType = model.getWordAtPosition({ column: 1, lineNumber: position.lineNumber });
+
+        // If we're currently at the first word of the statement, suggest the statement start keywords
+        // This also the case when the current line is empty.
+        const isAtFirstWord =
+            position.column >= (statementType?.startColumn ?? 1) && position.column <= (statementType?.endColumn ?? 1);
+        if (isAtFirstWord) {
+            // Start of line: suggest statement start keywords
+            return {
+                suggestions: statementKeywords.map((keyword) => ({
+                    label: keyword,
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    insertText: keyword,
+                    // Replace full line with new statement start keyword
+                    range: new monaco.Range(
+                        position.lineNumber,
+                        1,
+                        position.lineNumber,
+                        model.getLineMaxColumn(position.lineNumber),
+                    ),
+                })),
+            };
+        }
+
+        const parent = this.ui.getCurrentEditingPort()?.parent;
+        if (!(parent instanceof DfdNodeImpl)) {
+            return {
+                suggestions: [],
+            };
+        }
+
+        const availableInputs = parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
+
+        // Suggestions per statement type
+        switch (statementType?.word) {
+            case "set":
+                return {
+                    suggestions: this.getSetStatementCompletions(model, position, availableInputs),
+                };
+            case "forward":
+                return {
+                    suggestions: this.getInputCompletions(model, position, availableInputs),
+                };
+        }
+
+        // Unknown statement type, cannot suggest anything
+        return {
+            suggestions: [],
+        };
+    }
+
+    private getSetStatementCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        availableInputs: string[],
+    ): monaco.languages.CompletionItem[] {
+        const line = model.getLineContent(position.lineNumber);
+
+        // Find the start of the current expression
+        // -1 because the column is to the right of the last char => last filled column is -1
+        let currentExpressionStart = position.column - 1;
+        while (currentExpressionStart > 0) {
+            const currentChar = line[currentExpressionStart - 1]; // column is 1-based but array is 0-based => -1
+
+            if (currentChar !== "." && !currentChar.match(PortBehaviorValidator.REGEX_ALPHANUMERIC)) {
+                break;
+            }
+
+            currentExpressionStart--;
+        }
+
+        const currentExpression = line.substring(currentExpressionStart - 1, position.column);
+        const expressionParts = currentExpression.split(".");
+        // Check whether the position is the assignment target (aka the left side of the "=" or missing equals)
+        const equalsIdx = line.indexOf("=");
+        const isTargetLabel = equalsIdx == -1 || equalsIdx > currentExpressionStart;
+
+        if (isTargetLabel) {
+            // Left hand side: labelType.labelValue (is for the target node, so we don't need to specifiy)
+            if (expressionParts.length === 1) {
+                return this.getLabelTypeCompletions(model, position);
+            } else {
+                return this.getLabelValueCompletions(model, position, expressionParts[0]);
+            }
+        } else {
+            // Right hand side: input.labelType.labelValue or constant
+            switch (expressionParts.length) {
+                case 1:
+                    return [
+                        ...this.getInputCompletions(model, position, availableInputs),
+                        ...this.getConstantsCompletions(model, position),
+                    ];
+                case 2:
+                    return this.getLabelTypeCompletions(model, position);
+                case 3:
+                    const labelTypeName = expressionParts[1];
+                    return this.getLabelValueCompletions(model, position, labelTypeName);
+            }
+        }
+
+        return [];
+    }
+
+    private getInputCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        availableInputs: string[],
+    ): monaco.languages.CompletionItem[] {
+        const currentWord = model.getWordUntilPosition(position);
+
+        return availableInputs.map((input) => ({
+            label: input,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            insertText: input,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getConstantsCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.CompletionItem[] {
+        const currentWord = model.getWordUntilPosition(position);
+
+        return constantsKeywords.map((constant) => ({
+            label: constant,
+            kind: monaco.languages.CompletionItemKind.Constant,
+            insertText: constant,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getLabelTypeCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.CompletionItem[] {
+        const availableLabelTypes = this.labelTypeRegistry.getLabelTypes();
+        const currentWord = model.getWordUntilPosition(position);
+
+        return availableLabelTypes.map((labelType) => ({
+            label: labelType.name,
+            kind: monaco.languages.CompletionItemKind.Class,
+            insertText: labelType.name,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getLabelValueCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        labelTypeName: string,
+    ): monaco.languages.CompletionItem[] {
+        const labelType = this.labelTypeRegistry
+            .getLabelTypes()
+            .find((labelType) => labelType.name === labelTypeName.trim());
+        if (!labelType) {
+            return [];
+        }
+
+        const currentWord = model.getWordUntilPosition(position);
+
+        return labelType.values.map((labelValue) => ({
+            label: labelValue.text,
+            kind: monaco.languages.CompletionItemKind.Enum,
+            insertText: labelValue.text,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+}
+
 /**
  * UI that allows editing the behavior text of a dfd output port (DfdOutputPortImpl).
  */
@@ -440,6 +353,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
+        @inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry,
     ) {
         super();
     }
@@ -464,121 +378,13 @@ export class OutputPortEditUI extends AbstractUIExtension {
         this.validationLabel.classList.add("validation-label");
 
         // Initialize the monaco editor and setup the language for highlighting.
-        monaco.languages.register({ id: "dfd-behavior" });
-        monaco.languages.setMonarchTokensProvider("dfd-behavior", {
-            keywords: ["forward", "set", "TRUE", "FALSE"],
-
-            operators: ["=", "||", "&&", "!"],
-
-            brackets: [
-                {
-                    open: "(",
-                    close: ")",
-                    token: "delimiter.parenthesis",
-                },
-            ],
-
-            symbols: /[=><!~?:&|+\-*\/\^%]+/,
-
-            tokenizer: {
-                root: [
-                    // keywords and identifiers
-                    [
-                        /[a-zA-Z_$][\w$]*/,
-                        {
-                            cases: {
-                                "@keywords": "keyword",
-                                "@default": "identifier",
-                            },
-                        },
-                    ],
-
-                    // whitespace
-                    [/[ \t\r\n]+/, "white"],
-                    [/\/\/.*$/, "comment"],
-                    [/#.*$/, "comment"],
-
-                    // delimiters and operators
-                    [/[()]/, "@brackets"],
-                    [
-                        /@symbols/,
-                        {
-                            cases: {
-                                "@operators": "operator",
-                                "@default": "",
-                            },
-                        },
-                    ],
-                ],
-            },
-        });
-        const ui = this;
-        monaco.languages.registerCompletionItemProvider("dfd-behavior", {
-            provideCompletionItems(model, position) {
-                // The first word of each line/statement is the statement type keyword
-                const statementType = model.getWordAtPosition({ column: 1, lineNumber: position.lineNumber });
-
-                // If we're currently at the first word of the statement, suggest the statement start keywords
-                // This also the case when the current line is empty.
-                const isAtFirstWord =
-                    position.column >= (statementType?.startColumn ?? 1) &&
-                    position.column <= (statementType?.endColumn ?? 1);
-                if (isAtFirstWord) {
-                    // Start of line: suggest statement start keywords
-                    return {
-                        suggestions: ["forward", "set"].map((keyword) => ({
-                            label: keyword,
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: keyword,
-                            // Replace full line with new statement start keyword
-                            range: new monaco.Range(
-                                position.lineNumber,
-                                1,
-                                position.lineNumber,
-                                model.getLineMaxColumn(position.lineNumber),
-                            ),
-                        })),
-                    };
-                }
-
-                const parent = ui.port?.parent;
-                if (!(parent instanceof DfdNodeImpl)) {
-                    return {
-                        suggestions: [],
-                    };
-                }
-
-                const availableInputs = parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
-
-                // Suggestions per statement type
-                switch (statementType?.word) {
-                    case "set":
-                        break;
-                    case "forward":
-                        const currentInput = model.getWordUntilPosition(position);
-
-                        return {
-                            suggestions: availableInputs.map((input) => ({
-                                label: input,
-                                kind: monaco.languages.CompletionItemKind.Variable,
-                                insertText: input,
-                                // Replace current input with new input
-                                range: new monaco.Range(
-                                    position.lineNumber,
-                                    currentInput.startColumn,
-                                    position.lineNumber,
-                                    currentInput.endColumn,
-                                ),
-                            })),
-                        };
-                }
-
-                // Unknown statement type, cannot suggest anything
-                return {
-                    suggestions: [],
-                };
-            },
-        });
+        const dfdLanguageName = "dfd-behavior";
+        monaco.languages.register({ id: dfdLanguageName });
+        monaco.languages.setMonarchTokensProvider(dfdLanguageName, dfdBehaviorLanguageMonarchDefinition);
+        monaco.languages.registerCompletionItemProvider(
+            dfdLanguageName,
+            new MonacoEditorDfdBehaviorCompletionProvider(this, this.labelTypeRegistry),
+        );
 
         const monacoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
@@ -590,7 +396,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
             wordBasedSuggestions: "off",
             links: false,
             theme: monacoTheme,
-            language: "dfd-behavior",
+            language: dfdLanguageName,
         });
 
         this.configureHandlers(containerElement);
@@ -733,6 +539,10 @@ export class OutputPortEditUI extends AbstractUIExtension {
         const behaviorText = this.editor?.getValue() ?? "";
         this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, behaviorText));
         this.actionDispatcher.dispatch(CommitModelAction.create());
+    }
+
+    public getCurrentEditingPort(): DfdOutputPortImpl | undefined {
+        return this.port;
     }
 }
 
