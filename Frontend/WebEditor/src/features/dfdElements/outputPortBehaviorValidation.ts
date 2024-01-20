@@ -95,15 +95,30 @@ export class PortBehaviorValidator {
         port: DfdOutputPortImpl,
     ): PortBehaviorValidationError[] | undefined {
         const inputsString = line.replace("forward", "");
-        const inputs = inputsString
-            .split(",")
-            .map((input) => input.trim())
-            .filter((input) => input !== "");
-        if (inputs.length === 0) {
+        const inputs = inputsString.split(",").map((input) => input.trim());
+        if (inputs.filter((input) => input !== "").length === 0) {
             return [
                 {
                     line: lineNumber,
                     message: "forward needs at least one input",
+                },
+            ];
+        }
+
+        const emptyInput = inputs.findIndex((input) => input === "");
+        if (emptyInput !== -1) {
+            // Find position of empty input given the index of the empty input.
+            let emptyInputPosition = line.indexOf(",");
+            for (let i = 1; i < emptyInput; i++) {
+                emptyInputPosition = line.indexOf(",", emptyInputPosition + 1);
+            }
+
+            return [
+                {
+                    line: lineNumber,
+                    message: "trailing comma without being followed by an input",
+                    colStart: emptyInputPosition,
+                    colEnd: emptyInputPosition + 1,
                 },
             ];
         }

@@ -222,7 +222,7 @@ class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.Comp
         const isTargetLabel = equalsIdx == -1 || equalsIdx > currentExpressionStart;
 
         if (isTargetLabel) {
-            // Left hand side: labelType.labelValue (is for the target node, so we don't need to specifiy)
+            // Left hand side: labelType.labelValue (is for the target node, so we don't need to specify)
             if (expressionParts.length === 1) {
                 return this.getLabelTypeCompletions(model, position);
             } else {
