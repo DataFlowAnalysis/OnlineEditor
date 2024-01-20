@@ -341,7 +341,7 @@ class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.Comp
 export class OutputPortEditUI extends AbstractUIExtension {
     static readonly ID = "output-port-edit-ui";
 
-    private availableInputs: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    private unavailableInputsLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
 
@@ -368,16 +368,16 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
-        containerElement.appendChild(this.availableInputs);
+        containerElement.appendChild(this.unavailableInputsLabel);
         containerElement.appendChild(this.editorContainer);
         containerElement.appendChild(this.validationLabel);
 
         containerElement.classList.add("ui-float");
-        this.availableInputs.classList.add("available-inputs");
+        this.unavailableInputsLabel.classList.add("unavailable-inputs");
         this.editorContainer.classList.add("monaco-container");
         this.validationLabel.classList.add("validation-label");
 
-        // Initialize the monaco editor and setup the language for highlighting.
+        // Initialize the monaco editor and setup the language for highlighting and autocomplete.
         const dfdLanguageName = "dfd-behavior";
         monaco.languages.register({ id: dfdLanguageName });
         monaco.languages.setMonarchTokensProvider(dfdLanguageName, dfdBehaviorLanguageMonarchDefinition);
@@ -389,12 +389,12 @@ export class OutputPortEditUI extends AbstractUIExtension {
         const monacoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
             minimap: {
+                // takes too much space, not useful for our use case
                 enabled: false,
             },
-            lineNumbersMinChars: 3,
-            folding: false,
-            wordBasedSuggestions: "off",
-            links: false,
+            lineNumbersMinChars: 3, // default is 5, which we'll never need. Save a bit of space.
+            folding: false, // Not supported by our language definition
+            wordBasedSuggestions: "off", // Does not really work for our use case
             theme: monacoTheme,
             language: dfdLanguageName,
         });
@@ -405,12 +405,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
     private configureHandlers(containerElement: HTMLElement): void {
         // If the user unfocuses the editor, save the changes.
         this.editor?.onDidBlurEditorText(() => {
-            // Check that the UI is still visible.
-            // When Esc pressed (handler below) this is still called due to the blur
-            // but the current state should not be saved in that case.
-            if (this.containerElement.style.visibility === "visible") {
-                this.save();
-            }
+            this.save();
         });
 
         // Run behavior validation when the behavior text changes.
@@ -418,7 +413,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
             this.validateBehavior();
         });
 
-        // Hide/"close this window" when pressing escape and don't save changes in that case.
+        // Hide/"close this window" when pressing escape.
         containerElement.addEventListener("keydown", (event) => {
             if (matchesKeystroke(event, "Escape")) {
                 this.hide();
@@ -447,19 +442,19 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
         const availableInputNames = parent.getAvailableInputs();
         const countUnavailableDueToMissingName = availableInputNames.filter((name) => name === undefined).length;
-        const definedInputNames = availableInputNames.filter((name) => name !== undefined);
-
-        let availableInputsText = "";
-        if (definedInputNames.length === 0) {
-            availableInputsText = "There are no available inputs.";
-        } else {
-            availableInputsText = `Available inputs: ${definedInputNames.join(", ")}`;
-        }
 
         if (countUnavailableDueToMissingName > 0) {
-            availableInputsText += `\nThere are ${countUnavailableDueToMissingName} available inputs that don't have a named edge and cannot be used.`;
+            const unavailableInputsText =
+                countUnavailableDueToMissingName > 1
+                    ? `There are ${countUnavailableDueToMissingName} inputs that don't have a named edge and cannot be used`
+                    : `There is ${countUnavailableDueToMissingName} input that doesn't have a named edge and cannot be used`;
+
+            this.unavailableInputsLabel.innerText = unavailableInputsText;
+            this.unavailableInputsLabel.style.display = "block";
+        } else {
+            this.unavailableInputsLabel.innerText = "";
+            this.unavailableInputsLabel.style.display = "none";
         }
-        this.availableInputs.innerText = availableInputsText;
 
         // Load the current behavior text of the port into the text editor.
         this.editor?.setValue(this.port.behavior);
@@ -500,7 +495,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         const results = this.validator.validate(behaviorText, this.port);
         if (results.length === 0) {
             // Everything fine
-            this.validationLabel.innerText = "Behavior is valid.";
+            this.validationLabel.innerText = "Behavior is valid";
             this.validationLabel.classList.remove("validation-error");
             this.validationLabel.classList.add("validation-success");
         } else {

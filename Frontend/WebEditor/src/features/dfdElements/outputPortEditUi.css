@@ -8,8 +8,8 @@
     background: var(--color-primary);
 }
 
-.output-port-edit-ui div.available-inputs {
-    /* spacing between textarea and available inputs text */
+.output-port-edit-ui div.unavailable-inputs {
+    /* spacing between editor and this text */
     padding-bottom: 5px;
 }
 
