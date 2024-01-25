@@ -1,4 +1,4 @@
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import {
     AbstractUIExtension,
     ActionDispatcher,
@@ -17,183 +17,18 @@ import {
 import { Action } from "sprotty-protocol";
 import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
-import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
+
+// Enable hover feature that is used to show validation errors.
+// Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
+import "monaco-editor/esm/vs/editor/contrib/hover/browser/hover";
+import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
 
 import "./outputPortEditUi.css";
-
-/**
- * Validation error for a single line of the behavior text of a dfd output port.
- */
-interface PortBehaviorValidationError {
-    message: string;
-    line: number;
-}
-
-/**
- * Validates the behavior text of a dfd output port (DfdOutputPortImpl).
- * Used inside the OutputPortEditUI.
- */
-@injectable()
-export class PortBehaviorValidator {
-    // Regex that validates a set statement.
-    // Has the label type and label value that should be set as capturing groups.
-    private static readonly SET_REGEX =
-        /^set +([A-z][A-z0-9-]*)\.([A-z][A-z0-9-]*) *= *(?: +|!|TRUE|FALSE|\|\||&&|\(|\)|[A-z][A-z0-9-]*(?:\.[A-z][A-z0-9-]*){2})+$/;
-    // Regex that is used to extract all inputs, their label types and label values from a set statement.
-    // Each input is a match with the input name, label type and label value as capturing groups.
-    private static readonly SET_REGEX_EXPRESSION_INPUTS = /([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)\.([A-z][A-z0-9]*)/g;
-
-    constructor(@inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry) {}
-
-    /**
-     * validates the whole behavior text of a port.
-     * @param behaviorText the behavior text to validate
-     * @param port the port that the behavior text should be tested against (relevant for available inputs)
-     * @returns errors, if everything is fine the array is empty
-     */
-    validate(behaviorText: string, port: DfdOutputPortImpl): PortBehaviorValidationError[] {
-        const lines = behaviorText.split("\n");
-        const errors: PortBehaviorValidationError[] = [];
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const error = this.validateLine(line, port);
-            if (error) {
-                errors.push({
-                    message: error,
-                    line: i + 1,
-                });
-            }
-        }
-
-        return errors;
-    }
-
-    /**
-     * Validates a single line and returns an error message if the line is invalid.
-     * Otherwise returns undefined.
-     */
-    private validateLine(line: string, port: DfdOutputPortImpl): string | undefined {
-        if (line === "" || line.startsWith("#") || line.startsWith("//")) {
-            return;
-        }
-
-        if (line.startsWith("forward")) {
-            return this.validateForwardStatement(line, port);
-        }
-
-        if (line.startsWith("set")) {
-            return this.validateSetStatement(line, port);
-        }
-
-        return `Unknown statement: ${line}`;
-    }
-
-    private validateForwardStatement(line: string, port: DfdOutputPortImpl): string | undefined {
-        const inputsString = line.replace("forward", "");
-        const inputs = inputsString
-            .split(",")
-            .map((input) => input.trim())
-            .filter((input) => input !== "");
-        if (inputs.length === 0) {
-            return "forward needs at least one input";
-        }
-
-        const duplicateInputs = inputs.filter((input, index) => inputs.indexOf(input) !== index);
-        if (duplicateInputs.length > 0) {
-            return "forward statements must not contain duplicate inputs";
-        }
-
-        const node = port.parent;
-        if (!(node instanceof DfdNodeImpl)) {
-            throw new Error("Expected port parent to be a DfdNodeImpl.");
-        }
-
-        const availableInputs = node.getAvailableInputs();
-
-        const unavailableInputs = inputs.filter((input) => !availableInputs.includes(input));
-        if (unavailableInputs.length > 0) {
-            return `forward statements contains invalid input(s): ${unavailableInputs.join(", ")}`;
-        }
-
-        return undefined;
-    }
-
-    private validateSetStatement(line: string, port: DfdOutputPortImpl): string | undefined {
-        const match = line.match(PortBehaviorValidator.SET_REGEX);
-        if (!match) {
-            return "invalid set statement";
-        }
-
-        // Check that the label type and value that this statement tries to set are valid.
-        const setLabelType = match[1];
-        const setLabelValue = match[2];
-        const labelType = this.labelTypeRegistry?.getLabelTypes().find((type) => type.name === setLabelType);
-        if (!labelType) {
-            return `unknown label type: ${setLabelType}`;
-        }
-        if (!labelType.values.find((value) => value.text === setLabelValue)) {
-            return `unknown label value (for type ${setLabelType}): ${setLabelValue}`;
-        }
-
-        // Parenthesis must be balanced.
-        let parenthesisLevel = 0;
-        for (const char of line) {
-            if (char === "(") {
-                parenthesisLevel++;
-            } else if (char === ")") {
-                parenthesisLevel--;
-            }
-
-            if (parenthesisLevel < 0) {
-                return "invalid set statement: missing opening parenthesis";
-            }
-        }
-
-        if (parenthesisLevel !== 0) {
-            return "invalid set statement: missing closing parenthesis";
-        }
-
-        // Extract all used inputs, label types and the corresponding label values.
-        const expression = line.split("=")[1].trim(); // get everything after the =
-        const matches = expression.matchAll(PortBehaviorValidator.SET_REGEX_EXPRESSION_INPUTS);
-        if (!matches) {
-            return undefined;
-        }
-
-        const node = port.parent;
-        if (!(node instanceof DfdNodeImpl)) {
-            throw new Error("Expected port parent to be a DfdNodeImpl.");
-        }
-        const availableInputs = node.getAvailableInputs();
-
-        // Check for each input access that the input exists and that the label type and value are valid.
-        for (const inputMatch of matches) {
-            const inputName = inputMatch[1];
-            const inputLabelType = inputMatch[2];
-            const inputLabelValue = inputMatch[3];
-
-            if (!availableInputs.includes(inputName)) {
-                return `unknown input (for set statement): ${inputName}`;
-            }
-
-            const inputLabelTypeObject = this.labelTypeRegistry
-                ?.getLabelTypes()
-                .find((type) => type.name === inputLabelType);
-            if (!inputLabelTypeObject) {
-                return `unknown label type: ${inputLabelType}`;
-            }
-
-            if (!inputLabelTypeObject.values.find((value) => value.text === inputLabelValue)) {
-                return `unknown label value of label type ${inputLabelType}: ${inputLabelValue}`;
-            }
-        }
-
-        // All fine
-        return undefined;
-    }
-}
+import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 
 /**
  * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
@@ -243,6 +78,262 @@ export class OutputPortEditUIMouseListener extends MouseListener {
     }
 }
 
+// More information and playground website for testing: https://microsoft.github.io/monaco-editor/monarch.html
+const statementKeywords = ["forward", "set"];
+const constantsKeywords = ["TRUE", "FALSE"];
+const dfdBehaviorLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = {
+    keywords: [...statementKeywords, ...constantsKeywords],
+
+    operators: ["=", "||", "&&", "!"],
+
+    brackets: [
+        {
+            open: "(",
+            close: ")",
+            token: "delimiter.parenthesis",
+        },
+    ],
+
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+    tokenizer: {
+        root: [
+            // keywords and identifiers
+            [
+                /[a-zA-Z_$][\w$]*/,
+                {
+                    cases: {
+                        "@keywords": "keyword",
+                        "@default": "identifier",
+                    },
+                },
+            ],
+
+            // whitespace and comments
+            [/[ \t\r\n]+/, "white"],
+            [/\/\/.*$/, "comment"],
+            [/#.*$/, "comment"],
+
+            // delimiters and operators
+            [/[()]/, "@brackets"],
+            [
+                /@symbols/,
+                {
+                    cases: {
+                        "@operators": "operator",
+                        "@default": "",
+                    },
+                },
+            ],
+        ],
+    },
+};
+
+class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.CompletionItemProvider {
+    constructor(
+        private readonly ui: OutputPortEditUI,
+        private readonly labelTypeRegistry: LabelTypeRegistry,
+    ) {}
+
+    // Auto open completions after typing a dot. Useful for the set statement where
+    // components are delimited by dots.
+    triggerCharacters = ["."];
+
+    provideCompletionItems(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+        // The first word of each line/statement is the statement type keyword
+        const statementType = model.getWordAtPosition({ column: 1, lineNumber: position.lineNumber });
+
+        // If we're currently at the first word of the statement, suggest the statement start keywords
+        // This also the case when the current line is empty.
+        const isAtFirstWord =
+            position.column >= (statementType?.startColumn ?? 1) && position.column <= (statementType?.endColumn ?? 1);
+        if (isAtFirstWord) {
+            // Start of line: suggest statement start keywords
+            return {
+                suggestions: statementKeywords.map((keyword) => ({
+                    label: keyword,
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    insertText: keyword,
+                    // Replace full line with new statement start keyword
+                    range: new monaco.Range(
+                        position.lineNumber,
+                        1,
+                        position.lineNumber,
+                        model.getLineMaxColumn(position.lineNumber),
+                    ),
+                })),
+            };
+        }
+
+        const parent = this.ui.getCurrentEditingPort()?.parent;
+        if (!(parent instanceof DfdNodeImpl)) {
+            return {
+                suggestions: [],
+            };
+        }
+
+        const availableInputs = parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
+
+        // Suggestions per statement type
+        switch (statementType?.word) {
+            case "set":
+                return {
+                    suggestions: this.getSetStatementCompletions(model, position, availableInputs),
+                };
+            case "forward":
+                return {
+                    suggestions: this.getInputCompletions(model, position, availableInputs),
+                };
+        }
+
+        // Unknown statement type, cannot suggest anything
+        return {
+            suggestions: [],
+        };
+    }
+
+    private getSetStatementCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        availableInputs: string[],
+    ): monaco.languages.CompletionItem[] {
+        const line = model.getLineContent(position.lineNumber);
+
+        // Find the start of the current expression
+        // -1 because the column is to the right of the last char => last filled column is -1
+        let currentExpressionStart = position.column - 1;
+        while (currentExpressionStart > 0) {
+            const currentChar = line[currentExpressionStart - 1]; // column is 1-based but array is 0-based => -1
+
+            if (currentChar !== "." && !currentChar.match(PortBehaviorValidator.REGEX_ALPHANUMERIC)) {
+                break;
+            }
+
+            currentExpressionStart--;
+        }
+
+        const currentExpression = line.substring(currentExpressionStart - 1, position.column);
+        const expressionParts = currentExpression.split(".");
+        // Check whether the position is the assignment target (aka the left side of the "=" or missing equals)
+        const equalsIdx = line.indexOf("=");
+        const isTargetLabel = equalsIdx == -1 || equalsIdx > currentExpressionStart;
+
+        if (isTargetLabel) {
+            // Left hand side: labelType.labelValue (is for the target node, so we don't need to specify)
+            if (expressionParts.length === 1) {
+                return this.getLabelTypeCompletions(model, position);
+            } else {
+                return this.getLabelValueCompletions(model, position, expressionParts[0]);
+            }
+        } else {
+            // Right hand side: input.labelType.labelValue or constant
+            switch (expressionParts.length) {
+                case 1:
+                    return [
+                        ...this.getInputCompletions(model, position, availableInputs),
+                        ...this.getConstantsCompletions(model, position),
+                    ];
+                case 2:
+                    return this.getLabelTypeCompletions(model, position);
+                case 3:
+                    const labelTypeName = expressionParts[1];
+                    return this.getLabelValueCompletions(model, position, labelTypeName);
+            }
+        }
+
+        return [];
+    }
+
+    private getInputCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        availableInputs: string[],
+    ): monaco.languages.CompletionItem[] {
+        const currentWord = model.getWordUntilPosition(position);
+
+        return availableInputs.map((input) => ({
+            label: input,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            insertText: input,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getConstantsCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.CompletionItem[] {
+        const currentWord = model.getWordUntilPosition(position);
+
+        return constantsKeywords.map((constant) => ({
+            label: constant,
+            kind: monaco.languages.CompletionItemKind.Constant,
+            insertText: constant,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getLabelTypeCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+    ): monaco.languages.CompletionItem[] {
+        const availableLabelTypes = this.labelTypeRegistry.getLabelTypes();
+        const currentWord = model.getWordUntilPosition(position);
+
+        return availableLabelTypes.map((labelType) => ({
+            label: labelType.name,
+            kind: monaco.languages.CompletionItemKind.Class,
+            insertText: labelType.name,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+
+    private getLabelValueCompletions(
+        model: monaco.editor.ITextModel,
+        position: monaco.Position,
+        labelTypeName: string,
+    ): monaco.languages.CompletionItem[] {
+        const labelType = this.labelTypeRegistry
+            .getLabelTypes()
+            .find((labelType) => labelType.name === labelTypeName.trim());
+        if (!labelType) {
+            return [];
+        }
+
+        const currentWord = model.getWordUntilPosition(position);
+
+        return labelType.values.map((labelValue) => ({
+            label: labelValue.text,
+            kind: monaco.languages.CompletionItemKind.Enum,
+            insertText: labelValue.text,
+            range: new monaco.Range(
+                position.lineNumber,
+                currentWord.startColumn,
+                position.lineNumber,
+                currentWord.endColumn,
+            ),
+        }));
+    }
+}
+
 /**
  * UI that allows editing the behavior text of a dfd output port (DfdOutputPortImpl).
  */
@@ -250,16 +341,19 @@ export class OutputPortEditUIMouseListener extends MouseListener {
 export class OutputPortEditUI extends AbstractUIExtension {
     static readonly ID = "output-port-edit-ui";
 
+    private unavailableInputsLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+
     private port: DfdOutputPortImpl | undefined;
-    private availableInputs: HTMLSpanElement = document.createElement("div");
-    private behaviorText: HTMLTextAreaElement = document.createElement("textarea");
-    private validationLabel: HTMLSpanElement = document.createElement("div");
+    private editor?: monaco.editor.IStandaloneCodeEditor;
 
     constructor(
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
+        @inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry,
     ) {
         super();
     }
@@ -274,33 +368,52 @@ export class OutputPortEditUI extends AbstractUIExtension {
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
-        this.behaviorText.autocomplete = "off";
-        this.behaviorText.spellcheck = false;
-        this.behaviorText.placeholder = "Enter behavior here";
-
-        containerElement.appendChild(this.availableInputs);
-        containerElement.appendChild(this.behaviorText);
+        containerElement.appendChild(this.unavailableInputsLabel);
+        containerElement.appendChild(this.editorContainer);
         containerElement.appendChild(this.validationLabel);
 
         containerElement.classList.add("ui-float");
-        this.availableInputs.classList.add("available-inputs");
+        this.unavailableInputsLabel.classList.add("unavailable-inputs");
+        this.editorContainer.classList.add("monaco-container");
         this.validationLabel.classList.add("validation-label");
+
+        // Initialize the monaco editor and setup the language for highlighting and autocomplete.
+        const dfdLanguageName = "dfd-behavior";
+        monaco.languages.register({ id: dfdLanguageName });
+        monaco.languages.setMonarchTokensProvider(dfdLanguageName, dfdBehaviorLanguageMonarchDefinition);
+        monaco.languages.registerCompletionItemProvider(
+            dfdLanguageName,
+            new MonacoEditorDfdBehaviorCompletionProvider(this, this.labelTypeRegistry),
+        );
+
+        const monacoTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "vs";
+        this.editor = monaco.editor.create(this.editorContainer, {
+            minimap: {
+                // takes too much space, not useful for our use case
+                enabled: false,
+            },
+            lineNumbersMinChars: 3, // default is 5, which we'll never need. Save a bit of space.
+            folding: false, // Not supported by our language definition
+            wordBasedSuggestions: "off", // Does not really work for our use case
+            theme: monacoTheme,
+            language: dfdLanguageName,
+        });
 
         this.configureHandlers(containerElement);
     }
 
     private configureHandlers(containerElement: HTMLElement): void {
-        // If the user unfocuses the textarea, save the changes.
-        this.behaviorText.addEventListener("blur", () => {
+        // If the user unfocuses the editor, save the changes.
+        this.editor?.onDidBlurEditorText(() => {
             this.save();
         });
 
-        // Run behavior validation on each key press and when
-        // changing the text through other ways(e.g. move text via mouse drag and drop)
-        this.behaviorText.addEventListener("keydown", () => this.validateBehavior());
-        this.behaviorText.addEventListener("input", () => this.validateBehavior());
+        // Run behavior validation when the behavior text changes.
+        this.editor?.onDidChangeModelContent(() => {
+            this.validateBehavior();
+        });
 
-        // Hide/"close this window" when pressing escape and don't save changes in that case.
+        // Hide/"close this window" when pressing escape.
         containerElement.addEventListener("keydown", (event) => {
             if (matchesKeystroke(event, "Escape")) {
                 this.hide();
@@ -329,21 +442,24 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
         const availableInputNames = parent.getAvailableInputs();
         const countUnavailableDueToMissingName = availableInputNames.filter((name) => name === undefined).length;
-        const definedInputNames = availableInputNames.filter((name) => name !== undefined);
-
-        let availableInputsText = "";
-        if (definedInputNames.length === 0) {
-            availableInputsText = "There are no available inputs.";
-        } else {
-            availableInputsText = `Available inputs: ${definedInputNames.join(", ")}`;
-        }
 
         if (countUnavailableDueToMissingName > 0) {
-            availableInputsText += `\nThere are ${countUnavailableDueToMissingName} available inputs that don't have a named edge and cannot be used.`;
-        }
-        this.availableInputs.innerText = availableInputsText;
+            const unavailableInputsText =
+                countUnavailableDueToMissingName > 1
+                    ? `There are ${countUnavailableDueToMissingName} inputs that don't have a named edge and cannot be used`
+                    : `There is ${countUnavailableDueToMissingName} input that doesn't have a named edge and cannot be used`;
 
-        this.behaviorText.value = this.port.behavior;
+            this.unavailableInputsLabel.innerText = unavailableInputsText;
+            this.unavailableInputsLabel.style.display = "block";
+        } else {
+            this.unavailableInputsLabel.innerText = "";
+            this.unavailableInputsLabel.style.display = "none";
+        }
+
+        // Load the current behavior text of the port into the text editor.
+        this.editor?.setValue(this.port.behavior);
+        this.editor?.layout();
+
         // Validation of loaded behavior text.
         this.validateBehavior();
 
@@ -353,7 +469,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         // There might still be some clicks in the event loop queue queue which would de-focus the port edit UI.
         // Instead process them (fast as no UI is shown or similar slow tasks are done) and then focus the UI.
         setTimeout(() => {
-            containerElement.focus();
+            this.editor?.focus();
         }, 0); // 0ms => next event loop tick
     }
 
@@ -375,31 +491,53 @@ export class OutputPortEditUI extends AbstractUIExtension {
             return;
         }
 
-        const behaviorText = this.behaviorText.value;
+        const behaviorText = this.editor?.getValue() ?? "";
         const results = this.validator.validate(behaviorText, this.port);
         if (results.length === 0) {
             // Everything fine
-            this.validationLabel.innerText = "Behavior is valid.";
+            this.validationLabel.innerText = "Behavior is valid";
             this.validationLabel.classList.remove("validation-error");
             this.validationLabel.classList.add("validation-success");
         } else {
             // Some error
-            const validationResultString = results.map((result) => `Line ${result.line}: ${result.message}`).join("\n");
-            this.validationLabel.innerText = validationResultString;
+            this.validationLabel.innerText = `Behavior is invalid: ${results.length} error${
+                results.length === 1 ? "" : "s"
+            }.`;
             this.validationLabel.classList.remove("validation-success");
             this.validationLabel.classList.add("validation-error");
+        }
+
+        // Add markers for each error to monaco (if any)
+        const markers: monaco.editor.IMarkerData[] = results.map((result) => ({
+            severity: monaco.MarkerSeverity.Error,
+            message: result.message,
+            startLineNumber: result.line + 1,
+            startColumn: (result.colStart ?? 0) + 1,
+            endLineNumber: result.line + 1,
+            endColumn: (result.colEnd ?? 0) + 1,
+        }));
+
+        const model = this.editor?.getModel();
+        if (model) {
+            monaco.editor.setModelMarkers(model, "owner", markers);
         }
     }
 
     /**
-     * Saves the current behavior text inside the textinput element to the port.
+     * Saves the current behavior text inside the editor to the port.
      */
     private save(): void {
         if (!this.port) {
             throw new Error("Cannot save without set port.");
         }
-        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, this.behaviorText.value));
+
+        const behaviorText = this.editor?.getValue() ?? "";
+        this.actionDispatcher.dispatch(SetDfdOutputPortBehaviorAction.create(this.port.id, behaviorText));
         this.actionDispatcher.dispatch(CommitModelAction.create());
+    }
+
+    public getCurrentEditingPort(): DfdOutputPortImpl | undefined {
+        return this.port;
     }
 }
 

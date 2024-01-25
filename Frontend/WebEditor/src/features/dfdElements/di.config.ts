@@ -16,13 +16,9 @@ import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges";
 import { DfdInputPortImpl, DfdInputPortView, DfdOutputPortImpl, DfdOutputPortView } from "./ports";
 import { FilledBackgroundLabelView, DfdPositionalLabelView } from "./labels";
 import { AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand, PortAwareSnapper } from "./portSnapper";
-import {
-    OutputPortEditUIMouseListener,
-    OutputPortEditUI,
-    SetDfdOutputPortBehaviorCommand,
-    PortBehaviorValidator,
-} from "./outputPortEditUi";
+import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
 import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
+import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 
 import "./elementStyles.css";
 
