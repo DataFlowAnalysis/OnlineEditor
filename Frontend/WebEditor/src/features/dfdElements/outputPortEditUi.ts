@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     AbstractUIExtension,
     ActionDispatcher,
@@ -132,7 +132,7 @@ const dfdBehaviorLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = 
 class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.CompletionItemProvider {
     constructor(
         private readonly ui: OutputPortEditUI,
-        private readonly labelTypeRegistry: LabelTypeRegistry,
+        private readonly labelTypeRegistry?: LabelTypeRegistry,
     ) {}
 
     // Auto open completions after typing a dot. Useful for the set statement where
@@ -290,7 +290,7 @@ class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.Comp
         model: monaco.editor.ITextModel,
         position: monaco.Position,
     ): monaco.languages.CompletionItem[] {
-        const availableLabelTypes = this.labelTypeRegistry.getLabelTypes();
+        const availableLabelTypes = this.labelTypeRegistry?.getLabelTypes() ?? [];
         const currentWord = model.getWordUntilPosition(position);
 
         return availableLabelTypes.map((labelType) => ({
@@ -312,7 +312,7 @@ class MonacoEditorDfdBehaviorCompletionProvider implements monaco.languages.Comp
         labelTypeName: string,
     ): monaco.languages.CompletionItem[] {
         const labelType = this.labelTypeRegistry
-            .getLabelTypes()
+            ?.getLabelTypes()
             .find((labelType) => labelType.name === labelTypeName.trim());
         if (!labelType) {
             return [];
@@ -353,7 +353,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
-        @inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry,
+        @inject(LabelTypeRegistry) @optional() private labelTypeRegistry?: LabelTypeRegistry,
     ) {
         super();
     }
