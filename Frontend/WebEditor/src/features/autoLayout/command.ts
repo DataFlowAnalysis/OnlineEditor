@@ -1,5 +1,5 @@
 import { inject } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, SModelRootImpl, TYPES } from "sprotty";
 import { Action, IModelLayoutEngine, SGraph, SModelRoot } from "sprotty-protocol";
 import { LoadDiagramCommand } from "../serialize/load";
 
@@ -22,16 +22,13 @@ export class LayoutModelCommand extends Command {
     @inject(TYPES.IModelLayoutEngine)
     private readonly layoutEngine?: IModelLayoutEngine;
 
-    @inject(TYPES.ModelSource)
-    private readonly modelSource?: LocalModelSource;
-
     private oldModelSchema?: SModelRoot;
     private newModel?: SModelRootImpl;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.oldModelSchema = context.modelFactory.createSchema(context.root);
 
-        if (!this.layoutEngine || !this.modelSource) throw new Error("Missing injects");
+        if (!this.layoutEngine) throw new Error("Missing injects");
 
         // Layouting is normally done on the graph schema.
         // This is not viable for us because the dfd nodes have a dynamically computed size.
