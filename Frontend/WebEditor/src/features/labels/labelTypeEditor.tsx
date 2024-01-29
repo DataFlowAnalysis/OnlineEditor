@@ -16,6 +16,7 @@ import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dropListener";
 import { Action } from "sprotty-protocol";
 import { snapPortsOfNode } from "../dfdElements/portSnapper";
 import { DfdNodeImpl } from "../dfdElements/nodes";
+import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import "../../common/commonStyling.css";
 import "./labelTypeEditor.css";
@@ -83,6 +84,7 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         `;
         // Add input used by the label and the accordion-content div
         // This element is not re-created on new renders and reused to save the expansion state of the accordion
+        // This is important because the ui is re-rendered on every change to the label type registry
         containerElement.prepend(this.accordionStateElement);
 
         const innerContainerElement = containerElement.querySelector(".label-type-edit-ui-inner");
@@ -258,16 +260,9 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
     }
 
     keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
-        // For some reason accessing the accordion state element directly through the class/object variable
-        // does not work so we get it from the dom again.
-        const accordionStateElement = document.getElementById("accordion-state-label-types") as HTMLInputElement | null;
-        if (!accordionStateElement) {
-            this.logger.error(this, "Could not find accordion state element");
-            return [];
-        }
-
-        if (event.key === "t") {
-            accordionStateElement.checked = !accordionStateElement.checked;
+        // Toggle the accordion on press of T
+        if (matchesKeystroke(event, "KeyT")) {
+            this.accordionStateElement.checked = !this.accordionStateElement.checked;
         }
 
         return [];
