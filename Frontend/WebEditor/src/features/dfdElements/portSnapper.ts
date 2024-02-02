@@ -42,7 +42,12 @@ class ConfigurableGridSnapper extends CenterGridSnapper {
 @injectable()
 export class PortAwareSnapper implements ISnapper {
     private readonly nodeSnapper = new ConfigurableGridSnapper(5);
-    private readonly portSnapper = new ConfigurableGridSnapper(2);
+    // The port grid size is a multiple of the node grid size to ensure
+    // that the ports of two nodes neighboring each other can be aligned.
+    // If the grid size would be different, it may occur that the ports
+    // of two nodes that start on different heights may not be aligned,
+    // so make sure that the node grid size is a multiple of the port grid size.
+    private readonly portSnapper = new ConfigurableGridSnapper(2.5);
 
     private snapPort(position: Point, element: SPortImpl): Point {
         const parentElement = element.parent;
