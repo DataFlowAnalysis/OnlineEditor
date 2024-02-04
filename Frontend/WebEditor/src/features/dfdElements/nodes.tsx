@@ -24,6 +24,13 @@ export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
     ports: SPort[];
+    validationResult?: DfdNodeValidationResult;
+}
+
+interface DfdNodeValidationResult {
+    message: string;
+    color?: string;
+    fontAwesomeIcon?: string;
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
@@ -34,6 +41,7 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
     text: string = "";
     labels: LabelAssignment[] = [];
     ports: SPort[] = [];
+    validationResult?: DfdNodeValidationResult;
 
     override setChildren(schema: DfdNode): void {
         const children: SModelElement[] = [
