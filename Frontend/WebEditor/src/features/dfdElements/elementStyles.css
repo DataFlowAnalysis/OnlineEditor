@@ -8,7 +8,13 @@
 .sprotty-node rect,
 .sprotty-node line,
 .sprotty-node circle {
-    stroke: var(--color-foreground);
+    /* stroke color defaults to be the foreground color of the theme.
+       Alternatively it can be overwritten by setting the --color variable
+       As a inline style attribute for the specific node.
+       Used as a highlighter to mark nodes with errors.
+       This is essentially a "optional parameter" to this css rule.
+       See https://stackoverflow.com/questions/17893823/how-to-pass-parameters-to-css-classes */
+    stroke: var(--color, var(--color-foreground));
     stroke-width: 1;
     fill: transparent;
 }
