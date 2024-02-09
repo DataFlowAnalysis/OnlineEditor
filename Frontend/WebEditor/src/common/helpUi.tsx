@@ -21,7 +21,7 @@ export class HelpUI extends AbstractUIExtension {
             <input type="checkbox" id="accordion-state-help" class="accordion-state" hidden>
             <label id="help-ui-accordion-label" for="accordion-state-help">
                 <div class="accordion-button">
-                    Keyboard Shortcuts
+                    Keyboard Shortcuts | Help
                 </div>
             </label>
             <div class="accordion-content">
