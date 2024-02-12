@@ -17,6 +17,7 @@ import { createDefaultFitToScreenAction } from "../../utils";
 import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
+import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -57,11 +58,16 @@ export class LoadDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     @optional()
     private readonly labelTypeRegistry?: LabelTypeRegistry;
+    @inject(EditorModeController)
+    @optional()
+    private editorModeController?: EditorModeController;
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
     private oldLabelTypes: LabelType[] | undefined;
     private newLabelTypes: LabelType[] | undefined;
+    private oldEditorMode: EditorMode | undefined;
+    private newEditorMode: EditorMode | undefined;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         // Open a file picker dialog.
@@ -141,6 +147,19 @@ export class LoadDiagramCommand extends Command {
                 }
             }
 
+            if (this.editorModeController) {
+                // Load editor mode
+                this.oldEditorMode = this.editorModeController.getCurrentMode();
+                this.newEditorMode = newDiagram?.editorMode;
+                if (newDiagram?.editorMode) {
+                    this.editorModeController.setMode(newDiagram.editorMode);
+                } else {
+                    this.editorModeController.setDefaultMode();
+                }
+
+                this.logger.info(this, "Editor mode loaded successfully");
+            }
+
             postLoadActions(this.newRoot, this.actionDispatcher);
             return this.newRoot;
         } catch (error) {
@@ -180,12 +199,24 @@ export class LoadDiagramCommand extends Command {
     undo(context: CommandExecutionContext): SModelRootImpl {
         this.labelTypeRegistry?.clearLabelTypes();
         this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
+        if (this.oldEditorMode) {
+            this.editorModeController?.setMode(this.oldEditorMode);
+        }
+
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
         this.labelTypeRegistry?.clearLabelTypes();
         this.newLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
+        if (this.editorModeController) {
+            if (this.newEditorMode) {
+                this.editorModeController.setMode(this.newEditorMode);
+            } else {
+                this.editorModeController.setDefaultMode();
+            }
+        }
+
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }

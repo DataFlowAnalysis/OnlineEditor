@@ -15,6 +15,7 @@ import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { LoadDiagramCommand, postLoadActions } from "./load";
 import { SavedDiagram } from "./save";
+import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
 
 import defaultDiagramData from "./defaultDiagram.json";
 const defaultDiagram = defaultDiagramData as SavedDiagram;
@@ -46,10 +47,14 @@ export class LoadDefaultDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     @optional()
     private readonly labelTypeRegistry?: LabelTypeRegistry;
+    @inject(EditorModeController)
+    @optional()
+    private editorModeController?: EditorModeController;
 
     private oldRoot: SModelRootImpl | undefined;
     private newRoot: SModelRootImpl | undefined;
     private oldLabelTypes: LabelType[] | undefined;
+    private oldEditorMode: EditorMode | undefined;
 
     execute(context: CommandExecutionContext): CommandReturn {
         this.oldRoot = context.root;
@@ -70,6 +75,17 @@ export class LoadDefaultDiagramCommand extends Command {
             this.logger.info(this, "Default Label Types loaded successfully");
         }
 
+        if (this.editorModeController) {
+            this.oldEditorMode = this.editorModeController.getCurrentMode();
+            if (defaultDiagram.editorMode) {
+                this.editorModeController.setMode(defaultDiagram.editorMode);
+            } else {
+                this.editorModeController.setDefaultMode();
+            }
+
+            this.logger.info(this, "Default Editor Mode loaded successfully");
+        }
+
         postLoadActions(this.newRoot, this.actionDispatcher);
         return this.newRoot;
     }
@@ -77,6 +93,10 @@ export class LoadDefaultDiagramCommand extends Command {
     undo(context: CommandExecutionContext): SModelRootImpl {
         this.labelTypeRegistry?.clearLabelTypes();
         this.oldLabelTypes?.forEach((labelType) => this.labelTypeRegistry?.registerLabelType(labelType));
+        if (this.oldEditorMode) {
+            this.editorModeController?.setMode(this.oldEditorMode);
+        }
+
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
@@ -85,6 +105,14 @@ export class LoadDefaultDiagramCommand extends Command {
         defaultDiagram.labelTypes?.forEach((labelType) => {
             this.labelTypeRegistry?.registerLabelType(labelType);
         });
+        if (this.editorModeController) {
+            if (defaultDiagram.editorMode) {
+                this.editorModeController.setMode(defaultDiagram.editorMode);
+            } else {
+                this.editorModeController.setDefaultMode();
+            }
+        }
+
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 }

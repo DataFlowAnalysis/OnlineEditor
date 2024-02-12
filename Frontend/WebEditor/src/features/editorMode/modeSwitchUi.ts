@@ -33,8 +33,7 @@ export class EditorModeSwitchUi extends AbstractUIExtension {
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
         this.editorModeController.onModeChange((mode) => this.reRender(mode));
-        // Only for testing, TODO: remove when mode is loaded from the model
-        this.editorModeController.setMode("validation");
+        this.reRender(this.editorModeController.getCurrentMode());
     }
 
     private reRender(mode: EditorMode): void {

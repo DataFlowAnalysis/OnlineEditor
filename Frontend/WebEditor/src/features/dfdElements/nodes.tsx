@@ -27,7 +27,7 @@ export interface DfdNode extends SNode {
     validationResult?: DfdNodeValidationResult;
 }
 
-interface DfdNodeValidationResult {
+export interface DfdNodeValidationResult {
     message: string;
     color?: string;
     fontAwesomeIcon?: string;
