@@ -1,6 +1,7 @@
 import { AbstractUIExtension, ActionDispatcher, TYPES } from "sprotty";
-import { ChangeEditorModeAction, EditorMode, EditorModeController } from "./editorModeController";
+import { EditorMode, EditorModeController } from "./editorModeController";
 import { inject, injectable } from "inversify";
+import { ChangeEditorModeAction } from "./command";
 
 import "./modeSwitchUi.css";
 

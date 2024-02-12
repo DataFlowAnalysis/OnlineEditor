@@ -1,4 +1,4 @@
-import { injectable, inject } from "inversify";
+import { injectable, inject, optional } from "inversify";
 import { calculateTextSize, generateRandomSprottyId } from "../../utils";
 import {
     AbstractUIExtension,
@@ -17,6 +17,7 @@ import { Action } from "sprotty-protocol";
 import { snapPortsOfNode } from "../dfdElements/portSnapper";
 import { DfdNodeImpl } from "../dfdElements/nodes";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 import "../../common/commonStyling.css";
 import "./labelTypeEditor.css";
@@ -30,6 +31,9 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
         @inject(TYPES.ICommandStack) private readonly commandStack: CommandStack,
         @inject(TYPES.ISnapper) private readonly snapper: ISnapper,
+        @inject(EditorModeController)
+        @optional()
+        private readonly editorModeController: EditorModeController,
     ) {
         super();
         labelTypeRegistry.onUpdate(() => this.reRender());
@@ -106,6 +110,10 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         const addButton = document.createElement("button");
         addButton.innerHTML = '<span class="codicon codicon-add"></span> Label Type';
         addButton.onclick = () => {
+            if (this.editorModeController?.isReadOnly()) {
+                return;
+            }
+
             const labelType: LabelType = {
                 id: generateRandomSprottyId(),
                 name: "",
@@ -139,9 +147,13 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
 
         this.dynamicallySetInputSize(labelTypeNameInput);
 
-        // Disallow spaces in label type names
+        // Disallow spaces in label type names and changes when readonly
         labelTypeNameInput.onbeforeinput = (event) => {
             if (event.data?.includes(" ")) {
+                event.preventDefault();
+            }
+
+            if (this.editorModeController && this.editorModeController.isReadOnly()) {
                 event.preventDefault();
             }
         };
@@ -170,6 +182,10 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         addButton.classList.add("label-type-value-add");
         addButton.innerHTML = '<span class="codicon codicon-add"></span> Value';
         addButton.onclick = () => {
+            if (this.editorModeController?.isReadOnly()) {
+                return;
+            }
+
             const labelValue: LabelTypeValue = {
                 id: generateRandomSprottyId(),
                 text: "",
@@ -197,9 +213,13 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         valueInput.placeholder = "Value";
         this.dynamicallySetInputSize(valueInput);
 
-        // Disallow spaces in label type values
+        // Disallow spaces in label type values and changes when readonly
         valueInput.onbeforeinput = (event) => {
             if (event.data?.includes(" ")) {
+                event.preventDefault();
+            }
+
+            if (this.editorModeController && this.editorModeController.isReadOnly()) {
                 event.preventDefault();
             }
         };

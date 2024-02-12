@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { injectable, inject, multiInject } from "inversify";
+import { injectable, inject, multiInject, optional } from "inversify";
 import { VNode } from "snabbdom";
 import {
     svg,
@@ -20,6 +20,7 @@ import { EdgeCreationTool } from "./edgeCreationTool";
 import { PortCreationTool } from "./portCreationTool";
 import { AnyCreationTool } from "./creationTool";
 import { EDITOR_TYPES } from "../../utils";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 import "../../common/commonStyling.css";
 import "./toolPalette.css";
@@ -40,6 +41,9 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         @inject(EdgeCreationTool) protected readonly edgeCreationTool: EdgeCreationTool,
         @inject(PortCreationTool) protected readonly portCreationTool: PortCreationTool,
         @multiInject(EDITOR_TYPES.CreationTool) protected readonly allTools: AnyCreationTool[],
+        @inject(EditorModeController)
+        @optional()
+        protected readonly editorModeController: EditorModeController,
     ) {
         super();
     }
@@ -179,7 +183,7 @@ export class ToolPaletteUI extends AbstractUIExtension implements IActionHandler
         toolElement.classList.add("tool");
 
         toolElement.addEventListener("click", () => {
-            if (toolElement.classList.contains("active")) {
+            if (toolElement.classList.contains("active") || this.editorModeController?.isReadOnly()) {
                 tool.disable();
                 toolElement.classList.remove("active");
             } else {
