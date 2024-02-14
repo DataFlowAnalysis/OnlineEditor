@@ -58,7 +58,7 @@ export class EditorModeSwitchUi extends AbstractUIExtension {
 
     private renderValidationMode(): void {
         this.containerElement.innerHTML = `
-            Currently validation errors from the analysis.</br>
+            Currently viewing validation errors from the analysis.</br>
             Enabling editing will remove the validation errors.</br>
             <button id="enableEditingButton">Enable editing</button>
         `;

@@ -22,7 +22,7 @@ export const editorModeModule = new ContainerModule((bind, unbind, isBound, rebi
 
     // Sprotty hooks that hook into the edit label, move and edit module
     // to intercept model modifications to prevent them when the editor is in a read-only mode.
-    rebind(EditLabelMouseListener).to(EditorModeAwareEditLabelMouseListener).inSingletonScope();
-    rebind(MoveCommand).to(EditorModeAwareMoveCommand).inSingletonScope();
-    rebind(DeleteElementCommand).to(EditorModeAwareDeleteElementCommand).inSingletonScope();
+    rebind(EditLabelMouseListener).to(EditorModeAwareEditLabelMouseListener);
+    rebind(MoveCommand).to(EditorModeAwareMoveCommand);
+    rebind(DeleteElementCommand).to(EditorModeAwareDeleteElementCommand);
 });
