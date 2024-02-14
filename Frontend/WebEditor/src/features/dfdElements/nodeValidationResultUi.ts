@@ -154,7 +154,7 @@ export class DfdNodeValidationResultUI extends AbstractUIExtension {
         }
 
         const { message, fontAwesomeIcon } = node.validationResult;
-        this.validationParagraph.innerText = `Error: ${message}`;
+        this.validationParagraph.innerText = message;
 
         if (fontAwesomeIcon) {
             const icon = document.createElement("i");
