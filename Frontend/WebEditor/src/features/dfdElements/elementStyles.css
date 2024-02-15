@@ -16,7 +16,10 @@
        See https://stackoverflow.com/questions/17893823/how-to-pass-parameters-to-css-classes */
     stroke: var(--color, var(--color-foreground));
     stroke-width: 1;
-    fill: transparent;
+    /* Background fill of the node.
+       When --color is unset this is just --color-primary.
+       If this node is annotated and --color is set, it will be included in the color mix. */
+    fill: color-mix(in srgb, var(--color-primary), var(--color, transparent) 25%);
 }
 
 .sprotty-node .node-label text {
@@ -47,7 +50,8 @@
    This makes it easier to select the edge with the mouse. */
 .sprotty-edge path.select-path {
     stroke: transparent;
-    stroke-width: 8; /* make the "invisible hitbox" 8 pixels wide. This is the same width as the arrow head */
+    /* make the "invisible hitbox" 8 pixels wide. This is the same width as the arrow head */
+    stroke-width: 8;
 }
 
 .sprotty-edge .arrow {
