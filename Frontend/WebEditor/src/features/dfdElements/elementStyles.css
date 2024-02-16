@@ -73,7 +73,7 @@
 
 .sprotty-port rect {
     stroke: var(--color-foreground);
-    fill: var(--color-background);
+    fill: color-mix(in srgb, var(--color-primary), var(--color-background) 25%);
     stroke-width: 0.5;
 }
 
