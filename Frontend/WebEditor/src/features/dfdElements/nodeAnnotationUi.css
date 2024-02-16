@@ -1,14 +1,14 @@
-.dfd-node-validation-result-ui {
+.dfd-node-annotation-ui {
     /* don't break lines into multiple when they don't fit on screen.
        Just let the popup clip outside the screen when there is not enough space and let the
        user move the popup at a position where the text is fully visible */
     white-space: nowrap;
 }
 
-.dfd-node-validation-result-ui p {
+.dfd-node-annotation-ui p {
     margin: 12px;
 }
 
-.dfd-node-validation-result-ui i.fa {
+.dfd-node-annotation-ui i.fa {
     margin-right: 5px;
 }

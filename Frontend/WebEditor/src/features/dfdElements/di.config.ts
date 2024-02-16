@@ -19,7 +19,7 @@ import { AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand, P
 import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehaviorCommand } from "./outputPortEditUi";
 import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
-import { DfdNodeValidationResultUI, DfdNodeValidationResultUIMouseListener } from "./nodeValidationResultUi";
+import { DfdNodeAnnotationUI, DfdNodeAnnotationUIMouseListener } from "./nodeAnnotationUi";
 
 import "./elementStyles.css";
 
@@ -38,9 +38,9 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     bind(TYPES.IEditLabelValidator).to(DfdEditLabelValidator).inSingletonScope();
     bind(TYPES.IEditLabelValidationDecorator).to(DfdEditLabelValidatorDecorator).inSingletonScope();
 
-    bind(DfdNodeValidationResultUIMouseListener).toSelf().inSingletonScope();
-    bind(TYPES.MouseListener).toService(DfdNodeValidationResultUIMouseListener);
-    bind(TYPES.IUIExtension).to(DfdNodeValidationResultUI).inSingletonScope();
+    bind(DfdNodeAnnotationUIMouseListener).toSelf().inSingletonScope();
+    bind(TYPES.MouseListener).toService(DfdNodeAnnotationUIMouseListener);
+    bind(TYPES.IUIExtension).to(DfdNodeAnnotationUI).inSingletonScope();
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);

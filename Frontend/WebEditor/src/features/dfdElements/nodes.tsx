@@ -24,13 +24,13 @@ export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
     ports: SPort[];
-    validationResult?: DfdNodeValidationResult;
+    annotation?: DfdNodeAnnotation;
 }
 
-export interface DfdNodeValidationResult {
+export interface DfdNodeAnnotation {
     message: string;
     color?: string;
-    fontAwesomeIcon?: string;
+    icon?: string;
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
@@ -41,7 +41,7 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
     text: string = "";
     labels: LabelAssignment[] = [];
     ports: SPort[] = [];
-    validationResult?: DfdNodeValidationResult;
+    annotation?: DfdNodeAnnotation;
 
     override setChildren(schema: DfdNode): void {
         const children: SModelElement[] = [
@@ -135,15 +135,15 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
 
     /**
      * Generates the per-node inline style object for the view.
-     * Contains the opacity and the color of the node that may be set by the validation result.
+     * Contains the opacity and the color of the node that may be set by the annotation (if any).
      */
     geViewStyleObject(): VNodeStyle {
         const style: VNodeStyle = {
             opacity: this.opacity.toString(),
         };
 
-        if (this.validationResult?.color) {
-            style["--color"] = this.validationResult.color;
+        if (this.annotation?.color) {
+            style["--color"] = this.annotation.color;
         }
 
         return style;

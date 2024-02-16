@@ -13,9 +13,9 @@ import { Action } from "sprotty-protocol";
 import { DfdNodeImpl } from "./nodes";
 
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./nodeValidationResultUi.css";
+import "./nodeAnnotationUi.css";
 
-export class DfdNodeValidationResultUIMouseListener extends MouseListener {
+export class DfdNodeAnnotationUIMouseListener extends MouseListener {
     private stillTimeout: NodeJS.Timeout | undefined;
     private lastPosition = { x: 0, y: 0 };
 
@@ -70,14 +70,14 @@ export class DfdNodeValidationResultUIMouseListener extends MouseListener {
     }
 
     private showPopup(target: DfdNodeImpl): void {
-        if (!target.validationResult) {
-            // no validation errors, all fine. No need to show the popup.
+        if (!target.annotation) {
+            // no annotation. No need to show the popup.
             return;
         }
 
         this.actionDispatcher.dispatch(
             SetUIExtensionVisibilityAction.create({
-                extensionId: DfdNodeValidationResultUI.ID,
+                extensionId: DfdNodeAnnotationUI.ID,
                 visible: true,
                 contextElementsId: [target.id],
             }),
@@ -90,20 +90,20 @@ export class DfdNodeValidationResultUIMouseListener extends MouseListener {
 }
 
 @injectable()
-export class DfdNodeValidationResultUI extends AbstractUIExtension {
-    static readonly ID = "dfd-node-validation-result-ui";
+export class DfdNodeAnnotationUI extends AbstractUIExtension {
+    static readonly ID = "dfd-node-annotation-ui";
 
-    private readonly validationParagraph = document.createElement("p") as HTMLParagraphElement;
+    private readonly annotationParagraph = document.createElement("p") as HTMLParagraphElement;
 
     constructor(
-        @inject(DfdNodeValidationResultUIMouseListener)
-        private readonly mouseListener: DfdNodeValidationResultUIMouseListener,
+        @inject(DfdNodeAnnotationUIMouseListener)
+        private readonly mouseListener: DfdNodeAnnotationUIMouseListener,
     ) {
         super();
     }
 
     id(): string {
-        return DfdNodeValidationResultUI.ID;
+        return DfdNodeAnnotationUI.ID;
     }
 
     containerClass(): string {
@@ -112,7 +112,7 @@ export class DfdNodeValidationResultUI extends AbstractUIExtension {
 
     protected override initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
-        containerElement.appendChild(this.validationParagraph);
+        containerElement.appendChild(this.annotationParagraph);
 
         containerElement.addEventListener("mouseleave", () => {
             this.hide();
@@ -125,20 +125,20 @@ export class DfdNodeValidationResultUI extends AbstractUIExtension {
         ...contextElementIds: string[]
     ): void {
         if (contextElementIds.length !== 1) {
-            this.validationParagraph.innerText =
+            this.annotationParagraph.innerText =
                 "UI Error: Expected exactly one context element id, but got " + contextElementIds.length;
             return;
         }
 
         const node = root.index.getById(contextElementIds[0]);
         if (!(node instanceof DfdNodeImpl)) {
-            this.validationParagraph.innerText =
+            this.annotationParagraph.innerText =
                 "UI Error: Expected context element to be a DfdNodeImpl, but got " + node;
             return;
         }
 
         // Clear previous content
-        this.validationParagraph.innerHTML = "";
+        this.annotationParagraph.innerHTML = "";
 
         // 2 offset to ensure the mouse is inside the popup when showing it.
         // Otherwise it would be on the node instead of the popup because of the rounded corners.
@@ -148,18 +148,18 @@ export class DfdNodeValidationResultUI extends AbstractUIExtension {
         containerElement.style.left = `${mousePosition.x - 2}px`;
         containerElement.style.top = `${mousePosition.y - 2}px`;
 
-        if (!node.validationResult) {
-            this.validationParagraph.innerText = "No errors";
+        if (!node.annotation) {
+            this.annotationParagraph.innerText = "No errors";
             return;
         }
 
-        const { message, fontAwesomeIcon } = node.validationResult;
-        this.validationParagraph.innerText = message;
+        const { message, icon } = node.annotation;
+        this.annotationParagraph.innerText = message;
 
-        if (fontAwesomeIcon) {
-            const icon = document.createElement("i");
-            icon.classList.add("fa", `fa-${fontAwesomeIcon}`);
-            this.validationParagraph.prepend(icon);
+        if (icon) {
+            const iconI = document.createElement("i");
+            iconI.classList.add("fa", `fa-${icon}`);
+            this.annotationParagraph.prepend(iconI);
         }
     }
 }

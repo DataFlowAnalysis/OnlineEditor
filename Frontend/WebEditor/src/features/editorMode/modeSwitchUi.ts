@@ -8,7 +8,7 @@ import "./modeSwitchUi.css";
 /**
  * UI that shows the current editor mode (unless it is edit mode)
  * with details about the mode.
- * For validation mode the user can also choose to enable editing
+ * For annotated mode the user can also choose to enable editing
  * and switch the editor to edit mode.
  */
 @injectable()
@@ -47,19 +47,19 @@ export class EditorModeSwitchUi extends AbstractUIExtension {
                 this.containerElement.style.visibility = "visible";
                 this.renderReadonlyMode();
                 break;
-            case "validation":
+            case "annotated":
                 this.containerElement.style.visibility = "visible";
-                this.renderValidationMode();
+                this.renderAnnotatedMode();
                 break;
             default:
                 throw new Error(`Unknown editor mode: ${mode}`);
         }
     }
 
-    private renderValidationMode(): void {
+    private renderAnnotatedMode(): void {
         this.containerElement.innerHTML = `
-            Currently viewing validation errors from the analysis.</br>
-            Enabling editing will remove the validation errors.</br>
+            Currently viewing model annotations.</br>
+            Enabling editing will remove the annotations.</br>
             <button id="enableEditingButton">Enable editing</button>
         `;
         const enableEditingButton = this.containerElement.querySelector("#enableEditingButton");
@@ -70,8 +70,7 @@ export class EditorModeSwitchUi extends AbstractUIExtension {
 
     private renderReadonlyMode(): void {
         this.containerElement.innerHTML = `
-            This diagram was generated from a palladio model.</br>
-            Model is readonly.
+            This diagram was generated and is readonly.
         `;
     }
 }

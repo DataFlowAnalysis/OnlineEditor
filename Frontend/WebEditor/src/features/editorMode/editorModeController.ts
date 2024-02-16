@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-export type EditorMode = "edit" | "validation" | "readonly";
+export type EditorMode = "edit" | "annotated" | "readonly";
 
 /**
  * Holds the current editor mode in a central place.

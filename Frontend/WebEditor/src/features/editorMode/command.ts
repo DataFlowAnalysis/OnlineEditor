@@ -1,7 +1,7 @@
 import { inject } from "inversify";
 import { Command, TYPES, CommandExecutionContext, CommandReturn } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { DfdNodeValidationResult, DfdNodeImpl } from "../dfdElements/nodes";
+import { DfdNodeAnnotation, DfdNodeImpl } from "../dfdElements/nodes";
 import { EditorMode, EditorModeController } from "./editorModeController";
 
 export interface ChangeEditorModeAction extends Action {
@@ -23,7 +23,7 @@ export class ChangeEditorModeCommand extends Command {
     static readonly KIND = ChangeEditorModeAction.KIND;
 
     private oldMode?: EditorMode;
-    private oldNodeValidationResults: Map<string, DfdNodeValidationResult> = new Map();
+    private oldNodeAnnotations: Map<string, DfdNodeAnnotation> = new Map();
 
     @inject(EditorModeController)
     private readonly controller?: EditorModeController;
@@ -60,26 +60,26 @@ export class ChangeEditorModeCommand extends Command {
     }
 
     private postModeSwitch(context: CommandExecutionContext): void {
-        if (this.oldMode === "validation" && this.action.newMode === "edit") {
-            // Remove validation errors when enabling editing
+        if (this.oldMode === "annotated" && this.action.newMode === "edit") {
+            // Remove annotations when enabling editing
 
-            this.oldNodeValidationResults.clear();
+            this.oldNodeAnnotations.clear();
             context.root.index.all().forEach((element) => {
-                if (element instanceof DfdNodeImpl && element.validationResult) {
-                    this.oldNodeValidationResults.set(element.id, element.validationResult);
-                    element.validationResult = undefined;
+                if (element instanceof DfdNodeImpl && element.annotation) {
+                    this.oldNodeAnnotations.set(element.id, element.annotation);
+                    element.annotation = undefined;
                 }
             });
         }
     }
 
     private undoPostModeSwitch(context: CommandExecutionContext): void {
-        if (this.oldMode === "validation" && this.action.newMode === "edit") {
-            // Restore validation errors when disabling editing
-            this.oldNodeValidationResults.forEach((validationResult, id) => {
+        if (this.oldMode === "annotated" && this.action.newMode === "edit") {
+            // Restore annotations when disabling editing
+            this.oldNodeAnnotations.forEach((annotation, id) => {
                 const element = context.root.index.getById(id);
                 if (element instanceof DfdNodeImpl) {
-                    element.validationResult = validationResult;
+                    element.annotation = annotation;
                 }
             });
         }
