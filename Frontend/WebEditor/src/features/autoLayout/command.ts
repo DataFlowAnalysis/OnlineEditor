@@ -1,7 +1,8 @@
-import { inject } from "inversify";
+import { inject, optional } from "inversify";
 import { Command, CommandExecutionContext, SModelRootImpl, TYPES } from "sprotty";
 import { Action, IModelLayoutEngine, SGraph, SModelRoot } from "sprotty-protocol";
 import { LoadDiagramCommand } from "../serialize/load";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 export interface LayoutModelAction extends Action {
     kind: typeof LayoutModelAction.KIND;
@@ -19,6 +20,10 @@ export namespace LayoutModelAction {
 export class LayoutModelCommand extends Command {
     static readonly KIND = LayoutModelAction.KIND;
 
+    @inject(EditorModeController)
+    @optional()
+    private editorModeController?: EditorModeController;
+
     @inject(TYPES.IModelLayoutEngine)
     private readonly layoutEngine?: IModelLayoutEngine;
 
@@ -26,6 +31,11 @@ export class LayoutModelCommand extends Command {
     private newModel?: SModelRootImpl;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
+        if (this.editorModeController?.isReadOnly()) {
+            // We don't want to layout the model in read-only mode.
+            return context.root;
+        }
+
         this.oldModelSchema = context.modelFactory.createSchema(context.root);
 
         if (!this.layoutEngine) throw new Error("Missing injects");
@@ -44,18 +54,18 @@ export class LayoutModelCommand extends Command {
 
     undo(context: CommandExecutionContext): SModelRootImpl {
         if (!this.oldModelSchema) {
-            // This should never happen because execute() is called before undo() is called.
-            throw new Error("No old model to restore");
+            // No old schema saved because the layout was not executed due to read-only mode.
+            return context.root;
         }
 
         LoadDiagramCommand.preprocessModelSchema(this.oldModelSchema);
         return context.modelFactory.createRoot(this.oldModelSchema);
     }
 
-    redo(_context: CommandExecutionContext): SModelRootImpl {
+    redo(context: CommandExecutionContext): SModelRootImpl {
         if (!this.newModel) {
-            // This should never happen because execute() is called before redo() is called.
-            throw new Error("No new model to restore");
+            // No new model saved because the layout was not executed due to read-only mode.
+            return context.root;
         }
 
         return this.newModel;
