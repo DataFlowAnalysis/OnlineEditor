@@ -3,6 +3,7 @@ import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYP
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
+import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
 
 /**
  * Type that contains all data related to a diagram.
@@ -11,6 +12,7 @@ import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 export interface SavedDiagram {
     model: SModelRoot;
     labelTypes?: LabelType[];
+    editorMode?: EditorMode;
 }
 
 export interface SaveDiagramAction extends Action {
@@ -38,6 +40,9 @@ export class SaveDiagramCommand extends Command {
     @inject(LabelTypeRegistry)
     @optional()
     private labelTypeRegistry?: LabelTypeRegistry;
+    @inject(EditorModeController)
+    @optional()
+    private editorModeController?: EditorModeController;
 
     constructor(@inject(TYPES.Action) private action: SaveDiagramAction) {
         super();
@@ -54,6 +59,7 @@ export class SaveDiagramCommand extends Command {
         const diagram: SavedDiagram = {
             model: modelCopy,
             labelTypes: this.labelTypeRegistry?.getLabelTypes(),
+            editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
         const jsonBlob = new Blob([diagramJson], { type: "application/json" });

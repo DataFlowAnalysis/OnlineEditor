@@ -29,6 +29,7 @@ import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineComp
 
 import "./outputPortEditUi.css";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 /**
  * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
@@ -354,6 +355,9 @@ export class OutputPortEditUI extends AbstractUIExtension {
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
         @inject(LabelTypeRegistry) @optional() private labelTypeRegistry?: LabelTypeRegistry,
+        @inject(EditorModeController)
+        @optional()
+        private editorModeController?: EditorModeController,
     ) {
         super();
     }
@@ -419,6 +423,15 @@ export class OutputPortEditUI extends AbstractUIExtension {
                 this.hide();
             }
         });
+
+        // Configure editor readonly depending on editor mode.
+        // Is set after opening the editor each time but the
+        // editor mode may change while the editor is open, making this handler necessary.
+        this.editorModeController?.onModeChange(() => {
+            this.editor?.updateOptions({
+                readOnly: this.editorModeController?.isReadOnly() ?? false,
+            });
+        });
     }
 
     protected onBeforeShow(
@@ -459,6 +472,11 @@ export class OutputPortEditUI extends AbstractUIExtension {
         // Load the current behavior text of the port into the text editor.
         this.editor?.setValue(this.port.behavior);
         this.editor?.layout();
+
+        // Configure editor readonly depending on editor mode
+        this.editor?.updateOptions({
+            readOnly: this.editorModeController?.isReadOnly() ?? false,
+        });
 
         // Validation of loaded behavior text.
         this.validateBehavior();

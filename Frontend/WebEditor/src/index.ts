@@ -21,6 +21,7 @@ import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagra
 import { dfdElementsModule } from "./features/dfdElements/di.config";
 import { copyPasteModule } from "./features/copyPaste/di.config";
 import { EDITOR_TYPES } from "./utils";
+import { editorModeModule } from "./features/editorMode/di.config";
 
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
@@ -47,6 +48,7 @@ container.load(
     dfdElementsModule,
     serializeModule,
     dfdLabelModule,
+    editorModeModule,
     toolPaletteModule,
     copyPasteModule,
 );

@@ -9,10 +9,11 @@ import {
     SParentElementImpl,
     TYPES,
 } from "sprotty";
-import { injectable, inject } from "inversify";
+import { injectable, inject, optional } from "inversify";
 import { ContainsDfdLabels, containsDfdLabels } from "./elementFeature";
 import { LabelAssignment, LabelTypeRegistry } from "./labelTypeRegistry";
 import { snapPortsOfNode } from "../dfdElements/portSnapper";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 export interface AddLabelAssignmentAction extends Action {
     kind: typeof AddLabelAssignmentAction.TYPE;
@@ -38,6 +39,10 @@ export class AddLabelAssignmentCommand extends Command {
     public static readonly KIND = AddLabelAssignmentAction.TYPE;
     private hasBeenAdded = false;
 
+    @inject(EditorModeController)
+    @optional()
+    private readonly editorModeController?: EditorModeController;
+
     constructor(
         @inject(TYPES.Action) private action: AddLabelAssignmentAction,
         @inject(TYPES.ISnapper) private snapper: ISnapper,
@@ -46,6 +51,10 @@ export class AddLabelAssignmentCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         // Check whether the element already has a label with the same type and value assigned
         this.hasBeenAdded =
             this.action.element.labels.find((as) => {
@@ -64,6 +73,10 @@ export class AddLabelAssignmentCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         const labels = this.action.element.labels;
         const idx = labels.indexOf(this.action.labelAssignment);
         if (idx >= 0 && this.hasBeenAdded) {
@@ -102,6 +115,10 @@ export namespace DeleteLabelAssignmentAction {
 export class DeleteLabelAssignmentCommand extends Command {
     public static readonly KIND = DeleteLabelAssignmentAction.TYPE;
 
+    @inject(EditorModeController)
+    @optional()
+    private readonly editorModeController?: EditorModeController;
+
     constructor(
         @inject(TYPES.Action) private action: DeleteLabelAssignmentAction,
         @inject(TYPES.ISnapper) private snapper: ISnapper,
@@ -110,6 +127,10 @@ export class DeleteLabelAssignmentCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         const labels = this.action.element.labels;
 
         const idx = labels.indexOf(this.action.labelAssignment);
@@ -122,6 +143,10 @@ export class DeleteLabelAssignmentCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         const labels = this.action.element.labels;
         labels.push(this.action.labelAssignment);
 
@@ -184,6 +209,10 @@ export namespace DeleteLabelTypeValueAction {
 export class DeleteLabelTypeValueCommand extends Command {
     public static readonly KIND = DeleteLabelTypeValueAction.TYPE;
 
+    @inject(EditorModeController)
+    @optional()
+    private readonly editorModeController?: EditorModeController;
+
     constructor(
         @inject(TYPES.Action) private action: DeleteLabelTypeValueAction,
         @inject(TYPES.ISnapper) private snapper: ISnapper,
@@ -192,6 +221,10 @@ export class DeleteLabelTypeValueCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         const labelType = this.action.registry.getLabelType(this.action.labelTypeId);
         if (!labelType) {
             return context.root;
@@ -246,6 +279,10 @@ export namespace DeleteLabelTypeAction {
 export class DeleteLabelTypeCommand extends Command {
     public static readonly KIND = DeleteLabelTypeAction.TYPE;
 
+    @inject(EditorModeController)
+    @optional()
+    private readonly editorModeController?: EditorModeController;
+
     constructor(
         @inject(TYPES.Action) private action: DeleteLabelTypeAction,
         @inject(TYPES.ISnapper) private snapper: ISnapper,
@@ -254,6 +291,10 @@ export class DeleteLabelTypeCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         const labelType = this.action.registry.getLabelType(this.action.labelTypeId);
         if (!labelType) {
             return context.root;

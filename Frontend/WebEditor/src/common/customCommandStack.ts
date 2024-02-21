@@ -1,4 +1,13 @@
-import { BringToFrontCommand, CommandStack, HiddenCommand, ICommand, SelectCommand, SetViewportCommand } from "sprotty";
+import {
+    BringToFrontCommand,
+    CenterCommand,
+    CommandStack,
+    FitToScreenCommand,
+    HiddenCommand,
+    ICommand,
+    SelectCommand,
+    SetViewportCommand,
+} from "sprotty";
 
 /**
  * Custom command stack implementations that only pushes
@@ -18,7 +27,9 @@ export class DiagramModificationCommandStack extends CommandStack {
             command instanceof HiddenCommand ||
             command instanceof SelectCommand ||
             command instanceof SetViewportCommand ||
-            command instanceof BringToFrontCommand
+            command instanceof BringToFrontCommand ||
+            command instanceof FitToScreenCommand ||
+            command instanceof CenterCommand
         );
     }
 }

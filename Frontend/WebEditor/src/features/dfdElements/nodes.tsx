@@ -10,7 +10,7 @@ import {
 } from "sprotty";
 import { SNode, SLabel, Bounds, SModelElement, SPort } from "sprotty-protocol";
 import { inject, injectable, optional } from "inversify";
-import { VNode } from "snabbdom";
+import { VNode, VNodeStyle } from "snabbdom";
 import { LabelAssignment } from "../labels/labelTypeRegistry";
 import { DynamicChildrenNode } from "./dynamicChildren";
 import { containsDfdLabelFeature } from "../labels/elementFeature";
@@ -24,6 +24,13 @@ export interface DfdNode extends SNode {
     text: string;
     labels: LabelAssignment[];
     ports: SPort[];
+    annotation?: DfdNodeAnnotation;
+}
+
+export interface DfdNodeAnnotation {
+    message: string;
+    color?: string;
+    icon?: string;
 }
 
 export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEditableLabel {
@@ -34,6 +41,7 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
     text: string = "";
     labels: LabelAssignment[] = [];
     ports: SPort[] = [];
+    annotation?: DfdNodeAnnotation;
 
     override setChildren(schema: DfdNode): void {
         const children: SModelElement[] = [
@@ -124,6 +132,22 @@ export abstract class DfdNodeImpl extends DynamicChildrenNode implements WithEdi
             .filter(edgePredicate)
             .map((edge) => edge.editableLabel?.text ?? "");
     }
+
+    /**
+     * Generates the per-node inline style object for the view.
+     * Contains the opacity and the color of the node that may be set by the annotation (if any).
+     */
+    geViewStyleObject(): VNodeStyle {
+        const style: VNodeStyle = {
+            opacity: this.opacity.toString(),
+        };
+
+        if (this.annotation?.color) {
+            style["--color"] = this.annotation.color;
+        }
+
+        return style;
+    }
 }
 
 @injectable()
@@ -165,8 +189,8 @@ export class StorageNodeView extends ShapeView {
         const leftPadding = StorageNodeImpl.LEFT_PADDING / 2;
 
         return (
-            <g class-sprotty-node={true} class-storage={true} style={{ opacity: node.opacity.toString() }}>
-                <rect x="0" y="0" width={width} height={height} />
+            <g class-sprotty-node={true} class-storage={true} style={node.geViewStyleObject()}>
+                <rect x="0" y="0" width={width} height={height} stroke="red" />
                 <line x1={StorageNodeImpl.LEFT_PADDING} y1="0" x2={StorageNodeImpl.LEFT_PADDING} y2={height} />
                 {context.renderChildren(node, {
                     xPosition: width / 2 + leftPadding,
@@ -217,7 +241,7 @@ export class FunctionNodeView extends ShapeView {
         const r = FunctionNodeImpl.BORDER_RADIUS;
 
         return (
-            <g class-sprotty-node={true} class-function={true} style={{ opacity: node.opacity.toString() }}>
+            <g class-sprotty-node={true} class-function={true} style={node.geViewStyleObject()}>
                 <rect x="0" y="0" width={width} height={height} rx={r} ry={r} />
                 <line x1="0" y1={FunctionNodeImpl.TEXT_HEIGHT} x2={width} y2={FunctionNodeImpl.TEXT_HEIGHT} />
                 {context.renderChildren(node, {
@@ -263,7 +287,7 @@ export class IONodeView extends ShapeView {
         const { width, height } = node.bounds;
 
         return (
-            <g class-sprotty-node={true} class-io={true} style={{ opacity: node.opacity.toString() }}>
+            <g class-sprotty-node={true} class-io={true} style={node.geViewStyleObject()}>
                 <rect x="0" y="0" width={width} height={height} />
 
                 {context.renderChildren(node, {

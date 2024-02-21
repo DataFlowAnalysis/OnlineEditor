@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     Command,
     CommandExecutionContext,
@@ -15,6 +15,7 @@ import { generateRandomSprottyId } from "../../utils";
 import { DfdNode, DfdNodeImpl } from "../dfdElements/nodes";
 import { Action, Point, SEdge, SModelElement } from "sprotty-protocol";
 import { LoadDiagramCommand } from "../serialize/load";
+import { EditorModeController } from "../editorMode/editorModeController";
 
 export interface PasteElementsAction extends Action {
     kind: typeof PasteElementsAction.KIND;
@@ -43,6 +44,10 @@ export class PasteElementsCommand extends Command {
 
     @inject(DynamicChildrenProcessor)
     private dynamicChildrenProcessor: DynamicChildrenProcessor = new DynamicChildrenProcessor();
+    @inject(EditorModeController)
+    @optional()
+    private editorModeController?: EditorModeController;
+
     private newElements: SChildElementImpl[] = [];
     // This maps the element id of the copy source element to the
     // id that the newly created copy target element has.
@@ -100,6 +105,10 @@ export class PasteElementsCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         // Step 1: copy nodes and their ports
         const positionOffset = this.computeElementOffset();
         this.action.copyElements.forEach((element) => {
@@ -180,6 +189,10 @@ export class PasteElementsCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         // Remove elements from the model
         this.newElements.forEach((element) => {
             context.root.remove(element);
@@ -191,6 +204,10 @@ export class PasteElementsCommand extends Command {
     }
 
     redo(context: CommandExecutionContext): CommandReturn {
+        if (this.editorModeController?.isReadOnly()) {
+            return context.root;
+        }
+
         this.newElements.forEach((element) => {
             context.root.add(element);
         });
