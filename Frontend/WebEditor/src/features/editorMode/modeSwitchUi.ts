@@ -33,6 +33,7 @@ export class EditorModeSwitchUi extends AbstractUIExtension {
 
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
+        containerElement.style.visibility = "hidden";
         this.editorModeController.onModeChange((mode) => this.reRender(mode));
         this.reRender(this.editorModeController.getCurrentMode());
     }
