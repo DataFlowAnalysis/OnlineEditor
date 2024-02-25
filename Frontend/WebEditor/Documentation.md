@@ -123,9 +123,9 @@ It is completely independent of the other modules and can be used with any diagr
 It adds a sprotty command to the command palette and a keyboard shortcut that invokes the ELK layouting algorithm using
 the `sprotty-elk` helper provided by sprotty.
 
-Additionally it does some magic to run the layouting algorithm on the loaded model instead of
-the model schema which is the intented use-case of the `sprotty-elk` helper.
-However we cannot do this because the size of various elements like all DFD Nodes are not
+Additionally, it does some magic to run the layouting algorithm on the loaded model instead of
+the model schema which is the intended use-case of the `sprotty-elk` helper.
+However, we cannot do this because the size of various elements like all DFD Nodes are not
 set in the model schema and unknown unless loaded.
 
 ### Copy Paste
@@ -137,6 +137,8 @@ The new elements are placed at the mouse position when pasting.
 
 ### DFD(Data-Flow Diagram) Elements
 
+#### Diagram Elements
+
 #### Dynamic Children Utility
 
 #### Output Port Behavior Editor
@@ -145,7 +147,48 @@ The new elements are placed at the mouse position when pasting.
 
 ### Editor Mode
 
+Located in `src/features/editorMode/`.
+
+This editor currently has three different modes:
+
+-   `edit`: The default mode, allows to view and edit the diagram. Creation of new elements is possible.
+    Existing elements can be moved, modified, and deleted.
+    Newly created diagrams are always in this mode.
+-   `annotated`: In this mode the diagram is read-only. The node annotations (refer to the DFD elements module)
+    are displayed and can be viewed to get information about e.g. analysis validation errors.
+    The user can still zoom and pan the diagram. Creation, deletion, and modification of elements is not possible.
+    However the user can click a button to switch to the `edit` mode.
+    Doing so will remove all node annotations and allow the user to edit the diagram again.
+-   `readonly`: This mode is similar to the `annotated` mode but does not allow switching back to the `edit` mode.
+    It is intended to be used when the diagram is from a generated source and should only be viewed.
+
+Diagrams with modes other than `edit` are not creatable using the editor.
+Diagrams with these modes are intended to be generated from some other source.
+
+This module contains the `EditorModeController` which manages the global editor mode.
+All other modules that want to behave differently depending on the editor mode use this as a
+source of truth and subscribe to changes of the editor mode.
+Additionally, this module contains a UI that shows when the editor mode is not `edit`
+and allows switching from `annotated` to `edit` mode.
+
 ### (DFD) Label
+
+Located in `src/features/labelS/`.
+
+Labels are metadata that can be added to any DFD diagram node.
+These labels are used for the data flow analysis to ensure, e.g. that no unencrypted data is sent to an external entity.
+Labels have a type and each type has one or multiple label values.
+As an example, there might be the label type `Encrypted` with the following label values: `No`, `Yes`, `Partially`.
+
+For the editor the DFD labels are used in two situations:
+
+-   On DFD nodes, where they are displayed, added and removed
+-   In the behavior language for output ports that are used to define whether the labels should be propagated
+    over edges or be set depending on specific conditions.
+
+This module does contain the `LabelTypeRegistry` where available label types and their values are managed.
+Additionally, it provides a UI that allows to view all defined label types and values,
+add new ones, remove existing ones, and edit the names of the label types and values.
 
 ### Serialization
 
@@ -153,7 +196,7 @@ Located in `src/features/serialization/`.
 
 This module is responsible for loading and saving the diagram into/from a JSON file.
 Loading/Saving can be invoked using the command palette or the keyboard shortcuts `CTRL-S` and `CTRL-O`.
-Additionally the default diagram, that is loaded by this module at startup, is defined here and
+Additionally, the default diagram, that is loaded by this module at startup, is defined here and
 can be loaded at any time using the corresponding command in the command palette or the keyboard shortcut `CTRL-SHIFT-D`.
 
 The module loads/saves the sprotty model but also the current labels from the DFD Label module
@@ -162,7 +205,7 @@ and the current editor mode if those modules are present.
 After loading any model, the model is fit to the screen using the sprotty FitToScreen command.
 If any node does not have a position set, the auto layouting module is called to layout the diagram,
 if it is loaded.
-This is intented for e.g. generated diagrams where the layout is unknown and should be
+This is intended for e.g. generated diagrams where the layout is unknown and should be
 automatically determined when first loaded.
 
 ### Tool Palette
@@ -173,7 +216,7 @@ Adds the UI in the top right corner with the tools that allow creation of nodes,
 
 There is one super class `CreationTool` that holds shared logic and one subclass for each tool.
 In the main tool palette UI the creation tools are instanced by element type.
-Additionally there is a keyboard shortcut for each tool using the `1` to `n` keys, depending on the number of available tools.
+Additionally, there is a keyboard shortcut for each tool using the `1` to `n` keys, depending on the number of available tools.
 Each creation tool has support for previewing the element before placing it,
 by adding a preview element to the sprotty viewer and only adding the real element when the mouse is clicked.
 The creation of a new element can be cancelled by pressing the `ESC` key.
