@@ -137,6 +137,8 @@ The new elements are placed at the mouse position when pasting.
 
 ### DFD(Data-Flow Diagram) Elements
 
+Located in `src/features/dfdElements/`.
+
 #### Diagram Elements
 
 #### Dynamic Children Utility
@@ -144,6 +146,21 @@ The new elements are placed at the mouse position when pasting.
 #### Output Port Behavior Editor
 
 #### Element Snapping
+
+For nice positioning of elements, this module adds a snapping grid to the diagram.
+By default, the grid is enabled to allow positioning elements on same heights for a nice look.
+The grid can be ignored by holding the `SHIFT` key while dragging an element, this is a feature by sprotty.
+
+This grid snapper implementation has two specialties:
+
+-   When moving or positioning ports, they are always placed on an edge of the parent node.
+    Normally, sprotty would allow free placement of ports relative to the respective parent node.
+    This is good for flexibility, but not what we want.
+    To get our expected behavior, we compute the distance to each edge to determine the closest edge.
+    One coordinate gets fixed by the selected edge and the other coordinate is snapped using a (onedimensional) grid.
+-   The grid size adapts per element type. Nodes have a grid size of 5, while ports have a grid size of 2.5 pixels.
+    When changing these values, make sure that the bigger grid size is a multiple of the smaller grid size.
+    This is necessary to ensure that ports on two nodes with different heights can be aligned to the same height..
 
 ### Editor Mode
 

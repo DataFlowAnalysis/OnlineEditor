@@ -25,10 +25,10 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "format": "prettier --write \"./**/*.{html,css,ts,tsx,json,yaml}\"",
+        "format": "prettier --write \"./**/*.{html,css,ts,tsx,json,yaml,md}\"",
         "prepare": "husky install"
     },
     "lint-staged": {
-        "*.{html,css,ts,tsx,json,yaml}": "prettier --write"
+        "*.{html,css,ts,tsx,json,yaml,md}": "prettier --write"
     }
 }
