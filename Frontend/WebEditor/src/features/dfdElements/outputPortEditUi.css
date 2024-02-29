@@ -20,8 +20,3 @@
 .output-port-edit-ui div.validation-label.validation-success {
     color: var(--color-valid);
 }
-
-.output-port-edit-ui div.monaco-container {
-    width: 500px;
-    height: 200px;
-}

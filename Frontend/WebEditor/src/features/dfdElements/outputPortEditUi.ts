@@ -375,6 +375,9 @@ export class OutputPortEditUI extends AbstractUIExtension {
         containerElement.appendChild(this.unavailableInputsLabel);
         containerElement.appendChild(this.editorContainer);
         containerElement.appendChild(this.validationLabel);
+        const keyboardShortcutLabel = document.createElement("div");
+        keyboardShortcutLabel.innerHTML = "Press <kbd>CTRL</kbd>+<kbd>Space</kbd> for autocompletion";
+        containerElement.appendChild(keyboardShortcutLabel);
 
         containerElement.classList.add("ui-float");
         this.unavailableInputsLabel.classList.add("unavailable-inputs");
@@ -399,11 +402,35 @@ export class OutputPortEditUI extends AbstractUIExtension {
             lineNumbersMinChars: 3, // default is 5, which we'll never need. Save a bit of space.
             folding: false, // Not supported by our language definition
             wordBasedSuggestions: "off", // Does not really work for our use case
+            scrollBeyondLastLine: false, // Not needed
             theme: monacoTheme,
             language: dfdLanguageName,
         });
 
         this.configureHandlers(containerElement);
+    }
+
+    private resizeEditor(): void {
+        // Resize editor to fit content.
+        // Has ranges for height and width to prevent the editor from getting too small or too large.
+        const e = this.editor;
+        if (!e) {
+            return;
+        }
+
+        const height = e.getContentHeight();
+        const width = e.getContentWidth() + 50;
+
+        const clamp = (value: number, range: readonly [number, number]) =>
+            Math.min(range[1], Math.max(range[0], value));
+
+        const heightRange = [100, 250] as const;
+        const widthRange = [250, 500] as const;
+
+        const cHeight = clamp(height, heightRange);
+        const cWidth = clamp(width, widthRange);
+
+        e.layout({ height: cHeight, width: cWidth });
     }
 
     private configureHandlers(containerElement: HTMLElement): void {
@@ -415,6 +442,11 @@ export class OutputPortEditUI extends AbstractUIExtension {
         // Run behavior validation when the behavior text changes.
         this.editor?.onDidChangeModelContent(() => {
             this.validateBehavior();
+        });
+
+        // When the content size of the editor changes, resize the editor accordingly.
+        this.editor?.onDidContentSizeChange(() => {
+            this.resizeEditor();
         });
 
         // Hide/"close this window" when pressing escape.
@@ -471,7 +503,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
         // Load the current behavior text of the port into the text editor.
         this.editor?.setValue(this.port.behavior);
-        this.editor?.layout();
+        this.resizeEditor();
 
         // Configure editor readonly depending on editor mode
         this.editor?.updateOptions({
