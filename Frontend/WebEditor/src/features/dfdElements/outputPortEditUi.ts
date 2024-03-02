@@ -418,14 +418,25 @@ export class OutputPortEditUI extends AbstractUIExtension {
             return;
         }
 
+        // For the height we can use the content height from the editor.
         const height = e.getContentHeight();
-        const width = e.getContentWidth() + 50;
+
+        // For the width we cannot really do this.
+        // Monaco needs about 500ms to figure out the correct width when initially showing the editor.
+        // In the mean time the width will be too small and after the update
+        // the window size will jump visibly.
+        // So for the width we use this calculation to approximate the width.
+        const maxLineLength = e
+            .getValue()
+            .split("\n")
+            .reduce((max, line) => Math.max(max, line.length), 0);
+        const width = 100 + maxLineLength * 8;
 
         const clamp = (value: number, range: readonly [number, number]) =>
             Math.min(range[1], Math.max(range[0], value));
 
         const heightRange = [100, 250] as const;
-        const widthRange = [250, 500] as const;
+        const widthRange = [275, 500] as const;
 
         const cHeight = clamp(height, heightRange);
         const cWidth = clamp(width, widthRange);
