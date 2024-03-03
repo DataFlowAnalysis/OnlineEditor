@@ -5,6 +5,7 @@ import {
     AbstractUIExtension,
     ActionDispatcher,
     CommitModelAction,
+    LocalModelSource,
     SetUIExtensionVisibilityAction,
     TYPES,
     labelEditUiModule,
@@ -55,20 +56,31 @@ container.load(
 
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 const defaultUIElements = container.getAll<AbstractUIExtension>(EDITOR_TYPES.DefaultUIElement);
+const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
 
-dispatcher
-    .dispatchAll([
-        // Show the default uis after startup
-        ...defaultUIElements.map((uiElement) => {
-            return SetUIExtensionVisibilityAction.create({
-                extensionId: uiElement.id(),
-                visible: true,
-            });
-        }),
-        // Then load the default diagram and commit the temporary model to the model source
-        LoadDefaultDiagramAction.create(),
-        CommitModelAction.create(),
-    ])
+// Set empty model as starting point.
+// In contrast to the default diagram later this is not undoable which would bring the editor
+// into an invalid state where no root element is present.
+modelSource
+    .setModel({
+        type: "graph",
+        id: "root",
+        children: [],
+    })
+    .then(() =>
+        dispatcher.dispatchAll([
+            // Show the default uis after startup
+            ...defaultUIElements.map((uiElement) => {
+                return SetUIExtensionVisibilityAction.create({
+                    extensionId: uiElement.id(),
+                    visible: true,
+                });
+            }),
+            // Then load the default diagram and commit the temporary model to the model source
+            LoadDefaultDiagramAction.create(),
+            CommitModelAction.create(),
+        ]),
+    )
     .then(() => {
         // Focus the sprotty svg container to enable keyboard shortcuts
         // because those only work if the svg container is focused.
