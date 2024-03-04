@@ -143,6 +143,31 @@ Located in `src/features/dfdElements/`.
 
 #### Dynamic Children Utility
 
+For some use-cases, most importantly editing labels, sprotty requires the use of child nodes.
+A label should be inside another element and when the label or parent is double clicked one can edit the label.
+
+You can work around this by showing the label text in the parent element svg, but this has some problems.
+One of that is that the label edit UI won't have the correct position at the text, it will be at the top left of the node.
+You may work around this by overriding the label edit UI to dynamically reposition it to the label text.
+Some of this problems cannot be worked around, like the possibility of having two labels inside one node which
+only works when using child nodes.
+Another issue is with edges: positioning the label manually in the middle of the edge is more work than
+adding a label as a child to the edge and letting sprotty handle the positioning.
+
+Alternative you can do it like sprotty intends and use a child node.
+This has the downside that the position and type of the child are saved in the model.
+So when e.g. the position of a node changes or the sprotty element type of the label is changed,
+old models will not have these changes and may break.
+
+So to have the best of both of these possibilities, this module provides a utility to dynamically set the child nodes.
+Element implementation classes can extend the `DynamicChildren*` classes and implement the `setChildren` and `removeChildren`
+methods. When the model is loaded the element implementation can add the child nodes dynamically at runtime and initialize
+them with values from the parent element schema. When the model is saved the element implementation can save the state from the children
+to the parent element schema and remove the child elements again.
+That way we have nice labels and positing from sprotty and remain flexible to changes in the element implementation.
+
+The methods of the `DynamicChildren*` classes are recursively called on model load/save by the serialization module.
+
 #### Output Port Behavior Editor
 
 #### Element Snapping
