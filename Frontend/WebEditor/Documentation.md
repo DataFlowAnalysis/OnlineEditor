@@ -52,6 +52,8 @@ used technologies:
         Really only basic knowledge about the `g`, `rect`, `line`,
         and `text`.
 
+        <!-- TODO: explain how JSX/TSX can be used with snabbdom svg -->
+
     -   [inversify.js](https://github.com/inversify/InversifyJS)
 
         Used as a dependency injection framework by sprotty.
@@ -141,6 +143,16 @@ Located in `src/features/dfdElements/`.
 
 #### Diagram Elements
 
+This package contains the schemas, implementations and views for the DFD diagram elements.
+
+This includes three nodes: `Storage`, `IO` and `Function`.
+For edges there is a custom implementation that includes an arrow at the end and a label at the middle of the edge
+that is added as a dynamic child to the edge (read below for details on dynamic children).
+Has two port implementations: one for inputs and one for outputs. One can only connect an input port as the source of an edge
+and an output port as the target of an edge.
+Note: sprottys default behavior is to allow connections via edges between nodes if the node do not have ports.
+When a node has at least one port, connections to the node directly are not allowed anymore.
+
 #### Dynamic Children Utility
 
 For some use-cases, most importantly editing labels, sprotty requires the use of child nodes.
@@ -169,6 +181,28 @@ That way we have nice labels and positing from sprotty and remain flexible to ch
 The methods of the `DynamicChildren*` classes are recursively called on model load/save by the serialization module.
 
 #### Output Port Behavior Editor
+
+To define how connects through output ports are handled in the data flow analysis, the user can define the behavior
+of each output port using a custom language.
+This language has two main statements:
+
+-   `forward <input>(, <input>)*`: simply forwards all labels from the named input port.
+    Each input port gets a name that consists of all named edges connecting to that input port. Multiple edge labels are joined using `_`.
+-   `set <labelType>.<labelValue> = <expr>`: sets the existence of the label value of the specified type.
+    When the expression evaluates to `true`, the label value is set, otherwise it is not removed.
+    Inside the expression one can use the presence of labels from other inputs using `<input>.<labelType>.<labelValue>`.
+    Additionally, operators like `&&`, `||`, `!` and parentheses can be used.
+    `TRUE` and `FALSE` can be used as constants.
+
+Comments can be inserted by starting a line with `#` or `//`.
+To edit the behavior of an output port, the user can double-click the output port.
+This will open a popup where the current behavior definition is shown inside [monaco-editor](https://microsoft.github.io/monaco-editor/).
+monaco was chosen because it is used in Visual Studio Code and therefore has a lot of features and is well maintained.
+
+There is a tokenizer for the language defined in [monarch](https://microsoft.github.io/monaco-editor/monarch.html)
+that is designed to be used with monaco.
+This tokenizer is used for syntax highlighting.
+There is a monaco completion provider implemented that allows for auto-completion of keywords, inputs, label types/values and constants.
 
 #### Element Snapping
 
