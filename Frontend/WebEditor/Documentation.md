@@ -1,7 +1,5 @@
 # Technical documentation
 
-<!-- TODO: keyboard shortcuts raus weil steht im UI -->
-
 ## Tech Stack
 
 To work on this project you need some knowledge about the following
@@ -52,7 +50,17 @@ used technologies:
         Really only basic knowledge about the `g`, `rect`, `line`,
         and `text`.
 
-        <!-- TODO: explain how JSX/TSX can be used with snabbdom svg -->
+        You can use `.tsx` files to create the SVG elements inline in TypeScript.
+        For that you need to import the svg jsx wrapper from sprotty and declare that all
+        inline xml-like elements are svgs using the following import:
+
+        ```typescript
+        /** @jsx svg */
+        import { svg } from "sprotty";
+        ```
+
+        Sprotty uses [snabbdom](https://github.com/snabbdom/snabbdom) as the virtual DOM library.
+        Refer to their documentation/README for more information on more complex SVG usage.
 
     -   [inversify.js](https://github.com/inversify/InversifyJS)
 
@@ -67,8 +75,6 @@ used technologies:
         To get started you should read the inversify.js [README](https://github.com/inversify/InversifyJS/blob/master/README.md)
         as well as the [Multi-injection guide](https://github.com/inversify/InversifyJS/blob/master/wiki/multi_injection.md).
         More in-depth features of inversify.js are not required for this project.
-
-          <!-- TODO: difference between .to() and .toService() -->
 
 -   [Font Awesome](https://fontawesome.com/)
 
@@ -99,8 +105,6 @@ The application is structured into multiple modules.
 Each module is a feature of the application and is responsible for a specific part of the application.
 Some features have hard dependencies on other features, other ones are independent or only
 interact with other feature modules optionally, if they are present.
-
-<!-- TODO: mermaid diagram -->
 
 ### Module overview
 
