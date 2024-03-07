@@ -35,3 +35,9 @@ npm run build
 This will create a `dist` folder containing the built static assets. The contents of this folder can be uploaded to a web server to host the project.
 
 This project is built using GitHub Actions and the current built version is hosted on GitHub Pages that can be found [here](https://dataflowanalysis.github.io/WebEditor/).
+
+## Developing
+
+When you want to develop on this project, it is advised to read the [technical documentation](./Documentation.md)
+to understand the structure of the project, why things are done the way they are and how the different modules
+are structured and interact with each other.
