@@ -159,6 +159,14 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         };
 
         labelTypeNameInput.onchange = () => {
+            const newLabelTypeName = labelTypeNameInput.value;
+            // Check for duplicate and don't change the name if it is a duplicate
+            if (this.labelTypeRegistry.getLabelTypes().some((type) => type.name === newLabelTypeName)) {
+                // Undo change in UI
+                labelTypeNameInput.value = labelType.name;
+                return;
+            }
+
             labelType.name = labelTypeNameInput.value;
             this.labelTypeRegistry.labelTypeChanged();
             this.reSnapPorts(labelType.id);
@@ -225,6 +233,14 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
         };
 
         valueInput.onchange = () => {
+            const newValue = valueInput.value;
+            // Check for duplicate and don't change the value if it is a duplicate
+            if (labelType.values.some((value) => value.text === newValue)) {
+                // Undo change in UI
+                valueInput.value = labelTypeValue.text;
+                return;
+            }
+
             labelTypeValue.text = valueInput.value;
             this.labelTypeRegistry.labelTypeChanged();
             this.reSnapPorts(labelType.id);
