@@ -21,19 +21,25 @@ import { EditorMode, EditorModeController } from "../editorMode/editorModeContro
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
+    file: File | undefined;
 }
 export namespace LoadDiagramAction {
     export const KIND = "load-diagram";
 
-    export function create(): LoadDiagramAction {
+    export function create(file?: File): LoadDiagramAction {
         return {
             kind: KIND,
+            file,
         };
     }
 }
 
 export class LoadDiagramCommand extends Command {
     static readonly KIND = LoadDiagramAction.KIND;
+
+    constructor(@inject(TYPES.Action) private readonly action: LoadDiagramAction) {
+        super();
+    }
 
     // After loading a diagram, this command dispatches other actions like fit to screen
     // and optional auto layouting. However when returning a new model in the execute method,
@@ -69,29 +75,33 @@ export class LoadDiagramCommand extends Command {
     private oldEditorMode: EditorMode | undefined;
     private newEditorMode: EditorMode | undefined;
 
-    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
-        // Open a file picker dialog.
+    /**
+     * Gets the model file from the action or opens a file picker dialog if no file is provided.
+     * @returns A promise that resolves to the model file.
+     */
+    private getModelFile(): Promise<File | undefined> {
+        if (this.action.file) {
+            return Promise.resolve(this.action.file);
+        }
+
+        // Open a file picker dialog if no file is provided in the action.
         // The cleaner way to do this would be showOpenFilePicker(),
         // but safari and firefox don't support it at the time of writing this code:
         // https://developer.mozilla.org/en-US/docs/web/api/window/showOpenFilePicker#browser_compatibility
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".json";
-        const fileLoadPromise = new Promise<SavedDiagram | undefined>((resolve, reject) => {
+        input.accept = "application/json";
+        const fileLoadPromise = new Promise<File | undefined>((resolve, reject) => {
             // This event is fired when the user successfully submits the file picker dialog.
             input.onchange = () => {
                 if (input.files && input.files.length > 0) {
                     const file = input.files[0];
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const json = reader.result as string;
-                        const model = JSON.parse(json);
-                        resolve(model);
-                    };
-                    reader.onerror = () => {
-                        reject(reader.error);
-                    };
-                    reader.readAsText(file);
+                    if (file.type !== "application/json") {
+                        reject("Diagram file must be in JSON format");
+                        return;
+                    }
+
+                    resolve(file);
                 } else {
                     reject("No file selected");
                 }
@@ -116,9 +126,35 @@ export class LoadDiagramCommand extends Command {
         });
         input.click();
 
+        return fileLoadPromise;
+    }
+
+    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.oldRoot = context.root;
         try {
-            const newDiagram = await fileLoadPromise;
+            const file = await this.getModelFile();
+            if (!file) {
+                // No file was selected, skip
+                return context.root;
+            }
+
+            const newDiagram = await new Promise<SavedDiagram>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const json = reader.result as string;
+                    try {
+                        const model = JSON.parse(json);
+                        resolve(model);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = () => {
+                    reject(reader.error);
+                };
+                reader.readAsText(file);
+            });
+
             const newSchema = newDiagram?.model;
             if (!newSchema) {
                 this.logger.info(this, "Model loading aborted");
@@ -164,6 +200,7 @@ export class LoadDiagramCommand extends Command {
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
+            alert("Error loading model: " + error);
             this.newRoot = this.oldRoot;
             return this.oldRoot;
         }
