@@ -278,6 +278,7 @@ This module is responsible for loading and saving the diagram into/from a JSON f
 Loading/Saving can be invoked using the command palette or the keyboard shortcuts `CTRL-S` and `CTRL-O`.
 Additionally, the default diagram, that is loaded by this module at startup, is defined here and
 can be loaded at any time using the corresponding command in the command palette or the keyboard shortcut `CTRL-SHIFT-D`.
+Alternatively a diagram can be loaded by dropping a JSON file into the browser tab via drag and drop from a file explorer.
 
 The module loads/saves the sprotty model but also the current labels from the DFD Label module
 and the current editor mode if those modules are present.

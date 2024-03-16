@@ -74,6 +74,8 @@ export class LoadDiagramCommand extends Command {
     private newLabelTypes: LabelType[] | undefined;
     private oldEditorMode: EditorMode | undefined;
     private newEditorMode: EditorMode | undefined;
+    private oldFileName: string | undefined;
+    private newFileName: string | undefined;
 
     /**
      * Gets the model file from the action or opens a file picker dialog if no file is provided.
@@ -197,6 +199,11 @@ export class LoadDiagramCommand extends Command {
             }
 
             postLoadActions(this.newRoot, this.actionDispatcher);
+
+            this.oldFileName = currentFileName;
+            this.newFileName = file.name;
+            setFileNameInPageTitle(file.name);
+
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
@@ -239,6 +246,7 @@ export class LoadDiagramCommand extends Command {
         if (this.oldEditorMode) {
             this.editorModeController?.setMode(this.oldEditorMode);
         }
+        setFileNameInPageTitle(this.oldFileName);
 
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
@@ -253,6 +261,7 @@ export class LoadDiagramCommand extends Command {
                 this.editorModeController.setDefaultMode();
             }
         }
+        setFileNameInPageTitle(this.newFileName);
 
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
@@ -282,4 +291,25 @@ export async function postLoadActions(
     // fit to screen is done after auto layouting because that may change the bounds of the diagram
     // requiring another fit to screen.
     await actionDispatcher.dispatch(createDefaultFitToScreenAction(newRoot, false));
+}
+
+let initialPageTitle: string | undefined;
+export let currentFileName: string | undefined;
+
+/**
+ * Sets the file name in the page title.
+ * If the given file name is undefined, no file name is displayed in the page title.
+ * The current file name is stored in the exported currentFileName variable.
+ */
+export function setFileNameInPageTitle(filename: string | undefined) {
+    if (!initialPageTitle) {
+        initialPageTitle = document.title;
+    }
+
+    currentFileName = filename;
+    if (filename) {
+        document.title = `${filename} - ${initialPageTitle}`;
+    } else {
+        document.title = initialPageTitle;
+    }
 }

@@ -13,7 +13,7 @@ import {
 import { Action } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
-import { LoadDiagramCommand, postLoadActions } from "./load";
+import { LoadDiagramCommand, currentFileName, postLoadActions, setFileNameInPageTitle } from "./load";
 import { SavedDiagram } from "./save";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
 
@@ -55,6 +55,7 @@ export class LoadDefaultDiagramCommand extends Command {
     private newRoot: SModelRootImpl | undefined;
     private oldLabelTypes: LabelType[] | undefined;
     private oldEditorMode: EditorMode | undefined;
+    private oldFileName: string | undefined;
 
     execute(context: CommandExecutionContext): CommandReturn {
         this.oldRoot = context.root;
@@ -87,6 +88,10 @@ export class LoadDefaultDiagramCommand extends Command {
         }
 
         postLoadActions(this.newRoot, this.actionDispatcher);
+
+        this.oldFileName = currentFileName;
+        setFileNameInPageTitle(undefined);
+
         return this.newRoot;
     }
 
@@ -96,6 +101,7 @@ export class LoadDefaultDiagramCommand extends Command {
         if (this.oldEditorMode) {
             this.editorModeController?.setMode(this.oldEditorMode);
         }
+        setFileNameInPageTitle(this.oldFileName);
 
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
@@ -112,6 +118,7 @@ export class LoadDefaultDiagramCommand extends Command {
                 this.editorModeController.setDefaultMode();
             }
         }
+        setFileNameInPageTitle(undefined);
 
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
