@@ -171,6 +171,8 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
             this.labelTypeRegistry.labelTypeChanged();
             this.reSnapPorts(labelType.id);
         };
+        // Only allow alphanumerical characters
+        labelTypeNameInput.oninput = this.onInputOnlyAlphanumeric;
 
         labelTypeElement.appendChild(labelTypeNameInput);
 
@@ -245,6 +247,8 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
             this.labelTypeRegistry.labelTypeChanged();
             this.reSnapPorts(labelType.id);
         };
+        // Only allow alphanumerical characters
+        valueInput.oninput = this.onInputOnlyAlphanumeric;
 
         // Allow dragging to create a label assignment
         valueInput.draggable = true;
@@ -334,5 +338,13 @@ export class LabelTypeEditorUI extends AbstractUIExtension implements KeyListene
 
         // Commit the model to trigger a re-render and save the changes into the model source
         this.actionDispatcher.dispatch(CommitModelAction.create());
+    }
+
+    /**
+     * onInput handler for inputs that restricts the input to only alphanumeric characters and underscores
+     */
+    private onInputOnlyAlphanumeric(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        input.value = input.value.replace(/[^a-zA-Z0-9_]/g, "");
     }
 }
