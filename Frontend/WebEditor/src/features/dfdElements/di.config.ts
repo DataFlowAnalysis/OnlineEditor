@@ -20,6 +20,7 @@ import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehavi
 import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 import { DfdNodeAnnotationUI, DfdNodeAnnotationUIMouseListener } from "./nodeAnnotationUi";
+import { DFDBehaviorRefactorListener } from "./labelTypeChangeWatcher";
 
 import "./elementStyles.css";
 
@@ -41,6 +42,8 @@ export const dfdElementsModule = new ContainerModule((bind, unbind, isBound, reb
     bind(DfdNodeAnnotationUIMouseListener).toSelf().inSingletonScope();
     bind(TYPES.MouseListener).toService(DfdNodeAnnotationUIMouseListener);
     bind(TYPES.IUIExtension).to(DfdNodeAnnotationUI).inSingletonScope();
+
+    bind(DFDBehaviorRefactorListener).toSelf().inSingletonScope();
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
     configureModelElement(context, "node:storage", StorageNodeImpl, StorageNodeView);

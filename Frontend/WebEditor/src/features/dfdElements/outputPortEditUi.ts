@@ -21,6 +21,9 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { DfdOutputPortImpl } from "./ports";
 import { DfdNodeImpl } from "./nodes";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
+import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
+import { EditorModeController } from "../editorMode/editorModeController";
+import { DFDBehaviorRefactorListener } from "./labelTypeChangeWatcher";
 
 // Enable hover feature that is used to show validation errors.
 // Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
@@ -28,8 +31,6 @@ import "monaco-editor/esm/vs/editor/contrib/hover/browser/hover";
 import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
 
 import "./outputPortEditUi.css";
-import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import { EditorModeController } from "../editorMode/editorModeController";
 
 /**
  * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
@@ -354,7 +355,15 @@ export class OutputPortEditUI extends AbstractUIExtension {
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
-        @inject(LabelTypeRegistry) @optional() private labelTypeRegistry?: LabelTypeRegistry,
+
+        // Load label type registry watcher that handles changes to the behavior of
+        // output ports when label types are changed.
+        // It has to be loaded somewhere for inversify to create it and start watching.
+        // Since this is thematically related to the output port edit UI, it is loaded here.
+        // @ts-expect-error TS6133: 'labelTypeRegistry' is declared but its value is never read.
+        @inject(DFDBehaviorRefactorListener) private readonly _labelTypeChangeWatcher: DFDBehaviorRefactorListener,
+
+        @inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry,
         @inject(EditorModeController)
         @optional()
         private editorModeController?: EditorModeController,
@@ -465,6 +474,23 @@ export class OutputPortEditUI extends AbstractUIExtension {
             if (matchesKeystroke(event, "Escape")) {
                 this.hide();
             }
+        });
+
+        containerElement.addEventListener("mouseleave", () => {
+            // User might refactor some label type/value.
+            // Doing so will change the behavior text of all ports referencing the label type/value.
+            // Save the value so the user doesn't lose their work.
+            // After the change of the behavior text, it will be reloaded into here with the refactoring done.
+            this.save();
+        });
+        this.labelTypeRegistry?.onUpdate(() => {
+            // The update handler for the refactoring might be after our handler.
+            // Delay update to the next event loop tick to ensure the refactoring is done.
+            setTimeout(() => {
+                if (this.editor && this.port) {
+                    this.editor?.setValue(this.port?.behavior);
+                }
+            }, 0);
         });
 
         // Configure editor readonly depending on editor mode.
