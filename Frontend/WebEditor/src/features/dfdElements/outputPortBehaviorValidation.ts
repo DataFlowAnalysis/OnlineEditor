@@ -95,7 +95,7 @@ export class PortBehaviorValidator {
         lineNumber: number,
         port: DfdOutputPortImpl,
     ): PortBehaviorValidationError[] | undefined {
-        const inputsString = line.replace("forward", "");
+        const inputsString = line.substring("forward".length);
         const inputs = inputsString.split(",").map((input) => input.trim());
         if (inputs.filter((input) => input !== "").length === 0) {
             return [

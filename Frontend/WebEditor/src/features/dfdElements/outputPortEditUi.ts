@@ -23,7 +23,7 @@ import { DfdNodeImpl } from "./nodes";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { EditorModeController } from "../editorMode/editorModeController";
-import { DFDBehaviorRefactorListener } from "./labelTypeChangeWatcher";
+import { DFDBehaviorRefactorer } from "./labelTypeChangeWatcher";
 
 // Enable hover feature that is used to show validation errors.
 // Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
@@ -361,7 +361,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         // It has to be loaded somewhere for inversify to create it and start watching.
         // Since this is thematically related to the output port edit UI, it is loaded here.
         // @ts-expect-error TS6133: 'labelTypeRegistry' is declared but its value is never read.
-        @inject(DFDBehaviorRefactorListener) private readonly _labelTypeChangeWatcher: DFDBehaviorRefactorListener,
+        @inject(DFDBehaviorRefactorer) private readonly _labelTypeChangeWatcher: DFDBehaviorRefactorer,
 
         @inject(LabelTypeRegistry) @optional() private readonly labelTypeRegistry?: LabelTypeRegistry,
         @inject(EditorModeController)
