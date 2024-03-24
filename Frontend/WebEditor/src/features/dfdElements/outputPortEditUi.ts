@@ -7,6 +7,7 @@ import {
     CommandReturn,
     CommitModelAction,
     MouseListener,
+    MouseTool,
     SModelElementImpl,
     SModelRootImpl,
     SetUIExtensionVisibilityAction,
@@ -354,6 +355,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
         @inject(TYPES.ViewerOptions) private viewerOptions: ViewerOptions,
         @inject(TYPES.DOMHelper) private domHelper: DOMHelper,
+        @inject(MouseTool) private mouseTool: MouseTool,
         @inject(PortBehaviorValidator) private validator: PortBehaviorValidator,
 
         // Load label type registry watcher that handles changes to the behavior of
@@ -377,7 +379,7 @@ export class OutputPortEditUI extends AbstractUIExtension {
 
     containerClass(): string {
         // The container element gets this class name by the sprotty base class.
-        return "output-port-edit-ui";
+        return this.id();
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -501,6 +503,20 @@ export class OutputPortEditUI extends AbstractUIExtension {
                 readOnly: this.editorModeController?.isReadOnly() ?? false,
             });
         });
+
+        const portEditUi = this;
+        class ZoomMouseListener extends MouseListener {
+            wheel(_target: SModelElementImpl, _event: WheelEvent): (Action | Promise<Action>)[] {
+                // Re-set position of the UI after next event loop tick.
+                // In the current event loop tick the scoll is still processed and the
+                // position of the port may change after the scroll processing, so we need to wait for that.
+                setTimeout(() => {
+                    portEditUi.setPosition(containerElement);
+                });
+                return [];
+            }
+        }
+        this.mouseTool.register(new ZoomMouseListener());
     }
 
     protected onBeforeShow(
