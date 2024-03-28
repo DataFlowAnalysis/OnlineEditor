@@ -20,7 +20,7 @@ import { OutputPortEditUIMouseListener, OutputPortEditUI, SetDfdOutputPortBehavi
 import { DfdEditLabelValidator, DfdEditLabelValidatorDecorator } from "./editLabelValidator";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 import { DfdNodeAnnotationUI, DfdNodeAnnotationUIMouseListener } from "./nodeAnnotationUi";
-import { DFDBehaviorRefactorer, RefactorInputNameInDFDBehaviorCommand } from "./labelTypeChangeWatcher";
+import { DFDBehaviorRefactorer, RefactorInputNameInDFDBehaviorCommand } from "./behaviorRefactorer";
 
 import "./elementStyles.css";
 

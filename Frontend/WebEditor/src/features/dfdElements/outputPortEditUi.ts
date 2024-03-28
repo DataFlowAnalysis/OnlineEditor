@@ -24,7 +24,7 @@ import { DfdNodeImpl } from "./nodes";
 import { PortBehaviorValidator } from "./outputPortBehaviorValidation";
 import { LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { EditorModeController } from "../editorMode/editorModeController";
-import { DFDBehaviorRefactorer } from "./labelTypeChangeWatcher";
+import { DFDBehaviorRefactorer } from "./behaviorRefactorer";
 
 // Enable hover feature that is used to show validation errors.
 // Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.

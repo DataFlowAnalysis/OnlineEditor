@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import { LabelType, LabelTypeRegistry, LabelTypeValue } from "../labels/labelTypeRegistry";
 import {
     Command,
@@ -38,21 +38,23 @@ export class DFDBehaviorRefactorer {
     private previousLabelTypes: LabelType[] = [];
 
     constructor(
-        @inject(LabelTypeRegistry) private readonly registry: LabelTypeRegistry,
+        @optional() @inject(LabelTypeRegistry) private readonly registry: LabelTypeRegistry | undefined,
         @inject(TYPES.ILogger) private readonly logger: ILogger,
         @inject(TYPES.ICommandStack) private readonly commandStack: ICommandStack,
     ) {
-        this.previousLabelTypes = structuredClone(this.registry.getLabelTypes());
-        this.registry.onUpdate(() => {
-            this.handleLabelUpdate().catch((error) =>
-                this.logger.error(this, "Error while processing label type registry update", error),
-            );
-        });
+        if (this.registry) {
+            this.previousLabelTypes = structuredClone(this.registry.getLabelTypes());
+            this.registry?.onUpdate(() => {
+                this.handleLabelUpdate().catch((error) =>
+                    this.logger.error(this, "Error while processing label type registry update", error),
+                );
+            });
+        }
     }
 
     private async handleLabelUpdate(): Promise<void> {
         this.logger.log(this, "Handling label type registry update");
-        const currentLabelTypes = this.registry.getLabelTypes();
+        const currentLabelTypes = this.registry?.getLabelTypes() ?? [];
 
         const changedLabelTypes: LabelTypeChange[] = currentLabelTypes.flatMap((currentLabelType) => {
             const previousLabelType = this.previousLabelTypes.find(
