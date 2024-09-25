@@ -1,0 +1,28 @@
+/* Styling of the page around the sprotty container */
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    padding: 0;
+    margin: 0;
+    /* The sprotty container is slight larger than the browser
+        viewport, so we need this to avoid a horizontal scrollbar. */
+    overflow: hidden;
+}
+
+/* Make sprotty relative to be able to position ui elements
+   inside the sprotty viewport using position absolute
+   and absolute top/left/bottom/right values. */
+#sprotty {
+    position: relative;
+}
+
+svg.sprotty-graph {
+    width: 100%;
+    height: 100vh;
+    outline: none;
+}
+
+.sprotty-hidden {
+    display: none;
+}
