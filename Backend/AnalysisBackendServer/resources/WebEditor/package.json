@@ -11,6 +11,7 @@
         "@types/express": "^4.17.21",
         "@types/node": "^22.7.0",
         "@vscode/codicons": "^0.0.33",
+        "cross-env": "^7.0.3",
         "husky": "^8.0.3",
         "inversify": "^6.0.2",
         "lint-staged": "^15.0.2",

@@ -33,6 +33,8 @@ import { LoadDiagramAction } from "./features/serialize/load";
 
 const container = new Container();
 
+const backendPort = import.meta.env.VITE_BACKEND_PORT || '3000';
+
 
 
 // Load default sprotty provided modules
@@ -102,7 +104,7 @@ modelSource
 
     async function fetchFile() {
         try {
-            const response = await fetch('http://localhost:3002/download-file');
+            const response = await fetch('http://localhost:' + backendPort  + '/download-file');
 
             if (!response.ok) {
                 throw new Error('File download failed');

@@ -33,9 +33,23 @@ app.get('/download-file', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+const startServer = () => {
+    const server = app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`Port ${port} is already in use, trying the next port...`);
+            port++;  // Increment the port number
+            startServer();  // Retry with the new port
+        } else {
+            console.error('Server error:', err);
+        }
+    });
+};
+
+startServer();
 
 app.use(bodyParser.json({ limit: '1000mb'}));
 
