@@ -6,7 +6,7 @@ Setup:
 - Clone https://github.com/DataFlowAnalysis/DataFlowAnalysis and checkout integratedCycles
 - Clone https://github.com/DataFlowAnalysis/Converter and checkout annotations
 - Clone this repository
-- Import all projects into DFA
+- Import all projects into DFA (for reasons... this project might need to be imported with File->Import->Existing Projects into Workspace)
 
 - go to resources/WebEditor/ and run git init, then npm install(done automatically in theory but make sure)
 
