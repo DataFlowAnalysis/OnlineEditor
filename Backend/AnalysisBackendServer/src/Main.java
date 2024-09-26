@@ -66,7 +66,7 @@ public class Main {
             ProcessBuilder builder = new ProcessBuilder(commandParts);
             
             builder.directory(new File(editorPath));// Inherit the I/O of the current process to show the server logs
-            builder.inheritIO();
+            
             
             // Start the process
             Process process = builder.start(); 
@@ -231,22 +231,25 @@ public class Main {
                  Thread.sleep(5000);
                  
                  path.getParent().register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-
+                 key = watchService.take();
                  // Reset the key -- this step is crucial to receive further watch events
                  boolean valid = key.reset();
                  if (!valid) {
                      break;
                  }
              }
+             System.out.println("Over and out");
          } catch (Exception e) {
              e.printStackTrace();
          }
     }
     
     private static void analyzeAnnotateAndSafe(Path path) {
+    	System.out.println("File received - Starting Analysis");
     	var converter = new DataFlowDiagramConverter();
     	var dd = converter.webToDfd(path.toString());
     	var newJson = converter.dfdToWeb(dd);
     	converter.storeWeb(newJson, path.toString());
+    	System.out.println("File saved - Refresh Editor");
     }
 }

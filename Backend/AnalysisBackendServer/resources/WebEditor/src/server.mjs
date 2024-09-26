@@ -6,7 +6,7 @@ import cors from 'cors';
 
 
 const app = express();
-const port = 3002;
+var port = 3002;
 
 
 const modelFilePath = process.argv[2];  // The file path passed during server start
