@@ -151,9 +151,11 @@ public class Main {
     }
     
     private static void analyzeAnnotateAndSafe(Path path) {
+    	System.out.println("Received Model To analyze");
     	var converter = new DataFlowDiagramConverter();
     	var dd = converter.webToDfd(path.toString());
     	var newJson = converter.dfdToWeb(dd);
     	converter.storeWeb(newJson, path.toString());
+    	System.out.println("Saved annotated model -> refresh WebEditor");
     }
 }
