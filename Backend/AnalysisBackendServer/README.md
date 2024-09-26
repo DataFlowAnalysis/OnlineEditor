@@ -13,7 +13,7 @@ Setup:
 - clean and build all projects otherwise this project will not see the correct branch of DFA and converter
 
 Usage:
-- MAKE SURE PORT 3002 on localhost is free or odjust in resources/WebEditor/src/indes.ts and server.mjs
+- MAKE SURE PORT 3002 on localhost is free or adjust in resources/WebEditor/src/index.ts and server.mjs
 
 - In src/Main set modelPath to a json DFD or the place (including name and ending) you want the new model to be safed.
 - IF LINUX!!! adjust npm command for frontEndThread
