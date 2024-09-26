@@ -16,7 +16,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 public class Main {
 	private static final String editorPath = "resources\\WebEditor\\";
-	private static final Path modelPath = Path.of("");  //Either path to existing model or future safe
+	private static final Path modelPath = Path.of("C:\\Users\\Huell\\Desktop\\Test\\neu.json");  //Either path to existing model or future safe
 
 	public static void main(String[] args) {		
 		try {
@@ -129,7 +129,7 @@ public class Main {
                 	 
                      WatchEvent.Kind<?> kind = event.kind();   
                      Path changedFile = (Path) event.context();
-                     if (kind == ENTRY_MODIFY && changedFile.equals(path.getFileName())) {
+                     if ((kind == ENTRY_MODIFY || kind == ENTRY_CREATE) && changedFile.equals(path.getFileName())) {
                          analyzeAnnotateAndSafe(path);     
                         break;                         
                      } 
