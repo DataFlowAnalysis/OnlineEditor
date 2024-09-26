@@ -10,13 +10,22 @@ Setup:
 
 - go to resources/WebEditor/ and run git init, then npm install(done automatically in theory but make sure)
 
+- clean and build all projects otherwise this project will not see the correct branch of DFA and converter
+
 Usage:
+- MAKE SURE PORT 3002 on localhost is free or odjust in resources/WebEditor/src/indes.ts and server.mjs
 
 - In src/Main set modelPath to a json DFD or the place (including name and ending) you want the new model to be safed.
 - IF LINUX!!! adjust npm command for frontEndThread
 - Run main
 - Adjust DFD to your liking
-- Safe with Crtl+S or Crtl+Space->Save Diagram as Json         ->        Editor will freeze
+
+- DONT ANALYZE DEFAULT DIAGRAM WITHOUT REMOVING THE CYCLE
+
+- Safe with Crtl+S or Crtl+Space->Save Diagram as Json to start Analysis        ->        Editor will freeze
 - Refresh page after 5 or more (depending on DFD size) seconds
+  
+- RESTART EVERYTHING ON ERROR THROWN
+  
 - It should show the adjusted DFD with annotations
 
