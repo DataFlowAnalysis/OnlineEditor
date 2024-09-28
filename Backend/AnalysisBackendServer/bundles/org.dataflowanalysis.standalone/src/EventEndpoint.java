@@ -4,8 +4,6 @@ import org.dataflowanalysis.converter.DataFlowDiagramConverter;
 import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +11,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class EventEndpoint extends WebSocketAdapter
 {
-    private static final Logger LOG = LoggerFactory.getLogger(EventEndpoint.class);
     private final CountDownLatch closureLatch = new CountDownLatch(1);
     private WebEditorDfd dfd;
     private Session sess;
@@ -26,7 +23,6 @@ public class EventEndpoint extends WebSocketAdapter
         System.out.println("Works");
         
         this.sess = sess;
-        LOG.debug("Endpoint connected: {}", sess);
     }
 
     @Override
@@ -34,7 +30,6 @@ public class EventEndpoint extends WebSocketAdapter
     {
     	var objectMapper = new ObjectMapper();
         super.onWebSocketText(message);
-        LOG.debug("Received TEXT message: {}", message);
         try {
 			dfd = objectMapper.readValue(message, WebEditorDfd.class);
 			 objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -53,7 +48,6 @@ public class EventEndpoint extends WebSocketAdapter
     public void onWebSocketClose(int statusCode, String reason)
     {
         super.onWebSocketClose(statusCode, reason);
-        LOG.debug("Socket Closed: [{}] {}", statusCode, reason);
         closureLatch.countDown();
     }
 
@@ -66,7 +60,6 @@ public class EventEndpoint extends WebSocketAdapter
 
     public void awaitClosure() throws InterruptedException
     {
-        LOG.debug("Awaiting closure from remote");
         closureLatch.await();
     }
     

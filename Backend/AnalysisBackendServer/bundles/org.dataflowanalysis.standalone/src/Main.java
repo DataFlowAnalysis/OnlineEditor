@@ -12,13 +12,11 @@ import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.eclipse.jetty.server.ServerConnector;
 import java.time.Duration;
 
 public class Main {
-	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 	private static final String editorPath = "resources\\WebEditor\\";
 	private static final Path modelPath = Path.of("C:\\Users\\Huell\\Desktop\\Newfolder\\Testtest.json");  //Either path to existing model or future safe
 	
