@@ -10,13 +10,14 @@ import {
     TYPES,
     labelEditUiModule,
     loadDefaultModules,
+    IActionHandlerRegistry
 } from "sprotty";
 import { elkLayoutModule } from "sprotty-elk";
 import { autoLayoutModule } from "./features/autoLayout/di.config";
 import { commonModule } from "./common/di.config";
 import { noScrollLabelEditUiModule } from "./common/labelEditNoScroll";
 import { dfdLabelModule } from "./features/labels/di.config";
-import { toolPaletteModule } from "./features/toolPalette/di.config";
+import { customActionModule, toolPaletteModule } from "./features/toolPalette/di.config";
 import { serializeModule } from "./features/serialize/di.config";
 import { LoadDefaultDiagramAction } from "./features/serialize/loadDefaultDiagram";
 import { dfdElementsModule } from "./features/dfdElements/di.config";
@@ -42,6 +43,7 @@ loadDefaultModules(container, {
     ],
 });
 
+
 // sprotty-elk layouting extension
 container.load(elkLayoutModule);
 
@@ -61,7 +63,6 @@ container.load(
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 const defaultUIElements = container.getAll<AbstractUIExtension>(EDITOR_TYPES.DefaultUIElement);
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
-
 // Set empty model as starting point.
 // In contrast to the default diagram later this is not undoable which would bring the editor
 // into an invalid state where no root element is present.
@@ -112,8 +113,14 @@ export const ws = new WebSocket('ws://localhost:3000/events/');  // Change to th
 
 ws.onmessage = (event) => {
     console.log(event.data);
+    if (event.data === "Error:Cycle") {
+        alert("Error analyzing model: Model terminates in cycle!");
+        return;
+    }
     setModelSource(new File([new Blob([event.data], { type: 'application/json' })], "example.json", { type: 'application/json' }));
-    };
+};
+
+
 
 
 

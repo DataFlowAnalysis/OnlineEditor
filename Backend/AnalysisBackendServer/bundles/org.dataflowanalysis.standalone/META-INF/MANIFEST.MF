@@ -21,6 +21,8 @@ Require-Bundle: org.dataflowanalysis.converter;bundle-version="3.0.0",
  org.eclipse.jetty.websocket.common;bundle-version="11.0.24",
  org.eclipse.jetty.websocket.client;bundle-version="11.0.24",
  org.eclipse.jetty.websocket.servlet;bundle-version="11.0.24",
- org.slf4j.api;bundle-version="1.7.30"
+ slf4j.api;bundle-version="2.0.16",
+ org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
+ org.dataflowanalysis.dfd.dataflowdiagram;bundle-version="2.0.0"
 Automatic-Module-Name: DataFlowAnalalysisStandalone
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -1,10 +1,10 @@
 import { inject, injectable, optional } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES, IActionHandler, IActionHandlerInitializer, ActionHandlerRegistry } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws, setModelSource } from '../../index';
+import { ws} from '../../index';
 
 /**
  * Type that contains all data related to a diagram.
@@ -21,7 +21,7 @@ export interface AnalyzeDiagramAction extends Action {
     suggestedFileName: string;
 }
 export namespace AnalyzeDiagramAction {
-    export const KIND = "save-diagram";
+    export const KIND = "analyze-diagram";
 
     export function create(suggestedFileName?: string): AnalyzeDiagramAction {
         return {
@@ -30,6 +30,8 @@ export namespace AnalyzeDiagramAction {
         };
     }
 }
+
+
 
 @injectable()
 export class AnalyzeDiagramCommand extends Command {
@@ -63,9 +65,7 @@ export class AnalyzeDiagramCommand extends Command {
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        console.log("Hi + " + diagramJson);
-
-        ws.send(diagramJson);
+        ws.send("Json:" + diagramJson);
         return context.root;
     }
 

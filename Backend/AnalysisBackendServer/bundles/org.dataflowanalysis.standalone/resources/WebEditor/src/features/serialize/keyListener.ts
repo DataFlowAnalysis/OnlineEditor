@@ -21,7 +21,7 @@ export class SerializeKeyListener extends KeyListener {
         } else if (matchesKeystroke(event, "KeyS", "ctrlCmd")) {
             event.preventDefault();
             return [SaveDiagramAction.create()];
-        } else if (matchesKeystroke(event, "KeyA", "ctrlCmd")) {
+        } else if (matchesKeystroke(event, "KeyA", "ctrlCmd", "shift")) {
             event.preventDefault();
             return [AnalyzeDiagramAction.create()];
         }

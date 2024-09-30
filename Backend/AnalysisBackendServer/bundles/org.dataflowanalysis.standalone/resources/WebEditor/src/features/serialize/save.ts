@@ -4,7 +4,6 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws, setModelSource } from '../../index';
 
 /**
  * Type that contains all data related to a diagram.
@@ -63,9 +62,22 @@ export class SaveDiagramCommand extends Command {
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        console.log("Hi + " + diagramJson);
+        const jsonBlob = new Blob([diagramJson], { type: "application/json" });
+        const jsonUrl = URL.createObjectURL(jsonBlob);
 
-        ws.send(diagramJson);        
+        // Download the JSON file using a temporary anchor element.
+        // The cleaner way to do this would be showSaveFilePicker(),
+        // but safari and firefox don't support it at the time of writing this code:
+        // https://developer.mozilla.org/en-US/docs/web/api/window/showsavefilepicker#browser_compatibility
+        const tempLink = document.createElement("a");
+        tempLink.href = jsonUrl;
+        tempLink.setAttribute("download", this.action.suggestedFileName);
+        tempLink.click();
+
+        // Free the url data
+        URL.revokeObjectURL(jsonUrl);
+        tempLink.remove();
+
         return context.root;
     }
 
@@ -78,7 +90,4 @@ export class SaveDiagramCommand extends Command {
     redo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
-    
 }
-
-

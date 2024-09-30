@@ -9,6 +9,7 @@ import {
     SNodeImpl,
     TYPES,
     isLocateable,
+    LogLevel
 } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
@@ -197,8 +198,8 @@ export class LoadDiagramCommand extends Command {
 
                 this.logger.info(this, "Editor mode loaded successfully");
             }
-
             postLoadActions(this.newRoot, this.actionDispatcher);
+
 
             this.oldFileName = currentFileName;
             this.newFileName = file.name;
