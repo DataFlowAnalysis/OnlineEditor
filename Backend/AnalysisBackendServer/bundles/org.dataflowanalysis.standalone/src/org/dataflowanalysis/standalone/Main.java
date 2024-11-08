@@ -89,7 +89,7 @@ public class Main {
             ProcessBuilder builder = new ProcessBuilder(commandParts);
             
             builder.directory(new File(editorPath));// Inherit the I/O of the current process to show the server logs
-           builder.inheritIO();
+          
             // Start the process
             Process process = builder.start(); 
             var processReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
