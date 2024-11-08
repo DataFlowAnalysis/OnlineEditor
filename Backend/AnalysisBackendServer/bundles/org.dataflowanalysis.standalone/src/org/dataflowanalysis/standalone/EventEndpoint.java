@@ -1,12 +1,18 @@
+package org.dataflowanalysis.standalone;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
+import org.dataflowanalysis.converter.Converter;
 import org.dataflowanalysis.converter.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.converter.DataFlowDiagramConverter;
+import org.dataflowanalysis.converter.WebEditorConverter;
 import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.datadictionaryPackage;
@@ -29,19 +35,24 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class EventEndpoint extends WebSocketAdapter
 {
     private final CountDownLatch closureLatch = new CountDownLatch(1);
-    private WebEditorDfd webEditorDfd;
-    private List<Session> sessions = new ArrayList<>();
-    private File dfd = null;
-    private File dd = null;
+    private static Map<Integer, Session> sessions = new HashMap<>();
+    private static int index = 0;
    
     
     @Override
     public void onWebSocketConnect(Session sess)
     {
         super.onWebSocketConnect(sess);	
-        System.out.println("Works");
+        System.out.println("WS connection established");
         
-        this.sessions.add(sess);
+        sessions.put(index, sess);
+        try {
+			sess.getRemote().sendString("ID assigned:" + index);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        index++;
     }
 
     @Override
@@ -49,12 +60,22 @@ public class EventEndpoint extends WebSocketAdapter
     {
     	
         super.onWebSocketText(message);
+        var analysisThread = new Thread(() -> messageThread(message));
+        analysisThread.start();
         try {
-			String returnMessage = handleIncomingMessage(message);
+			analysisThread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private void messageThread(String message) {
+    	try {
+        	var id = Integer.parseInt(message.split(":")[0]);
+			String returnMessage = handleIncomingMessage(id, message.substring(message.indexOf(":")+1));
 		    if (returnMessage != null) {
-		    	for (var sess : sessions) {
-		    		sess.getRemote().sendString(returnMessage);
-		    	}
+		    	sessions.get(id).getRemote().sendString(returnMessage);
 		    }    
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -81,17 +102,38 @@ public class EventEndpoint extends WebSocketAdapter
         closureLatch.await();
     }
     
-    private String handleIncomingMessage(String message) {
+    private String handleIncomingMessage(int id, String message) {
+    	System.out.println("Message received");
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd newJson = null;
+    	
     	if (message.startsWith("Json:")) {
     		message = message.replaceFirst("Json:", "");
     		
     		try {
-				webEditorDfd = objectMapper.readValue(message, WebEditorDfd.class);
+				var webEditorDfd = objectMapper.readValue(message, WebEditorDfd.class);
 				objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 			     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 			     newJson = analyzeAnnotateAndSafe(webEditorDfd);
+			     
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				return "Error:Test";
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}			 
+    	} 
+    	else if (message.startsWith("Json2DFD:")) {
+    		message = message.replaceFirst("Json2DFD:", "");
+    		var name = message.split(":")[0];
+    		message = message.replaceFirst(name + ":", "");
+    		
+    		try {
+				var webEditorDfd = objectMapper.readValue(message, WebEditorDfd.class);
+				objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			     return convertToDFDandStringify(webEditorDfd, name);
 			     
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
@@ -105,35 +147,21 @@ public class EventEndpoint extends WebSocketAdapter
     		message = message.replaceFirst("DFD:", "");
     		String name = message.split(":")[0];
     		message = message.replaceFirst(name + ":", "");
+    		var dfdMessage = message.split("\n:DD:\n")[0];
+    		var ddMessage = message.split("\n:DD:\n")[1];
     		try {
                 String tempDir = System.getProperty("java.io.tmpdir");
-				dfd = new File(tempDir, name + ".dataflowdiagram");
+				var dfd = new File(tempDir, name + ".dataflowdiagram");
+				var dd = new File(tempDir, name + ".datadictionary");
 				dfd.deleteOnExit();
-				 FileWriter writer = new FileWriter(dfd);
-				 writer.write(message);
-				 writer.close();
-				 if (dd != null)
-					 newJson = convertDFD();
-				 else return null;
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	else if (message.startsWith("DD:")) {
-    		message = message.replaceFirst("DD:", "");
-    		String name = message.split(":")[0];
-    		message = message.replaceFirst(name + ":", "");
-    		try {
-                String tempDir = System.getProperty("java.io.tmpdir");
-				dd = new File(tempDir, name + ".datadictionary");
 				dd.deleteOnExit();
-				 FileWriter writer = new FileWriter(dd);
-				 writer.write(message);
-				 writer.close();
-				 if (dfd != null)
-					 newJson = convertDFD();
-				 else return null;
+				 FileWriter writerDFD = new FileWriter(dfd);
+				 FileWriter writerDD = new FileWriter(dd);
+				 writerDFD.write(dfdMessage);
+				 writerDFD.close();
+				 writerDD.write(ddMessage);
+				 writerDD.close();
+				 newJson = convertDFD(dfd, dd);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -146,7 +174,8 @@ public class EventEndpoint extends WebSocketAdapter
 		}
     }
     
-    private WebEditorDfd convertDFD(){
+    private WebEditorDfd convertDFD(File dfd, File dd){
+    	try {
     	var converter = new DataFlowDiagramConverter();
     	
     	ResourceSet rs = new ResourceSetImpl();
@@ -164,20 +193,73 @@ public class EventEndpoint extends WebSocketAdapter
 		DataFlowDiagramAndDictionary dfdAndDD = new DataFlowDiagramAndDictionary((DataFlowDiagram)dfdResource.getContents().get(0), (DataDictionary)ddResource.getContents().get(0));
 		
 		var newJson = converter.dfdToWeb(dfdAndDD);		
-    	
-    	dfd.delete();
+		dfd.delete();
     	dfd = null;
     	dd.delete();
     	dd = null;
+    	
     	return newJson;
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		dfd.delete();
+        	dfd = null;
+        	dd.delete();
+        	dd = null;
+        	return null;
+		}
+    	
+    }
+    
+    private WebEditorDfd convertPCM(){
+    	//TODO
+    	return null;
     }
     
     
     private static WebEditorDfd analyzeAnnotateAndSafe(WebEditorDfd webEditorDfd) {
     	System.out.println("File received - Starting Analysis");
-    	var converter = new DataFlowDiagramConverter();
-    	var dd = converter.webToDfd(webEditorDfd);
-    	var newJson = converter.dfdToWeb(dd);
-    	return newJson;
+    	try {
+    		var webEditorconverter = new WebEditorConverter();
+        	var dd = webEditorconverter.webToDfd(webEditorDfd);
+        	var dfdConverter = new DataFlowDiagramConverter();
+        	var newJson = dfdConverter.dfdToWeb(dd);
+        	return newJson;
+		} catch (Exception e) {
+			System.out.println("Error analyzing diagram. Verify validity");
+		}
+    	return null;
+    }
+    
+    private static String convertToDFDandStringify(WebEditorDfd webEditorDfd, String name) {
+    	try {
+    		var converter = new WebEditorConverter();
+    		var dfd = converter.webToDfd(webEditorDfd);
+    		String tempDir = System.getProperty("java.io.tmpdir");
+			var dfdFile = new File(tempDir, name + ".dataflowdiagram");
+			var ddFile = new File(tempDir, name + ".datadictionary");
+    		converter.storeDFD(dfd, dfdFile.getParent() + "/" + name);
+    		
+    		String dfdContent = Files.readString(dfdFile.toPath());
+    		String ddContent = Files.readString(ddFile.toPath());
+
+    		dfdFile.delete();
+    		ddFile.delete();
+    		return  dfdContent + "\n" + ddContent;
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+			return null;
+		}
+    }
+    
+    public static void shutDownFrontEnd() {
+    	for (var sess : sessions.values()) {
+    		try {
+				sess.getRemote().sendString("Shutdown");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
 }

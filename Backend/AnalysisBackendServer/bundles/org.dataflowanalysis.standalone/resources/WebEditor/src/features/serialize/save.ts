@@ -4,6 +4,7 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
+import { modelFileName } from "../../index";
 
 /**
  * Type that contains all data related to a diagram.
@@ -71,7 +72,7 @@ export class SaveDiagramCommand extends Command {
         // https://developer.mozilla.org/en-US/docs/web/api/window/showsavefilepicker#browser_compatibility
         const tempLink = document.createElement("a");
         tempLink.href = jsonUrl;
-        tempLink.setAttribute("download", this.action.suggestedFileName);
+        tempLink.setAttribute("download", modelFileName + ".json");
         tempLink.click();
 
         // Free the url data

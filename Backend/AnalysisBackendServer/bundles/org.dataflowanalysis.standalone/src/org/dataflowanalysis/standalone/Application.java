@@ -1,44 +1,92 @@
+package org.dataflowanalysis.standalone;
+
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
-
+import java.util.Scanner;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.file.Path;
+import java.net.URL;
+import org.eclipse.core.runtime.Path;
+import java.time.Duration;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.dataflowanalysis.converter.DataFlowDiagramConverter;
-import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
+import org.osgi.framework.Bundle;
 
-import org.eclipse.jetty.server.ServerConnector;
-import java.time.Duration;
-
-public class Main {
-	private static final String editorPath = "resources\\WebEditor\\";
-	private static final Path modelPath = Path.of("C:\\Users\\Huell\\Desktop\\Newfolder\\Testtest.json");  //Either path to existing model or future safe
+public class Application implements IApplication {
+	private static String editorPath = "WebEditor/";
 	
 	private static BufferedReader reader;
+	
+	private static Process frontEnd;
+	private static Thread webSocketServer;
+	private static final String npmCommand = System.getProperty("os.name").toLowerCase().contains("win") ? "npm.cmd" : "npm";
 
-	public static void main(String[] args) {		
-		try {
+
+	@Override
+	public Object start(IApplicationContext context) throws Exception {
+		
+		try {			
+			Bundle bundle = Platform.getBundle("org.dataflowanalysis.standalone");
+
+			IPath path = new Path("");
+
+			URL url = FileLocator.find(bundle, path, null);
+			URL fileUrl = FileLocator.toFileURL(url);
+
+			editorPath = fileUrl.getPath().toString() + "WebEditor/";
+			
+			System.out.println(editorPath);
+			
 			runCommand("git init", editorPath);
-            runCommand("npm.cmd install", editorPath);
+            runCommand(npmCommand + " install", editorPath);
             
             Thread frontEnd =  new Thread(() -> startFrontendServer());
-            Thread webSocketServer =  new Thread(() -> startWebSocketServer());
+            webSocketServer =  new Thread(() -> startWebSocketServer());
             webSocketServer.start();
             frontEnd.start();
-            while(frontEnd.isAlive() || webSocketServer.isAlive());
+            
+           
+            Scanner scanner = new Scanner(System.in);
+            String input = "";
+
+            System.out.println("Type 'exit' to quit the program.");
+
+            // Loop until user types "exit"
+            
+            
+            while(frontEnd.isAlive() || webSocketServer.isAlive()) {
+            	while (!input.equalsIgnoreCase("exit")) {
+                    input = scanner.nextLine();
+                } 
+                EventEndpoint.shutDownFrontEnd();	
+                return IApplication.EXIT_OK;
+                
+            };
 
         } catch (Exception e) {
             e.printStackTrace();
-        }       
-
+        }      
+		return IApplication.EXIT_OK;
 	}
-	
+
+	@Override
+	public void stop() {
+		EventEndpoint.shutDownFrontEnd();		
+	}
 	
 	private static void startWebSocketServer() {		
 		try {				 
@@ -65,6 +113,7 @@ public class Main {
 	        connector.setPort(3000);
 	        server.start();
 	        server.join();
+	        
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -74,7 +123,7 @@ public class Main {
 
 	private static void startFrontendServer() {
 		 try {
-		 	String command = "npm.cmd run dev";
+		 	String command = npmCommand + " run dev";
 		 	System.out.println(command);
         	
             // Split the command into arguments for ProcessBuilder
@@ -86,17 +135,17 @@ public class Main {
             
             
             // Start the process
-            Process process = builder.start(); 
-            var processReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            frontEnd = builder.start(); 
+            var processReader = new BufferedReader(new InputStreamReader(frontEnd.getInputStream()));
             
-            while (process.isAlive()) {
+            while (frontEnd.isAlive()) {
             	var line = processReader.readLine();
-            	if ( line != null && line.contains("Local")) {
+            	if ( line != null && line.contains("local")) {
             		openBrowser(line);
             	} 
             }    	            
             // Wait for the process to finish (optional, or you can log/process the output)
-            int exitCode = process.waitFor();
+            int exitCode = frontEnd.waitFor();
             System.out.println("Process exited with code: " + exitCode);
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,7 +221,4 @@ public class Main {
 		}
     }
 
-   
-    
- 
 }

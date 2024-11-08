@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Standalone" uid="org.dataflowanalysis.standalone.headless" id="org.dataflowanalysis.standalone.product" application="org.dataflowanalysis.standalone.application" version="1.0.0" useFeatures="false" includeLaunchers="false" autoIncludeRequirements="true">
+
+   <configIni use="">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="org.dataflowanalysis.standalone"/>
+      <plugin id="org.eclipse.core.runtime"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="1" />
+      <property name="eclipse.ignoreApp" value="true" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>

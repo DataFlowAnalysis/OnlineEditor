@@ -7,6 +7,7 @@ import { SerializeKeyListener } from "./keyListener";
 import { SerializeDropHandler } from "./dropListener";
 import { AnalyzeDiagramCommand } from "./analyze";
 import { LoadDFDandDDCommand } from "./loadDFDandDD";
+import { SaveDFDandDDCommand } from "./saveDFDandDD";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -15,6 +16,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, SaveDiagramCommand);
     configureCommand(context, AnalyzeDiagramCommand)
     configureCommand(context, LoadDFDandDDCommand);
+    configureCommand(context, SaveDFDandDDCommand);
 
     bind(TYPES.KeyListener).to(SerializeKeyListener).inSingletonScope();
     bind(TYPES.MouseListener).to(SerializeDropHandler).inSingletonScope();

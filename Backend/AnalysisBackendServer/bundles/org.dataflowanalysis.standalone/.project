@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>DataFlowAnalalysisStandalone</name>
+	<name>org.dataflowanalysis.standalone</name>
 	<comment></comment>
 	<projects>
 	</projects>

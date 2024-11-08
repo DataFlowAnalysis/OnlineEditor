@@ -18,7 +18,8 @@ import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws } from '../../index';
+import { ws, wsId, setModelFileName } from '../../index';
+import { Console } from "console";
 
 export interface LoadDFDandDDAction extends Action {
     kind: typeof LoadDFDandDDAction.KIND;
@@ -91,8 +92,9 @@ export class LoadDFDandDDCommand extends Command {
             const dictionaryFileContent = await this.readFileContent(dictionaryFile);
 
             // Send each file's content in separate WebSocket messages
-            ws.send("DFD:" + this.getFileNameWithoutExtension(dataflowFile) + ":" + dataflowFileContent);
-            ws.send("DD:" + this.getFileNameWithoutExtension(dictionaryFile) + ":" + dictionaryFileContent);
+            ws.send(wsId + ":DFD:" + this.getFileNameWithoutExtension(dataflowFile) + ":" + dataflowFileContent + "\n:DD:\n" + dictionaryFileContent);
+            setModelFileName(dataflowFile.name.substring(0, dataflowFile.name.lastIndexOf('.')));
+            setFileNameInPageTitle(dataflowFile.name);
             return context.root;
         } catch (error) {
             return context.root;
@@ -126,4 +128,6 @@ export class LoadDFDandDDCommand extends Command {
         return fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
     }
 }
+
+
 

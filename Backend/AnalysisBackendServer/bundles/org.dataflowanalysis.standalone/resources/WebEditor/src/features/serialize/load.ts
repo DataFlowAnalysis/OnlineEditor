@@ -19,6 +19,7 @@ import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
+import { filename, setModelFileName } from "../../index";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -204,6 +205,7 @@ export class LoadDiagramCommand extends Command {
             this.oldFileName = currentFileName;
             this.newFileName = file.name;
             setFileNameInPageTitle(file.name);
+            setModelFileName(file.name.substring(0, file.name.lastIndexOf('.')));
 
             return this.newRoot;
         } catch (error) {
@@ -313,4 +315,5 @@ export function setFileNameInPageTitle(filename: string | undefined) {
     } else {
         document.title = initialPageTitle;
     }
+    
 }

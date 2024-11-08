@@ -4,7 +4,7 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws} from '../../index';
+import { ws, wsId } from '../../index';
 
 /**
  * Type that contains all data related to a diagram.
@@ -65,7 +65,7 @@ export class AnalyzeDiagramCommand extends Command {
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        ws.send("Json:" + diagramJson);
+        ws.send(wsId + ":Json:" + diagramJson);
         return context.root;
     }
 
