@@ -104,7 +104,7 @@ public class Application implements IApplication {
 	        JettyWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) ->
 	        {
 	            // Configure default max size
-	            wsContainer.setMaxTextMessageSize(65535000);
+	            wsContainer.setMaxTextMessageSize(Long.MAX_VALUE);
 	            wsContainer.setIdleTimeout(Duration.ofMinutes(20));
 
 	            // Add websockets

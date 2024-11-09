@@ -21,7 +21,9 @@ Require-Bundle: org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
  org.slf4j.api;bundle-version="1.7.30",
  org.dataflowanalysis.analysis;bundle-version="3.0.0",
  org.dataflowanalysis.analysis.dfd;bundle-version="3.0.0",
- org.dataflowanalysis.converter;bundle-version="3.0.0"
+ org.dataflowanalysis.converter;bundle-version="3.0.0",
+ org.dataflowanalysis.pcm.extension.nodecharacteristics;bundle-version="0.1.0",
+ org.dataflowanalysis.analysis.pcm
 Automatic-Module-Name: DataFlowAnalalysisStandalone
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 

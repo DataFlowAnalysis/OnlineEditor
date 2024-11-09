@@ -8,16 +8,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
-
+import org.dataflowanalysis.analysis.pcm.PCMDataFlowConfidentialityAnalysisBuilder;
 import org.dataflowanalysis.converter.Converter;
 import org.dataflowanalysis.converter.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.converter.DataFlowDiagramConverter;
+import org.dataflowanalysis.converter.PCMConverter;
 import org.dataflowanalysis.converter.WebEditorConverter;
 import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.datadictionaryPackage;
 import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
 import org.dataflowanalysis.dfd.dataflowdiagram.dataflowdiagramPackage;
+import org.dataflowanalysis.pcm.extension.dictionary.characterized.DataDictionaryCharacterized.DataDictionaryCharacterizedPackage;
+import org.dataflowanalysis.pcm.extension.nodecharacteristics.nodecharacteristics.NodeCharacteristicsPackage;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -26,6 +29,11 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.palladiosimulator.pcm.allocation.AllocationPackage;
+import org.palladiosimulator.pcm.repository.RepositoryPackage;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceenvironmentPackage;
+import org.palladiosimulator.pcm.system.SystemPackage;
+import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -166,7 +174,57 @@ public class EventEndpoint extends WebSocketAdapter
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+    	} else {
+    	    try {
+    	        // Split the message using the unique delimiter
+    	        String[] fileSections = message.split("---FILE---");
+    	        
+    	        // Create a temporary directory to store files
+    	        String tempDir = System.getProperty("java.io.tmpdir");
+    	        
+    	        File usageModelFile = null;
+    	        File allocationFile = null;
+    	        File nodeCharacteristicsFile = null;
+
+    	        for (String fileSection : fileSections) {
+    	            // Trim any whitespace and ignore empty sections
+    	            fileSection = fileSection.trim();
+    	            if (fileSection.isEmpty()) continue;
+
+    	            // Each file section should be in the format <filename>:<content>
+    	            int firstColon = fileSection.indexOf(":");
+    	            if (firstColon == -1) continue; // Skip invalid sections
+
+    	            // Extract filename and content
+    	            String filename = fileSection.substring(0, firstColon);
+    	            String fileContent = fileSection.substring(firstColon + 1);
+
+    	            // Create a file in the temp directory with the provided name and content
+    	            File file = new File(tempDir, filename);
+    	            file.deleteOnExit();
+    	            
+    	            try (FileWriter writer = new FileWriter(file)) {
+    	                writer.write(fileContent);
+    	            }
+
+    	            // If needed, perform specific actions on certain files
+    	         // Store specific files for the converter if they match the required extensions
+    	            if (filename.endsWith(".usagemodel")) {
+    	                usageModelFile = file;
+    	            } else if (filename.endsWith(".allocation")) {
+    	                allocationFile = file;
+    	            } else if (filename.endsWith(".nodecharacteristics")) {
+    	                nodeCharacteristicsFile = file;
+    	            } 
+    	        }
+    	        System.out.println(usageModelFile.toString());
+    	        newJson = convertPCM(usageModelFile, allocationFile, nodeCharacteristicsFile);
+    	    } catch (Exception e) {
+    	        e.printStackTrace();
+    	    }
     	}
+    	
+    	
     	try {
 			return objectMapper.writeValueAsString(newJson);
 		} catch (JsonProcessingException e) {
@@ -206,12 +264,23 @@ public class EventEndpoint extends WebSocketAdapter
         	dd.delete();
         	dd = null;
         	return null;
-		}
-    	
+		}    	
     }
     
-    private WebEditorDfd convertPCM(){
-    	//TODO
+    
+    
+    private WebEditorDfd convertPCM(File usageModelFile, File allocationModelFile, File nodeCharacteristicsFile){
+    	try {
+    		var converter = new PCMConverter();
+    		var dfd = converter.pcmToDFD("a", usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString());		
+    		
+    		
+    		var dfdConverter = new DataFlowDiagramConverter();
+    		return dfdConverter.dfdToWeb(dfd);
+    		
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
     	return null;
     }
     

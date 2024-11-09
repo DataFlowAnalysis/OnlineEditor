@@ -12,6 +12,7 @@ import { LayoutModelAction } from "../features/autoLayout/command";
 import "@vscode/codicons/dist/codicon.css";
 import "sprotty/css/command-palette.css";
 import "./commandPalette.css";
+import { LoadPalladioAction } from "../features/serialize/loadPalladio";
 
 /**
  * Provides possible actions for the command palette.
@@ -34,6 +35,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Load diagram from JSON", [LoadDiagramAction.create(), commitAction], "go-to-file"),
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
             new LabeledAction("Load DFD and DD", [LoadDFDandDDAction.create(), commitAction], "load-dfd"),
+            new LabeledAction("Load Palladio", [LoadPalladioAction.create(), commitAction], "load-pcm"),
             new LabeledAction(
                 "Layout diagram",
                 [LayoutModelAction.create(), commitAction, fitToScreenAction],
