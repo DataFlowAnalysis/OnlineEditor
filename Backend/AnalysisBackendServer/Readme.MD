@@ -6,22 +6,16 @@ Setup:
 
 - Download and install DFA https://github.com/DataFlowAnalysis/product/releases/tag/v3.0.0
 
-- Clone https://github.com/DataFlowAnalysis/DataFlowAnalysis and checkout integratedCycles
+- Clone this repository and import into DFA
 
-- Clone https://github.com/DataFlowAnalysis/Converter and checkout annotations
+- Run Main 
 
-- Clone this repository
  
-- Install Jetty Bundles From Eclipse Updatesite https://download.eclipse.org/oomph/jetty/release/11.0.24
+How to build headless product:
 
-- IF METAINF ERROR Install SLF4J From https://download.eclipse.org/releases/2022-12/202212071000
-
-- Import all projects into DFA (for reasons... this project might need to be imported with File->Import->Existing Projects into Workspace)
-
-- clean and build all projects otherwise this project will not see the correct branch of DFA and converter
-
-Usage:
-
-- Run Main
-- Load Model or edit default model (make sure no cycle and that all pins are valid - especially when you delete the input pin)
-- Press Ctrl - A to analyze
+- In DFA chose export and create Plugin for standalone plugin
+- Add destination folder to targetplatform
+- Run mvn clean verify
+- IMPORTANT: Edit eclipse config.ini: Change org.eclipse.core.runtime_"version"@4 to org.eclipse.core.runtime_"version"@start
+- start with eclipse --application org.dataflowanalysis.standalone.application -consoleLog
+- exit by typing exit in console or FrontEnd will keep running
