@@ -1,4 +1,4 @@
-import { Container , ContainerModule } from "inversify";
+import { ContainerModule } from "inversify";
 import { EDITOR_TYPES } from "../../utils";
 import { AddElementToGraphCommand, CreationToolDisableKeyListener } from "./creationTool";
 import { EdgeCreationTool } from "./edgeCreationTool";
@@ -9,17 +9,11 @@ import {
     CommitModelAction,
     EmptyView,
     SNodeImpl,
-    ActionHandler,
-    IAction,
-    IActionDispatcher,
-
     TYPES,
     configureActionHandler,
     configureCommand,
     configureModelElement,
-    IActionHandlerRegistry 
 } from "sprotty";
-import { AnalyzeDiagramCommand } from "../serialize/analyze";
 
 // This module contains an UI extension that adds a tool palette to the editor.
 // This tool palette allows the user to create new nodes and edges.
@@ -49,5 +43,3 @@ export const toolPaletteModule = new ContainerModule((bind, unbind, isBound, reb
     bind(TYPES.KeyListener).toService(ToolPaletteUI);
     bind(EDITOR_TYPES.DefaultUIElement).toService(ToolPaletteUI);
 });
-
-

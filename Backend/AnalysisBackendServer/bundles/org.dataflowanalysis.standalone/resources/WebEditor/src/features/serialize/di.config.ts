@@ -15,7 +15,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadDiagramCommand);
     configureCommand(context, LoadDefaultDiagramCommand);
     configureCommand(context, SaveDiagramCommand);
-    configureCommand(context, AnalyzeDiagramCommand)
+    configureCommand(context, AnalyzeDiagramCommand);
     configureCommand(context, LoadDFDandDDCommand);
     configureCommand(context, SaveDFDandDDCommand);
     configureCommand(context, LoadPalladioCommand);

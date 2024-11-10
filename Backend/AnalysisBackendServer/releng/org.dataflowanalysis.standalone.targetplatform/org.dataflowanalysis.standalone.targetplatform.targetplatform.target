@@ -153,12 +153,12 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<repository location="https://dataflowanalysis.github.io/updatesite/nightly/dataflowanalysis/"/>
-			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="3.0.0.202411080948"/>
+			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="3.0.0.202411090238"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<repository location="https://dataflowanalysis.github.io/updatesite/nightly/converter/"/>
-			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="3.0.0.202411080300"/>
+			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="3.0.0.202411090257"/>
 		</location>
-		<location path="C:\Users\Huell\Desktop\Newfolder\plugins" type="Directory"/>
+		<location path="C:\Users\Huell\Desktop\Newfolder\AnalysisNew\workspace\plugins" type="Directory"/>
 	</locations>
 </target>

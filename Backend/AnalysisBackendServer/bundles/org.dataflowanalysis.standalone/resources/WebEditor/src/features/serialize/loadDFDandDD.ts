@@ -18,7 +18,7 @@ import { SavedDiagram } from "./save";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { LayoutModelAction } from "../autoLayout/command";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws, wsId, setModelFileName } from '../../index';
+import { ws, wsId, setModelFileName } from "../../index";
 import { Console } from "console";
 
 export interface LoadDFDandDDAction extends Action {
@@ -43,9 +43,6 @@ export class LoadDFDandDDCommand extends Command {
         super();
     }
 
-    
-
-
     /**
      * Gets the model file from the action or opens a file picker dialog if no file is provided.
      * @returns A promise that resolves to the model file.
@@ -59,14 +56,14 @@ export class LoadDFDandDDCommand extends Command {
         input.type = "file";
         input.accept = ".dataflowdiagram, .datadictionary";
         input.multiple = true;
-        
+
         const fileLoadPromise = new Promise<File[] | undefined>((resolve, reject) => {
             // This event is fired when the user successfully submits the file picker dialog.
             input.onchange = () => {
                 if (input.files && input.files.length === 2) {
                     const files = Array.from(input.files);
-                    const dataflowFile = files.find(file => file.name.endsWith(".dataflowdiagram"));
-                    const dictionaryFile = files.find(file => file.name.endsWith(".datadictionary"));
+                    const dataflowFile = files.find((file) => file.name.endsWith(".dataflowdiagram"));
+                    const dictionaryFile = files.find((file) => file.name.endsWith(".datadictionary"));
 
                     if (dataflowFile && dictionaryFile) {
                         resolve([dataflowFile, dictionaryFile]);
@@ -92,8 +89,16 @@ export class LoadDFDandDDCommand extends Command {
             const dictionaryFileContent = await this.readFileContent(dictionaryFile);
 
             // Send each file's content in separate WebSocket messages
-            ws.send(wsId + ":DFD:" + this.getFileNameWithoutExtension(dataflowFile) + ":" + dataflowFileContent + "\n:DD:\n" + dictionaryFileContent);
-            setModelFileName(dataflowFile.name.substring(0, dataflowFile.name.lastIndexOf('.')));
+            ws.send(
+                wsId +
+                    ":DFD:" +
+                    this.getFileNameWithoutExtension(dataflowFile) +
+                    ":" +
+                    dataflowFileContent +
+                    "\n:DD:\n" +
+                    dictionaryFileContent,
+            );
+            setModelFileName(dataflowFile.name.substring(0, dataflowFile.name.lastIndexOf(".")));
             setFileNameInPageTitle(dataflowFile.name);
             return context.root;
         } catch (error) {
@@ -125,9 +130,6 @@ export class LoadDFDandDDCommand extends Command {
 
     getFileNameWithoutExtension(file: File): string {
         const fileName = file.name;
-        return fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+        return fileName.substring(0, fileName.lastIndexOf(".")) || fileName;
     }
 }
-
-
-

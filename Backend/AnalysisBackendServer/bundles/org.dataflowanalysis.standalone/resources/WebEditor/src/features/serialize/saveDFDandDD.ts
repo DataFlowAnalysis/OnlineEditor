@@ -1,10 +1,19 @@
 import { inject, injectable, optional } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES, IActionHandler, IActionHandlerInitializer, ActionHandlerRegistry } from "sprotty";
+import {
+    Command,
+    CommandExecutionContext,
+    LocalModelSource,
+    SModelRootImpl,
+    TYPES,
+    IActionHandler,
+    IActionHandlerInitializer,
+    ActionHandlerRegistry,
+} from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws, wsId, modelFileName } from '../../index';
+import { ws, wsId, modelFileName } from "../../index";
 
 export interface SaveDFDandDDAction extends Action {
     kind: typeof SaveDFDandDDAction.KIND;
@@ -19,7 +28,6 @@ export namespace SaveDFDandDDAction {
             file,
         };
     }
-
 }
 
 export interface SavedDiagram {
@@ -73,9 +81,7 @@ export class SaveDFDandDDCommand extends Command {
     redo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
-
 }
-
 
 export class SaveDFDandDD {
     private dfdString: string = "";
@@ -98,7 +104,7 @@ export class SaveDFDandDD {
 
             // Extract everything after the closing tag
             this.ddString = message.slice(endIndex + closingTag.length).trim();
-        } 
+        }
     }
 
     /**

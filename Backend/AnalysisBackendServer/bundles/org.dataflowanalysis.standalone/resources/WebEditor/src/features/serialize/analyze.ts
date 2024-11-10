@@ -1,10 +1,19 @@
 import { inject, injectable, optional } from "inversify";
-import { Command, CommandExecutionContext, LocalModelSource, SModelRootImpl, TYPES, IActionHandler, IActionHandlerInitializer, ActionHandlerRegistry } from "sprotty";
+import {
+    Command,
+    CommandExecutionContext,
+    LocalModelSource,
+    SModelRootImpl,
+    TYPES,
+    IActionHandler,
+    IActionHandlerInitializer,
+    ActionHandlerRegistry,
+} from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { ws, wsId } from '../../index';
+import { ws, wsId } from "../../index";
 
 /**
  * Type that contains all data related to a diagram.
@@ -30,8 +39,6 @@ export namespace AnalyzeDiagramAction {
         };
     }
 }
-
-
 
 @injectable()
 export class AnalyzeDiagramCommand extends Command {
@@ -78,7 +85,4 @@ export class AnalyzeDiagramCommand extends Command {
     redo(context: CommandExecutionContext): SModelRootImpl {
         return context.root;
     }
-
 }
-
-

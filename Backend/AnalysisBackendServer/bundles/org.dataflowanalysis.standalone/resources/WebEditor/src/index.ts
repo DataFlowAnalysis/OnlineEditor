@@ -10,7 +10,7 @@ import {
     TYPES,
     labelEditUiModule,
     loadDefaultModules,
-    IActionHandlerRegistry
+    IActionHandlerRegistry,
 } from "sprotty";
 import { elkLayoutModule } from "sprotty-elk";
 import { autoLayoutModule } from "./features/autoLayout/di.config";
@@ -31,9 +31,6 @@ import "./theme.css";
 import "./page.css";
 import { LoadDiagramAction } from "./features/serialize/load";
 
-
-
-
 const container = new Container();
 
 // Load default sprotty provided modules
@@ -42,7 +39,6 @@ loadDefaultModules(container, {
         labelEditUiModule, // We provide our own label edit ui inheriting from the default one (noScrollLabelEditUiModule)
     ],
 });
-
 
 // sprotty-elk layouting extension
 container.load(elkLayoutModule);
@@ -98,14 +94,12 @@ modelSource
         console.error("Failed to show default UIs and load default diagram", error);
     });
 
-    
-
-export const ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`);  // Change to the dynamic WebSocket port
+export const ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`); // Change to the dynamic WebSocket port
 export var wsId = 0;
 
 export var modelFileName = "diagram";
 
-export function setModelFileName(name: string): void{
+export function setModelFileName(name: string): void {
     modelFileName = name;
 }
 
@@ -128,12 +122,12 @@ ws.onmessage = (event) => {
         saveDFDandDD.saveFiles();
         return;
     }
-    setModelSource(new File([new Blob([event.data], { type: 'application/json' })], modelFileName + ".json", { type: 'application/json' }));
+    setModelSource(
+        new File([new Blob([event.data], { type: "application/json" })], modelFileName + ".json", {
+            type: "application/json",
+        }),
+    );
 };
-
-
-
-
 
 export function setModelSource(file: File): void {
     modelSource
@@ -168,5 +162,3 @@ export function setModelSource(file: File): void {
             console.error("Failed to show default UIs and load default diagram", error);
         });
 }
-
-   
