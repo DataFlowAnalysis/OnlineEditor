@@ -1,3 +1,6 @@
+CAUTION: This application exposes WebSocketServer and FrontEnd to the Network. If you want to run it locally only remove host:"0.0.0.0" from vite-server-with-shutdown.mjs
+
+
 How to use:
 
 Setup:
