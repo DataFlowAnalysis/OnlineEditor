@@ -105,8 +105,8 @@ export function setModelFileName(name: string): void {
 
 ws.onmessage = (event) => {
     console.log(event.data);
-    if (event.data === "Error:Cycle") {
-        alert("Error analyzing model: Model terminates in cycle!");
+    if (event.data.startsWith("Error:")) {
+        alert(event.data);
         return;
     }
     if (event.data.startsWith("ID assigned:")) {
@@ -115,6 +115,7 @@ ws.onmessage = (event) => {
         return; // Exit after assigning the ID
     }
     if (event.data === "Shutdown") {
+        window.close();
         return;
     }
     if (event.data.trim().endsWith("</datadictionary:DataDictionary>")) {

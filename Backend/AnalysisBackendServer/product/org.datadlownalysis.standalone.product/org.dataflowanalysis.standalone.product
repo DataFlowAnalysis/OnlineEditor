@@ -4,6 +4,7 @@
 <product name="Standalone" uid="org.dataflowanalysis.standalone.headless" id="org.dataflowanalysis.standalone.product" application="org.dataflowanalysis.standalone.application" version="1.0.0" useFeatures="false" includeLaunchers="false" autoIncludeRequirements="true">
 
    <configIni use="">
+      <win32>/org.dataflowanalysis.standalone.product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -24,7 +25,7 @@
    </plugins>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="start" />
       <property name="eclipse.ignoreApp" value="true" />
       <property name="osgi.noShutdown" value="true" />
    </configurations>
