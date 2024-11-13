@@ -3,6 +3,7 @@ package org.dataflowanalysis.standalone.analysis;
 import java.io.File;
 import java.nio.file.Files;
 
+import org.dataflowanalysis.analysis.dfd.core.DFDTransposeFlowGraphFinder;
 import org.dataflowanalysis.analysis.dfd.simple.DFDSimpleTransposeFlowGraphFinder;
 import org.dataflowanalysis.converter.DataFlowDiagramAndDictionary;
 import org.dataflowanalysis.converter.DataFlowDiagramConverter;
@@ -58,7 +59,7 @@ public class Converter {
 	    		
 	    		
 	    		var dfdConverter = new DataFlowDiagramConverter();
-	    		return dfdConverter.dfdToWebAndAnalyzeAndAnnotateWithCustomTFGFinder(dfd, null, DFDSimpleTransposeFlowGraphFinder.class);
+	    		return dfdConverter.dfdToWebAndAnalyzeAndAnnotateWithCustomTFGFinder(dfd, null, DFDTransposeFlowGraphFinder.class);
 	    		
 	    	} catch (Exception e) {
 				e.printStackTrace();
