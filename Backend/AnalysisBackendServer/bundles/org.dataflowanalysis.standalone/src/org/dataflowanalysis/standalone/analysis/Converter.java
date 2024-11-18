@@ -59,7 +59,7 @@ public class Converter {
 	    		
 	    		
 	    		var dfdConverter = new DataFlowDiagramConverter();
-	    		return dfdConverter.dfdToWebAndAnalyzeAndAnnotateWithCustomTFGFinder(dfd, null, DFDTransposeFlowGraphFinder.class);
+	    		return dfdConverter.dfdToWebAndAnalyzeAndAnnotateWithCustomTFGFinder(dfd, null, DFDSimpleTransposeFlowGraphFinder.class);
 	    		
 	    	} catch (Exception e) {
 				e.printStackTrace();

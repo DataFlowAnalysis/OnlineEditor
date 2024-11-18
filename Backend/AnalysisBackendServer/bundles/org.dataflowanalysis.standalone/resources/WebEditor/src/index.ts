@@ -94,13 +94,17 @@ modelSource
         console.error("Failed to show default UIs and load default diagram", error);
     });
 
-export const ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`); // Change to the dynamic WebSocket port
-export var wsId = 0;
+var ws = new WebSocket(`wss://${window.location.hostname}/events/`); // Change to the dynamic WebSocket port
+var wsId = 0;
 
 export var modelFileName = "diagram";
 
 export function setModelFileName(name: string): void {
     modelFileName = name;
+}
+
+function reconnectWebSocket() {
+    ws = new WebSocket(`wss://${window.location.hostname}/events/`);
 }
 
 ws.onmessage = (event) => {
@@ -129,6 +133,24 @@ ws.onmessage = (event) => {
         }),
     );
 };
+
+ws.onclose = () => {
+    reconnectWebSocket();
+}
+
+ws.onerror = () => {
+    reconnectWebSocket();
+}
+
+export function sendMessageToWebsocket(message: String) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        console.warn("WebSocket not open. Attempting to reconnect...");
+        reconnectWebSocket();
+    } 
+        ws.send(wsId + ":" + message);
+    
+
+}
 
 export function setModelSource(file: File): void {
     modelSource

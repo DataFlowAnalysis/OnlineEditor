@@ -153,8 +153,8 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<repository location="https://dataflowanalysis.github.io/updatesite/nightly/dataflowanalysis/"/>
-			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="3.0.0.202411120241"/>
+			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="3.0.0.202411180256"/>
 		</location>
-		<location path="C:\Users\Huell\Desktop\Newfolder\AnalysisNew\workspace\plugins" type="Directory"/>
+		<location path="C:\Users\Huell\Desktop\AnalysisNew\workspace\plugins" type="Directory"/>
 	</locations>
 </target>
