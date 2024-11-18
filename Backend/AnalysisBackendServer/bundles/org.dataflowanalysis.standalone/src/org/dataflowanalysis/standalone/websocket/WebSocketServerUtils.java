@@ -30,6 +30,7 @@ public class WebSocketServerUtils {
 	        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 	        context.setContextPath("/");
 	        server.setHandler(context);
+	        
 
 	        // Configure specific websocket behavior
 	        JettyWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) ->

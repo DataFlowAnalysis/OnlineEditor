@@ -104,7 +104,7 @@ export function setModelFileName(name: string): void {
 }
 
 function reconnectWebSocket() {
-    ws = new WebSocket(`wss://${window.location.hostname}/events/`);
+    ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`);
 }
 
 ws.onmessage = (event) => {

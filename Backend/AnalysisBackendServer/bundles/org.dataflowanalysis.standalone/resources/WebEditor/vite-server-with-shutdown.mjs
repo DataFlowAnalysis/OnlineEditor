@@ -5,7 +5,6 @@ import { WebSocket } from 'ws';
     // Create a Vite server instance
     const viteServer = await createServer({
 	server: {
-		host: "0.0.0.0"
 	}
 });
     const serverInfo = await viteServer.listen();
