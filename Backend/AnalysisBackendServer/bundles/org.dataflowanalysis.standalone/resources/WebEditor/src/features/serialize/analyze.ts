@@ -72,7 +72,7 @@ export class AnalyzeDiagramCommand extends Command {
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        sendMessageToWebsocket(":Json:" + diagramJson);
+        sendMessageToWebsocket("Json:" + diagramJson);
         return context.root;
     }
 

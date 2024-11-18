@@ -94,7 +94,7 @@ modelSource
         console.error("Failed to show default UIs and load default diagram", error);
     });
 
-var ws = new WebSocket(`wss://${window.location.hostname}/events/`); // Change to the dynamic WebSocket port
+var ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`); // Change to the dynamic WebSocket port
 var wsId = 0;
 
 export var modelFileName = "diagram";
