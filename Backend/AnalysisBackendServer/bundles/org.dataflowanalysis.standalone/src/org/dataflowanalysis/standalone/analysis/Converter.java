@@ -126,26 +126,10 @@ public class Converter {
 	    }
 	    
 	    private static List<AnalysisConstraint> parseConstraints(WebEditorDfd webEditorDfd) {
-	    	/*return webEditorDfd.constraints().stream().map(it -> {
+	    	return webEditorDfd.constraints().stream().map(it -> {
 	    		return AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
-	    	}).toList();*/
+	    	}).toList();
 	    	
-	    	var constraint = new ConstraintDSL()
-	                .ofData()
-	                .withLabel("Sensitivity", List.of("Personal"))
-	                .fromNode()
-	                .neverFlows()
-	                .toVertex()
-	                .withCharacteristic("Location", "nonEU")
-	                .create();
-	    	System.out.println(constraint);
-	    	constraint = AnalysisConstraint.fromString(new StringView(constraint.toString())).getResult();
-
-	        logger.setLevel(Level.TRACE);
-	    	
-	    	var list = new ArrayList<AnalysisConstraint>();
-	    	list.add(constraint);
-	    	return list;
 	    }
 	    
 	    private static List<DSLResult> runAnalysis(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints) {
