@@ -13,7 +13,8 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { sendMessageToWebsocket } from "../../index";
+import { ws, wsId } from "./webSocketHandler";
+import { Constraint, ConstraintRegistry } from "../constraintMenu/constraintRegistry";
 
 /**
  * Type that contains all data related to a diagram.
@@ -22,6 +23,7 @@ import { sendMessageToWebsocket } from "../../index";
 export interface SavedDiagram {
     model: SModelRoot;
     labelTypes?: LabelType[];
+    constraints?: Constraint[];
     editorMode?: EditorMode;
 }
 
@@ -53,6 +55,9 @@ export class AnalyzeDiagramCommand extends Command {
     @inject(EditorModeController)
     @optional()
     private editorModeController?: EditorModeController;
+    @inject(ConstraintRegistry)
+    @optional()
+    private readonly constraintRegistry?: ConstraintRegistry;
 
     constructor(@inject(TYPES.Action) private action: AnalyzeDiagramAction) {
         super();
@@ -69,10 +74,11 @@ export class AnalyzeDiagramCommand extends Command {
         const diagram: SavedDiagram = {
             model: modelCopy,
             labelTypes: this.labelTypeRegistry?.getLabelTypes(),
+            constraints: this.constraintRegistry?.getConstraints(),
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        sendMessageToWebsocket("Json:" + diagramJson);
+        ws.send(wsId + ":Json:" + diagramJson);
         return context.root;
     }
 

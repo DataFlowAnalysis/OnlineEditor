@@ -10,7 +10,6 @@ import {
     TYPES,
     labelEditUiModule,
     loadDefaultModules,
-    IActionHandlerRegistry,
 } from "sprotty";
 import { elkLayoutModule } from "sprotty-elk";
 import { autoLayoutModule } from "./features/autoLayout/di.config";
@@ -24,12 +23,14 @@ import { dfdElementsModule } from "./features/dfdElements/di.config";
 import { copyPasteModule } from "./features/copyPaste/di.config";
 import { EDITOR_TYPES } from "./utils";
 import { editorModeModule } from "./features/editorMode/di.config";
-import { SaveDFDandDD } from "./features/serialize/saveDFDandDD";
+import { constraintMenuModule } from "./features/constraintMenu/di.config";
+
 import "sprotty/css/sprotty.css";
 import "sprotty/css/edit-label.css";
 import "./theme.css";
 import "./page.css";
 import { LoadDiagramAction } from "./features/serialize/load";
+import { Action } from "sprotty-protocol";
 
 const container = new Container();
 
@@ -54,11 +55,13 @@ container.load(
     editorModeModule,
     toolPaletteModule,
     copyPasteModule,
+    constraintMenuModule,
 );
 
 const dispatcher = container.get<ActionDispatcher>(TYPES.IActionDispatcher);
 const defaultUIElements = container.getAll<AbstractUIExtension>(EDITOR_TYPES.DefaultUIElement);
 const modelSource = container.get<LocalModelSource>(TYPES.ModelSource);
+
 // Set empty model as starting point.
 // In contrast to the default diagram later this is not undoable which would bring the editor
 // into an invalid state where no root element is present.
@@ -94,62 +97,14 @@ modelSource
         console.error("Failed to show default UIs and load default diagram", error);
     });
 
-var ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`); // Change to the dynamic WebSocket port
-var wsId = 0;
-
 export var modelFileName = "diagram";
 
 export function setModelFileName(name: string): void {
     modelFileName = name;
 }
 
-function reconnectWebSocket() {
-    ws = new WebSocket(`ws://${window.location.hostname}:3000/events/`);
-}
-
-ws.onmessage = (event) => {
-    console.log(event.data);
-    if (event.data.startsWith("Error:")) {
-        alert(event.data);
-        return;
-    }
-    if (event.data.startsWith("ID assigned:")) {
-        // Extract the ID from the message
-        wsId = parseInt(event.data.split(":")[1].trim(), 10);
-        return; // Exit after assigning the ID
-    }
-    if (event.data === "Shutdown") {
-        window.close();
-        return;
-    }
-    if (event.data.trim().endsWith("</datadictionary:DataDictionary>")) {
-        var saveDFDandDD = new SaveDFDandDD(event.data);
-        saveDFDandDD.saveFiles();
-        return;
-    }
-    setModelSource(
-        new File([new Blob([event.data], { type: "application/json" })], modelFileName + ".json", {
-            type: "application/json",
-        }),
-    );
-};
-
-ws.onclose = () => {
-    reconnectWebSocket();
-}
-
-ws.onerror = () => {
-    reconnectWebSocket();
-}
-
-export function sendMessageToWebsocket(message: String) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-        console.warn("WebSocket not open. Attempting to reconnect...");
-        reconnectWebSocket();
-    } 
-        ws.send(wsId + ":" + message);
-    
-
+export function executeAction(action : Action) {
+    dispatcher.dispatch(action);
 }
 
 export function setModelSource(file: File): void {

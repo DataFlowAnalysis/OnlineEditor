@@ -4,7 +4,7 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { modelFileName } from "../../index";
+import { Constraint, ConstraintRegistry } from "../constraintMenu/constraintRegistry";
 
 /**
  * Type that contains all data related to a diagram.
@@ -13,6 +13,7 @@ import { modelFileName } from "../../index";
 export interface SavedDiagram {
     model: SModelRoot;
     labelTypes?: LabelType[];
+    constraints?: Constraint[];
     editorMode?: EditorMode;
 }
 
@@ -44,6 +45,9 @@ export class SaveDiagramCommand extends Command {
     @inject(EditorModeController)
     @optional()
     private editorModeController?: EditorModeController;
+    @inject(ConstraintRegistry)
+    @optional()
+    private constraintRegistry?: ConstraintRegistry;
 
     constructor(@inject(TYPES.Action) private action: SaveDiagramAction) {
         super();
@@ -60,6 +64,7 @@ export class SaveDiagramCommand extends Command {
         const diagram: SavedDiagram = {
             model: modelCopy,
             labelTypes: this.labelTypeRegistry?.getLabelTypes(),
+            constraints: this.constraintRegistry?.getConstraints(),
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
@@ -72,7 +77,7 @@ export class SaveDiagramCommand extends Command {
         // https://developer.mozilla.org/en-US/docs/web/api/window/showsavefilepicker#browser_compatibility
         const tempLink = document.createElement("a");
         tempLink.href = jsonUrl;
-        tempLink.setAttribute("download", modelFileName + ".json");
+        tempLink.setAttribute("download", this.action.suggestedFileName);
         tempLink.click();
 
         // Free the url data

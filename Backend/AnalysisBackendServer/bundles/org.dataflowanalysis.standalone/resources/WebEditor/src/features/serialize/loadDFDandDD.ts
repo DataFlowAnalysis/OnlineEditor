@@ -11,15 +11,10 @@ import {
     isLocateable,
 } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
-import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject, optional } from "inversify";
-import { createDefaultFitToScreenAction } from "../../utils";
-import { SavedDiagram } from "./save";
-import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import { LayoutModelAction } from "../autoLayout/command";
-import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { sendMessageToWebsocket, setModelFileName } from "../../index";
-import { Console } from "console";
+import { ws, wsId } from "./webSocketHandler";
+import { setModelFileName } from "../..";
+import { setFileNameInPageTitle } from "./load";
 
 export interface LoadDFDandDDAction extends Action {
     kind: typeof LoadDFDandDDAction.KIND;
@@ -89,8 +84,9 @@ export class LoadDFDandDDCommand extends Command {
             const dictionaryFileContent = await this.readFileContent(dictionaryFile);
 
             // Send each file's content in separate WebSocket messages
-            sendMessageToWebsocket(
-                    "DFD:" +
+            ws.send(
+                wsId +
+                    ":DFD:" +
                     this.getFileNameWithoutExtension(dataflowFile) +
                     ":" +
                     dataflowFileContent +
@@ -98,6 +94,7 @@ export class LoadDFDandDDCommand extends Command {
                     dictionaryFileContent,
             );
             setModelFileName(dataflowFile.name.substring(0, dataflowFile.name.lastIndexOf(".")));
+            setFileNameInPageTitle(dataflowFile.name);
             return context.root;
         } catch (error) {
             return context.root;

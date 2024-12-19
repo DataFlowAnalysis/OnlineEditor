@@ -11,15 +11,9 @@ import {
     isLocateable,
 } from "sprotty";
 import { Action, SModelRoot } from "sprotty-protocol";
-import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { inject, optional } from "inversify";
-import { createDefaultFitToScreenAction } from "../../utils";
-import { SavedDiagram } from "./save";
-import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
-import { LayoutModelAction } from "../autoLayout/command";
-import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { sendMessageToWebsocket, setModelFileName } from "../../index";
-import { Console } from "console";
+import { setModelFileName } from "../../index";
+import { ws, wsId } from "./webSocketHandler";
 
 export interface LoadPalladioAction extends Action {
     kind: typeof LoadPalladioAction.KIND;
@@ -107,12 +101,13 @@ export class LoadPalladioCommand extends Command {
             );
 
             // Construct the message format for WebSocket
-            const message = [ // Add wsId only once at the start
+            const message = [
+                wsId + ":", // Add wsId only once at the start
                 ...fileContents.map(({ name, content }) => `${name}:${content}`),
             ].join("---FILE---");
 
             // Send the structured message over WebSocket
-            sendMessageToWebsocket(message);
+            ws.send(message);
 
             // Set the model file name and page title based on one of the files (e.g., the first file)
             setModelFileName(files[0].name.substring(0, files[0].name.lastIndexOf(".")));

@@ -13,7 +13,8 @@ import { Action, SModelRoot } from "sprotty-protocol";
 import { LabelType, LabelTypeRegistry } from "../labels/labelTypeRegistry";
 import { DynamicChildrenProcessor } from "../dfdElements/dynamicChildren";
 import { EditorMode, EditorModeController } from "../editorMode/editorModeController";
-import { sendMessageToWebsocket, modelFileName } from "../../index";
+import { ws, wsId } from "./webSocketHandler";
+import { modelFileName } from "../..";
 
 export interface SaveDFDandDDAction extends Action {
     kind: typeof SaveDFDandDDAction.KIND;
@@ -68,7 +69,7 @@ export class SaveDFDandDDCommand extends Command {
             editorMode: this.editorModeController?.getCurrentMode(),
         };
         const diagramJson = JSON.stringify(diagram, undefined, 4);
-        sendMessageToWebsocket("Json2DFD:" + modelFileName + ":" + diagramJson);
+        ws.send(wsId + ":Json2DFD:" + modelFileName + ":" + diagramJson);
         return context.root;
     }
 
