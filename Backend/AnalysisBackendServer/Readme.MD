@@ -3,6 +3,10 @@ CAUTION: This application exposes WebSocketServer and FrontEnd to the Network. I
 
 How to use:
 
+Right now the official analysis products are not ready for constraints.
+Download the adjusted plugins from https://cloud.t-hueller.de/index.php/s/axBGPRsQbFxcrnA
+Put them into a plugin folder and reference them in the target platform.
+
 Setup:
 
 - Make sure node.js is installed
@@ -11,10 +15,15 @@ Setup:
 
 - Clone this repository and import into DFA
 
+- Set Project target platform to active target platform
+
 - Run Main 
 
  
 How to build headless product:
+
+!!Adjust Websocket server ip in WebSoccketHandler and vite-server-with-stutdown.mjs
+If present delete node_modules folder.
 
 - In DFA chose export and create Plugin for standalone plugin
 - Add destination folder to targetplatform
