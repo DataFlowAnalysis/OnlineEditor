@@ -22,7 +22,6 @@ public class FrontendUtils {
 	private static final String npmCommand = System.getProperty("os.name").toLowerCase().contains("win") ? "npm.cmd" : "npm";
 	
 	public static Thread startFrontendServer() {
-		runCommand("git init", editorPath);
         runCommand(npmCommand + " install", editorPath);
         
         Thread frontEnd =  new Thread(() -> startServer());

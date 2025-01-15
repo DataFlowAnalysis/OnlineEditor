@@ -142,6 +142,6 @@
 			<unit id="org.eclipse.jetty.websocket.server" version="11.0.24"/>
 			<unit id="org.eclipse.jetty.websocket.servlet" version="11.0.24"/>
 		</location>
-		<location path="C:\Users\Huell\Desktop\Analysis\workspace\plugins" type="Directory"/>
+		<location path="C:\Users\Huell\Desktop\AnalysisNew\workspace\plugins" type="Directory"/>
 	</locations>
 </target>

@@ -37,7 +37,7 @@ public class WebSocketServerUtils {
 	        {
 	            // Configure default max size
 	            wsContainer.setMaxTextMessageSize(Long.MAX_VALUE);
-	            wsContainer.setIdleTimeout(Duration.ofSeconds(-1));
+	            wsContainer.setIdleTimeout(Duration.ofMinutes(60));
 
 	            // Add websockets
 	            wsContainer.addMapping("/events/*", WebSocketServerHandler.class);
