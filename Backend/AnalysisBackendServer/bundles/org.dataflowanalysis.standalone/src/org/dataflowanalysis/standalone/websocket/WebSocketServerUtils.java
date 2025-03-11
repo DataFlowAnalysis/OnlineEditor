@@ -15,10 +15,6 @@ public class WebSocketServerUtils {
         return websocketServer;
 	}
 	
-	public static void shutDownFrontend() {
-		WebSocketServerHandler.shutDownFrontend();
-	}
-	
 	private static void startServer() {		
 		try {				 
 			var server = new Server();

@@ -18,7 +18,10 @@ public class WebSocketServerHandler extends WebSocketAdapter
     private static Map<Integer, Session> sessions = new HashMap<>();
     private static int index = 0;
    
-    
+    /**
+     * Assigns an ID for identification on websocket connection
+     * @param sess Session that was created and is saved for further communication 
+     */
     @Override
     public void onWebSocketConnect(Session sess)
     {
@@ -34,6 +37,10 @@ public class WebSocketServerHandler extends WebSocketAdapter
         index++;
     }
 
+    /**
+     * Handles incoming messages, if valid sends return message to identified session
+     * @param message Incoming message
+     */
     @Override
     public void onWebSocketText(String message)
     {    	
@@ -76,6 +83,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
     }
     
     private String handleIncomingMessage(int id, String message) {
+    	System.out.println(message);
     	System.out.println("Message received");
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd newJson = null;

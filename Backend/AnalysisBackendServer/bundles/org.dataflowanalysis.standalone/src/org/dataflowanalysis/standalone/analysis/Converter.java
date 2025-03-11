@@ -13,7 +13,6 @@ import org.dataflowanalysis.analysis.dfd.DFDDataFlowAnalysisBuilder;
 import org.dataflowanalysis.analysis.dfd.resource.DFDModelResourceProvider;
 import org.dataflowanalysis.analysis.dfd.simple.DFDSimpleTransposeFlowGraphFinder;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
-import org.dataflowanalysis.analysis.dsl.constraint.ConstraintDSL;
 import org.dataflowanalysis.analysis.dsl.result.DSLResult;
 import org.dataflowanalysis.analysis.utils.StringView;
 import org.dataflowanalysis.converter.DataFlowDiagramAndDictionary;
@@ -39,6 +38,12 @@ public class Converter {
 
     private static final Logger logger = Logger.getLogger(AnalysisConstraint.class);
 	
+    	/**
+    	 * Convertes a DFD from the Ecore to the WebEditor Json representation
+    	 * @param dfd File where DFD is saved
+    	 * @param dd File where DD is saved
+    	 * @return Created WebEditor Json representation
+    	 */
 	 	public static WebEditorDfd convertDFD(File dfd, File dd){
 	    	try {
 		    	var converter = new DataFlowDiagramConverter();
@@ -68,11 +73,17 @@ public class Converter {
 	    }
 	    
 	    
-	    
+	    /**
+	     * Convertes a Model in PCM representation into a WebEditor Json represenation
+	     * @param usageModelFile File where Usage Model is saved
+	     * @param allocationModelFile File where Allocation Model is saved
+	     * @param nodeCharacteristicsFile File where Node Characteristics Model is saved
+	     * @return Created WebEditor Json representation
+	     */
 	    public static WebEditorDfd convertPCM(File usageModelFile, File allocationModelFile, File nodeCharacteristicsFile){
 	    	try {
 	    		var converter = new PCMConverter();
-	    		var dfd = converter.pcmToDFD("a", usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString());		
+	    		var dfd = converter.pcmToDFD("", usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString());		
 	    		
 	    		
 	    		var dfdConverter = new DataFlowDiagramConverter();
@@ -84,7 +95,11 @@ public class Converter {
 	    	return null;
 	    }
 	    
-	    
+	    /**
+	     * Analyzes a Model in WebEditor Json Representation and returns the analyzed Model
+	     * @param webEditorDfd Model to be analyzed
+	     * @return Analyzed Model
+	     */
 	    public static WebEditorDfd analyzeAnnotate(WebEditorDfd webEditorDfd) {
 	    	try {
 	    		var webEditorconverter = new WebEditorConverter();
@@ -94,6 +109,7 @@ public class Converter {
 	        	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) {
 	        		var constraints = parseConstraints(webEditorDfd);
 	        		var violations = runAnalysis(dd, constraints);
+	        		newJson.constraints().addAll(webEditorDfd.constraints()); //Reapply constraints
 	        		return annotateViolations(newJson, violations);
 	        	}
 	        	return newJson;
@@ -103,6 +119,12 @@ public class Converter {
 	    	return null;
 	    }
 	    
+	    /**
+	     * Converts a model in WebEditor Json representation into the DFD metamodel representation and return the DFD files as a concatenated string
+	     * @param webEditorDfd model in WebEditor Json representation to be converted
+	     * @param name Name of the files to be created
+	     * @return Concatenation of DFD and DD files as string
+	     */
 	    public static String convertToDFDandStringify(WebEditorDfd webEditorDfd, String name) {
 	    	try {
 	    		var converter = new WebEditorConverter();
@@ -128,8 +150,7 @@ public class Converter {
 	    private static List<AnalysisConstraint> parseConstraints(WebEditorDfd webEditorDfd) {
 	    	return webEditorDfd.constraints().stream().map(it -> {
 	    		return AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
-	    	}).toList();
-	    	
+	    	}).toList();	    	
 	    }
 	    
 	    private static List<DSLResult> runAnalysis(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints) {
