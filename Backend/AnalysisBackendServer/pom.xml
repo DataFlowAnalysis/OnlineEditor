@@ -7,7 +7,7 @@
  <packaging>pom</packaging>
 
  <properties>
-	<tycho.version>4.0.9</tycho.version>
+	<tycho.version>2.7.5</tycho.version>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
  </properties>
  
@@ -22,6 +22,7 @@
 	  <artifactId>jakarta.websocket-api</artifactId>
 	  <version>2.1.0</version>
 	</dependency>
+	
  </dependencies>
 
  <build>
@@ -35,6 +36,25 @@
 		</plugins>
 	</pluginManagement>
 	<plugins>
+		<plugin>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-source-plugin</artifactId>
+			<version>${tycho.version}</version>
+			<executions>
+				<execution>
+					<id>plugin-source</id>
+					<goals>
+						<goal>plugin-source</goal>
+					</goals>
+				</execution>
+				<execution>
+					<id>feature-source</id>
+					<goals>
+						<goal>feature-source</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
 		<plugin>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-maven-plugin</artifactId>
@@ -87,25 +107,6 @@
 		</plugin>
 		<plugin>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-source-plugin</artifactId>
-			<version>${tycho.version}</version>
-			<executions>
-				<execution>
-					<id>plugin-source</id>
-					<goals>
-						<goal>plugin-source</goal>
-					</goals>
-				</execution>
-				<execution>
-					<id>feature-source</id>
-					<goals>
-						<goal>feature-source</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-p2-plugin</artifactId>
 			<version>${tycho.version}</version>
 			<executions>
@@ -134,30 +135,30 @@
 				</execution>
 			</executions>
 		</plugin>
-    		<plugin>
-			<groupId>com.diffplug.spotless</groupId>
-			<artifactId>spotless-maven-plugin</artifactId>
-			<version>2.43.0</version>
-			<configuration>
-		        <java>
-		          <includes>
-		            <include>bundles/**/*.java</include>
-		            <include>tests/**/*.java</include>
-		          </includes>
-		          <eclipse>
-		            <file>${maven.multiModuleProjectDirectory}/formatter.xml</file>
-		          </eclipse>
-		          <importOrder/>
-		          <removeUnusedImports/>
-		        </java>
-			</configuration>
-		</plugin>
+    <plugin>
+      <groupId>com.diffplug.spotless</groupId>
+      <artifactId>spotless-maven-plugin</artifactId>
+      <version>2.43.0</version>
+      <configuration>
+        <java>
+          <includes>
+            <include>bundles/**/*.java</include>
+            <include>tests/**/*.java</include>
+          </includes>
+          <eclipse>
+            <file>${maven.multiModuleProjectDirectory}/formatter.xml</file>
+          </eclipse>
+          <importOrder/>
+          <removeUnusedImports/>
+        </java>
+      </configuration>
+    </plugin>
 	</plugins>
  </build>
  
  <modules>
 		<module>releng</module>
 		<module>bundles</module>
-		<module>features</module>	
+		<module>features</module>		
  </modules>
 </project>
