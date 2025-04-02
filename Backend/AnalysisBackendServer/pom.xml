@@ -150,6 +150,7 @@
 		          <importOrder/>
 		          <removeUnusedImports/>
 		        </java>
+			</configuration>
 		</plugin>
 	</plugins>
  </build>
