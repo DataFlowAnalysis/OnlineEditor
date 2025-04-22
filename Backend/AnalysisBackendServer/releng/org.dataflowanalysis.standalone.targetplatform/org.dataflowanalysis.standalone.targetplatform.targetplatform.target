@@ -155,6 +155,5 @@
 			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.feature.group" version="0.0.0"/>
 			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.feature.group" version="0.0.0"/>
 		</location>
-		<location path="C:\Users\Huell\Desktop\AnalysisNew\workspace\plugins" type="Directory"/>
 	</locations>
 </target>
