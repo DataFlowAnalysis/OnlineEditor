@@ -148,9 +148,11 @@ public class Converter {
 	    }
 	    
 	    private static List<AnalysisConstraint> parseConstraints(WebEditorDfd webEditorDfd) {
-	    	return webEditorDfd.constraints().stream().map(it -> {
-	    		return AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
-	    	}).toList();	    	
+	    	return webEditorDfd.constraints().stream()
+    			.filter(it -> it.constraint() != null && !it.constraint().isEmpty())
+    			.map(it -> {
+    				return AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
+    			}).toList();	    	
 	    }
 	    
 	    private static List<DSLResult> runAnalysis(DataFlowDiagramAndDictionary dfd, List<AnalysisConstraint> constraints) {
@@ -193,7 +195,7 @@ public class Converter {
 	    	for (Child child : webEditorDfd.model().children()) {
 	    		if (nodeToAnnotationMap.containsKey(child)) {
 	    			StringBuilder builder = new StringBuilder();
-	    			builder.append(child.annotation().message().toString());
+	    			if(child.annotation() != null) builder.append(child.annotation().message().toString());
 	    			if (builder.toString() != "") builder.append("\n");
 	    			builder.append(nodeToAnnotationMap.get(child));
 	    			
