@@ -15,13 +15,15 @@ import org.dataflowanalysis.analysis.dfd.simple.DFDSimpleTransposeFlowGraphFinde
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.analysis.dsl.result.DSLResult;
 import org.dataflowanalysis.analysis.utils.StringView;
-import org.dataflowanalysis.converter.DataFlowDiagramAndDictionary;
-import org.dataflowanalysis.converter.DataFlowDiagramConverter;
-import org.dataflowanalysis.converter.PCMConverter;
-import org.dataflowanalysis.converter.WebEditorConverter;
-import org.dataflowanalysis.converter.webdfd.WebEditorDfd;
-import org.dataflowanalysis.converter.webdfd.Child;
-import org.dataflowanalysis.converter.webdfd.Annotation;
+import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
+import org.dataflowanalysis.converter.dfd2web.DFD2WebConverter;
+import org.dataflowanalysis.converter.pcm2dfd.PCM2DFDConverter;
+import org.dataflowanalysis.converter.pcm2dfd.PCMConverterModel;
+import org.dataflowanalysis.converter.web2dfd.Web2DFDConverter;
+import org.dataflowanalysis.converter.web2dfd.WebEditorConverterModel;
+import org.dataflowanalysis.converter.web2dfd.model.WebEditorDfd;
+import org.dataflowanalysis.converter.web2dfd.model.Child;
+import org.dataflowanalysis.converter.web2dfd.model.Annotation;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.datadictionaryPackage;
 import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
@@ -46,7 +48,7 @@ public class Converter {
     	 */
 	 	public static WebEditorDfd convertDFD(File dfd, File dd){
 	    	try {
-		    	var converter = new DataFlowDiagramConverter();
+		    	var converter = new DFD2WebConverter();
 		    	
 		    	ResourceSet rs = new ResourceSetImpl();
 				rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
@@ -62,9 +64,9 @@ public class Converter {
 				EcoreUtil.resolveAll(dfdResource);
 				DataFlowDiagramAndDictionary dfdAndDD = new DataFlowDiagramAndDictionary((DataFlowDiagram)dfdResource.getContents().get(0), (DataDictionary)ddResource.getContents().get(0));
 				
-				var newJson = converter.dfdToWeb(dfdAndDD);		
+				var newJson = converter.convert(dfdAndDD);		
 		    	
-		    	return newJson;
+		    	return newJson.getModel();
 		    	
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
@@ -82,12 +84,13 @@ public class Converter {
 	     */
 	    public static WebEditorDfd convertPCM(File usageModelFile, File allocationModelFile, File nodeCharacteristicsFile){
 	    	try {
-	    		var converter = new PCMConverter();
-	    		var dfd = converter.pcmToDFD("", usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString());		
+	    		var converter = new PCM2DFDConverter();
+	    		var dfd = converter.convert(new PCMConverterModel(usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString()));		
 	    		
 	    		
-	    		var dfdConverter = new DataFlowDiagramConverter();
-	    		return dfdConverter.dfdToWebAndAnalyzeAndAnnotateWithCustomTFGFinder(dfd, null, DFDSimpleTransposeFlowGraphFinder.class);
+	    		var dfdConverter = new DFD2WebConverter();
+	    		dfdConverter.setTransposeFlowGraphFinder(DFDSimpleTransposeFlowGraphFinder.class);
+	    		return dfdConverter.convert(dfd).getModel();
 	    		
 	    	} catch (Exception e) {
 				e.printStackTrace();
@@ -102,10 +105,10 @@ public class Converter {
 	     */
 	    public static WebEditorDfd analyzeAnnotate(WebEditorDfd webEditorDfd) {
 	    	try {
-	    		var webEditorconverter = new WebEditorConverter();
-	        	var dd = webEditorconverter.webToDfd(webEditorDfd);
-	        	var dfdConverter = new DataFlowDiagramConverter();
-	        	var newJson = dfdConverter.dfdToWeb(dd);
+	    		var webEditorconverter = new Web2DFDConverter();
+	        	var dd = webEditorconverter.convert(new WebEditorConverterModel(webEditorDfd));
+	        	var dfdConverter = new DFD2WebConverter();
+	        	var newJson = dfdConverter.convert(dd).getModel();
 	        	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) {
 	        		var constraints = parseConstraints(webEditorDfd);
 	        		var violations = runAnalysis(dd, constraints);
@@ -127,12 +130,12 @@ public class Converter {
 	     */
 	    public static String convertToDFDandStringify(WebEditorDfd webEditorDfd, String name) {
 	    	try {
-	    		var converter = new WebEditorConverter();
-	    		var dfd = converter.webToDfd(webEditorDfd);
+	    		var converter = new Web2DFDConverter();
+	    		var dfd = converter.convert(new WebEditorConverterModel(webEditorDfd));
 	    		String tempDir = System.getProperty("java.io.tmpdir");
 				var dfdFile = new File(tempDir, name + ".dataflowdiagram");
 				var ddFile = new File(tempDir, name + ".datadictionary");
-	    		converter.storeDFD(dfd, dfdFile.getParent() + "/" + name);
+	    		dfd.save(dfdFile.getParent(), name);
 	    		
 	    		String dfdContent = Files.readString(dfdFile.toPath());
 	    		String ddContent = Files.readString(ddFile.toPath());
