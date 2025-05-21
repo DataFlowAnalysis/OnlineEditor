@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.Color;
+import java.nio.charset.StandardCharsets;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -154,7 +159,9 @@ public class Converter {
 	    	return webEditorDfd.constraints().stream()
     			.filter(it -> it.constraint() != null && !it.constraint().isEmpty())
     			.map(it -> {
-    				return AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
+    				var constraint = AnalysisConstraint.fromString(new StringView(it.constraint())).getResult();
+    				constraint.setName(it.name());
+    				return constraint;
     			}).toList();	    	
 	    }
 	    
@@ -176,20 +183,17 @@ public class Converter {
 	    }
 	    
 	    private static WebEditorDfd annotateViolations(WebEditorDfd webEditorDfd, List<DSLResult> violations) {
-	    	Map<Child, String> nodeToAnnotationMap = new HashMap<>();
+	    	Map<Child, List<String>> nodeToAnnotationMap = new HashMap<>();
 	    	
 	    	for (int i = 0; i < violations.size(); i++) {
-	    		final int index = i;
-	    		violations.get(i).getMatchedVertices().stream().forEach(it -> {
+	    		var violation = violations.get(i);
+	    		violation.getMatchedVertices().stream().forEach(it -> {
 	    			var node = webEditorDfd.model().children().stream()
 	    					.filter(child -> child.id().equals(((Node)it.getReferencedElement()).getId())).findFirst().orElseThrow();
-	    			var annotation = "";
+	    			nodeToAnnotationMap.putIfAbsent(node, new ArrayList<>());
 	    			if (nodeToAnnotationMap.containsKey(node)) {
-	    				annotation = nodeToAnnotationMap.get(node);
-	    				annotation += "\n";	    				
+	    				nodeToAnnotationMap.get(node).add("Constraint " + violation.getName() + " violated");
 	    			}
-	    			annotation += "Constraint " + index + " violated";
-	    			nodeToAnnotationMap.put(node, annotation);
 	    		});
 	    	}
 	    	
@@ -197,23 +201,49 @@ public class Converter {
 	    	
 	    	for (Child child : webEditorDfd.model().children()) {
 	    		if (nodeToAnnotationMap.containsKey(child)) {
-	    			StringBuilder builder = new StringBuilder();
-	    			if(child.annotation() != null) builder.append(child.annotation().message().toString());
-	    			if (builder.toString() != "") builder.append("\n");
-	    			builder.append(nodeToAnnotationMap.get(child));
+	    			var annotations = child.annotations();
+	    			nodeToAnnotationMap.get(child).forEach(annotation -> {
+	    				annotations.add(new Annotation(annotation, "bolt", stringToColorHex(annotation)));
+	    			});
 	    			
-	    			var annotation = new Annotation(builder.toString(), "bolt", "#ff0000");
 	    			
-	    			var newChild = new Child(child.text(), child.labels(), child.ports(), child.id(), child.type(), null, null,annotation, child.children());
+	    			
+	    			var newChild = new Child(child.text(), child.labels(), child.ports(), child.id(), child.type(), null, null, annotations, child.children());
 	    			newChildren.add(newChild);	    			
 	    		}
 	    	}
 	    	
-	    	webEditorDfd.model().children().removeAll(nodeToAnnotationMap.keySet());
+	    	var nodesToRemove = new ArrayList<Child>();
+	    	
+	    	nodeToAnnotationMap.keySet().forEach(node -> {
+	    		for (Child child : webEditorDfd.model().children()) {
+	    			if (child.id().equals(node.id())) {
+	    				nodesToRemove.add(child);
+	    				break;
+	    			}
+	    		}	    		
+	    	});
+	    	
+	    	webEditorDfd.model().children().removeAll(nodesToRemove);
 	    	webEditorDfd.model().children().addAll(newChildren);
 	    	
 	    	return webEditorDfd;
 	    }
 	    
-	   
+	    public static String stringToColorHex(String input) {
+	        byte[] hash;
+	        try {
+	            MessageDigest md = MessageDigest.getInstance("MD5");
+	            hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
+	        } catch (NoSuchAlgorithmException e) {
+	            hash = new byte[] {(byte)0x80, (byte)0x80, (byte)0x80, 0};
+	        }
+	        float hue = (hash[0] & 0xFF) / 255f;
+	        float saturation = 0.5f + ((hash[1] & 0xFF) / 255f) * 0.5f;
+	        float brightness = 0.3f + ((hash[2] & 0xFF) / 255f) * 0.5f;
+	        saturation = Math.max(0.5f, Math.min(saturation, 1.0f));
+	        brightness = Math.max(0.3f, Math.min(brightness, 0.8f));
+	        Color color = Color.getHSBColor(hue, saturation, brightness);
+	        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+	    }
 }
