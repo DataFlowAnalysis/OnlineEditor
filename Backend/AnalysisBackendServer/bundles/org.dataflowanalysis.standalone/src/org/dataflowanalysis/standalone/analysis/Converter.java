@@ -113,13 +113,13 @@ public class Converter {
 	    		var webEditorconverter = new Web2DFDConverter();
 	        	var dd = webEditorconverter.convert(new WebEditorConverterModel(webEditorDfd));
 	        	var dfdConverter = new DFD2WebConverter();
-	        	var newJson = dfdConverter.convert(dd).getModel();
-	        	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) {
+	        	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) {	        		
 	        		var constraints = parseConstraints(webEditorDfd);
-	        		var violations = runAnalysis(dd, constraints);
-	        		newJson.constraints().addAll(webEditorDfd.constraints()); //Reapply constraints
-	        		return annotateViolations(newJson, violations);
+	        		dfdConverter.setConditions(constraints);
 	        	}
+	        	var newJson = dfdConverter.convert(dd).getModel();
+	        	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) 
+	        		newJson.constraints().addAll(webEditorDfd.constraints()); //Reapply constraints
 	        	return newJson;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -183,7 +183,7 @@ public class Converter {
 	    }
 	    
 	    private static WebEditorDfd annotateViolations(WebEditorDfd webEditorDfd, List<DSLResult> violations) {
-	    	Map<Child, List<String>> nodeToAnnotationMap = new HashMap<>();
+	    	Map<Child, List<Annotation>> nodeToAnnotationMap = new HashMap<>();
 	    	
 	    	for (int i = 0; i < violations.size(); i++) {
 	    		var violation = violations.get(i);
@@ -191,9 +191,8 @@ public class Converter {
 	    			var node = webEditorDfd.model().children().stream()
 	    					.filter(child -> child.id().equals(((Node)it.getReferencedElement()).getId())).findFirst().orElseThrow();
 	    			nodeToAnnotationMap.putIfAbsent(node, new ArrayList<>());
-	    			if (nodeToAnnotationMap.containsKey(node)) {
-	    				nodeToAnnotationMap.get(node).add("Constraint " + violation.getName() + " violated");
-	    			}
+	    			String message = "Constraint " + violation.getName() + " violated";
+    				nodeToAnnotationMap.get(node).add(new Annotation(message, "bolt", stringToColorHex(message), violation.getTransposeFlowGraph().hashCode()));
 	    		});
 	    	}
 	    	
@@ -202,11 +201,8 @@ public class Converter {
 	    	for (Child child : webEditorDfd.model().children()) {
 	    		if (nodeToAnnotationMap.containsKey(child)) {
 	    			var annotations = child.annotations();
-	    			nodeToAnnotationMap.get(child).forEach(annotation -> {
-	    				annotations.add(new Annotation(annotation, "bolt", stringToColorHex(annotation)));
-	    			});
 	    			
-	    			
+	    			annotations.addAll(nodeToAnnotationMap.get(child));
 	    			
 	    			var newChild = new Child(child.text(), child.labels(), child.ports(), child.id(), child.type(), null, null, annotations, child.children());
 	    			newChildren.add(newChild);	    			
@@ -230,7 +226,7 @@ public class Converter {
 	    	return webEditorDfd;
 	    }
 	    
-	    public static String stringToColorHex(String input) {
+	    private static String stringToColorHex(String input) {
 	        byte[] hash;
 	        try {
 	            MessageDigest md = MessageDigest.getInstance("MD5");
