@@ -88,21 +88,21 @@ public class WebSocketServerHandler extends WebSocketAdapter
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd newJson = null;
     	
+		var name = message.split(":")[0];
+		message = message.replaceFirst(name + ":", "");	 
+    	
     	try {
 	    	if (message.startsWith("Json:")) {
-	    		message = message.substring(message.indexOf(":") + 1);
-	    		
+	    		message = message.substring(message.indexOf(":") + 1);	    		
 				newJson = deserializeJsonAndAnnotate(message);	    				
 	    	}
 	    	else if (message.startsWith("Json2DFD:")) {
-	    		message = message.replaceFirst("Json2DFD:", "");
-	    		var name = message.split(":")[0];
-	    		message = message.replaceFirst(name + ":", "");	    		
+	    		message = message.replaceFirst("Json2DFD:", "");   		
 				var webEditorDfd = deserializeJson(message);
-			    return Converter.convertToDFDandStringify(webEditorDfd, name);	
+			    return name + ":" + Converter.convertToDFDandStringify(webEditorDfd, name);	
 	    	} 
 	    	else if (message.startsWith("DFD:")) {
-	    		newJson = safeLoadAndConvertDFDString(message);
+	    		newJson = safeLoadAndConvertDFDString(message, name);
 	    	} else {
 	    	    newJson = safeLoadAndConvertPCMString(message);
 	    	}
@@ -111,7 +111,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		}
     	
     	try {
-			return objectMapper.writeValueAsString(newJson);
+			return name + ":" + objectMapper.writeValueAsString(newJson);
 		} catch (JsonProcessingException e) {
 			return null;
 		}
@@ -145,10 +145,8 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		return webEditorDfd;
     }
     
-    private WebEditorDfd safeLoadAndConvertDFDString(String message) {
-    	message = message.replaceFirst("DFD:", "");
-		String name = message.split(":")[0];
-		message = message.replaceFirst(name + ":", "");
+    private WebEditorDfd safeLoadAndConvertDFDString(String message, String name) {
+		message = message.replaceFirst("DFD:", "");
 		var dfdMessage = message.split("\n:DD:\n")[0];
 		var ddMessage = message.split("\n:DD:\n")[1];
 		try {            
