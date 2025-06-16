@@ -25,7 +25,11 @@ Require-Bundle: org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
  org.dataflowanalysis.pcm.extension.nodecharacteristics;bundle-version="0.1.0",
  org.dataflowanalysis.analysis.pcm,
  org.palladiosimulator.commons.stoex;bundle-version="5.2.1",
- de.uka.ipd.sdq.stoex.analyser;bundle-version="5.2.1"
+ de.uka.ipd.sdq.stoex.analyser;bundle-version="5.2.1",
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.13.2",
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.13.2",
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.13.2",
+ org.apache.log4j;bundle-version="1.2.24"
 Automatic-Module-Name: DataFlowAnalalysisStandalone
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
