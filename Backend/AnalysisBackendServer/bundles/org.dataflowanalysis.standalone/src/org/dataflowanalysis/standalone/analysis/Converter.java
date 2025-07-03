@@ -93,6 +93,9 @@ public class Converter {
     	for (var child : newJson.model().children()) {
     	    if (child.type().startsWith("node") && child.annotations() != null) {
     	        var oldNode = webEditorDfd.model().children().stream().filter(node -> node.id().equals(child.id())).findAny().orElseThrow();
+    	        //Necessary if ugly if we want to preserver custom annotations
+    	        var annotationsToRemove = oldNode.annotations().stream().filter(a -> a.message().startsWith("Propagated") || a.message().startsWith("Incoming") || a.message().startsWith("Constraint")).toList();   	        
+    	        oldNode.annotations().removeAll(annotationsToRemove);
     	        oldNode.annotations().addAll(child.annotations());
     	    }
     	}    	
