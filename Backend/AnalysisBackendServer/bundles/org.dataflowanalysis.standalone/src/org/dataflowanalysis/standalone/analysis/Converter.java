@@ -89,9 +89,14 @@ public class Converter {
     		dfdConverter.setConditions(constraints);
     	}
     	var newJson = dfdConverter.convert(dd).getModel();
-    	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) 
-    		newJson.constraints().addAll(webEditorDfd.constraints()); //Reapply constraints
-    	return newJson;
+    	
+    	for (var child : newJson.model().children()) {
+    	    if (child.type().startsWith("node") && child.annotations() != null) {
+    	        var oldNode = webEditorDfd.model().children().stream().filter(node -> node.id().equals(child.id())).findAny().orElseThrow();
+    	        oldNode.annotations().addAll(child.annotations());
+    	    }
+    	}    	
+    	return webEditorDfd;
     }
     
     /**

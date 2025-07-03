@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.dataflowanalysis.converter.web2dfd.model.WebEditorDfd;
 import org.dataflowanalysis.standalone.analysis.Converter;
@@ -78,6 +79,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
     }
     
     private String handleIncomingMessage(int id, String message) {
+        logger.setLevel(Level.DEBUG);
     	logger.info("Message received");
         logger.debug(message);
         
