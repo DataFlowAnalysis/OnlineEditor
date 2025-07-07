@@ -100,7 +100,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
 			    return name + ":" + Converter.convertToDFDandStringify(webEditorDfd, name);	
 	    	} 
 	    	else if (message.startsWith("DFD:")) {
-	    		newJson = safeLoadAndConvertDFDString(message, name);
+	    		newJson = safeLoadAndConvertDFDString(message);
 	    	} else {
 	    	    newJson = safeLoadAndConvertPCMString(message);
 	    	}
@@ -143,8 +143,10 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		return webEditorDfd;
     }
     
-    private WebEditorDfd safeLoadAndConvertDFDString(String message, String name) {
+    private WebEditorDfd safeLoadAndConvertDFDString(String message) {
 		message = message.replaceFirst("DFD:", "");
+		var name = message.split(":")[0];
+		message = message.replaceFirst(name + ":", "");
 		var dfdMessage = message.split("\n:DD:\n")[0];
 		var ddMessage = message.split("\n:DD:\n")[1];
 		try {            
