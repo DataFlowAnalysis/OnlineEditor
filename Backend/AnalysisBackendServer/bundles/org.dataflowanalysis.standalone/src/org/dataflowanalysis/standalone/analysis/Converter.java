@@ -134,7 +134,7 @@ public class Converter {
     	return webEditorDfd.constraints().stream()
 			.filter(it -> it.constraint() != null && !it.constraint().isEmpty())
 			.map(it -> {
-			    StringView string = new StringView("- " + it.name() + ": " + it.constraint());
+			    StringView string = new StringView("- " + it.name() + ": " + it.constraint().replace("\n", ""));
 				var constraint = AnalysisConstraint.fromString(string);
 				if (constraint.failed()) {
 					logger.error(constraint.getError());
