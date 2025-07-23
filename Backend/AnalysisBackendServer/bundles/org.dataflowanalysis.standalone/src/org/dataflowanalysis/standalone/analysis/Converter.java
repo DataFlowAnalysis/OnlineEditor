@@ -86,7 +86,7 @@ public class Converter {
     	var dfdConverter = new DFD2WebConverter();
     	if (webEditorDfd.constraints() != null && !webEditorDfd.constraints().isEmpty()) {	        		
     		var constraints = parseConstraints(webEditorDfd);
-    		dfdConverter.setConditions(constraints);
+    		dfdConverter.setConstraints(constraints);
     	}
     	var newJson = dfdConverter.convert(dd).getModel();
     	
