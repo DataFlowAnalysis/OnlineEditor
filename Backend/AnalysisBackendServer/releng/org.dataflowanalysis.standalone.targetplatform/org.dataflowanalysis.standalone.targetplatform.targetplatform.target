@@ -144,10 +144,10 @@
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<repository location="https://dataflowanalysis.github.io/updatesite/nightly/dataflowanalysis/"/>
-			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="4.0.0.202507140328"/>
-			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="4.0.0.202507140328"/>
-			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.feature.group" version="4.0.0.202507140328"/>
-			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.feature.group" version="4.0.0.202507140328"/>
+			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="4.0.0.202507240836"/>
+			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="4.0.0.202507240836"/>
+			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.feature.group" version="4.0.0.202507240836"/>
+			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.feature.group" version="4.0.0.202507240836"/>
 		</location>
 	</locations>
 </target>
