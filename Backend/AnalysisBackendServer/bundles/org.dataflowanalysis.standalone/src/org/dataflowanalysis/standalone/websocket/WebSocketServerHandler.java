@@ -4,6 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.dataflowanalysis.converter.web2dfd.model.WebEditorDfd;
 import org.dataflowanalysis.standalone.analysis.Converter;
 import org.eclipse.jetty.websocket.api.Session;
@@ -17,6 +20,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
 {
     private static Map<Integer, Session> sessions = new HashMap<>();
     private static int index = 0;
+    private final Logger logger = Logger.getLogger(WebSocketServerHandler.class);
    
     /**
      * Assigns an ID for identification on websocket connection
@@ -26,7 +30,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
     public void onWebSocketConnect(Session sess)
     {
         super.onWebSocketConnect(sess);	
-        System.out.println("WS connection established");
+        logger.info("WS connection established");
         
         sessions.put(index, sess);
         try {
@@ -48,13 +52,15 @@ public class WebSocketServerHandler extends WebSocketAdapter
         var analysisThread = new Thread(() -> {
         	var id = Integer.parseInt(message.split(":")[0]);
 			String returnMessage = handleIncomingMessage(id, message.substring(message.indexOf(":")+1));
-		    if (returnMessage != null) {
+		    
 		    	try {
-					sessions.get(id).getRemote().sendString(returnMessage);
+		    	    if (!returnMessage.endsWith("null")) sessions.get(id).getRemote().sendString(returnMessage);
+		    	    else {sessions.get(id).getRemote().sendString("Error: Unknown Error");
+		    	    }
 				} catch (IOException e) {
-					e.printStackTrace();
+					e.printStackTrace();					
 				}
-		    }    
+		        
         });
         analysisThread.start();    		
     }
@@ -72,19 +78,11 @@ public class WebSocketServerHandler extends WebSocketAdapter
         cause.printStackTrace(System.err);
     }
     
-    public static void shutDownFrontend() {
-    	for (var sess : sessions.values()) {
-    		try {
-				sess.getRemote().sendString("Shutdown");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-    	}
-    }
-    
     private String handleIncomingMessage(int id, String message) {
-    	System.out.println(message);
-    	System.out.println("Message received");
+        logger.setLevel(Level.DEBUG);
+    	logger.info("Message received");
+        logger.debug(message);
+        
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd newJson = null;
     	
@@ -102,7 +100,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
 			    return name + ":" + Converter.convertToDFDandStringify(webEditorDfd, name);	
 	    	} 
 	    	else if (message.startsWith("DFD:")) {
-	    		newJson = safeLoadAndConvertDFDString(message, name);
+	    		newJson = safeLoadAndConvertDFDString(message);
 	    	} else {
 	    	    newJson = safeLoadAndConvertPCMString(message);
 	    	}
@@ -113,16 +111,16 @@ public class WebSocketServerHandler extends WebSocketAdapter
     	try {
 			return name + ":" + objectMapper.writeValueAsString(newJson);
 		} catch (JsonProcessingException e) {
-			return null;
+			return "Error:" + " Unable to read Json";
 		}
     }    
     
-    private WebEditorDfd deserializeJsonAndAnnotate(String json) throws IllegalArgumentException{
+    private WebEditorDfd deserializeJsonAndAnnotate(String json){
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd webEditorDfd;
 		try {
 			webEditorDfd = objectMapper.readValue(json, WebEditorDfd.class);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Invalid Json Model");
 		} 
@@ -131,12 +129,12 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		return Converter.analyzeAnnotate(webEditorDfd);
     }
     
-    private WebEditorDfd deserializeJson(String json) throws IllegalArgumentException {
+    private WebEditorDfd deserializeJson(String json){
     	var objectMapper = new ObjectMapper();
     	WebEditorDfd webEditorDfd;
 		try {
 			webEditorDfd = objectMapper.readValue(json, WebEditorDfd.class);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Invalid Json Model");
 		} 
@@ -145,17 +143,19 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		return webEditorDfd;
     }
     
-    private WebEditorDfd safeLoadAndConvertDFDString(String message, String name) {
+    private WebEditorDfd safeLoadAndConvertDFDString(String message) {
 		message = message.replaceFirst("DFD:", "");
+		var name = message.split(":")[0];
+		message = message.replaceFirst(name + ":", "");
 		var dfdMessage = message.split("\n:DD:\n")[0];
 		var ddMessage = message.split("\n:DD:\n")[1];
 		try {            
 			var dfd = createAndWriteTempFile(name + ".dataflowdiagram", dfdMessage);
 			var dd = createAndWriteTempFile(name + ".datadictionary", ddMessage);
 			return Converter.convertDFD(dfd, dd);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		} catch (IOException e) {
+		    e.printStackTrace();
+            throw new IllegalArgumentException("Invalid DFD Model");
 		}
     }
     
@@ -188,9 +188,9 @@ public class WebSocketServerHandler extends WebSocketAdapter
 	            } 
 	        }
 	        return  Converter.convertPCM(usageModelFile, allocationFile, nodeCharacteristicsFile);
-	    } catch (Exception e) {	    	
+	    } catch (IOException e) {	    	
 	        e.printStackTrace();
-	        return null;
+            throw new IllegalArgumentException("Invalid PCM Model");
 	    }
     }
     
