@@ -95,7 +95,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
 				newJson = deserializeJsonAndAnnotate(message);	    				
 	    	}
 	    	else if (message.startsWith("Json2DFD:")) {
-	    		message = message.replaceFirst("Json2DFD:", "");   		
+	    		message = message.replaceFirst("Json2DFD:" + name + ":", "");   		
 				var webEditorDfd = deserializeJson(message);
 			    return name + ":" + Converter.convertToDFDandStringify(webEditorDfd, name);	
 	    	} 
