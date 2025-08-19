@@ -1,0 +1,48 @@
+name: Build Updatesite
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [created]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # run nightly at 2:00 am
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.6
+      - name: Build and Verify
+        run: mvn clean verify
+      - name: Publish Nightly Update Site
+        if: github.event_name != 'release' && github.ref == 'refs/heads/main' && github.repository_owner == 'DataFlowAnalysis'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
+          external_repository: DataFlowAnalysis/updatesite
+          destination_dir: nightly/analysis-backend-server/
+          publish_dir: releng/org.dataflowanalysis.standalone.updatesite/target/repository
+          publish_branch: main
+      - name: Publish Release Update Site
+        if: github.event_name == 'release' && github.repository_owner == 'DataFlowAnalysis'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
+          external_repository: DataFlowAnalysis/updatesite
+          destination_dir: release/analysis-backend-server/${{ github.event.release.tag_name }}
+          publish_dir: releng/org.dataflowanalysis.standalone.updatesite/target/repository
+          publish_branch: main
+          
