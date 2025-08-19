@@ -1,0 +1,69 @@
+/* General UI */
+
+div.label-type-editor-ui {
+    padding: 10px;
+    top: 150px;
+    right: 40px;
+    /* limit height so that max width has still 40px to bottom edge of the parent element
+       100% is the full sprotty viewer height, 150px the space above the element,
+       40px is the space that should be left under the editor and 2*10px is the padding */
+    max-height: calc(100vh - 150px - 40px - 2 * 10px);
+    overflow: auto; /* Show a scroll bar if content in the editor does not fully fit */
+}
+
+.label-type-editor-ui * {
+    color: var(--color-foreground);
+}
+
+.label-type-editor-ui .codicon {
+    vertical-align: middle;
+}
+
+.label-type-editor-ui hr {
+    height: 1px;
+    border: 0;
+    background-color: var(--color-foreground);
+}
+
+.label-type-editor-ui button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Label Types */
+
+.label-type {
+    padding-bottom: 5px;
+}
+
+.label-type-value,
+.label-type-value-add {
+    margin-left: 10px;
+}
+
+.label-type-name {
+    font-size: 12pt;
+}
+
+/* This is the input field for the label type name */
+.label-type-editor-ui input {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+/* Label Type value */
+.label-type-value input {
+    background-color: var(--color-background);
+    text-align: center;
+    border: 1px solid var(--color-foreground);
+    border-radius: 15px;
+    padding: 3px;
+    margin: 4px;
+}
+
+#accordion-state-label-title {
+    padding-right: 5px;
+}

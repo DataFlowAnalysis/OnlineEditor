@@ -1,0 +1,5 @@
+{
+    // It's annoying to get spelling infos about wWords for components that are used in this project
+    // So these are added here to the dictionary.
+    "cSpell.words": ["sprotty", "inversify", "codicon", "zorder"]
+}
