@@ -1,0 +1,28 @@
+:root {
+    --color-foreground: #000;
+    --color-background: #fff;
+    --color-primary: #dfdfdf;
+    --color-spacer: #e5e5e5;
+    --color-error: #f00;
+    --color-valid: #00b600;
+    --color-highlighted: #77777a;
+    --color-tool-palette-hover: #ccc;
+    --color-tool-palette-selected: #bbb;
+    --dark-mode: 0;
+}
+
+:root[data-theme="dark"] {
+    --color-foreground: #fff;
+    --color-background: #1d1c22;
+    --color-spacer: var(--color-background);
+    --color-primary: #302e38;
+    --color-valid: #0f0;
+    --color-tool-palette-hover: #f00;
+    --color-tool-palette-selected: #f00;
+    --dark-mode: 1;
+}
+
+#sprotty[data-theme="dark"] div {
+    /* Use default dark theme browser styles for scrollbars etc. inside all UI extensions */
+    color-scheme: dark;
+}
