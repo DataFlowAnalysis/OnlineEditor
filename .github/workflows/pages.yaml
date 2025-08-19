@@ -21,16 +21,18 @@ jobs:
                   cache: npm
 
             - name: Install dependencies
+              working-directory: Frontend/WebEditor
               run: npm install
 
             - name: Build project
+              working-directory: Frontend/WebEditor
               run: npm run build
 
             - name: Upload Pages artifact
               if: github.ref == 'refs/heads/main'
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: "./dist/"
+                  path: Frontend/WebEditor/dist
 
             - name: Deploy to GitHub Pages
               if: github.ref == 'refs/heads/main'
