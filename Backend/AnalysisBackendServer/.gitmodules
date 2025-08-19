@@ -1,0 +1,4 @@
+[submodule "bundles/org.dataflowanalysis.standalone/resources/WebEditor"]
+	path = bundles/org.dataflowanalysis.standalone/resources/WebEditor
+	url = https://github.com/DataFlowAnalysis/WebEditor/
+	branch = serverBuild
