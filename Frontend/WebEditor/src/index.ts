@@ -54,7 +54,6 @@ container.load(
     noScrollLabelEditUiModule,
     autoLayoutModule,
     dfdElementsModule,
-
     serializeModule,
     dfdLabelModule,
     editorModeModule,
