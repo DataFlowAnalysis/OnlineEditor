@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.dataflowanalysis.standalone.feature">
+      <category name="org.dataflowanalysis.standalone.category"/>
+   </feature>
+   <feature id="org.dataflowanalysis.standalone.feature.source">
+      <category name="org.dataflowanalysis.standalone.source.category"/>
+   </feature>
+   
+   <category-def name="org.dataflowanalysis.standalone.category" label="Data Flow Analysis BackEnd Server"/>
+   <category-def name="org.dataflowanalysis.standalone.source.category" label="Data Flow Analysis BackEnd Server Sources"/>
+</site>
+
