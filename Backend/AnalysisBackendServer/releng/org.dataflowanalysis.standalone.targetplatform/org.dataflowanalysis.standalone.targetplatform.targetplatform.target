@@ -142,6 +142,12 @@
 			<unit id="org.eclipse.jetty.websocket.server" version="11.0.24"/>
 			<unit id="org.eclipse.jetty.websocket.servlet" version="11.0.24"/>
 		</location>
-		<location path="C:\Users\Huell\Desktop\AnalysisNew\workspace\plugins" type="Directory"/>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://dataflowanalysis.github.io/updatesite/nightly/dataflowanalysis/"/>
+			<unit id="org.dataflowanalysis.analysis.feature.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.feature.group" version="0.0.0"/>
+		</location>
 	</locations>
 </target>

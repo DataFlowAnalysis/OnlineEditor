@@ -15,10 +15,6 @@ public class WebSocketServerUtils {
         return websocketServer;
 	}
 	
-	public static void shutDownFrontend() {
-		WebSocketServerHandler.shutDownFrontend();
-	}
-	
 	private static void startServer() {		
 		try {				 
 			var server = new Server();
@@ -48,7 +44,6 @@ public class WebSocketServerUtils {
 	        
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

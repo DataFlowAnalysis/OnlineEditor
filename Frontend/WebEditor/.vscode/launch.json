@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch vite and debug in MS Edge",
+            "request": "launch",
+            "type": "node",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "dev"],
+            "serverReadyAction": {
+                "action": "debugWithEdge",
+                "pattern": "Local:\\s+http://localhost:([0-9]+)",
+                "uriFormat": "http://localhost:%s"
+            }
+        },
+        {
+            "name": "Launch vite and debug in Chrome",
+            "request": "launch",
+            "type": "node",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "dev"],
+            "serverReadyAction": {
+                "action": "debugWithChrome",
+                "pattern": "Local:\\s+http://localhost:([0-9]+)",
+                "uriFormat": "http://localhost:%s"
+            }
+        }
+    ]
+}
