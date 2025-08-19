@@ -1,0 +1,63 @@
+.tool-palette {
+    top: 40px;
+    padding: 3px;
+    right: 40px;
+
+    /* Make text of the elements non-selectable */
+    -webkit-user-select: none; /* Safari only supports user select using the -webkit prefix */
+    user-select: none;
+
+    /* grid layout (two tools per row) */
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.tool-palette .tool {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+    padding: 2px;
+    margin: 2px;
+}
+
+.tool-palette .tool svg line,
+.tool-palette .tool svg path,
+.tool-palette .tool svg rect,
+.tool-palette .tool svg circle {
+    stroke: var(--color-foreground);
+    fill: transparent;
+}
+.tool-palette .tool svg .fill {
+    fill: var(--color-foreground);
+}
+
+.tool-palette .tool svg text {
+    fill: var(--color-foreground);
+    font-size: 10px;
+    font-family: sans-serif;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.tool-palette .tool:hover {
+    cursor: pointer;
+    background-color: var(--color-tool-palette-hover);
+}
+
+.tool-palette .tool.active {
+    background-color: var(--color-tool-palette-selected);
+}
+
+/* Show keyboard shortcuts for each tool when help is opened */
+.tool-palette .tool .shortcut {
+    position: relative;
+    bottom: 16px;
+    left: -4px;
+    font-size: 0.75em;
+
+    transition: opacity 300ms ease-in-out;
+    opacity: 0;
+}
+body.help-enabled .tool-palette .tool .shortcut {
+    opacity: 1;
+}
