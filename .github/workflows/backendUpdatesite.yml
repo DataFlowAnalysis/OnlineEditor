@@ -26,9 +26,8 @@ jobs:
         with:
           maven-version: 3.9.6
       - name: Build and Verify
+ 	working-directory: Backend/AnalysisBackendServer
         run: mvn clean verify
-        with:
-          path: Backend/AnalysisBackendServer
       - name: Publish Nightly Update Site
         if: github.event_name != 'release' && github.ref == 'refs/heads/main' && github.repository_owner == 'DataFlowAnalysis'
         uses: peaceiris/actions-gh-pages@v4
