@@ -13,20 +13,6 @@ updates:
           include: "scope"
       labels:
           - "dependencies"
-    - package-ecosystem: "maven"
-    target-branch: "develop"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "11:00"
-      timezone: "Europe/Berlin"
-    commit-message:
-      prefix: "Dependency"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "minor"   
     - package-ecosystem: "npm"
       target-branch: "main"
       directory: "/"
@@ -40,3 +26,17 @@ updates:
           include: "scope"
       labels:
           - "dependencies"
+    - package-ecosystem: "maven"
+      target-branch: "develop"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "wednesday"
+          time: "11:00"
+          timezone: "Europe/Berlin"
+      commit-message:
+          prefix: "Dependency"
+          include: "scope"
+      labels:
+          - "dependencies"
+          - "minor"
