@@ -1,4 +1,4 @@
-name: Check Prettier Format
+name: Check ESLint
 
 on:
     workflow_dispatch:
@@ -16,10 +16,7 @@ jobs:
                   node-version: "22"
 
             - name: Install and Lint
+              working-directory: Frontend/WebEditor
               run: |
                   npm install
-                  npx prettier --check ./**/*.html
-                  npx prettier --check ./**/*.css
-                  npx prettier --check ./**/*.ts
-                  npx prettier --check ./**/*.tsx
-                  npx prettier --check ./**/*.json
+                  npm run lint

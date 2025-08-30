@@ -26,11 +26,13 @@ jobs:
         with:
           maven-version: 3.9.6
       - name: Build and Verify
+        working-directory: Backend/AnalysisBackendServer
         run: mvn clean verify
       - name: Publish Nightly Update Site
         if: github.event_name != 'release' && github.ref == 'refs/heads/main' && github.repository_owner == 'DataFlowAnalysis'
         uses: peaceiris/actions-gh-pages@v4
         with:
+          path: Backend/AnalysisBackendServer
           deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
           external_repository: DataFlowAnalysis/updatesite
           destination_dir: nightly/analysis-backend-server/
@@ -40,6 +42,7 @@ jobs:
         if: github.event_name == 'release' && github.repository_owner == 'DataFlowAnalysis'
         uses: peaceiris/actions-gh-pages@v4
         with:
+          path: Backend/AnalysisBackendServer
           deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
           external_repository: DataFlowAnalysis/updatesite
           destination_dir: release/analysis-backend-server/${{ github.event.release.tag_name }}
