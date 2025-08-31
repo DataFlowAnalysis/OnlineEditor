@@ -15,7 +15,7 @@ updates:
           - "dependencies"
     - package-ecosystem: "npm"
       target-branch: "main"
-      directory: "/"
+      directory: "/Frontend/WebEditor"
       schedule:
           interval: "weekly"
           day: "wednesday"
@@ -28,7 +28,7 @@ updates:
           - "dependencies"
     - package-ecosystem: "maven"
       target-branch: "develop"
-      directory: "/"
+      directory: "/Backend/AnalysisBackendServer"
       schedule:
           interval: "weekly"
           day: "wednesday"
