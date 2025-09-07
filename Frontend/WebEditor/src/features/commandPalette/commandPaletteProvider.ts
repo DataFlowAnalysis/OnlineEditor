@@ -54,26 +54,26 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "screen-normal"),
             new FolderAction(
-                "Layout diagram (Method: " + this.settings.layoutMethod + ")",
+                "Layout diagram (Method: Lines)",
                 [
                     new LabeledAction(
-                        "Layout diagram (Method: Lines)",
+                        "Layout: Lines",
                         [LayoutModelAction.create(LayoutMethod.LINES), commitAction, fitToScreenAction],
                         "grabber",
                     ),
                     new LabeledAction(
-                        "Layout diagram (Method: Wrapping Lines)",
+                        "Layout: Wrapping Lines",
                         [LayoutModelAction.create(LayoutMethod.WRAPPING), commitAction, fitToScreenAction],
                         "word-wrap",
                     ),
                     new LabeledAction(
-                        "Layout diagram (Method: Circles)",
+                        "Layout: Circles",
                         [LayoutModelAction.create(LayoutMethod.CIRCLES), commitAction, fitToScreenAction],
                         "circle-large",
                     ),
                 ],
                 "layout",
-                [LayoutModelAction.create(), commitAction, fitToScreenAction],
+                [LayoutModelAction.create(LayoutMethod.LINES), commitAction, fitToScreenAction],
             ),
             /*new LabeledAction(
                 "Layout diagram (Method: " + this.settings.layoutMethod + ")",
