@@ -135,7 +135,7 @@ export class DfdOutputPortImpl extends SPortImpl {
         const style: VNodeStyle = {
             opacity: this.opacity.toString(),
         };
-        if (!labelTypeRegistry) return style;;
+        if (!labelTypeRegistry) return style;
 
         if (!this.validBehavior) {
             style["--port-border"] = "#ff0000";
