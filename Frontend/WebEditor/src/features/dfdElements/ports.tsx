@@ -96,8 +96,9 @@ export interface DfdOutputPort extends SPort {
 export class DfdOutputPortImpl extends SPortImpl {
     static readonly DEFAULT_FEATURES = [...defaultPortFeatures, withEditLabelFeature];
 
-    behavior: string = "";
+    private _behavior: string = "";
     private tree: AutoCompleteTree;
+    private validBehavior: boolean = true;
 
     constructor() {
         super();
@@ -134,15 +135,28 @@ export class DfdOutputPortImpl extends SPortImpl {
         const style: VNodeStyle = {
             opacity: this.opacity.toString(),
         };
-        if (!labelTypeRegistry) return style;
-        const valid = this.tree.verify(this.behavior.split("\n")).length == 0;
+        if (!labelTypeRegistry) return style;;
 
-        if (!valid) {
+        if (!this.validBehavior) {
             style["--port-border"] = "#ff0000";
             style["--port-color"] = "#ff6961";
         }
 
         return style;
+    }
+
+    get behavior(): string {
+        return this._behavior;
+    }
+
+    set behavior(value: string) {
+        this._behavior = value;
+        if (value === "") {
+            this.validBehavior = true;
+            return;
+        }
+        const errors = this.tree.verify(this.behavior.split("\n"));
+        this.validBehavior = errors.length === 0;
     }
 }
 
