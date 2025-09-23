@@ -4,7 +4,6 @@ import { inject, injectable } from "inversify";
 import "./settingsMenu.css";
 import { Theme, ThemeManager } from "./themeManager";
 import { SettingsManager } from "./SettingsManager";
-import { LayoutMethod } from "./LayoutMethod";
 import { EditorModeController } from "../editorMode/editorModeController";
 import { ChangeEditorModeAction } from "../editorMode/command";
 import { Mode } from "./annotationManager";
@@ -47,12 +46,6 @@ export class SettingsUI extends AbstractUIExtension {
                     <option value="${Theme.LIGHT}">Light</option>
                     <option value="${Theme.DARK}">Dark</option>
                   </select>
-                  <label for="setting-layout-option">Layout Method</label>
-                  <select name="setting-layout-option" id="setting-layout-option">
-                    <option value="${LayoutMethod.LINES}">Lines</option>
-                    <option value="${LayoutMethod.WRAPPING}">Wrapping Lines</option>
-                    <option value="${LayoutMethod.CIRCLES}">Circles</option>
-                  </select>
                   <label for="setting-mode-option">Show Labels</label>
                   <select name="setting-mode-option" id="setting-mode-option">
                     <option value="${Mode.OUTGOING}">Outgoing Labels</option>
@@ -91,9 +84,6 @@ export class SettingsUI extends AbstractUIExtension {
                 bodyElement.classList.remove("settings-enabled");
             }
         });
-
-        const layoutOptionSelect = containerElement.querySelector("#setting-layout-option") as HTMLSelectElement;
-        this.settings.bindLayoutMethodSelect(layoutOptionSelect);
 
         const themeOptionSelect = containerElement.querySelector("#setting-theme") as HTMLSelectElement;
         this.themeManager.bindThemeSelect(themeOptionSelect);

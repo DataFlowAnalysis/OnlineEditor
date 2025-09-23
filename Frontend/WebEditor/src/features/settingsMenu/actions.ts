@@ -1,5 +1,4 @@
 import { Action } from "sprotty-protocol";
-import { LayoutMethod } from "./LayoutMethod";
 import { Theme } from "./themeManager";
 
 export interface SimplifyNodeNamesAction extends Action {
@@ -27,18 +26,6 @@ export namespace ChangeEdgeLabelVisibilityAction {
 
     export function create(hide: boolean = true): ChangeEdgeLabelVisibilityAction {
         return { kind: KIND, hide };
-    }
-}
-
-export interface CompleteLayoutProcessAction extends Action {
-    kind: typeof CompleteLayoutProcessAction.KIND;
-    method: LayoutMethod;
-}
-export namespace CompleteLayoutProcessAction {
-    export const KIND = "complete-layout-process";
-
-    export function create(method: LayoutMethod): CompleteLayoutProcessAction {
-        return { kind: KIND, method };
     }
 }
 
