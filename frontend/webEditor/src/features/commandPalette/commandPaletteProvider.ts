@@ -75,11 +75,6 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
                 "layout",
                 [LayoutModelAction.create(LayoutMethod.LINES), commitAction, fitToScreenAction],
             ),
-            /*new LabeledAction(
-                "Layout diagram (Method: " + this.settings.layoutMethod + ")",
-                [LayoutModelAction.create(), commitAction, fitToScreenAction],
-                "layout",
-            ),*/
         ];
     }
 }

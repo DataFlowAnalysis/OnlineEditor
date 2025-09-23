@@ -11,12 +11,18 @@ import {
 import { SChildElementImpl, SShapeElementImpl, isBoundsAware } from "sprotty";
 import { SShapeElement, SModelIndex, SEdge, SLabel } from "sprotty-protocol";
 import { ElkShape, LayoutOptions } from "elkjs";
-import { SettingsManager } from "../settingsMenu/SettingsManager";
 import { LayoutMethod } from "../settingsMenu/LayoutMethod";
 import { calculateTextSize } from "../../utils";
 
+/**
+ * We need this to give the sprotty elements the used method
+ */
+export class LayoutMethodWrapper {
+    public layoutMethod: LayoutMethod = LayoutMethod.LINES
+}
+
 export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
-    constructor(@inject(SettingsManager) protected readonly settings: SettingsManager) {
+    constructor(@inject(LayoutMethodWrapper) protected readonly method: LayoutMethodWrapper) {
         super();
     }
 
@@ -57,7 +63,7 @@ export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
                 // These are all automatically determined by our dfd node views
                 "org.eclipse.elk.omitNodeMicroLayout": "true",
             },
-        }[this.settings.layoutMethod];
+        }[this.method.layoutMethod];
     }
 }
 
@@ -81,7 +87,7 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
         @inject(ElkFactory) elkFactory: ElkFactory,
         @inject(IElementFilter) elementFilter: IElementFilter,
         @inject(ILayoutConfigurator) configurator: ILayoutConfigurator,
-        @inject(SettingsManager) protected readonly settings: SettingsManager,
+        @inject(LayoutMethodWrapper) protected readonly method: LayoutMethodWrapper,
         @inject(ILayoutPostprocessor) protected readonly postprocessor: ILayoutPostprocessor,
     ) {
         super(elkFactory, elementFilter, configurator, undefined, postprocessor);
@@ -107,7 +113,7 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
 
     protected override transformLabel(slabel: SLabel, index: SModelIndex): ElkLabel {
         const e = super.transformLabel(slabel, index);
-        if (this.settings.layoutMethod === LayoutMethod.WRAPPING) {
+        if (this.method.layoutMethod === LayoutMethod.WRAPPING) {
             return e;
         }
         const size = calculateTextSize(slabel.text ?? "");
@@ -135,7 +141,7 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
                     // depending on which edge the port is on.
 
                     // depending on the mode the ports may be placed differently
-                    if (this.settings.layoutMethod === LayoutMethod.CIRCLES) {
+                    if (this.method.layoutMethod === LayoutMethod.CIRCLES) {
                         if (elkShape.x <= 0)
                             // Left edge
                             elkShape.x -= elkShape.width / 2;
@@ -179,7 +185,7 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
     }
 
     protected applyEdge(sedge: SEdge, elkEdge: ElkExtendedEdge, index: SModelIndex): void {
-        if (this.settings.layoutMethod === LayoutMethod.CIRCLES) {
+        if (this.method.layoutMethod === LayoutMethod.CIRCLES) {
             // In the circles layout method, we want to make sure that the edge is not straight
             // This is because the circles layout method does not support straight edges
             elkEdge.sections = [];
@@ -194,10 +200,10 @@ export class CircleLayoutPostProcessor implements ILayoutPostprocessor {
     private connectedPorts: Map<string, string[]> = new Map();
     private nodeSquares: Map<string, Square> = new Map();
 
-    constructor(@inject(SettingsManager) protected readonly settings: SettingsManager) {}
+    constructor(@inject(LayoutMethodWrapper) protected readonly method: LayoutMethodWrapper) {}
 
     postprocess(elkGraph: ElkNode): void {
-        if (this.settings.layoutMethod !== LayoutMethod.CIRCLES) {
+        if (this.method.layoutMethod !== LayoutMethod.CIRCLES) {
             return;
         }
         this.connectedPorts = new Map<string, string[]>();

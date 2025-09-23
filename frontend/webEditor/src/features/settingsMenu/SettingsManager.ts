@@ -1,47 +1,19 @@
 import { inject, injectable } from "inversify";
 import { ActionDispatcher, TYPES } from "sprotty";
-import { ChangeEdgeLabelVisibilityAction, CompleteLayoutProcessAction, SimplifyNodeNamesAction } from "./actions";
-import { LayoutMethod } from "./LayoutMethod";
+import { ChangeEdgeLabelVisibilityAction, SimplifyNodeNamesAction } from "./actions";
 import { Mode } from "./annotationManager";
 
 @injectable()
 export class SettingsManager {
-    private _layoutMethod: LayoutMethod = LayoutMethod.LINES;
-    private _layoutMethodSelect?: HTMLSelectElement;
     private _hideEdgeLabels = false;
     private _hideEdgeLabelsCheckbox?: HTMLInputElement;
     private _simplifyNodeNames = false;
     private _simplifyNodeNamesCheckbox?: HTMLInputElement;
     private _labelModeSelector?: HTMLSelectElement;
-    private static readonly layoutMethodLocalStorageKey = "dfdwebeditor:settings";
 
     constructor(@inject(TYPES.IActionDispatcher) protected readonly dispatcher: ActionDispatcher) {
-        this.layoutMethod = (localStorage.getItem(SettingsManager.layoutMethodLocalStorageKey) ??
-            LayoutMethod.LINES) as LayoutMethod;
     }
 
-    public get layoutMethod(): LayoutMethod {
-        return this._layoutMethod;
-    }
-
-    public set layoutMethod(layoutMethod: LayoutMethod) {
-        this._layoutMethod = layoutMethod;
-        localStorage.setItem(SettingsManager.layoutMethodLocalStorageKey, layoutMethod);
-        if (this._layoutMethodSelect) {
-            this._layoutMethodSelect.value = layoutMethod;
-        }
-    }
-
-    public bindLayoutMethodSelect(select: HTMLSelectElement) {
-        this._layoutMethodSelect = select;
-        this._layoutMethodSelect.value = this._layoutMethod;
-        this._layoutMethodSelect.value = this._layoutMethod;
-        this._layoutMethodSelect.addEventListener("change", () => {
-            this.dispatcher.dispatch(
-                CompleteLayoutProcessAction.create(this._layoutMethodSelect!.value as LayoutMethod),
-            );
-        });
-    }
 
     public get hideEdgeLabels(): boolean {
         return this._hideEdgeLabels;
