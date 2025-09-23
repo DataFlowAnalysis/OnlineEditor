@@ -1,33 +1,25 @@
 import { inject, injectable } from "inversify";
 import {
-    ActionDispatcher,
     Command,
     CommandExecutionContext,
     CommandReturn,
-    CommitModelAction,
-    ILogger,
     ISnapper,
-    NullLogger,
     SLabelImpl,
     SModelRootImpl,
     SPortImpl,
     TYPES,
 } from "sprotty";
-import { getBasicType, RedoAction, UndoAction } from "sprotty-protocol";
+import { getBasicType } from "sprotty-protocol";
 import { DfdNodeImpl } from "../dfdElements/nodes";
 import { SettingsManager } from "./SettingsManager";
 import {
     ChangeEdgeLabelVisibilityAction,
     ChangeThemeAction,
-    CompleteLayoutProcessAction,
     ReSnapPortsAfterChangeAction,
     SimplifyNodeNamesAction,
 } from "./actions";
 import { ArrowEdgeImpl } from "../dfdElements/edges";
-import { createDefaultFitToScreenAction } from "../../utils";
-import { LayoutMethod } from "./LayoutMethod";
 import { Theme, ThemeManager } from "./themeManager";
-import { LayoutModelAction } from "../autoLayout/command";
 import { snapPortsOfNode } from "../dfdElements/portSnapper";
 import { EditorModeController } from "../editorMode/editorModeController";
 
@@ -137,46 +129,6 @@ export class ChangeEdgeLabelVisibilityCommand extends Command {
             this.editorModeController.setMode("view");
         }
 
-        return context.root;
-    }
-}
-
-@injectable()
-export class CompleteLayoutProcessCommand extends Command {
-    static readonly KIND = CompleteLayoutProcessAction.KIND;
-    private previousMethod?: LayoutMethod;
-
-    @inject(TYPES.ILogger)
-    private readonly logger: ILogger = new NullLogger();
-
-    constructor(
-        @inject(TYPES.Action) private action: CompleteLayoutProcessAction,
-        @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
-        @inject(SettingsManager) private settings: SettingsManager,
-    ) {
-        super();
-    }
-
-    execute(context: CommandExecutionContext): CommandReturn {
-        this.logger.info(this, "CompleteLayoutProcessCommand", this.action.method);
-        this.previousMethod = this.settings.layoutMethod;
-        this.settings.layoutMethod = this.action.method;
-        this.actionDispatcher.dispatchAll([
-            LayoutModelAction.create(),
-            CommitModelAction.create(),
-            createDefaultFitToScreenAction(context.root),
-        ]);
-        return context.root;
-    }
-    undo(context: CommandExecutionContext): CommandReturn {
-        this.settings.layoutMethod = this.previousMethod ?? LayoutMethod.LINES;
-        this.actionDispatcher.dispatch(UndoAction.create());
-        return context.root;
-    }
-    redo(context: CommandExecutionContext): CommandReturn {
-        this.previousMethod = this.settings.layoutMethod;
-        this.settings.layoutMethod = this.action.method;
-        this.actionDispatcher.dispatch(RedoAction.create());
         return context.root;
     }
 }

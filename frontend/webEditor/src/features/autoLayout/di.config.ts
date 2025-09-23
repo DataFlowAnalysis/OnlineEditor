@@ -2,10 +2,11 @@ import { ContainerModule } from "inversify";
 import { TYPES, configureCommand } from "sprotty";
 import { ElkFactory, ILayoutConfigurator, ILayoutPostprocessor } from "sprotty-elk";
 import { LayoutModelCommand } from "./command";
-import { CircleLayoutPostProcessor, DfdElkLayoutEngine, DfdLayoutConfigurator, elkFactory } from "./layouter";
+import { CircleLayoutPostProcessor, DfdElkLayoutEngine, DfdLayoutConfigurator, elkFactory, LayoutMethodWrapper } from "./layouter";
 import { AutoLayoutKeyListener } from "./keyListener";
 
 export const autoLayoutModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    bind(LayoutMethodWrapper).toSelf().inSingletonScope()
     bind(DfdElkLayoutEngine).toSelf().inSingletonScope();
     bind(TYPES.IModelLayoutEngine).toService(DfdElkLayoutEngine);
     rebind(ILayoutConfigurator).to(DfdLayoutConfigurator);

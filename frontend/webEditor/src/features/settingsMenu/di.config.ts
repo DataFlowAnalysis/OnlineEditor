@@ -6,7 +6,6 @@ import { configureCommand, TYPES } from "sprotty";
 import {
     ChangeEdgeLabelVisibilityCommand,
     ChangeThemeCommand,
-    CompleteLayoutProcessCommand,
     NodeNameReplacementRegistry,
     SimplifyNodeNamesCommand,
 } from "./commands";
@@ -25,6 +24,5 @@ export const settingsModule = new ContainerModule((bind, unbind, isBound, rebind
 
     configureCommand(context, SimplifyNodeNamesCommand);
     configureCommand(context, ChangeEdgeLabelVisibilityCommand);
-    configureCommand(context, CompleteLayoutProcessCommand);
     configureCommand(context, ChangeThemeCommand);
 });
