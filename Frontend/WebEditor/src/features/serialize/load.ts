@@ -21,6 +21,7 @@ import { EditorMode, EditorModeController } from "../editorMode/editorModeContro
 import { Constraint, ConstraintRegistry } from "../constraintMenu/constraintRegistry";
 import { LoadingIndicator } from "../../common/loadingIndicator";
 import { ChooseConstraintAction } from "../constraintMenu/actions";
+import { LayoutMethod } from "../settingsMenu/LayoutMethod";
 
 export interface LoadDiagramAction extends Action {
     kind: typeof LoadDiagramAction.KIND;
@@ -337,7 +338,7 @@ export async function postLoadActions(
         .filter((child) => child instanceof SNodeImpl)
         .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
     if (containsUnPositionedNodes) {
-        await actionDispatcher.dispatch(LayoutModelAction.create());
+        await actionDispatcher.dispatch(LayoutModelAction.create(LayoutMethod.LINES));
     }
 
     // fit to screen is done after auto layouting because that may change the bounds of the diagram
