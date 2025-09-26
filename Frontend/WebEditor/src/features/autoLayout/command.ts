@@ -3,6 +3,8 @@ import { Command, CommandExecutionContext, SModelRootImpl, TYPES } from "sprotty
 import { Action, IModelLayoutEngine, SGraph, SModelRoot } from "sprotty-protocol";
 import { LoadDiagramCommand } from "../serialize/load";
 import { LoadingIndicator } from "../../common/loadingIndicator";
+import { LayoutMethod } from "../settingsMenu/LayoutMethod";
+import { SettingsManager } from "../settingsMenu/SettingsManager";
 
 export interface LayoutModelAction extends Action {
     kind: typeof LayoutModelAction.KIND;
@@ -12,7 +14,7 @@ export namespace LayoutModelAction {
 
     export function create(): LayoutModelAction {
         return {
-            kind: KIND,
+            kind: KIND
         };
     }
 }
@@ -27,14 +29,29 @@ export class LayoutModelCommand extends Command {
     @optional()
     private readonly loadingIndicator?: LoadingIndicator;
 
+    @inject(SettingsManager)
+    private readonly settingsManager?: SettingsManager;
+    private oldHideLabels?: boolean;
+
     private oldModelSchema?: SModelRoot;
     private newModel?: SModelRootImpl;
+    private usedMethod?: LayoutMethod
+
+    constructor() {
+        super();
+    }
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.loadingIndicator?.showIndicator("Layouting...");
         this.oldModelSchema = context.modelFactory.createSchema(context.root);
 
         if (!this.layoutEngine) throw new Error("Missing injects");
+
+        this.usedMethod = this.settingsManager?.layoutMethod ?? LayoutMethod.LINES;
+        if (this.settingsManager && (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)) {
+            this.oldHideLabels = this.settingsManager.hideEdgeLabels;
+            this.settingsManager.hideEdgeLabels = true;
+        }
 
         // Layouting is normally done on the graph schema.
         // This is not viable for us because the dfd nodes have a dynamically computed size.
@@ -54,6 +71,9 @@ export class LayoutModelCommand extends Command {
             // No old schema saved because the layout was not executed due to read-only mode.
             return context.root;
         }
+        if (this.settingsManager && this.oldHideLabels) {
+            this.settingsManager.hideEdgeLabels = this.oldHideLabels;
+        }
         this.loadingIndicator?.showIndicator("Undoing layouting...");
 
         LoadDiagramCommand.preprocessModelSchema(this.oldModelSchema);
@@ -67,6 +87,9 @@ export class LayoutModelCommand extends Command {
         if (!this.newModel) {
             // No new model saved because the layout was not executed due to read-only mode.
             return context.root;
+        }
+        if (this.settingsManager && (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)) {
+            this.settingsManager.hideEdgeLabels = true;
         }
 
         return this.newModel;
