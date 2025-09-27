@@ -8,14 +8,14 @@
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
-        "@eslint/js": "^9.33.0",
+        "@eslint/js": "^9.35.0",
         "@fortawesome/fontawesome-free": "^7.0.0",
         "@vscode/codicons": "^0.0.39",
         "eslint": "^9.32.0",
         "eslint-config-prettier": "^10.1.8",
         "husky": "^9.1.7",
         "inversify": "^6.2.2",
-        "lint-staged": "^16.1.5",
+        "lint-staged": "^16.1.6",
         "monaco-editor": "^0.52.2",
         "prettier": "^3.6.2",
         "reflect-metadata": "^0.2.2",
@@ -23,8 +23,8 @@
         "sprotty-elk": "^1.4.0",
         "sprotty-protocol": "^1.4.0",
         "typescript": "^5.8.3",
-        "typescript-eslint": "^8.39.1",
-        "vite": "^7.1.2"
+        "typescript-eslint": "^8.44.0",
+        "vite": "^7.1.7"
     },
     "scripts": {
         "dev": "vite",
