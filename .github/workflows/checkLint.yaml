@@ -16,7 +16,7 @@ jobs:
                   node-version: "22"
 
             - name: Install and Lint
-              working-directory: Frontend/WebEditor
+              working-directory: frontend/webEditor
               run: |
                   npm install
                   npm run lint
