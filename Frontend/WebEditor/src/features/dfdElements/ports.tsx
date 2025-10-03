@@ -99,7 +99,6 @@ export class DfdOutputPortImpl extends SPortImpl {
     private behavior: string = "";
     private validBehavior: boolean = true;
 
-
     override get bounds(): Bounds {
         return {
             x: this.position.x,
@@ -146,7 +145,9 @@ export class DfdOutputPortImpl extends SPortImpl {
             this.validBehavior = true;
             return;
         }
-        const errors = new AutoCompleteTree(TreeBuilder.buildTree(labelTypeRegistry, this)).verify(this.behavior.split("\n"));
+        const errors = new AutoCompleteTree(TreeBuilder.buildTree(labelTypeRegistry, this)).verify(
+            this.behavior.split("\n"),
+        );
         this.validBehavior = errors.length === 0;
     }
 
