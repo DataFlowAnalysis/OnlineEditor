@@ -83,8 +83,6 @@ export class LoadDFDandDDCommand extends Command {
             // Send each file's content in separate WebSocket messages
             sendMessage(
                 "DFD:" +
-                    this.getFileNameWithoutExtension(dataflowFile) +
-                    ":" +
                     dataflowFileContent +
                     "\n:DD:\n" +
                     dictionaryFileContent,
