@@ -242,7 +242,7 @@ export class OutputPortEditUI extends AbstractUIExtension implements Switchable 
             // Delay update to the next event loop tick to ensure the refactoring is done.
             setTimeout(() => {
                 if (this.editor && this.port) {
-                    this.editor?.setValue(this.port?.behavior);
+                    this.editor?.setValue(this.port?.getBehavior());
                 }
             }, 0);
         });
@@ -309,7 +309,7 @@ export class OutputPortEditUI extends AbstractUIExtension implements Switchable 
         }
 
         // Load the current behavior text of the port into the text editor.
-        this.editor?.setValue(this.port.behavior);
+        this.editor?.setValue(this.port.getBehavior());
         this.editor?.getModel()?.setEOL(monaco.editor.EndOfLineSequence.LF);
         this.resizeEditor();
 
@@ -463,15 +463,15 @@ export class SetDfdOutputPortBehaviorCommand extends Command {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const port = context.root.index.getById(this.action.portId) as DfdOutputPortImpl;
-        this.oldBehavior = port.behavior;
-        port.behavior = this.action.behavior;
+        this.oldBehavior = port.getBehavior();
+        port.setBehavior(this.action.behavior);
         return context.root;
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
         const port = context.root.index.getById(this.action.portId) as DfdOutputPortImpl;
         if (this.oldBehavior) {
-            port.behavior = this.oldBehavior;
+            port.setBehavior(this.oldBehavior);
         }
 
         return context.root;

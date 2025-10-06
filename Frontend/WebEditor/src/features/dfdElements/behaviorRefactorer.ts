@@ -95,11 +95,11 @@ export class DFDBehaviorRefactorer {
     }
 
     private renameLabelsForPort(port: DfdOutputPortImpl, labelChanges: LabelChange[], tree: ReplaceAutoCompleteTree) {
-        let lines = port.behavior.split(/\n/);
+        let lines = port.getBehavior().split(/\n/);
         for (const change of labelChanges) {
             lines = tree.replace(lines, { old: change.oldLabel, replacement: change.newLabel, type: "Label" });
         }
-        port.behavior = lines.join("\n");
+        port.setBehavior(lines.join("\n"));
     }
 
     private traverseDfdOutputPorts(element: SModelElementImpl, cb: (port: DfdOutputPortImpl) => void) {
@@ -148,7 +148,7 @@ export class DFDBehaviorRefactorer {
         newInputName: string,
         tree: ReplaceAutoCompleteTree,
     ): string {
-        const lines = port.behavior.split("\n");
+        const lines = port.getBehavior().split("\n");
         const newLines = tree.replace(lines, { old: oldInputName, replacement: newInputName, type: "Input" });
         return newLines.join("\n");
     }
@@ -211,9 +211,9 @@ export class RefactorInputNameInDFDBehaviorCommand extends Command {
         behaviorChanges.forEach((updatedBehavior, id) => {
             const port = context.root.index.getById(id);
             if (port instanceof DfdOutputPortImpl) {
-                this.oldBehaviors.set(id, port.behavior);
+                this.oldBehaviors.set(id, port.getBehavior());
                 this.newBehaviors.set(id, updatedBehavior);
-                port.behavior = updatedBehavior;
+                port.setBehavior(updatedBehavior);
             }
         });
 
@@ -224,7 +224,7 @@ export class RefactorInputNameInDFDBehaviorCommand extends Command {
         this.oldBehaviors.forEach((oldBehavior, id) => {
             const port = context.root.index.getById(id);
             if (port instanceof DfdOutputPortImpl) {
-                port.behavior = oldBehavior;
+                port.setBehavior(oldBehavior);
             }
         });
 
@@ -235,7 +235,7 @@ export class RefactorInputNameInDFDBehaviorCommand extends Command {
         this.newBehaviors.forEach((newBehavior, id) => {
             const port = context.root.index.getById(id);
             if (port instanceof DfdOutputPortImpl) {
-                port.behavior = newBehavior;
+                port.setBehavior(newBehavior);
             }
         });
 
