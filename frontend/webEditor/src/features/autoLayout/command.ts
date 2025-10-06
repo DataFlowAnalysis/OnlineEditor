@@ -14,7 +14,7 @@ export namespace LayoutModelAction {
 
     export function create(): LayoutModelAction {
         return {
-            kind: KIND
+            kind: KIND,
         };
     }
 }
@@ -35,7 +35,7 @@ export class LayoutModelCommand extends Command {
 
     private oldModelSchema?: SModelRoot;
     private newModel?: SModelRootImpl;
-    private usedMethod?: LayoutMethod
+    private usedMethod?: LayoutMethod;
 
     constructor() {
         super();
@@ -48,7 +48,10 @@ export class LayoutModelCommand extends Command {
         if (!this.layoutEngine) throw new Error("Missing injects");
 
         this.usedMethod = this.settingsManager?.layoutMethod ?? LayoutMethod.LINES;
-        if (this.settingsManager && (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)) {
+        if (
+            this.settingsManager &&
+            (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)
+        ) {
             this.oldHideLabels = this.settingsManager.hideEdgeLabels;
             this.settingsManager.hideEdgeLabels = true;
         }
@@ -88,7 +91,10 @@ export class LayoutModelCommand extends Command {
             // No new model saved because the layout was not executed due to read-only mode.
             return context.root;
         }
-        if (this.settingsManager && (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)) {
+        if (
+            this.settingsManager &&
+            (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)
+        ) {
             this.settingsManager.hideEdgeLabels = true;
         }
 

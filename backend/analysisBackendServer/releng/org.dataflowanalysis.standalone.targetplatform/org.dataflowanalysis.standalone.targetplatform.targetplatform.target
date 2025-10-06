@@ -20,8 +20,8 @@
 			<repository location="https://updatesite.palladio-simulator.com/palladio-supporting-workflowengine/nightly/"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<unit id="tools.mdsd.library.emfeditutils" version="0.0.0"/>
 			<repository location="https://updatesite.mdsd.tools/library-emfeditutils/nightly/"/>
+			<unit id="tools.mdsd.library.emfeditutils.feature.feature.group" version="0.2.0.202510010711"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="tools.mdsd.library.standalone.initialization.log4j" version="0.0.0"/>

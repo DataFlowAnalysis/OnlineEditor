@@ -96,14 +96,8 @@ export interface DfdOutputPort extends SPort {
 export class DfdOutputPortImpl extends SPortImpl {
     static readonly DEFAULT_FEATURES = [...defaultPortFeatures, withEditLabelFeature];
 
-    private _behavior: string = "";
-    private tree: AutoCompleteTree;
+    private behavior: string = "";
     private validBehavior: boolean = true;
-
-    constructor() {
-        super();
-        this.tree = new AutoCompleteTree(TreeBuilder.buildTree(labelTypeRegistry, this));
-    }
 
     override get bounds(): Bounds {
         return {
@@ -145,18 +139,20 @@ export class DfdOutputPortImpl extends SPortImpl {
         return style;
     }
 
-    get behavior(): string {
-        return this._behavior;
-    }
-
-    set behavior(value: string) {
-        this._behavior = value;
+    public setBehavior(value: string) {
+        this.behavior = value;
         if (value === "") {
             this.validBehavior = true;
             return;
         }
-        const errors = this.tree.verify(this.behavior.split("\n"));
+        const errors = new AutoCompleteTree(TreeBuilder.buildTree(labelTypeRegistry, this)).verify(
+            this.behavior.split("\n"),
+        );
         this.validBehavior = errors.length === 0;
+    }
+
+    public getBehavior() {
+        return this.behavior;
     }
 }
 
