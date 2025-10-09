@@ -4,17 +4,19 @@ import { Action, IModelLayoutEngine, SGraph, SModelRoot } from "sprotty-protocol
 import { LoadDiagramCommand } from "../serialize/load";
 import { LoadingIndicator } from "../../common/loadingIndicator";
 import { LayoutMethod } from "../settingsMenu/LayoutMethod";
-import { SettingsManager } from "../settingsMenu/SettingsManager";
+import { LayoutMethodWrapper } from "./layouter";
 
 export interface LayoutModelAction extends Action {
     kind: typeof LayoutModelAction.KIND;
+    layoutMethod: LayoutMethod;
 }
 export namespace LayoutModelAction {
     export const KIND = "layoutModel";
 
-    export function create(): LayoutModelAction {
+    export function create(method: LayoutMethod): LayoutModelAction {
         return {
             kind: KIND,
+            layoutMethod: method,
         };
     }
 }
@@ -29,15 +31,13 @@ export class LayoutModelCommand extends Command {
     @optional()
     private readonly loadingIndicator?: LoadingIndicator;
 
-    @inject(SettingsManager)
-    private readonly settingsManager?: SettingsManager;
-    private oldHideLabels?: boolean;
-
     private oldModelSchema?: SModelRoot;
     private newModel?: SModelRootImpl;
-    private usedMethod?: LayoutMethod;
 
-    constructor() {
+    constructor(
+        @inject(TYPES.Action) private readonly action: LayoutModelAction,
+        @inject(LayoutMethodWrapper) private readonly method: LayoutMethodWrapper,
+    ) {
         super();
     }
 
@@ -47,15 +47,7 @@ export class LayoutModelCommand extends Command {
 
         if (!this.layoutEngine) throw new Error("Missing injects");
 
-        this.usedMethod = this.settingsManager?.layoutMethod ?? LayoutMethod.LINES;
-        if (
-            this.settingsManager &&
-            (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)
-        ) {
-            this.oldHideLabels = this.settingsManager.hideEdgeLabels;
-            this.settingsManager.hideEdgeLabels = true;
-        }
-
+        this.method.layoutMethod = this.action.layoutMethod
         // Layouting is normally done on the graph schema.
         // This is not viable for us because the dfd nodes have a dynamically computed size.
         // This is only available on loaded classes of the elements, not the json schema.
@@ -63,6 +55,7 @@ export class LayoutModelCommand extends Command {
         // So we can just force cast the graph from the loaded version into the "json graph schema".
         // Using of the "bounds" property that the implementation classes have is done using DfdElkLayoutEngine.
         const newModel = await this.layoutEngine.layout(context.root as unknown as SGraph);
+
         // Here we need to cast back.
         this.newModel = newModel as unknown as SModelRootImpl;
         this.loadingIndicator?.hideIndicator();
@@ -73,9 +66,6 @@ export class LayoutModelCommand extends Command {
         if (!this.oldModelSchema) {
             // No old schema saved because the layout was not executed due to read-only mode.
             return context.root;
-        }
-        if (this.settingsManager && this.oldHideLabels) {
-            this.settingsManager.hideEdgeLabels = this.oldHideLabels;
         }
         this.loadingIndicator?.showIndicator("Undoing layouting...");
 
@@ -90,12 +80,6 @@ export class LayoutModelCommand extends Command {
         if (!this.newModel) {
             // No new model saved because the layout was not executed due to read-only mode.
             return context.root;
-        }
-        if (
-            this.settingsManager &&
-            (this.usedMethod === LayoutMethod.WRAPPING || this.usedMethod === LayoutMethod.CIRCLES)
-        ) {
-            this.settingsManager.hideEdgeLabels = true;
         }
 
         return this.newModel;
