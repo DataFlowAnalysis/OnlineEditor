@@ -1,0 +1,110 @@
+/* accordion */
+.accordion-content {
+    display: grid;
+    /* This transition is used when closing the accordion. Here the x direction should start slow and then end fast, thus ease-out */
+    transition:
+        grid-template-rows 300ms ease,
+        /* ease-in animation: https://cubic-bezier.com/#.7,0,1,.6 */ grid-template-columns 300ms
+            cubic-bezier(0.7, 0, 1, 0.6),
+        padding-top 300ms ease;
+
+    grid-template-rows: 0fr;
+    grid-template-columns: 0fr;
+    padding-top: 0;
+}
+
+.accordion-state:checked ~ .accordion-content {
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+
+    /* This transition is used when opening the accordion. Here the x direction should start fast and then end slow, thus ease-in */
+    transition:
+        grid-template-rows 300ms ease,
+        /* ease-out animation: https://cubic-bezier.com/#0,.7,.4,1 */ /* mirrored version of the curve above */
+            grid-template-columns 300ms cubic-bezier(0, 0.7, 0.4, 1),
+        padding-top 300ms ease;
+
+    /* space between accordion button and the content, otherwise they would be directly next to each other without any spacing */
+    padding-top: 8px;
+}
+
+/* needed to hide the content when the accordion is closed */
+.accordion-content * {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+/* drop-down icon */
+.accordion-button {
+    /* Make the text unselectable. When rapidly clicking the accordion button,
+       the text would be selected otherwise due to a double click. */
+    -webkit-user-select: none;
+    user-select: none;
+
+    /* Default orientation of the chevron: pointing down */
+    --chevron-scale: 1;
+}
+
+.accordion-button.flip-chevron {
+    /* Default orientation of the chevron: pointing up */
+    --chevron-scale: -1;
+}
+
+.accordion-button.chevron-right {
+    /* space for the icon */
+    padding-right: 2em;
+}
+
+.accordion-button.chevron-left {
+    /* space for the icon */
+    padding-left: 2em;
+}
+
+.accordion-button.chevron-right::after {
+    content: "";
+    background-image: url("@fortawesome/fontawesome-free/svgs/solid/chevron-down.svg");
+    right: 1em;
+    position: absolute;
+    display: inline-block;
+
+    /* only filter=invert(1) if dark mode is enabled aka --dark-mode is set to 1 */
+    filter: invert(var(--dark-mode));
+
+    width: 16px;
+    height: 16px;
+    background-size: 16px 16px;
+
+    vertical-align: text-top;
+    transition: transform 500ms ease;
+    transform: scaleY(var(--chevron-scale));
+}
+
+.accordion-button.chevron-left::before {
+    content: "";
+    background-image: url("@fortawesome/fontawesome-free/svgs/solid/chevron-down.svg");
+    left: 1em;
+    position: absolute;
+    display: inline-block;
+
+    /* only filter=invert(1) if dark mode is enabled aka --dark-mode is set to 1 */
+    filter: invert(var(--dark-mode));
+
+    width: 16px;
+    height: 16px;
+    background-size: 16px 16px;
+
+    vertical-align: text-top;
+    transition: transform 500ms ease;
+    transform: scaleY(var(--chevron-scale));
+}
+
+.accordion-state:checked ~ label .accordion-button::after {
+    /* flip chevron in y direction */
+    transform: scaleY(calc(var(--chevron-scale) * -1));
+}
+
+.accordion-state:checked ~ label .accordion-button::before {
+    /* flip chevron in y direction */
+    transform: scaleY(calc(var(--chevron-scale) * -1));
+}
