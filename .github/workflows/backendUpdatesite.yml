@@ -32,20 +32,18 @@ jobs:
         if: github.event_name != 'release' && github.ref == 'refs/heads/main' && github.repository_owner == 'DataFlowAnalysis'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          path: backend/analysisBackendServer
           deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
           external_repository: DataFlowAnalysis/updatesite
           destination_dir: nightly/analysis-backend-server/
-          publish_dir: releng/org.dataflowanalysis.standalone.updatesite/target/repository
+          publish_dir: backend/analysisBackendServer/releng/org.dataflowanalysis.standalone.updatesite/target/repository
           publish_branch: main
       - name: Publish Release Update Site
         if: github.event_name == 'release' && github.repository_owner == 'DataFlowAnalysis'
         uses: peaceiris/actions-gh-pages@v4
         with:
-          path: backend/analysisBackendServer
           deploy_key: ${{ secrets.UPDATE_SITE_DEPLOY_KEY }}
           external_repository: DataFlowAnalysis/updatesite
           destination_dir: release/analysis-backend-server/${{ github.event.release.tag_name }}
-          publish_dir: releng/org.dataflowanalysis.standalone.updatesite/target/repository
+          publish_dir: backend/analysisBackendServer/releng/org.dataflowanalysis.standalone.updatesite/target/repository
           publish_branch: main
           
