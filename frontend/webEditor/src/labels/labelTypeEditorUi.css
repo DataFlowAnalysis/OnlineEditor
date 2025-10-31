@@ -1,0 +1,47 @@
+.label-type-editor-ui {
+    padding: 10px;
+    top: 150px;
+    right: 40px;
+    /* limit height so that max width has still 40px to bottom edge of the parent element
+       100% is the full sprotty viewer height, 150px the space above the element,
+       40px is the space that should be left under the editor and 2*10px is the padding */
+    max-height: calc(100vh - 150px - 40px - 2 * 10px);
+    overflow: auto;
+
+    * {
+        color: var(--color-foreground);
+    }
+    .codicon {
+        vertical-align: middle;
+    }
+
+    hr {
+        height: 1px;
+        border: 0;
+        background-color: var(--color-foreground);
+    }
+
+    input {
+        background-color: transparent;
+        outline: none;
+        border: none;
+    }
+
+    .label-type-name {
+        font-size: 12pt;
+    }
+
+    .label-type-values, .label-type-value-add {
+        margin-left: 10px;
+    }
+}
+
+/* Label Type value */
+.label-type-value input {
+    background-color: var(--color-background);
+    text-align: center;
+    border: 1px solid var(--color-foreground);
+    border-radius: 15px;
+    padding: 3px;
+    margin: 4px;
+}

@@ -1,12 +1,16 @@
+import "reflect-metadata";
 import { Container } from "inversify";
 import { loadDefaultModules, labelEditUiModule } from "sprotty";
+import "sprotty/css/sprotty.css";
 import "./assets/commonStyling.css"
 import "./assets/page.css"
 import "./assets/theme.css"
+import "@vscode/codicons/dist/codicon.css";
 import { helpUiModule } from "./helpUi/di.config";
 import { IStartUpAgent, StartUpAgent } from "./startUpAgent/StartUpAgent";
 import { startUpAgentModule } from "./startUpAgent/di.config";
 import { commonModule } from "./commonModule";
+import { labelModule } from "./labels/di.config";
 
 const container = new Container();
 
@@ -20,7 +24,8 @@ loadDefaultModules(container, {
 container.load(
     helpUiModule,
     commonModule,
-    startUpAgentModule
+    startUpAgentModule,
+    labelModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)
