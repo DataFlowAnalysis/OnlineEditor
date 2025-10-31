@@ -12,6 +12,8 @@ import { startUpAgentModule } from "./startUpAgent/di.config";
 import { commonModule } from "./commonModule";
 import { labelModule } from "./labels/di.config";
 import { serializeModule } from "./serialize/di.config";
+import { editorModeModule } from "./editorMode/di.config";
+import { diagramModule } from "./diagram/di.config";
 
 const container = new Container();
 
@@ -27,6 +29,8 @@ container.load(
     commonModule,
     startUpAgentModule,
     labelModule,
+    editorModeModule,
+    diagramModule,
     serializeModule
 )
 
