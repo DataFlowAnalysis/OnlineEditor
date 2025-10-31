@@ -11,6 +11,7 @@ import { IStartUpAgent, StartUpAgent } from "./startUpAgent/StartUpAgent";
 import { startUpAgentModule } from "./startUpAgent/di.config";
 import { commonModule } from "./commonModule";
 import { labelModule } from "./labels/di.config";
+import { serializeModule } from "./serialize/di.config";
 
 const container = new Container();
 
@@ -25,7 +26,8 @@ container.load(
     helpUiModule,
     commonModule,
     startUpAgentModule,
-    labelModule
+    labelModule,
+    serializeModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)

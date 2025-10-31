@@ -14,6 +14,9 @@ stateDiagram-v2
     serialize --> labels
     serialize --> constraint
     serialize --> editorMode
+    [*] --> serialize
+
+    serialize --> commonModule: logger
 
     classDef diLess font-style:italic,stroke:#0fa
     class accordionUiExtension,editorTypes,utils diLess

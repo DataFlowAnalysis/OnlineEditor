@@ -31,6 +31,11 @@ export class LabelTypeRegistry {
         this.labelTypeChanged()
     }
 
+    public setLabelTypes(labelTypes: LabelType[]) {
+        this.labelTypes = labelTypes;
+        this.labelTypeChanged()
+    }
+
     public registerLabelTypeValue(labelTypeId: string, text: string): LabelTypeValue {
         const labelTypeValue: LabelTypeValue = {
             id: generateRandomSprottyId(),

@@ -1,0 +1,180 @@
+import { Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl, TYPES } from "sprotty";
+import { SavedDiagram } from "./SavedDiagram";
+import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
+import { inject } from "inversify";
+import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
+import { EditorModeController } from "../editorMode/EditorModeController";
+import { Constraint } from "../constraint/Constraint";
+import { EditorMode } from "../editorMode/EditorMode";
+import { LabelType } from "../labels/LabelType";
+
+interface LoadJsonAction extends Action {
+    kind: typeof LoadJsonAction.KIND;
+    json: SavedDiagram;
+    name: string;
+}
+
+export namespace LoadJsonAction {
+    export const KIND = "load-json";
+
+    export function create(json: SavedDiagram, name?: string): LoadJsonAction {
+        return {
+            kind: KIND,
+            json,
+            name: name ?? "diagram.json",
+        };
+    }
+}
+
+export class LoadJsonCommand extends Command {
+    static readonly KIND = LoadJsonAction.KIND;
+
+    /* After loading a diagram, this command dispatches other actions like fit to screen and optional auto layouting. However when returning a new model in the execute method, the diagram is not directly updated. We need to wait for the InitializeCanvasBoundsCommand to be fired and finish before we can do things like fit to screen.
+    Because of that we block the execution newly dispatched actions including the actions we dispatched after loading the diagram until the InitializeCanvasBoundsCommand has been processed.
+    This works because the canvasBounds property is always removed  loading a diagram, requiring the InitializeCanvasBoundsCommand to be fired. */
+    readonly blockUntil = LoadJsonCommand.loadBlockUntilFn;
+    static readonly loadBlockUntilFn = (action: Action) => {
+        return action.kind === "initializeCanvasBounds";
+    };
+
+    private oldRoot: SModelRootImpl | undefined;
+    private newRoot: SModelRootImpl | undefined;
+    private oldLabelTypes: LabelType[] | undefined;
+    private oldEditorMode: EditorMode | undefined;
+    private oldFileName: string | undefined;
+    private oldConstrains: Constraint[] | undefined;
+
+    constructor(
+        @inject(TYPES.Action) private readonly action: LoadJsonAction,
+        @inject(TYPES.ILogger) private readonly logger: ILogger,
+        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @inject(EditorModeController) private editorModeController: EditorModeController,
+    ) {
+        super();
+    }
+
+    execute(context: CommandExecutionContext): CommandReturn {
+        this.oldRoot = context.root;
+
+        try {
+            const newSchema = LoadJsonCommand.preprocessModelSchema(this.action.json.model);
+            this.newRoot = context.modelFactory.createRoot(newSchema);
+
+            this.logger.info(this, "Model loaded successfully");
+
+            this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
+            const newLabelTypes = this.action.json.labelTypes;
+            this.labelTypeRegistry.clearLabelTypes();
+            if (newLabelTypes) {
+                this.labelTypeRegistry.setLabelTypes(newLabelTypes);
+                this.logger.info(this, "Label types loaded successfully");
+            } else {
+                this.labelTypeRegistry.clearLabelTypes();
+            }
+
+            this.oldEditorMode = this.editorModeController.getCurrentMode();
+            const newEditorMode = this.action.json.mode;
+            if (newEditorMode) {
+                this.editorModeController.setMode(newEditorMode);
+            } else {
+                this.editorModeController.setDefaultMode();
+            }
+            this.logger.info(this, "Editor mode loaded successfully");
+
+            // TODO: load constraints
+
+            // TODO: post load actions like layout
+
+            // TODO: load file name
+            //this.oldFileName = currentFileName;
+
+            return this.newRoot;
+        } catch (error) {
+            this.logger.error(this, "Error loading model", error);
+            this.newRoot = this.oldRoot;
+            return this.oldRoot;
+        }
+    }
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        if (this.oldLabelTypes) {
+            this.labelTypeRegistry.setLabelTypes(this.oldLabelTypes);
+        } else {
+            this.labelTypeRegistry.clearLabelTypes();
+        }
+
+        if (this.oldEditorMode) {
+            this.editorModeController.setMode(this.oldEditorMode);
+        } else {
+            this.editorModeController.setDefaultMode();
+        }
+
+        if (this.oldEditorMode) {
+            this.editorModeController?.setMode(this.oldEditorMode);
+        }
+
+        // TODO: load constraints
+
+        // TODO: load file name
+
+        return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        const newLabelTypes = this.action.json.labelTypes;
+        this.labelTypeRegistry.clearLabelTypes();
+        if (newLabelTypes) {
+            this.labelTypeRegistry.setLabelTypes(newLabelTypes);
+            this.logger.info(this, "Label types loaded successfully");
+        } else {
+            this.labelTypeRegistry.clearLabelTypes();
+        }
+
+        const newEditorMode = this.action.json.mode;
+        if (newEditorMode) {
+            this.editorModeController.setMode(newEditorMode);
+        } else {
+            this.editorModeController.setDefaultMode();
+        }
+        this.logger.info(this, "Editor mode loaded successfully");
+
+        // TODO: load constraints
+
+        // TODO: load file name
+        //this.oldFileName = currentFileName;
+
+        return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
+    }
+
+    /**
+     * Before a saved model schema can be loaded, it needs to be preprocessed.
+     * Currently this means that the features property is removed from all model elements recursively.
+     * Additionally the canvasBounds property is removed from the root element, because it may change
+     * depending on browser window.
+     * In the future this method may be extended to preprocess other properties.
+     *
+     * The feature property at runtime is a js Set with the relevant features.
+     * E.g. for the top graph this is the viewportFeature among others.
+     * When converting js Sets objects into json, the result is an empty js object.
+     * When loading the object is converted into an empty js Set and the features are lost.
+     * Because of this the editor won't work properly after loading a model.
+     * To prevent this, the features property is removed before loading the model.
+     * When the features property is missing it gets rebuilt on loading with the currently used features.
+     *
+     * @param modelSchema The model schema to preprocess
+     */
+    private static preprocessModelSchema(modelSchema: SModelRoot): SModelRoot {
+        // These properties are all not included in the root typing and if present are not loaded and handled correctly. So they are removed.
+        if ("features" in modelSchema) {
+            delete modelSchema["features"];
+        }
+        if ("canvasBounds" in modelSchema) {
+            delete modelSchema["canvasBounds"];
+        }
+
+        if (modelSchema.children) {
+            modelSchema.children.forEach((child: SModelElement) => this.preprocessModelSchema(child));
+        }
+        return modelSchema;
+    }
+}
