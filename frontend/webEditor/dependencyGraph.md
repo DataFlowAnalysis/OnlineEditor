@@ -11,6 +11,12 @@ stateDiagram-v2
     labels --> editorTypes
     labels --> accordionUiExtension
 
+    serialize --> labels
+    serialize --> constraint
+    serialize --> editorMode
+
     classDef diLess font-style:italic,stroke:#0fa
     class accordionUiExtension,editorTypes,utils diLess
 ```
+
+green packages do not export a module
