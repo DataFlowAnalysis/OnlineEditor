@@ -1,6 +1,5 @@
 ```mermaid
 stateDiagram-v2
-
     
     helpUi --> accordionUiExtension
     helpUi --> editorTypes
@@ -20,6 +19,8 @@ stateDiagram-v2
 
     webSocket --> commonModule: logger
 
+    commandPalette --> serialize
+
 %%    [*] --> commonModule
 %%    [*] --> labels
 %%    [*] --> serialize
@@ -28,6 +29,7 @@ stateDiagram-v2
 %%    [*] --> webSocket
 %%    [*] --> helpUi
 %%    [*] --> startUpAgent
+%%    [*] --> commandPalette
 
     classDef diLess font-style:italic,stroke:#0fa
     class accordionUiExtension,editorTypes,utils diLess

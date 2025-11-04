@@ -15,6 +15,7 @@ import { serializeModule } from "./serialize/di.config";
 import { editorModeModule } from "./editorMode/di.config";
 import { diagramModule } from "./diagram/di.config";
 import { webSocketModule } from "./webSocket/di.config";
+import { commandPaletteModule } from "./commandPalette/di.config";
 
 const container = new Container();
 
@@ -33,7 +34,8 @@ container.load(
     editorModeModule,
     diagramModule,
     serializeModule,
-    webSocketModule
+    webSocketModule,
+    commandPaletteModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)
