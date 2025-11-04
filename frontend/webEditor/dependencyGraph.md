@@ -21,6 +21,11 @@ stateDiagram-v2
 
     commandPalette --> serialize
 
+    serialize --> webSocket
+
+    commandPalette --> fitToScreen
+    serialize --> fitToScreen
+
 %%    [*] --> commonModule
 %%    [*] --> labels
 %%    [*] --> serialize
@@ -32,7 +37,7 @@ stateDiagram-v2
 %%    [*] --> commandPalette
 
     classDef diLess font-style:italic,stroke:#0fa
-    class accordionUiExtension,editorTypes,utils diLess
+    class accordionUiExtension,editorTypes,utils,fitToScreen diLess
 ```
 
 green packages do not export a module

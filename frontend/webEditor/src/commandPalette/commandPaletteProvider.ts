@@ -7,6 +7,7 @@ import { LoadJsonFileAction } from "../serialize/loadJsonFile";
 import { Action } from "sprotty-protocol";
 import { LoadDfdAndDdFileAction } from "../serialize/loadDfdAndDdFile";
 import { LoadPalladioFileAction } from "../serialize/loadPalladioFile";
+import { DefaultFitToScreenAction } from "../fitToScreen/action";
 
 /**
  * Provides possible actions for the command palette.
@@ -15,7 +16,7 @@ import { LoadPalladioFileAction } from "../serialize/loadPalladioFile";
 export class WebEditorCommandPaletteActionProvider implements ICommandPaletteActionProvider {
 
     async getActions(root: Readonly<SModelRootImpl>): Promise<(LabeledAction | FolderAction)[]> {
-        //const fitToScreenAction = createDefaultFitToScreenAction(root);
+        const fitToScreenAction = DefaultFitToScreenAction.create(root);
         const commitAction = CommitModelAction.create();
 
         return [
@@ -43,7 +44,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
             ),
 
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
-            //new LabeledAction("Fit to Screen", [fitToScreenAction], "screen-normal"),
+            new LabeledAction("Fit to Screen", [fitToScreenAction], "screen-normal"),
             /*new FolderAction(
                 "Layout diagram (Method: Lines)",
                 [

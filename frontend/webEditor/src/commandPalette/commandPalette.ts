@@ -3,7 +3,7 @@ import { CommandPalette, LabeledAction, SModelRootImpl } from "sprotty";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import "./commandPalette.css";
 import "sprotty/css/command-palette.css";
-import { FolderAction } from "./CommandPaletteProvider";
+import { FolderAction } from "./commandPaletteProvider";
 
 @injectable()
 export class WebEditorCommandPalette extends CommandPalette {

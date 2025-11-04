@@ -1,4 +1,4 @@
-import { Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl } from "sprotty";
+import { ActionDispatcher, Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl } from "sprotty";
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
@@ -6,6 +6,7 @@ import { EditorModeController } from "../editorMode/EditorModeController";
 import { Constraint } from "../constraint/Constraint";
 import { EditorMode } from "../editorMode/EditorMode";
 import { LabelType } from "../labels/LabelType";
+import { DefaultFitToScreenAction } from "../fitToScreen/action";
 
 export interface FileData<T> {
     fileName: string;
@@ -33,6 +34,7 @@ export abstract class LoadJsonCommand extends Command {
         private readonly logger: ILogger,
         private readonly labelTypeRegistry: LabelTypeRegistry,
         private editorModeController: EditorModeController,
+        private actionDispatcher: ActionDispatcher
     ) {
         super();
     }
@@ -75,6 +77,7 @@ export abstract class LoadJsonCommand extends Command {
             // TODO: load constraints
 
             // TODO: post load actions like layout
+            this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot))
 
             // TODO: load file name
             //this.oldFileName = currentFileName;

@@ -3,7 +3,7 @@ import { FileData, LoadJsonCommand } from "./loadJson";
 import { chooseFiles } from "./fileChooser";
 import { inject } from "inversify";
 import { DfdWebSocket } from "../webSocket/webSocket";
-import { TYPES, ILogger } from "sprotty";
+import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SavedDiagram } from "./SavedDiagram";
@@ -25,8 +25,9 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(EditorModeController) editorModeController: EditorModeController,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
+        @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
     ) {
-        super(logger, labelTypeRegistry, editorModeController);
+        super(logger, labelTypeRegistry, editorModeController, actionDispatcher);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
