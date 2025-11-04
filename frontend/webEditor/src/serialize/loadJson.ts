@@ -1,34 +1,18 @@
-import { Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl } from "sprotty";
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
-import { inject } from "inversify";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { Constraint } from "../constraint/Constraint";
 import { EditorMode } from "../editorMode/EditorMode";
 import { LabelType } from "../labels/LabelType";
 
-interface LoadJsonAction extends Action {
-    kind: typeof LoadJsonAction.KIND;
-    json: SavedDiagram;
-    name: string;
+export interface FileData<T> {
+    fileName: string;
+    content: T;
 }
 
-export namespace LoadJsonAction {
-    export const KIND = "load-json";
-
-    export function create(json: SavedDiagram, name?: string): LoadJsonAction {
-        return {
-            kind: KIND,
-            json,
-            name: name ?? "diagram.json",
-        };
-    }
-}
-
-export class LoadJsonCommand extends Command {
-    static readonly KIND = LoadJsonAction.KIND;
-
+export abstract class LoadJsonCommand extends Command {
     /* After loading a diagram, this command dispatches other actions like fit to screen and optional auto layouting. However when returning a new model in the execute method, the diagram is not directly updated. We need to wait for the InitializeCanvasBoundsCommand to be fired and finish before we can do things like fit to screen.
     Because of that we block the execution newly dispatched actions including the actions we dispatched after loading the diagram until the InitializeCanvasBoundsCommand has been processed.
     This works because the canvasBounds property is always removed  loading a diagram, requiring the InitializeCanvasBoundsCommand to be fired. */
@@ -43,27 +27,34 @@ export class LoadJsonCommand extends Command {
     private oldEditorMode: EditorMode | undefined;
     private oldFileName: string | undefined;
     private oldConstrains: Constraint[] | undefined;
+    private file: FileData<SavedDiagram> | undefined;
 
     constructor(
-        @inject(TYPES.Action) private readonly action: LoadJsonAction,
-        @inject(TYPES.ILogger) private readonly logger: ILogger,
-        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @inject(EditorModeController) private editorModeController: EditorModeController,
+        private readonly logger: ILogger,
+        private readonly labelTypeRegistry: LabelTypeRegistry,
+        private editorModeController: EditorModeController,
     ) {
         super();
     }
 
-    execute(context: CommandExecutionContext): CommandReturn {
+    protected abstract getFile(): Promise<FileData<SavedDiagram> | undefined>;
+
+    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.oldRoot = context.root;
 
+        this.file = await this.getFile().catch(() => undefined);
+        if (!this.file) {
+            return context.root;
+        }
+
         try {
-            const newSchema = LoadJsonCommand.preprocessModelSchema(this.action.json.model);
+            const newSchema = LoadJsonCommand.preprocessModelSchema(this.file.content.model);
             this.newRoot = context.modelFactory.createRoot(newSchema);
 
             this.logger.info(this, "Model loaded successfully");
 
             this.oldLabelTypes = this.labelTypeRegistry.getLabelTypes();
-            const newLabelTypes = this.action.json.labelTypes;
+            const newLabelTypes = this.file.content.labelTypes;
             this.labelTypeRegistry.clearLabelTypes();
             if (newLabelTypes) {
                 this.labelTypeRegistry.setLabelTypes(newLabelTypes);
@@ -73,7 +64,7 @@ export class LoadJsonCommand extends Command {
             }
 
             this.oldEditorMode = this.editorModeController.getCurrentMode();
-            const newEditorMode = this.action.json.mode;
+            const newEditorMode = this.file.content.mode;
             if (newEditorMode) {
                 this.editorModeController.setMode(newEditorMode);
             } else {
@@ -121,7 +112,7 @@ export class LoadJsonCommand extends Command {
     }
 
     redo(context: CommandExecutionContext): CommandReturn {
-        const newLabelTypes = this.action.json.labelTypes;
+        const newLabelTypes = this.file?.content.labelTypes;
         this.labelTypeRegistry.clearLabelTypes();
         if (newLabelTypes) {
             this.labelTypeRegistry.setLabelTypes(newLabelTypes);
@@ -130,7 +121,7 @@ export class LoadJsonCommand extends Command {
             this.labelTypeRegistry.clearLabelTypes();
         }
 
-        const newEditorMode = this.action.json.mode;
+        const newEditorMode = this.file?.content.mode;
         if (newEditorMode) {
             this.editorModeController.setMode(newEditorMode);
         } else {

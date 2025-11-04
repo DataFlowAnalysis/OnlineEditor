@@ -44,7 +44,7 @@ export class DfdWebSocket {
 
       if (message.startsWith("ID assigned:")) {
         const parts = message.split(":")
-        this.webSocketId = parseInt(parts[2].trim())
+        this.webSocketId = parseInt(parts[1].trim())
         this.logger.log(this, "WebSocket ID assigned: " + this.webSocketId)
         return
       }
@@ -67,6 +67,16 @@ export class DfdWebSocket {
     }
   }
 
+  public async requestDiagram(message: string) {
+    const result = await this.sendMessage(message)
+    const name = result.split(":")[0]
+    const diagramMessage = result.replace(name + ":", "")
+    return {
+      fileName: name,
+      content: JSON.parse(diagramMessage)
+    }
+  }
+
   public sendMessage(message: string): Promise<string> {
     const result = new Promise<string>((resolve, reject) => {
       this.lastRequest.resolve = resolve
@@ -76,7 +86,8 @@ export class DfdWebSocket {
       this.reject(new Error("WebSocket is not connected"))
       return result
     }
-    this.webSocket.send(this.webSocketId + ":" + "TODO: MODEL NAME" + ":" + message)
+
+    this.webSocket.send(this.webSocketId + ":" + "TODO: DIAGRAM NAME" + ":" + message)
     return result
   }
 
