@@ -29,6 +29,8 @@ stateDiagram-v2
     layout --> fitToScreen
     commandPalette --> layout
 
+    startUpAgent --> webSocket
+
 %%    [*] --> layout
 %%    [*] --> commonModule
 %%    [*] --> labels

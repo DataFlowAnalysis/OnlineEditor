@@ -1,5 +1,5 @@
 import { ContainerModule } from "inversify";
-import { configureModelElement, editLabelFeature, SGraphImpl, SGraphView, SLabelImpl, SLabelView, SRoutingHandleImpl, TYPES, withEditLabelFeature } from "sprotty";
+import { configureModelElement, editLabelFeature, SGraphImpl, SGraphView, SLabelImpl, SLabelView, SRoutingHandleImpl, withEditLabelFeature } from "sprotty";
 import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges/ArrowEdge";
 import { DfdInputPortImpl, DfdInputPortView } from "./ports/DfdInputPort";
 import { DfdOutputPortImpl, DfdOutputPortView } from "./ports/DfdOutputPort";
@@ -8,7 +8,6 @@ import { FunctionNodeImpl, FunctionNodeView } from "./nodes/DfdFunctionNode";
 import { IONodeImpl, IONodeView } from "./nodes/DfdIONode";
 import './style.css'
 import { DfdPositionalLabelView } from "./labels/DfdPositionalLabel";
-import { CustomModelFactory } from "./ModelFactory";
 import { DfdNodeLabelRenderer } from "./nodes/DfdNodeLabels";
 
 export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
@@ -36,6 +35,5 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
         enable: [editLabelFeature],
     });
 
-    rebind(TYPES.IModelFactory).to(CustomModelFactory);
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope()
 });
