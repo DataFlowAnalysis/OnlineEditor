@@ -26,6 +26,10 @@ stateDiagram-v2
     commandPalette --> fitToScreen
     serialize --> fitToScreen
 
+    layout --> fitToScreen
+    commandPalette --> layout
+
+%%    [*] --> layout
 %%    [*] --> commonModule
 %%    [*] --> labels
 %%    [*] --> serialize

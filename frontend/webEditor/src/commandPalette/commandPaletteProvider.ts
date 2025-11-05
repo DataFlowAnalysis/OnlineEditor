@@ -8,6 +8,8 @@ import { Action } from "sprotty-protocol";
 import { LoadDfdAndDdFileAction } from "../serialize/loadDfdAndDdFile";
 import { LoadPalladioFileAction } from "../serialize/loadPalladioFile";
 import { DefaultFitToScreenAction } from "../fitToScreen/action";
+import { LayoutMethod } from "../layout/layoutMethod";
+import { LayoutModelAction } from "../layout/command";
 
 /**
  * Provides possible actions for the command palette.
@@ -45,7 +47,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
 
             new LabeledAction("Load default diagram", [LoadDefaultDiagramAction.create(), commitAction], "clear-all"),
             new LabeledAction("Fit to Screen", [fitToScreenAction], "screen-normal"),
-            /*new FolderAction(
+            new FolderAction(
                 "Layout diagram (Method: Lines)",
                 [
                     new LabeledAction(
@@ -66,7 +68,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                 ],
                 "layout",
                 [LayoutModelAction.create(LayoutMethod.LINES), commitAction, fitToScreenAction],
-            ),*/
+            ),
         ];
     }
 }

@@ -16,6 +16,8 @@ import { editorModeModule } from "./editorMode/di.config";
 import { diagramModule } from "./diagram/di.config";
 import { webSocketModule } from "./webSocket/di.config";
 import { commandPaletteModule } from "./commandPalette/di.config";
+import { layoutModule } from "./layout/di.config";
+import { elkLayoutModule } from "sprotty-elk";
 
 const container = new Container();
 
@@ -35,7 +37,9 @@ container.load(
     diagramModule,
     serializeModule,
     webSocketModule,
-    commandPaletteModule
+    commandPaletteModule,
+    elkLayoutModule,
+    layoutModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)
