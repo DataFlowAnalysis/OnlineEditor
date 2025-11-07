@@ -7,6 +7,7 @@ import { Constraint } from "../constraint/Constraint";
 import { EditorMode } from "../editorMode/EditorMode";
 import { LabelType } from "../labels/LabelType";
 import { DefaultFitToScreenAction } from "../fitToScreen/action";
+import { FileName } from "../fileName/fileName";
 
 export interface FileData<T> {
     fileName: string;
@@ -34,7 +35,8 @@ export abstract class LoadJsonCommand extends Command {
         private readonly logger: ILogger,
         private readonly labelTypeRegistry: LabelTypeRegistry,
         private editorModeController: EditorModeController,
-        private actionDispatcher: ActionDispatcher
+        private actionDispatcher: ActionDispatcher,
+        protected fileName: FileName
     ) {
         super();
     }
@@ -79,8 +81,8 @@ export abstract class LoadJsonCommand extends Command {
             // TODO: post load actions like layout
             this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot))
 
-            // TODO: load file name
-            //this.oldFileName = currentFileName;
+            this.oldFileName = this.fileName.getName();
+            this.fileName.setName(this.file.fileName);
 
             return this.newRoot;
         } catch (error) {
@@ -109,7 +111,7 @@ export abstract class LoadJsonCommand extends Command {
 
         // TODO: load constraints
 
-        // TODO: load file name
+        this.fileName.setName(this.oldFileName ?? 'diagram');
 
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
@@ -134,8 +136,7 @@ export abstract class LoadJsonCommand extends Command {
 
         // TODO: load constraints
 
-        // TODO: load file name
-        //this.oldFileName = currentFileName;
+        this.fileName.setName(this.file?.fileName ?? 'diagram');
 
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }

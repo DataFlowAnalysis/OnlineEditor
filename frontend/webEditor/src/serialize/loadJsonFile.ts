@@ -6,6 +6,7 @@ import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SavedDiagram } from "./SavedDiagram";
+import { FileName } from "../fileName/fileName";
 
 export namespace LoadJsonFileAction {
     export const KIND = "loadJsonFile";
@@ -25,8 +26,9 @@ export class LoadJsonFileCommand extends LoadJsonCommand {
     @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
     @inject(EditorModeController) editorModeController: EditorModeController,
     @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+    @inject(FileName) fileName: FileName,
 ) {
-    super(logger, labelTypeRegistry, editorModeController, actionDispatcher);
+    super(logger, labelTypeRegistry, editorModeController, actionDispatcher, fileName);
 }
 
   protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
@@ -34,6 +36,9 @@ export class LoadJsonFileCommand extends LoadJsonCommand {
     if (!file) {
       return undefined
     }
+
+    this.fileName.setName(file.fileName)
+
     return {
       fileName: file.fileName,
       content: JSON.parse(file.content) as SavedDiagram

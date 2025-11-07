@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import { ILogger, TYPES } from "sprotty";
+import { FileName } from "../fileName/fileName";
 
 @injectable()
 export class DfdWebSocket {
@@ -12,7 +13,7 @@ export class DfdWebSocket {
   } = {}
   private static readonly WS_URL = "wss://websocket.dataflowanalysis.org/events/"
 
-  constructor(@inject(TYPES.ILogger) private readonly logger: ILogger) {
+  constructor(@inject(TYPES.ILogger) private readonly logger: ILogger, @inject(FileName) private readonly fileName: FileName) {
     this.init()
   }
 
@@ -87,7 +88,7 @@ export class DfdWebSocket {
       return result
     }
 
-    this.webSocket.send(this.webSocketId + ":" + "TODO: DIAGRAM NAME" + ":" + message)
+    this.webSocket.send(this.webSocketId + ":" + this.fileName.getName() + ":" + message)
     return result
   }
 

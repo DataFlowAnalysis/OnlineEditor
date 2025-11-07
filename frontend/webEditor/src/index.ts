@@ -18,6 +18,7 @@ import { webSocketModule } from "./webSocket/di.config";
 import { commandPaletteModule } from "./commandPalette/di.config";
 import { layoutModule } from "./layout/di.config";
 import { elkLayoutModule } from "sprotty-elk";
+import { fileNameModule } from "./fileName/di.config";
 
 const container = new Container();
 
@@ -39,7 +40,8 @@ container.load(
     webSocketModule,
     commandPaletteModule,
     elkLayoutModule,
-    layoutModule
+    layoutModule,
+    fileNameModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)

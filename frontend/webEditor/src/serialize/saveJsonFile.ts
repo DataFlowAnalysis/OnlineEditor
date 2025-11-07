@@ -1,10 +1,11 @@
 import { CommandExecutionContext, TYPES } from "sprotty";
 import { FileData } from "./loadJson";
-import { SaveFileCommand } from "./SaveFile";
+import { SaveFileCommand } from "./saveFile";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { inject } from "inversify";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { Action } from "sprotty-protocol";
+import { FileName } from "../fileName/fileName";
 
 export namespace SaveJsonFileAction {
   export const KIND = 'saveJsonFile'
@@ -19,14 +20,15 @@ export class SaveJsonFileCommand extends SaveFileCommand {
   constructor(
     @inject(TYPES.Action) _: Action,
     @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
-    @inject(EditorModeController) editorModeController: EditorModeController
+    @inject(EditorModeController) editorModeController: EditorModeController,
+    @inject(FileName) private readonly fileName: FileName
   ) {
     super(LabelTypeRegistry, editorModeController);
   }
 
   getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
     const fileData: FileData<string> = {
-      fileName: "TODO.json",
+      fileName: this.fileName.getName() + ".json",
       content: JSON.stringify(this.createSavedDiagram(context))
     };
     return Promise.resolve([fileData]);

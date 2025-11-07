@@ -7,6 +7,7 @@ import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SavedDiagram } from "./SavedDiagram";
+import { FileName } from "../fileName/fileName";
 
 export namespace LoadDfdAndDdFileAction {
     export const KIND = "loadDfdAndDdFile";
@@ -24,10 +25,11 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         @inject(TYPES.ILogger) logger: ILogger,
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(EditorModeController) editorModeController: EditorModeController,
+        @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
     ) {
-        super(logger, labelTypeRegistry, editorModeController, actionDispatcher);
+        super(logger, labelTypeRegistry, editorModeController, actionDispatcher, fileName);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
@@ -37,6 +39,13 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         if (!dataflowFileContent || !dictionaryFileContent) {
             return undefined;
         }
-        return this.dfdWebSocket.requestDiagram("DFD:" + dataflowFileContent + "\n:DD:\n" + dictionaryFileContent);
+
+        const oldFileName = this.fileName.getName();
+        this.fileName.setName(files[0].fileName);
+
+        return this.dfdWebSocket.requestDiagram("DFD:" + dataflowFileContent + "\n:DD:\n" + dictionaryFileContent).catch((e) => {
+            this.fileName.setName(oldFileName);
+            throw e;
+        })
     }
 }

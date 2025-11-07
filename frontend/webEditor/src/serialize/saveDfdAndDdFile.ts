@@ -6,6 +6,7 @@ import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { DfdWebSocket } from "../webSocket/webSocket";
 import { Action } from "sprotty-protocol";
+import { FileName } from "../fileName/fileName";
 
 export namespace SaveDfdAndDdFileAction {
   export const KIND = 'saveDfdAndDdFile'
@@ -23,7 +24,8 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
       @inject(TYPES.Action) _: Action,
     @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
     @inject(EditorModeController) editorModeController: EditorModeController,
-    @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket
+    @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
+    @inject(FileName) private readonly fileName: FileName
   ) {
     super(LabelTypeRegistry, editorModeController);
   }
@@ -36,7 +38,7 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
     const dfdContent = response.substring(0, endIndex).trim();
     const ddContent = response.substring(endIndex).trim();
 
-    const fileName = 'TODO'
+    const fileName = this.fileName.getName();
     return Promise.resolve([{
       fileName: fileName + ".dataflowdiagram",
       content: dfdContent

@@ -6,6 +6,7 @@ import { inject } from "inversify";
 import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
+import { FileName } from "../fileName/fileName";
 
 export namespace LoadDefaultDiagramAction {
     export const KIND = "loadDefaultDiagram";
@@ -24,8 +25,9 @@ export class LoadDefaultDiagramCommand extends LoadJsonCommand {
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(EditorModeController) editorModeController: EditorModeController,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+        @inject(FileName) fileName: FileName
     ) {
-        super(logger, labelTypeRegistry, editorModeController, actionDispatcher);
+        super(logger, labelTypeRegistry, editorModeController, actionDispatcher, fileName);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {

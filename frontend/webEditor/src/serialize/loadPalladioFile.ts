@@ -7,6 +7,7 @@ import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../editorMode/EditorModeController";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SavedDiagram } from "./SavedDiagram";
+import { FileName } from "../fileName/fileName";
 
 export namespace LoadPalladioFileAction {
     export const KIND = "loadPcmFile";
@@ -26,9 +27,10 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(EditorModeController) editorModeController: EditorModeController,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+        @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
     ) {
-        super(logger, labelTypeRegistry, editorModeController, actionDispatcher);
+        super(logger, labelTypeRegistry, editorModeController, actionDispatcher, fileName);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
@@ -41,7 +43,12 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         ) {
             throw new Error("Please select one file of each required type: .pddc, .allocation, .nodecharacteristics, .repository, .resourceenvironment, .system, .usagemodel");
         }
+        const oldFileName = this.fileName.getName();
+        this.fileName.setName(files[0].fileName)
 
-        return this.dfdWebSocket.requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---"));
+        return this.dfdWebSocket.requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---")).catch((e) => {
+            this.fileName.setName(oldFileName);
+            throw e;
+        });
     }
 }
