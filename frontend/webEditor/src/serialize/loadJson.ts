@@ -2,9 +2,8 @@ import { ActionDispatcher, Command, CommandExecutionContext, CommandReturn, EMPT
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
-import { EditorModeController } from "../editorMode/EditorModeController";
+import { EditorModeController, EditorMode } from "../settings/editorMode";
 import { Constraint } from "../constraint/Constraint";
-import { EditorMode } from "../editorMode/EditorMode";
 import { LabelType } from "../labels/LabelType";
 import { DefaultFitToScreenAction } from "../fitToScreen/action";
 import { FileName } from "../fileName/fileName";
@@ -67,12 +66,12 @@ export abstract class LoadJsonCommand extends Command {
                 this.labelTypeRegistry.clearLabelTypes();
             }
 
-            this.oldEditorMode = this.editorModeController.getCurrentMode();
+            this.oldEditorMode = this.editorModeController.get();
             const newEditorMode = this.file.content.mode;
             if (newEditorMode) {
-                this.editorModeController.setMode(newEditorMode);
+                this.editorModeController.set(newEditorMode);
             } else {
-                this.editorModeController.setDefaultMode();
+                this.editorModeController.setDefault();
             }
             this.logger.info(this, "Editor mode loaded successfully");
 
@@ -100,13 +99,13 @@ export abstract class LoadJsonCommand extends Command {
         }
 
         if (this.oldEditorMode) {
-            this.editorModeController.setMode(this.oldEditorMode);
+            this.editorModeController.set(this.oldEditorMode);
         } else {
-            this.editorModeController.setDefaultMode();
+            this.editorModeController.setDefault();
         }
 
         if (this.oldEditorMode) {
-            this.editorModeController?.setMode(this.oldEditorMode);
+            this.editorModeController.set(this.oldEditorMode);
         }
 
         // TODO: load constraints
@@ -128,9 +127,9 @@ export abstract class LoadJsonCommand extends Command {
 
         const newEditorMode = this.file?.content.mode;
         if (newEditorMode) {
-            this.editorModeController.setMode(newEditorMode);
+            this.editorModeController.set(newEditorMode);
         } else {
-            this.editorModeController.setDefaultMode();
+            this.editorModeController.setDefault();
         }
         this.logger.info(this, "Editor mode loaded successfully");
 

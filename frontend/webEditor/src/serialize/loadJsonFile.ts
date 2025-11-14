@@ -3,10 +3,11 @@ import { FileData, LoadJsonCommand } from "./loadJson";
 import { chooseFile } from "./fileChooser";
 import { inject } from "inversify";
 import { TYPES, ILogger, ActionDispatcher } from "sprotty";
-import { EditorModeController } from "../editorMode/EditorModeController";
+import { EditorModeController } from "../settings/editorMode";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SavedDiagram } from "./SavedDiagram";
 import { FileName } from "../fileName/fileName";
+import { SETTINGS } from "../settings/Settings";
 
 export namespace LoadJsonFileAction {
     export const KIND = "loadJsonFile";
@@ -24,7 +25,7 @@ export class LoadJsonFileCommand extends LoadJsonCommand {
     @inject(TYPES.Action) _: Action,
     @inject(TYPES.ILogger) logger: ILogger,
     @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
-    @inject(EditorModeController) editorModeController: EditorModeController,
+    @inject(SETTINGS.Mode) editorModeController: EditorModeController,
     @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
     @inject(FileName) fileName: FileName,
 ) {

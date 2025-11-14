@@ -12,13 +12,13 @@ import { startUpAgentModule } from "./startUpAgent/di.config";
 import { commonModule } from "./commonModule";
 import { labelModule } from "./labels/di.config";
 import { serializeModule } from "./serialize/di.config";
-import { editorModeModule } from "./editorMode/di.config";
 import { diagramModule } from "./diagram/di.config";
 import { webSocketModule } from "./webSocket/di.config";
 import { commandPaletteModule } from "./commandPalette/di.config";
 import { layoutModule } from "./layout/di.config";
 import { elkLayoutModule } from "sprotty-elk";
 import { fileNameModule } from "./fileName/di.config";
+import { settingsModule } from "./settings/di.config";
 
 const container = new Container();
 
@@ -34,14 +34,14 @@ container.load(
     commonModule,
     startUpAgentModule,
     labelModule,
-    editorModeModule,
     diagramModule,
     serializeModule,
     webSocketModule,
     commandPaletteModule,
     elkLayoutModule,
     layoutModule,
-    fileNameModule
+    fileNameModule,
+    settingsModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)

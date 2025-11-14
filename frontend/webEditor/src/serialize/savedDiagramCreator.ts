@@ -1,7 +1,7 @@
 import { Command, CommandExecutionContext } from "sprotty";
 import { CURRENT_VERSION, SavedDiagram } from "./SavedDiagram";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
-import { EditorModeController } from "../editorMode/EditorModeController";
+import { EditorModeController } from "../settings/editorMode";
 
 export abstract class SavedDiagramCreatorCommand extends Command {
 
@@ -20,7 +20,7 @@ export abstract class SavedDiagramCreatorCommand extends Command {
       labelTypes: this.labelTypeRegistry.getLabelTypes(),
       // TODO
       constraints: [],
-      mode: this.editorModeController.getCurrentMode(),
+      mode: this.editorModeController.get(),
       version: CURRENT_VERSION
     }
   }

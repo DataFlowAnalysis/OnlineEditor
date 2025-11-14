@@ -1,12 +1,13 @@
 import { CommandExecutionContext, TYPES } from "sprotty";
 import { FileData } from "./loadJson";
-import { SaveFileCommand } from "./SaveFile";
+import { SaveFileCommand } from "./saveFile";
 import { inject } from "inversify";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
-import { EditorModeController } from "../editorMode/EditorModeController";
+import { EditorModeController } from "../settings/editorMode";
 import { DfdWebSocket } from "../webSocket/webSocket";
 import { Action } from "sprotty-protocol";
 import { FileName } from "../fileName/fileName";
+import { SETTINGS } from "../settings/Settings";
 
 export namespace SaveDfdAndDdFileAction {
   export const KIND = 'saveDfdAndDdFile'
@@ -23,7 +24,7 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
   constructor(
       @inject(TYPES.Action) _: Action,
     @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
-    @inject(EditorModeController) editorModeController: EditorModeController,
+    @inject(SETTINGS.Mode) editorModeController: EditorModeController,
     @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
     @inject(FileName) private readonly fileName: FileName
   ) {
