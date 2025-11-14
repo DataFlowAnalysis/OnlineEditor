@@ -4,12 +4,15 @@ import { SettingsValue } from "./SettingsValue";
 import { AccordionUiExtension } from "../accordionUiExtension";
 import { HideEdgeNames, SETTINGS, SimplifyNodeNames } from "./Settings";
 import { EditorModeController } from "./editorMode";
+import { Theme, ThemeManager } from "./Theme";
 
 @injectable()
 export class SettingsUI extends AccordionUiExtension {
     static readonly ID = "settings-ui";
 
-    constructor(@inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames,
+    constructor(
+        @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager,
+        @inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames,
     @inject(SETTINGS.SimplifyNodeNames) private readonly simplifyNodeNames: SimplifyNodeNames,
 @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController) {
         super('right', 'up')
@@ -27,6 +30,7 @@ export class SettingsUI extends AccordionUiExtension {
         const grid = document.createElement('div');
         grid.id = 'settings-content'
         contentElement.appendChild(grid);
+        this.addDropDown(grid, "Theme", this.themeManager, [Theme.SYSTEM_DEFAULT, Theme.LIGHT, Theme.DARK])
         this.addBooleanSwitch(grid, "Hide Edge Names", this.hideEdgeNames);
         this.addBooleanSwitch(grid, "Simplify Node Names", this.simplifyNodeNames);
         this.addSwitch(grid, "Read Only", this.editorModeController, {true: "view", false: "edit"});
@@ -41,7 +45,7 @@ export class SettingsUI extends AccordionUiExtension {
         this.addSwitch<boolean>(container, title, value, {true: true, false: false});
     }
 
-    private addSwitch<T extends string|number|symbol|boolean>(container: HTMLElement, title: string, value: SettingsValue<T>, map: {'true':T, 'false': T}): void {
+    private addSwitch<T extends ToString>(container: HTMLElement, title: string, value: SettingsValue<T>, map: {'true':T, 'false': T}): void {
         const inversedMap = {
             [map.true.toString()]: true,
             [map.false.toString()]: false
@@ -71,4 +75,33 @@ export class SettingsUI extends AccordionUiExtension {
             checkbox.checked = inversedMap[newValue.toString()];
         });
     }
+
+    private addDropDown<T extends ToString>(container: HTMLElement, title: string, value: SettingsValue<T>, values: T[]) {
+        const textLabel = document.createElement("label");
+        textLabel.textContent = title;
+        textLabel.htmlFor = `setting-${title.toLowerCase().replace(/\s+/g, '-')}`;
+
+        const dropDown = document.createElement('select')
+        for (const v of values) {
+            const option = document.createElement('option')
+            option.value = v.toString()
+            option.innerText = v.toString()
+            dropDown.appendChild(option)
+        }
+        dropDown.value = value.get().toString()
+
+        dropDown.onchange = () => {
+            const newValue = values.find(v => v.toString() === dropDown.value)
+            if (newValue) {
+                value.set(newValue)
+            }
+        }
+
+        container.appendChild(textLabel)
+        container.appendChild(dropDown)
+    }
+}
+
+interface ToString {
+    toString: () => string
 }
