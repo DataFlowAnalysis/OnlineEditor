@@ -19,6 +19,7 @@ import { layoutModule } from "./layout/di.config";
 import { elkLayoutModule } from "sprotty-elk";
 import { fileNameModule } from "./fileName/di.config";
 import { settingsModule } from "./settings/di.config";
+import { toolPaletteModule } from "./toolPalette/di.config";
 
 const container = new Container();
 
@@ -41,7 +42,8 @@ container.load(
     elkLayoutModule,
     layoutModule,
     fileNameModule,
-    settingsModule
+    settingsModule,
+    toolPaletteModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)

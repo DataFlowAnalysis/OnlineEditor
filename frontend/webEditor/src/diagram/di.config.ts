@@ -1,5 +1,5 @@
 import { ContainerModule } from "inversify";
-import { configureActionHandler, configureModelElement, EditLabelAction, EditLabelActionHandler, editLabelFeature, SGraphImpl, SGraphView, SLabelImpl, SLabelView, SRoutingHandleImpl, TYPES, withEditLabelFeature } from "sprotty";
+import { configureActionHandler, configureCommand, configureModelElement, EditLabelAction, EditLabelActionHandler, editLabelFeature, SGraphImpl, SGraphView, SLabelImpl, SLabelView, SRoutingHandleImpl, TYPES, withEditLabelFeature } from "sprotty";
 import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges/ArrowEdge";
 import { DfdInputPortImpl, DfdInputPortView } from "./ports/DfdInputPort";
 import { DfdOutputPortImpl, DfdOutputPortView } from "./ports/DfdOutputPort";
@@ -13,6 +13,7 @@ import { FilledBackgroundLabelView } from "./labels/FilledBackgroundLabel";
 import { DfdEditLabelValidatorDecorator } from "./labels/EditLabelDecorator";
 import { DfdEditLabelValidator } from "./labels/EditLabelValidator";
 import { NoScrollEditLabelUI } from "./labels/NoScrollEditLabelUI";
+import { PortAwareSnapper, AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand } from "./ports/portSnapper";
 
 export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -20,8 +21,12 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
     bind(TYPES.IEditLabelValidator).to(DfdEditLabelValidator).inSingletonScope();
     bind(TYPES.IEditLabelValidationDecorator).to(DfdEditLabelValidatorDecorator).inSingletonScope();
     configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
-        bind(NoScrollEditLabelUI).toSelf().inSingletonScope();
-        bind(TYPES.IUIExtension).toService(NoScrollEditLabelUI);
+    bind(NoScrollEditLabelUI).toSelf().inSingletonScope();
+    bind(TYPES.IUIExtension).toService(NoScrollEditLabelUI);
+
+    bind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
+    bind(TYPES.MouseListener).to(AlwaysSnapPortsMoveMouseListener).inSingletonScope();
+    configureCommand(context, ReSnapPortsAfterLabelChangeCommand);
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
 
