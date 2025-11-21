@@ -12,6 +12,11 @@ import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
 import { AccordionUiExtension } from "../accordionUiExtension";
+import { LanguageTreeNode, tokenize } from "../languages/tokenize";
+import { Word } from "../languages/words";
+import { constraintDslLanguageMonarchDefinition, ConstraintDslTreeBuilder, DSL_LANGUAGE_ID } from "./language";
+import { verify } from "../languages/verify";
+import { DfdCompletionItemProvider } from "../languages/autocomplete";
 
 @injectable()
 export class ConstraintMenu extends AccordionUiExtension {
@@ -22,6 +27,7 @@ export class ConstraintMenu extends AccordionUiExtension {
     private forceReadOnly: boolean;
     private optionsMenu?: HTMLDivElement;
     private ignoreCheckboxChange = false;
+    private readonly tree: LanguageTreeNode<Word>[]
 
     constructor(
         @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
@@ -46,6 +52,8 @@ export class ConstraintMenu extends AccordionUiExtension {
                 }
             }
         });
+
+        this.tree = ConstraintDslTreeBuilder.buildTree(modelSource, labelTypeRegistry)
     }
 
     id(): string {
@@ -86,6 +94,13 @@ export class ConstraintMenu extends AccordionUiExtension {
         keyboardShortcutLabel.innerHTML = "Press <kbd>CTRL</kbd>+<kbd>Space</kbd> for autocompletion";
         wrapper.appendChild(keyboardShortcutLabel);
 
+        monaco.languages.register({ id: DSL_LANGUAGE_ID });
+        monaco.languages.setMonarchTokensProvider(DSL_LANGUAGE_ID, constraintDslLanguageMonarchDefinition);
+        monaco.languages.registerCompletionItemProvider(
+            DSL_LANGUAGE_ID,
+            new DfdCompletionItemProvider(this.tree),
+        );
+
         const monacoTheme = /*ThemeManager.useDarkMode ?*/ "vs-dark" //: "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
             minimap: {
@@ -97,7 +112,7 @@ export class ConstraintMenu extends AccordionUiExtension {
             scrollBeyondLastLine: false, // Not needed
             theme: monacoTheme,
             wordWrap: "on",
-            //language: DSL_LANGUAGE_ID,
+            language: DSL_LANGUAGE_ID,
             scrollBeyondLastColumn: 0,
             scrollbar: {
                 horizontal: "hidden",
@@ -128,7 +143,7 @@ export class ConstraintMenu extends AccordionUiExtension {
             const emptyContent = content.length == 0 || (content.length == 1 && content[0] === "");
             // empty content gets accepted as valid as it represents no constraints
             if (!emptyContent) {
-                /*const errors = this.tree.verify(content);
+                const errors = verify(tokenize(content), this.tree)
                 marker.push(
                     ...errors.map((e) => ({
                         severity: monaco.MarkerSeverity.Error,
@@ -138,7 +153,7 @@ export class ConstraintMenu extends AccordionUiExtension {
                         endColumn: e.endColumn,
                         message: e.message,
                     })),
-                );*/
+                );
             }
 
             this.validationLabel.innerText =
