@@ -21,24 +21,22 @@ export function tokenize(text: string[]): Token[] {
     for (const [lineNumber, line] of text.entries()) {
         const lineTokens = line.split(/(\s+)/);
         let column = 0;
-        for (let i = 0; i < lineTokens.length; i += 2) {
+        for (let i = 0; i < lineTokens.length; i ++) {
             const token = lineTokens[i];
-            if (token.length > 0) {
+            if (!token.match(/\s+/) && token.length > 0) {
                 tokens.push({
                     text: token,
                     line: lineNumber + 1,
                     column: column + 1,
-                    whiteSpaceAfter: lineTokens[i + 1],
                 });
             }
             column += token.length;
-            column += lineTokens[i + 1] ? lineTokens[i + 1].length : 0; // Add whitespace length
         }
-        if (lineTokens.length % 2 == 1) {
+        if (line.match(/\s$/) || line.length == 0) {
             tokens.push({
                 text: "",
                 line: lineNumber + 1,
-                column
+                column: column + 1
             })
         }
     }
