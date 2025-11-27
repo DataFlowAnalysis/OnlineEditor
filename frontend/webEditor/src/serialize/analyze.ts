@@ -24,13 +24,13 @@ export class AnalyzeCommand extends LoadJsonCommand {
         @inject(TYPES.Action) _: Action,
         @inject(TYPES.ILogger) logger: ILogger,
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
-        @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
+        @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
     ) {
-        super(logger, labelTypeRegistry, editorModeController, actionDispatcher, fileName);
+        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName);
     }
 
     protected async getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined> {

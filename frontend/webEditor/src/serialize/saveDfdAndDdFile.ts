@@ -8,6 +8,7 @@ import { DfdWebSocket } from "../webSocket/webSocket";
 import { Action } from "sprotty-protocol";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
+import { ConstraintRegistry } from "../constraint/constraintRegistry";
 
 export namespace SaveDfdAndDdFileAction {
   export const KIND = 'saveDfdAndDdFile'
@@ -22,13 +23,14 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
   private static readonly CLOSING_TAG = "</dataflowdiagram:DataFlowDiagram>";
 
   constructor(
-      @inject(TYPES.Action) _: Action,
-    @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
+    @inject(TYPES.Action) _: Action,
+    @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
+    @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
     @inject(SETTINGS.Mode) editorModeController: EditorModeController,
     @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
     @inject(FileName) private readonly fileName: FileName
   ) {
-    super(LabelTypeRegistry, editorModeController);
+    super(labelTypeRegistry, constraintRegistry, editorModeController);
   }
 
   async getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {

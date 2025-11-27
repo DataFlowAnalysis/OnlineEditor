@@ -1,7 +1,7 @@
 import { SModelRoot } from "sprotty-protocol";
 import { Constraint } from "../constraint/Constraint";
-import { EditorMode } from "../editorMode/EditorMode";
 import { LabelType } from "../labels/LabelType";
+import { EditorMode } from "../settings/editorMode";
 
 export interface SavedDiagram {
     model: SModelRoot;
