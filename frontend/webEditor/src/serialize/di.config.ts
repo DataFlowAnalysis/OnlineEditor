@@ -7,6 +7,7 @@ import { LoadPalladioFileCommand } from "./loadPalladioFile";
 import { DfdModelFactory } from "./ModelFactory";
 import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
+import { AnalyzeCommand } from "./analyze";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -16,6 +17,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadPalladioFileCommand);
     configureCommand(context, SaveJsonFileCommand)
     configureCommand(context, SaveDfdAndDdFileCommand)
+    configureCommand(context, AnalyzeCommand)
     
     rebind(TYPES.IModelFactory).to(DfdModelFactory);
 })

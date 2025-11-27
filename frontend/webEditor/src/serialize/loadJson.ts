@@ -32,20 +32,20 @@ export abstract class LoadJsonCommand extends Command {
 
     constructor(
         private readonly logger: ILogger,
-        private readonly labelTypeRegistry: LabelTypeRegistry,
-        private editorModeController: EditorModeController,
+        protected readonly labelTypeRegistry: LabelTypeRegistry,
+        protected editorModeController: EditorModeController,
         private actionDispatcher: ActionDispatcher,
         protected fileName: FileName
     ) {
         super();
     }
 
-    protected abstract getFile(): Promise<FileData<SavedDiagram> | undefined>;
+    protected abstract getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined>;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.oldRoot = context.root;
 
-        this.file = await this.getFile().catch(() => undefined);
+        this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
             return context.root;
         }
