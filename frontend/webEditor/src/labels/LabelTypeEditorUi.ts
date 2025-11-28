@@ -1,131 +1,178 @@
 import { AccordionUiExtension } from "../accordionUiExtension";
 import { UiElementFactory } from "../utils/UiElementFactory";
-import { LabelType } from "./LabelType";
+import { LabelAssignment, LabelType } from "./LabelType";
 import { inject } from "inversify";
 import { LabelTypeRegistry } from "./LabelTypeRegistry";
 
-import './labelTypeEditorUi.css'
+import "./labelTypeEditorUi.css";
 import { dynamicallySetInputSize } from "../utils/TextSize";
+import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dragAndDrop";
+import { AddLabelAssignmentAction } from "./command";
+import { IActionDispatcher, TYPES } from "sprotty";
 
 export class LabelTypeEditorUi extends AccordionUiExtension {
     static readonly ID = "label-type-editor-ui";
-    private labelSectionContainer?: HTMLElement
+    private labelSectionContainer?: HTMLElement;
 
-    constructor(@inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry) {
-        super('left', 'down')
-        labelTypeRegistry.onUpdate(() => this.renderLabelTypes())
+    constructor(@inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry, @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher) {
+        super("left", "down");
+        labelTypeRegistry.onUpdate(() => this.renderLabelTypes());
     }
-    
+
     id(): string {
-        return LabelTypeEditorUi.ID
+        return LabelTypeEditorUi.ID;
     }
     containerClass(): string {
-        return LabelTypeEditorUi.ID
+        return LabelTypeEditorUi.ID;
     }
 
     protected initializeHidableContent(contentElement: HTMLElement) {
-        const addButton = UiElementFactory.buildAddButton('Label Type')
+        const addButton = UiElementFactory.buildAddButton("Label Type");
 
         addButton.onclick = () => {
-            this.labelTypeRegistry.registerLabelType('')
-        }
+            this.labelTypeRegistry.registerLabelType("");
+        };
 
-        this.labelSectionContainer = document.createElement('div')
-        this.renderLabelTypes()
+        this.labelSectionContainer = document.createElement("div");
+        this.renderLabelTypes();
 
-        contentElement.appendChild(this.labelSectionContainer)
-        contentElement.appendChild(addButton)
+        contentElement.appendChild(this.labelSectionContainer);
+        contentElement.appendChild(addButton);
     }
     protected initializeHeaderContent(headerElement: HTMLElement) {
-        headerElement.innerText = 'Label Types'
+        headerElement.innerText = "Label Types";
     }
 
     private renderLabelTypes(): void {
         if (!this.labelSectionContainer) {
-            return
+            return;
         }
-        this.labelSectionContainer.innerHTML = '';
-        const labelTypes = this.labelTypeRegistry.getLabelTypes()
+        this.labelSectionContainer.innerHTML = "";
+        const labelTypes = this.labelTypeRegistry.getLabelTypes();
         for (let i = 0; i < labelTypes.length; i++) {
-            this.labelSectionContainer.appendChild(this.buildLabelTypeSection(labelTypes[i]))
+            this.labelSectionContainer.appendChild(this.buildLabelTypeSection(labelTypes[i]));
             if (i < labelTypes.length - 1) {
-                this.labelSectionContainer.appendChild(document.createElement('hr'))
+                this.labelSectionContainer.appendChild(document.createElement("hr"));
             }
         }
     }
 
     private buildLabelTypeSection(labelType: LabelType): HTMLElement {
-        const section = document.createElement('div')
-        section.classList.add('label-section')
+        const section = document.createElement("div");
+        section.classList.add("label-section");
 
-        const nameInput = document.createElement('input')
-        nameInput.classList.add('label-type-name')
-        const deleteButton = UiElementFactory.buildDeleteButton()
-        const labelTypeValueHolder = document.createElement('div')
-        labelTypeValueHolder.classList.add('label-type-values')
-        const addButton = UiElementFactory.buildAddButton('Value')
-        addButton.classList.add('label-type-value-add')
+        const nameInput = document.createElement("input");
+        nameInput.classList.add("label-type-name");
+        const deleteButton = UiElementFactory.buildDeleteButton();
+        const labelTypeValueHolder = document.createElement("div");
+        labelTypeValueHolder.classList.add("label-type-values");
+        const addButton = UiElementFactory.buildAddButton("Value");
+        addButton.classList.add("label-type-value-add");
 
-        nameInput.value = labelType.name
-        nameInput.placeholder = 'Label Type Name'
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
-        setTimeout(() => dynamicallySetInputSize(nameInput), 0)
+        nameInput.value = labelType.name;
+        nameInput.placeholder = "Label Type Name";
+        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        setTimeout(() => dynamicallySetInputSize(nameInput), 0);
         nameInput.onchange = () => {
-            this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value)
-        }
+            this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value);
+        };
 
         for (let i = 0; i < labelType.values.length; i++) {
-            labelTypeValueHolder.appendChild(this.buildLabelTypeValue(labelType, i))
+            labelTypeValueHolder.appendChild(this.buildLabelTypeValue(labelType, i));
         }
 
         addButton.onclick = () => {
-            this.labelTypeRegistry.registerLabelTypeValue(labelType.id, '')
-        }
+            this.labelTypeRegistry.registerLabelTypeValue(labelType.id, "");
+        };
 
         deleteButton.onclick = () => {
-            this.labelTypeRegistry.unregisterLabelType(labelType.id)
-        }
+            this.labelTypeRegistry.unregisterLabelType(labelType.id);
+        };
 
-        section.appendChild(nameInput)
-        section.appendChild(deleteButton)
-        section.appendChild(labelTypeValueHolder)
-        section.appendChild(addButton)
+        section.appendChild(nameInput);
+        section.appendChild(deleteButton);
+        section.appendChild(labelTypeValueHolder);
+        section.appendChild(addButton);
 
-        return section
+        return section;
     }
 
     private buildLabelTypeValue(labelType: LabelType, valueIndex: number) {
-        const holder = document.createElement('div');
-        holder.classList.add('label-type-value')
-        const nameInput = document.createElement('input');
-        nameInput.classList.add('label-type-value-name')
-        const deleteButton = UiElementFactory.buildDeleteButton()
+        const holder = document.createElement("div");
+        holder.classList.add("label-type-value");
+        const nameInput = document.createElement("input");
+        nameInput.classList.add("label-type-value-name");
+        const deleteButton = UiElementFactory.buildDeleteButton();
 
-        const value = labelType.values[valueIndex]
+        const value = labelType.values[valueIndex];
 
-        
-        nameInput.value = value.text
-        nameInput.placeholder = 'Value'
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
-        setTimeout(() => dynamicallySetInputSize(nameInput), 0)
+        nameInput.value = value.text;
+        nameInput.placeholder = "Value";
+        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        setTimeout(() => dynamicallySetInputSize(nameInput), 0);
 
         nameInput.onchange = () => {
-            this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value)
-        }
+            this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value);
+        };
 
         deleteButton.onclick = () => {
-            this.labelTypeRegistry.unregisterLabelTypeValue(labelType.id, value.id)
-        }
+            this.labelTypeRegistry.unregisterLabelTypeValue(labelType.id, value.id);
+        };
 
-        holder.appendChild(nameInput)
-        holder.appendChild(deleteButton)
-        return holder
+        // Allow dragging to create a label assignment
+        nameInput.draggable = true;
+        nameInput.ondragstart = (event) => {
+            const assignment: LabelAssignment = {
+                labelTypeId: labelType.id,
+                labelTypeValueId: value.id,
+            };
+            const assignmentJson = JSON.stringify(assignment);
+            event.dataTransfer?.setData(LABEL_ASSIGNMENT_MIME_TYPE, assignmentJson);
+        };
+
+        // Only edit on double click
+        nameInput.onclick = () => {
+            if (nameInput.getAttribute("clicked") === "true") {
+                return;
+            }
+
+            nameInput.setAttribute("clicked", "true");
+            setTimeout(() => {
+                if (nameInput.getAttribute("clicked") === "true") {
+                    this.actionDispatcher.dispatch(
+                        AddLabelAssignmentAction.create({
+                            labelTypeId: labelType.id,
+                            labelTypeValueId: value.id,
+                        }),
+                    );
+                    nameInput.removeAttribute("clicked");
+                }
+            }, 500);
+        };
+        nameInput.ondblclick = () => {
+            nameInput.removeAttribute("clicked");
+            nameInput.focus();
+        };
+        nameInput.onfocus = (event) => {
+            // we check for the single click here, since this gets triggered before the ondblclick event
+            if (nameInput.getAttribute("clicked") !== "true") {
+                event.preventDefault();
+                // the blur needs to occur with a delay, as otherwise chromium browsers prevent the drag
+                setTimeout(() => {
+                    nameInput.blur();
+                }, 0);
+            }
+        };
+
+        holder.appendChild(nameInput);
+        holder.appendChild(deleteButton);
+        return holder;
     }
 
     private onInputHandler(event: InputEvent, input: HTMLInputElement) {
         if (!event.data?.match(/^[a-zA-Z0-9]*$/)) {
-            event.preventDefault()
+            event.preventDefault();
         }
-        dynamicallySetInputSize(input)
+        dynamicallySetInputSize(input);
     }
-} 
+}

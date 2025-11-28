@@ -1,13 +1,19 @@
 import { ContainerModule } from "inversify";
 import { LabelTypeRegistry } from "./LabelTypeRegistry";
 import { LabelTypeEditorUi } from "./LabelTypeEditorUi";
-import { TYPES } from "sprotty";
+import { configureCommand, TYPES } from "sprotty";
 import { EDITOR_TYPES } from "../editorTypes";
+import { LabelCommand } from "./command";
+import { DfdLabelMouseDropListener } from "./dragAndDrop";
 
-export const labelModule = new ContainerModule((bind) => {
+export const labelModule = new ContainerModule((bind, _, isBound) => {
     bind(LabelTypeRegistry).toSelf().inSingletonScope()
 
     bind(LabelTypeEditorUi).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(LabelTypeEditorUi);
     bind(EDITOR_TYPES.DefaultUIElement).to(LabelTypeEditorUi);
+
+    
+    configureCommand({ bind, isBound }, LabelCommand);
+    bind(TYPES.MouseListener).to(DfdLabelMouseDropListener);
 })
