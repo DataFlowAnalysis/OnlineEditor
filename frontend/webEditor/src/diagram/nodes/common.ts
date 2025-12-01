@@ -8,6 +8,7 @@ import { VNodeStyle } from "snabbdom";
 import { DfdInputPortImpl } from "../ports/DfdInputPort";
 import { inject } from "inversify";
 import { DfdNodeLabelRenderer } from "./DfdNodeLabels";
+import { containsDfdLabelFeature } from "../../labels/feature";
 
 export interface DfdNode extends SNode {
     text: string;
@@ -17,7 +18,7 @@ export interface DfdNode extends SNode {
 }
 
 export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [...SNodeImpl.DEFAULT_FEATURES, withEditLabelFeature/*, containsDfdLabelFeature*/];
+    static readonly DEFAULT_FEATURES = [...SNodeImpl.DEFAULT_FEATURES, withEditLabelFeature, containsDfdLabelFeature];
     static readonly DEFAULT_WIDTH = 50;
     static readonly WIDTH_PADDING = 12;
     static readonly NODE_COLOR = "var(--color-primary)";

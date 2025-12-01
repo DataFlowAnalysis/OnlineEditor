@@ -17,6 +17,7 @@ import { Word } from "../languages/words";
 import { constraintDslLanguageMonarchDefinition, ConstraintDslTreeBuilder, DSL_LANGUAGE_ID } from "./language";
 import { verify } from "../languages/verify";
 import { DfdCompletionItemProvider } from "../languages/autocomplete";
+import { AnalyzeAction } from "../serialize/analyze";
 
 @injectable()
 export class ConstraintMenu extends AccordionUiExtension {
@@ -174,7 +175,7 @@ export class ConstraintMenu extends AccordionUiExtension {
         button.id = "run-button";
         button.innerHTML = "Run";
         button.onclick = () => {
-            //this.dispatcher.dispatch(AnalyzeDiagramAction.create());
+            this.dispatcher.dispatch(AnalyzeAction.create());
         };
 
         wrapper.appendChild(button);
@@ -265,6 +266,7 @@ export class ConstraintMenu extends AccordionUiExtension {
                     this.optionsMenu.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((cb) => {
                         if (cb !== allCb) cb.checked = true;
                     });
+                    // TODO
                     /*this.dispatcher.dispatch(
                         ChooseConstraintAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
                     );*/

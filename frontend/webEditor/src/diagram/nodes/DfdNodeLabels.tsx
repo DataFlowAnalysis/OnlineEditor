@@ -1,11 +1,13 @@
 /** @jsx svg */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IActionDispatcher, SModelElementImpl, SNodeImpl, svg, TYPES } from "sprotty";
+import { IActionDispatcher, SNodeImpl, svg, TYPES } from "sprotty";
 import { LabelAssignment, LabelType, LabelTypeValue } from "../../labels/LabelType";
 import { inject, injectable } from "inversify";
 import { LabelTypeRegistry } from "../../labels/LabelTypeRegistry";
 import { calculateTextSize } from "../../utils/TextSize";
 import { VNode } from "snabbdom";
+import { ContainsDfdLabels } from "../../labels/feature";
+import { RemoveLabelAssignmentAction } from "../../labels/command";
 
 @injectable()
 export class DfdNodeLabelRenderer {
@@ -56,9 +58,7 @@ export class DfdNodeLabelRenderer {
         const radius = height / 2;
 
         const deleteLabelHandler = () => {
-            // TODO
-           /* const action = DeleteLabelAssignmentAction.create(label, node);
-            this.actionDispatcher.dispatch(action);*/
+            this.actionDispatcher.dispatch(RemoveLabelAssignmentAction.create(label, node));
         };
 
         return (
@@ -124,12 +124,3 @@ export class DfdNodeLabelRenderer {
     }
 }
 
-export const containsDfdLabelFeature = Symbol("dfd-label-feature");
-
-export interface ContainsDfdLabels extends SModelElementImpl {
-    labels: LabelAssignment[];
-}
-
-export function containsDfdLabels<T extends SModelElementImpl>(element: T): element is T & ContainsDfdLabels {
-    return element.features?.has(containsDfdLabelFeature) ?? false;
-}

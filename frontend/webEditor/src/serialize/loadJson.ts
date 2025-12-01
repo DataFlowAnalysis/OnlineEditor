@@ -7,6 +7,7 @@ import { Constraint } from "../constraint/Constraint";
 import { LabelType } from "../labels/LabelType";
 import { DefaultFitToScreenAction } from "../fitToScreen/action";
 import { FileName } from "../fileName/fileName";
+import { ConstraintRegistry } from "../constraint/constraintRegistry";
 
 export interface FileData<T> {
     fileName: string;
@@ -32,20 +33,21 @@ export abstract class LoadJsonCommand extends Command {
 
     constructor(
         private readonly logger: ILogger,
-        private readonly labelTypeRegistry: LabelTypeRegistry,
-        private editorModeController: EditorModeController,
+        protected readonly labelTypeRegistry: LabelTypeRegistry,
+        protected constraintRegistry: ConstraintRegistry,
+        protected editorModeController: EditorModeController,
         private actionDispatcher: ActionDispatcher,
         protected fileName: FileName
     ) {
         super();
     }
 
-    protected abstract getFile(): Promise<FileData<SavedDiagram> | undefined>;
+    protected abstract getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined>;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.oldRoot = context.root;
 
-        this.file = await this.getFile().catch(() => undefined);
+        this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
             return context.root;
         }
@@ -75,7 +77,13 @@ export abstract class LoadJsonCommand extends Command {
             }
             this.logger.info(this, "Editor mode loaded successfully");
 
-            // TODO: load constraints
+            this.oldConstrains = this.constraintRegistry.getConstraintList()
+            const newConstraints = this.file.content.constraints
+            if (newConstraints) {
+                this.constraintRegistry.setConstraintsFromArray(newConstraints)
+            } else {
+                this.constraintRegistry.clearConstraints()
+            }
 
             // TODO: post load actions like layout
             this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot))
@@ -108,7 +116,9 @@ export abstract class LoadJsonCommand extends Command {
             this.editorModeController.set(this.oldEditorMode);
         }
 
-        // TODO: load constraints
+        if (this.oldConstrains) {
+            this.constraintRegistry.setConstraintsFromArray(this.oldConstrains)
+        }
 
         this.fileName.setName(this.oldFileName ?? 'diagram');
 
@@ -133,7 +143,12 @@ export abstract class LoadJsonCommand extends Command {
         }
         this.logger.info(this, "Editor mode loaded successfully");
 
-        // TODO: load constraints
+        const newConstraints = this.file?.content.constraints
+        if (newConstraints) {
+            this.constraintRegistry.setConstraintsFromArray(newConstraints)
+        } else {
+            this.constraintRegistry.clearConstraints()
+        }
 
         this.fileName.setName(this.file?.fileName ?? 'diagram');
 
