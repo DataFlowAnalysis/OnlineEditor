@@ -44,14 +44,23 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         if (!this.labelSectionContainer) {
             return
         }
-        this.labelSectionContainer.innerHTML = '';
+        const width = this.labelSectionContainer.scrollWidth
+        const height = this.labelSectionContainer.scrollHeight
+        this.labelSectionContainer.style.width = `${width}px`
+        this.labelSectionContainer.style.height = `${height}px`
+        const fragment = document.createDocumentFragment()
         const labelTypes = this.labelTypeRegistry.getLabelTypes()
         for (let i = 0; i < labelTypes.length; i++) {
-            this.labelSectionContainer.appendChild(this.buildLabelTypeSection(labelTypes[i]))
+            fragment.appendChild(this.buildLabelTypeSection(labelTypes[i]))
             if (i < labelTypes.length - 1) {
-                this.labelSectionContainer.appendChild(document.createElement('hr'))
+                fragment.appendChild(document.createElement('hr'))
             }
         }
+        this.labelSectionContainer!.replaceChildren(fragment)
+        this.labelSectionContainer!.style.width = ''
+        this.labelSectionContainer!.style.height = ''
+
+        
     }
 
     private buildLabelTypeSection(labelType: LabelType): HTMLElement {
@@ -69,6 +78,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         nameInput.value = labelType.name
         nameInput.placeholder = 'Label Type Name'
         nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
+        dynamicallySetInputSize(nameInput)
         setTimeout(() => dynamicallySetInputSize(nameInput), 0)
         nameInput.onchange = () => {
             this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value)
@@ -107,6 +117,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         nameInput.value = value.text
         nameInput.placeholder = 'Value'
         nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
+        nameInput.style.width = '0px'
         setTimeout(() => dynamicallySetInputSize(nameInput), 0)
 
         nameInput.onchange = () => {

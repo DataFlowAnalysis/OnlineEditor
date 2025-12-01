@@ -20,6 +20,9 @@ export function calculateTextSize(text: string | undefined, font: string = "11pt
     if (!text || text.length === 0) {
         return { width: 20, height: 20 };
     }
+    if (font == "") {
+        font = "11pt sans-serif";
+    }
 
     // Get context for the given font or create a new one if it does not exist yet
     let contextObj = contextMap.get(font);

@@ -12,7 +12,7 @@ export class LabelTypeRegistry {
             values: []
         }
         this.labelTypes.push(labelType);
-        this.registerLabelTypeValue(labelType.id, 'Value')
+        this._registerLabelTypeValue(labelType.id, 'Value', true)
         this.labelTypeChanged()
         return labelType
     }
@@ -37,6 +37,10 @@ export class LabelTypeRegistry {
     }
 
     public registerLabelTypeValue(labelTypeId: string, text: string): LabelTypeValue {
+        return this._registerLabelTypeValue(labelTypeId, text)
+    }
+
+    private _registerLabelTypeValue(labelTypeId: string, text: string, surpressUpdate=false): LabelTypeValue {
         const labelTypeValue: LabelTypeValue = {
             id: generateRandomSprottyId(),
             text
@@ -46,7 +50,9 @@ export class LabelTypeRegistry {
             throw `No Label Type with id ${labelTypeId} found`
         }
         labelType.values.push(labelTypeValue)
-        this.labelTypeChanged()
+        if (!surpressUpdate) {
+            this.labelTypeChanged()
+        }
         return labelTypeValue
     }
 
