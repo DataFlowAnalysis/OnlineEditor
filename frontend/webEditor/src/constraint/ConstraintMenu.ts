@@ -18,10 +18,11 @@ import { constraintDslLanguageMonarchDefinition, ConstraintDslTreeBuilder, DSL_L
 import { verify } from "../languages/verify";
 import { DfdCompletionItemProvider } from "../languages/autocomplete";
 import { AnalyzeAction } from "../serialize/analyze";
+import { ApplyableTheme, Theme, ThemeManager, ThemeSwitchable } from "../settings/Theme";
 
 @injectable()
-export class ConstraintMenu extends AccordionUiExtension {
-        static readonly ID = "constraint-menu";
+export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitchable {
+    static readonly ID = "constraint-menu";
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private editor?: monaco.editor.IStandaloneCodeEditor;
@@ -37,6 +38,7 @@ export class ConstraintMenu extends AccordionUiExtension {
         @inject(TYPES.IActionDispatcher) private readonly dispatcher: IActionDispatcher,
         @inject(SETTINGS.Mode)
         editorModeController: EditorModeController,
+        @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager
     ) {
         super("left", "up");
         this.constraintRegistry = constraintRegistry;
@@ -102,7 +104,7 @@ export class ConstraintMenu extends AccordionUiExtension {
             new DfdCompletionItemProvider(this.tree),
         );
 
-        const monacoTheme = /*ThemeManager.useDarkMode ?*/ "vs-dark" //: "vs";
+        const monacoTheme = this.themeManager.getTheme() === Theme.DARK ? "vs-dark" : "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
             minimap: {
                 // takes too much space, not useful for our use case
@@ -220,8 +222,8 @@ export class ConstraintMenu extends AccordionUiExtension {
         e.layout({ height: cHeight, width: cWidth });
     }
 
-    switchTheme(useDark: boolean): void {
-        this.editor?.updateOptions({ theme: useDark ? "vs-dark" : "vs" });
+    switchTheme(theme: ApplyableTheme): void {
+        this.editor?.updateOptions({ theme: theme == Theme.DARK ? "vs-dark" : "vs" });
     }
 
     private buildOptionsButton(): HTMLElement {

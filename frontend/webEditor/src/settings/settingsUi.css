@@ -13,6 +13,7 @@ div.settings-ui {
     width: 16px;
     background-size: 16px 16px;
     vertical-align: text-top;
+    margin-right: 4px;
 }
 
 #settings-content {

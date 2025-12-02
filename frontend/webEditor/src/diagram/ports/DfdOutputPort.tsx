@@ -1,10 +1,14 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { svg, isEditableLabel, SRoutableElementImpl, ShapeView, RenderingContext } from "sprotty";
 import { SPort } from "sprotty-protocol";
 import { DfdPortImpl } from "./common";
 import { VNode, VNodeStyle } from "snabbdom";
+import { LabelTypeRegistry } from "../../labels/LabelTypeRegistry";
+import { LanguageTreeNode, tokenize } from "../../languages/tokenize";
+import { verify, VerifyWord } from "../../languages/verify";
+import { AssignmentLanguageTreeBuilder } from "../../assignment/language";
 
 export interface DfdOutputPort extends SPort {
     behavior: string;
@@ -14,7 +18,12 @@ export interface DfdOutputPort extends SPort {
 export class DfdOutputPortImpl extends DfdPortImpl {
     private behavior: string = "";
     private validBehavior: boolean = true;
+    private tree?: LanguageTreeNode<VerifyWord>[];
+    @inject(LabelTypeRegistry) private labelTypeRegistry?: LabelTypeRegistry;
 
+    constructor() {
+        super();
+    }
 
     get editableLabel() {
         const label = this.children.find((element) => element.type === "label:invisible");
@@ -37,8 +46,6 @@ export class DfdOutputPortImpl extends DfdPortImpl {
         const style: VNodeStyle = {
             opacity: this.opacity.toString(),
         };
-        // TODO
-        // if (!labelTypeRegistry) return style;
 
         if (!this.validBehavior) {
             style["--port-border"] = "#ff0000";
@@ -54,10 +61,14 @@ export class DfdOutputPortImpl extends DfdPortImpl {
             this.validBehavior = true;
             return;
         }
-        // TODO
-        const errors = []/*new AutoCompleteTree(TreeBuilder.buildTree(labelTypeRegistry, this)).verify(
-            this.behavior.split("\n"),
-        );*/
+
+        if (!this.tree) {
+            if (!this.labelTypeRegistry) {
+                return;
+            }
+            this.tree = AssignmentLanguageTreeBuilder.buildTree(this, this.labelTypeRegistry);
+        }
+        const errors = verify(tokenize(this.behavior.split("\n")), this.tree);
         this.validBehavior = errors.length === 0;
     }
 

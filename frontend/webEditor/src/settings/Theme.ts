@@ -6,7 +6,7 @@ export enum Theme {
     SYSTEM_DEFAULT = "System Default",
 }
 
-type ApplyableTheme = Theme.LIGHT | Theme.DARK
+export type ApplyableTheme = Theme.LIGHT | Theme.DARK
 
 export class ThemeManager extends SettingsValue<Theme> {
   private static SYSTEM_DEFAULT: ApplyableTheme =
@@ -26,14 +26,27 @@ export class ThemeManager extends SettingsValue<Theme> {
     }
 }
 
-export function registerThemeSwitch(themeManager: ThemeManager) {
+export const ThemeSwitchable = Symbol('ThemeSwitchable')
+
+export interface ThemeSwitchable {
+  switchTheme: (newTheme: ApplyableTheme) => void
+}
+
+export function registerThemeSwitch(themeManager: ThemeManager, switchables: ThemeSwitchable[]) {
   themeManager.registerListener(() => {
-    const rootElement = document.querySelector(":root") as HTMLElement;
+    setTheme(themeManager, switchables)
+  })
+  setTheme(themeManager, switchables)
+}
+
+function setTheme(themeManager: ThemeManager, switchables: ThemeSwitchable[]) {
+  const rootElement = document.querySelector(":root") as HTMLElement;
     const sprottyElement = document.querySelector("#sprotty") as HTMLElement;
 
     const value = themeManager.getTheme() === Theme.DARK ? "dark" : "light";
     rootElement.setAttribute("data-theme", value);
     sprottyElement.setAttribute("data-theme", value);
     localStorage.setItem(ThemeManager.LOCAL_STORAGE_KEY, themeManager.get())
-  })
+
+    switchables.forEach(s => s.switchTheme(themeManager.getTheme()))
 }

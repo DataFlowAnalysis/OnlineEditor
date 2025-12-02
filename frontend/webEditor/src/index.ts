@@ -21,6 +21,7 @@ import { fileNameModule } from "./fileName/di.config";
 import { settingsModule } from "./settings/di.config";
 import { toolPaletteModule } from "./toolPalette/di.config";
 import { constraintModule } from "./constraint/di.config";
+import { assignmentModule } from "./assignment/di.config";
 
 const container = new Container();
 
@@ -45,7 +46,8 @@ container.load(
     fileNameModule,
     settingsModule,
     toolPaletteModule,
-    constraintModule
+    constraintModule,
+    assignmentModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)
