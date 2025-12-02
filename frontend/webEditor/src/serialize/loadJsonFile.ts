@@ -9,6 +9,7 @@ import { SavedDiagram } from "./SavedDiagram";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace LoadJsonFileAction {
     export const KIND = "loadJsonFile";
@@ -30,8 +31,9 @@ export class LoadJsonFileCommand extends LoadJsonCommand {
     @inject(SETTINGS.Mode) editorModeController: EditorModeController,
     @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
     @inject(FileName) fileName: FileName,
+    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
 ) {
-    super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName);
+    super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
 }
 
   protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {

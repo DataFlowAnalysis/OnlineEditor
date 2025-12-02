@@ -8,6 +8,7 @@ import { Action } from "sprotty-protocol";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace SaveJsonFileAction {
   export const KIND = 'saveJsonFile'
@@ -24,9 +25,10 @@ export class SaveJsonFileCommand extends SaveFileCommand {
     @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
     @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
     @inject(SETTINGS.Mode) editorModeController: EditorModeController,
-    @inject(FileName) private readonly fileName: FileName
+    @inject(FileName) private readonly fileName: FileName,
+    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
   ) {
-    super(LabelTypeRegistry, constraintRegistry, editorModeController);
+    super(LabelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
   }
 
   getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {

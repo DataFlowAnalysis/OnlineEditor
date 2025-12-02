@@ -10,6 +10,7 @@ import { SavedDiagram } from "./SavedDiagram";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace LoadDfdAndDdFileAction {
     export const KIND = "loadDfdAndDdFile";
@@ -31,8 +32,9 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
     ) {
-        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName);
+        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {

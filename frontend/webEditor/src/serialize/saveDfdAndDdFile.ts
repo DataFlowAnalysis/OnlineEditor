@@ -9,6 +9,7 @@ import { Action } from "sprotty-protocol";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace SaveDfdAndDdFileAction {
   export const KIND = 'saveDfdAndDdFile'
@@ -28,9 +29,10 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
     @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
     @inject(SETTINGS.Mode) editorModeController: EditorModeController,
     @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
-    @inject(FileName) private readonly fileName: FileName
+    @inject(FileName) private readonly fileName: FileName,
+    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
   ) {
-    super(labelTypeRegistry, constraintRegistry, editorModeController);
+    super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
   }
 
   async getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {

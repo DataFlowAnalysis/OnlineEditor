@@ -10,6 +10,7 @@ import { SavedDiagram } from "./SavedDiagram";
 import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace LoadPalladioFileAction {
     export const KIND = "loadPcmFile";
@@ -32,8 +33,9 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
     ) {
-        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName);
+        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {

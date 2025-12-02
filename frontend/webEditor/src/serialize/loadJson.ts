@@ -8,6 +8,7 @@ import { LabelType } from "../labels/LabelType";
 import { DefaultFitToScreenAction } from "../fitToScreen/action";
 import { FileName } from "../fileName/fileName";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export interface FileData<T> {
     fileName: string;
@@ -37,7 +38,8 @@ export abstract class LoadJsonCommand extends Command {
         protected constraintRegistry: ConstraintRegistry,
         protected editorModeController: EditorModeController,
         private actionDispatcher: ActionDispatcher,
-        protected fileName: FileName
+        protected fileName: FileName,
+        private loadingIndicator: LoadingIndicator
     ) {
         super();
     }
@@ -45,10 +47,12 @@ export abstract class LoadJsonCommand extends Command {
     protected abstract getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined>;
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
+        this.loadingIndicator.showIndicator("Loading model...");
         this.oldRoot = context.root;
 
         this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
+            this.loadingIndicator.hide()
             return context.root;
         }
 
@@ -91,15 +95,18 @@ export abstract class LoadJsonCommand extends Command {
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
 
+            this.loadingIndicator.hide()
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
             this.newRoot = this.oldRoot;
+            this.loadingIndicator.hide()
             return this.oldRoot;
         }
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
+        this.loadingIndicator.showIndicator("Reverting model load...");
         if (this.oldLabelTypes) {
             this.labelTypeRegistry.setLabelTypes(this.oldLabelTypes);
         } else {
@@ -122,10 +129,12 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.oldFileName ?? 'diagram');
 
+        this.loadingIndicator.hide()
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
     redo(context: CommandExecutionContext): CommandReturn {
+        this.loadingIndicator.showIndicator("Re-applying model load...");
         const newLabelTypes = this.file?.content.labelTypes;
         this.labelTypeRegistry.clearLabelTypes();
         if (newLabelTypes) {
@@ -152,6 +161,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.file?.fileName ?? 'diagram');
 
+        this.loadingIndicator.hide()
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 

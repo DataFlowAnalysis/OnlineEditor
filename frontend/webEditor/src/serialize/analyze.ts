@@ -9,6 +9,7 @@ import { inject } from "inversify";
 import { EditorModeController } from "../settings/editorMode";
 import { Action } from "sprotty-protocol";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
+import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace AnalyzeAction {
     export const KIND = "analyze";
@@ -29,8 +30,9 @@ export class AnalyzeCommand extends LoadJsonCommand {
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
     ) {
-        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName);
+        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
     }
 
     protected async getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined> {
