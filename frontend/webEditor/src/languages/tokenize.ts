@@ -21,7 +21,7 @@ export function tokenize(text: string[]): Token[] {
     for (const [lineNumber, line] of text.entries()) {
         const lineTokens = line.split(/(\s+)/);
         let column = 0;
-        for (let i = 0; i < lineTokens.length; i ++) {
+        for (let i = 0; i < lineTokens.length; i++) {
             const token = lineTokens[i];
             if (!token.match(/\s+/) && token.length > 0) {
                 tokens.push({
@@ -36,11 +36,10 @@ export function tokenize(text: string[]): Token[] {
             tokens.push({
                 text: "",
                 line: lineNumber + 1,
-                column: column + 1
-            })
+                column: column + 1,
+            });
         }
     }
-
 
     return tokens;
 }

@@ -11,32 +11,31 @@ import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace SaveJsonFileAction {
-  export const KIND = 'saveJsonFile'
-  export function create(): Action {
-    return { kind: KIND }
-  }
+    export const KIND = "saveJsonFile";
+    export function create(): Action {
+        return { kind: KIND };
+    }
 }
 
 export class SaveJsonFileCommand extends SaveFileCommand {
-  static readonly KIND = SaveJsonFileAction.KIND;
+    static readonly KIND = SaveJsonFileAction.KIND;
 
-  constructor(
-    @inject(TYPES.Action) _: Action,
-    @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
-    @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
-    @inject(SETTINGS.Mode) editorModeController: EditorModeController,
-    @inject(FileName) private readonly fileName: FileName,
-    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
-  ) {
-    super(LabelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
-  }
+    constructor(
+        @inject(TYPES.Action) _: Action,
+        @inject(LabelTypeRegistry) LabelTypeRegistry: LabelTypeRegistry,
+        @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
+        @inject(SETTINGS.Mode) editorModeController: EditorModeController,
+        @inject(FileName) private readonly fileName: FileName,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
+    ) {
+        super(LabelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
+    }
 
-  getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
-    const fileData: FileData<string> = {
-      fileName: this.fileName.getName() + ".json",
-      content: JSON.stringify(this.createSavedDiagram(context))
-    };
-    return Promise.resolve([fileData]);
-  }
-
+    getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
+        const fileData: FileData<string> = {
+            fileName: this.fileName.getName() + ".json",
+            content: JSON.stringify(this.createSavedDiagram(context)),
+        };
+        return Promise.resolve([fileData]);
+    }
 }

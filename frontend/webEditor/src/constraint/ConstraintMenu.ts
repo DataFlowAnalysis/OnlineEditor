@@ -1,6 +1,6 @@
 ﻿import { inject, injectable } from "inversify";
 import "./constraintMenu.css";
-import {  IActionDispatcher, LocalModelSource, TYPES } from "sprotty";
+import { IActionDispatcher, LocalModelSource, TYPES } from "sprotty";
 import { ConstraintRegistry } from "./constraintRegistry";
 
 // Enable hover feature that is used to show validation errors.
@@ -29,7 +29,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
     private editor?: monaco.editor.IStandaloneCodeEditor;
     private optionsMenu?: HTMLDivElement;
     private ignoreCheckboxChange = false;
-    private readonly tree: LanguageTreeNode<Word>[]
+    private readonly tree: LanguageTreeNode<Word>[];
 
     constructor(
         @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
@@ -38,14 +38,14 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         @inject(TYPES.IActionDispatcher) private readonly dispatcher: IActionDispatcher,
         @inject(SETTINGS.Mode)
         private readonly editorModeController: EditorModeController,
-        @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager
+        @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager,
     ) {
         super("left", "up");
         this.constraintRegistry = constraintRegistry;
         editorModeController.registerListener(() => {
             this.editor?.updateOptions({
-                readOnly: editorModeController.isReadOnly()
-            })
+                readOnly: editorModeController.isReadOnly(),
+            });
         });
         constraintRegistry.onUpdate(() => {
             if (this.editor) {
@@ -57,7 +57,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
             }
         });
 
-        this.tree = ConstraintDslTreeBuilder.buildTree(modelSource, labelTypeRegistry)
+        this.tree = ConstraintDslTreeBuilder.buildTree(modelSource, labelTypeRegistry);
     }
 
     id(): string {
@@ -67,10 +67,9 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         return ConstraintMenu.ID;
     }
 
-    
     protected initializeHeaderContent(headerElement: HTMLElement): void {
-        headerElement.id = 'constraint-menu-expand-title'
-        headerElement.innerText = 'Constraints'
+        headerElement.id = "constraint-menu-expand-title";
+        headerElement.innerText = "Constraints";
         headerElement.appendChild(this.buildOptionsButton());
     }
 
@@ -78,7 +77,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         const contentDiv = document.createElement("div");
         contentDiv.id = "constraint-menu-content";
         contentDiv.appendChild(this.buildConstraintInputWrapper());
-        contentElement.appendChild(contentDiv)
+        contentElement.appendChild(contentDiv);
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -100,10 +99,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
 
         monaco.languages.register({ id: DSL_LANGUAGE_ID });
         monaco.languages.setMonarchTokensProvider(DSL_LANGUAGE_ID, constraintDslLanguageMonarchDefinition);
-        monaco.languages.registerCompletionItemProvider(
-            DSL_LANGUAGE_ID,
-            new DfdCompletionItemProvider(this.tree),
-        );
+        monaco.languages.registerCompletionItemProvider(DSL_LANGUAGE_ID, new DfdCompletionItemProvider(this.tree));
 
         const monacoTheme = this.themeManager.getTheme() === Theme.DARK ? "vs-dark" : "vs";
         this.editor = monaco.editor.create(this.editorContainer, {
@@ -147,7 +143,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
             const emptyContent = content.length == 0 || (content.length == 1 && content[0] === "");
             // empty content gets accepted as valid as it represents no constraints
             if (!emptyContent) {
-                const errors = verify(tokenize(content), this.tree)
+                const errors = verify(tokenize(content), this.tree);
                 marker.push(
                     ...errors.map((e) => ({
                         severity: monaco.MarkerSeverity.Error,
@@ -178,7 +174,10 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         button.id = "run-button";
         button.innerHTML = "Run";
         button.onclick = () => {
-            this.dispatcher.dispatchAll([AnalyzeAction.create(), SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map(c => c.name))]);
+            this.dispatcher.dispatchAll([
+                AnalyzeAction.create(),
+                SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
+            ]);
         };
 
         wrapper.appendChild(button);

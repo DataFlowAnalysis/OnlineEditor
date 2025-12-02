@@ -17,7 +17,13 @@ body {
     position: relative;
     height: 100vh;
     width: 100vw;
-    /*temporary*/ font-family: Helvetica Neue,Helvetica,Arial,sans-serif; padding:0;
+    /*temporary*/
+    font-family:
+        Helvetica Neue,
+        Helvetica,
+        Arial,
+        sans-serif;
+    padding: 0;
 }
 
 svg.sprotty-graph {

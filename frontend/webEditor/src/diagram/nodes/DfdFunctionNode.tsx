@@ -18,10 +18,8 @@ export class FunctionNodeImpl extends DfdNodeImpl {
         return FunctionNodeImpl.LABEL_START_HEIGHT + FunctionNodeImpl.SEPARATOR_NO_LABEL_PADDING;
     }
     protected labelStartHeight(): number {
-        return FunctionNodeImpl.LABEL_START_HEIGHT
+        return FunctionNodeImpl.LABEL_START_HEIGHT;
     }
-
-
 }
 
 @injectable()

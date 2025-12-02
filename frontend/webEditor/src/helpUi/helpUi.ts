@@ -7,7 +7,7 @@ export class HelpUI extends AccordionUiExtension {
     static readonly ID = "help-ui";
 
     constructor() {
-        super('right', 'up')
+        super("right", "up");
     }
 
     id() {
@@ -37,7 +37,7 @@ export class HelpUI extends AccordionUiExtension {
         `;
     }
     protected initializeHeaderContent(headerElement: HTMLElement) {
-        headerElement.classList.add('help-accordion-icon');
-        headerElement.innerText = 'Keyboard Shortcuts | Help'
+        headerElement.classList.add("help-accordion-icon");
+        headerElement.innerText = "Keyboard Shortcuts | Help";
     }
 }

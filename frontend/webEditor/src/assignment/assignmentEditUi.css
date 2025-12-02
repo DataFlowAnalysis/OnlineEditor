@@ -8,7 +8,7 @@
     background: var(--color-primary);
 
     div.unavailable-inputs {
-    /* spacing between editor and this text */
+        /* spacing between editor and this text */
         padding-bottom: 5px;
     }
 

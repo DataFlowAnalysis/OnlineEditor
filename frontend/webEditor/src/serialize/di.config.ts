@@ -15,9 +15,9 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadJsonFileCommand);
     configureCommand(context, LoadDfdAndDdFileCommand);
     configureCommand(context, LoadPalladioFileCommand);
-    configureCommand(context, SaveJsonFileCommand)
-    configureCommand(context, SaveDfdAndDdFileCommand)
-    configureCommand(context, AnalyzeCommand)
-    
+    configureCommand(context, SaveJsonFileCommand);
+    configureCommand(context, SaveDfdAndDdFileCommand);
+    configureCommand(context, AnalyzeCommand);
+
     rebind(TYPES.IModelFactory).to(DfdModelFactory);
-})
+});

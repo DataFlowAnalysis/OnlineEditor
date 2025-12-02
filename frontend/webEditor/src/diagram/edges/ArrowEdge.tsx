@@ -34,11 +34,9 @@ export class ArrowEdgeImpl extends SEdgeImpl implements WithEditableLabel {
 
 @injectable()
 export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
-
     constructor(@inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames) {
-        super()
+        super();
     }
-
 
     /**
      * Renders an arrow at the end of the edge.
@@ -110,13 +108,14 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
             return this.renderDanglingEdge("Cannot compute route", edge, context);
         }
 
-
-    return <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback}>
-        {this.renderLine(edge, route)}
-        {this.renderAdditionals(edge, route, context)}
-        {this.renderJunctionPoints(edge, route, context, args)}
-        { this.hideEdgeNames.get() ? undefined : context.renderChildren(edge, { route }) }
-    </g>;
+        return (
+            <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback}>
+                {this.renderLine(edge, route)}
+                {this.renderAdditionals(edge, route, context)}
+                {this.renderJunctionPoints(edge, route, context, args)}
+                {this.hideEdgeNames.get() ? undefined : context.renderChildren(edge, { route })}
+            </g>
+        );
     }
 }
 

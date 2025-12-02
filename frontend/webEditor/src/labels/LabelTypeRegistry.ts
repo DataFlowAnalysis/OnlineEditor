@@ -9,73 +9,73 @@ export class LabelTypeRegistry {
         const labelType: LabelType = {
             id: generateRandomSprottyId(),
             name,
-            values: []
-        }
+            values: [],
+        };
         this.labelTypes.push(labelType);
-        this._registerLabelTypeValue(labelType.id, 'Value', true)
-        this.labelTypeChanged()
-        return labelType
+        this._registerLabelTypeValue(labelType.id, "Value", true);
+        this.labelTypeChanged();
+        return labelType;
     }
 
     public unregisterLabelType(id: string): void {
         this.labelTypes = this.labelTypes.filter((type) => type.id !== id);
-        this.labelTypeChanged()
+        this.labelTypeChanged();
     }
 
     public updateLabelTypeName(id: string, name: string): void {
-        const labelType = this.labelTypes.find(l => l.id === id)
-        if (!labelType)  {
-            throw `No Label Type with id ${id} found`
+        const labelType = this.labelTypes.find((l) => l.id === id);
+        if (!labelType) {
+            throw `No Label Type with id ${id} found`;
         }
-        labelType.name = name
-        this.labelTypeChanged()
+        labelType.name = name;
+        this.labelTypeChanged();
     }
 
     public setLabelTypes(labelTypes: LabelType[]) {
         this.labelTypes = labelTypes;
-        this.labelTypeChanged()
+        this.labelTypeChanged();
     }
 
     public registerLabelTypeValue(labelTypeId: string, text: string): LabelTypeValue {
-        return this._registerLabelTypeValue(labelTypeId, text)
+        return this._registerLabelTypeValue(labelTypeId, text);
     }
 
-    private _registerLabelTypeValue(labelTypeId: string, text: string, surpressUpdate=false): LabelTypeValue {
+    private _registerLabelTypeValue(labelTypeId: string, text: string, surpressUpdate = false): LabelTypeValue {
         const labelTypeValue: LabelTypeValue = {
             id: generateRandomSprottyId(),
-            text
-        }
-        const labelType = this.labelTypes.find((type) => type.id === labelTypeId)
+            text,
+        };
+        const labelType = this.labelTypes.find((type) => type.id === labelTypeId);
         if (!labelType) {
-            throw `No Label Type with id ${labelTypeId} found`
+            throw `No Label Type with id ${labelTypeId} found`;
         }
-        labelType.values.push(labelTypeValue)
+        labelType.values.push(labelTypeValue);
         if (!surpressUpdate) {
-            this.labelTypeChanged()
+            this.labelTypeChanged();
         }
-        return labelTypeValue
+        return labelTypeValue;
     }
 
     public unregisterLabelTypeValue(labelTypeId: string, labelTypeValueId: string): void {
-         const labelType = this.labelTypes.find((type) => type.id === labelTypeId)
+        const labelType = this.labelTypes.find((type) => type.id === labelTypeId);
         if (!labelType) {
-            throw `No Label Type with id ${labelTypeId} found`
+            throw `No Label Type with id ${labelTypeId} found`;
         }
-        labelType.values = labelType.values.filter((value) => value.id !== labelTypeValueId)
-        this.labelTypeChanged()
+        labelType.values = labelType.values.filter((value) => value.id !== labelTypeValueId);
+        this.labelTypeChanged();
     }
 
     public updateLabelTypeValueText(labelTypeId: string, labelTypeValueId: string, text: string) {
-        const labelType = this.labelTypes.find((type) => type.id === labelTypeId)
+        const labelType = this.labelTypes.find((type) => type.id === labelTypeId);
         if (!labelType) {
-            throw `No Label Type with id ${labelTypeId} found`
+            throw `No Label Type with id ${labelTypeId} found`;
         }
-        const value = labelType.values.find(l => l.id === labelTypeValueId)
+        const value = labelType.values.find((l) => l.id === labelTypeValueId);
         if (!value) {
-            throw `Label Type ${labelType.name} has no value with id ${labelTypeValueId}`
+            throw `Label Type ${labelType.name} has no value with id ${labelTypeValueId}`;
         }
-        value.text = text
-        this.labelTypeChanged()
+        value.text = text;
+        this.labelTypeChanged();
     }
 
     public clearLabelTypes(): void {

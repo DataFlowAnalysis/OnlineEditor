@@ -7,7 +7,6 @@ export class LoadDefaultDiagramStartUpAgent implements IStartUpAgent {
     constructor(@inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher) {}
 
     run(): void {
-        this.actionDispatcher.dispatch(LoadDefaultDiagramAction.create())
+        this.actionDispatcher.dispatch(LoadDefaultDiagramAction.create());
     }
-
 }

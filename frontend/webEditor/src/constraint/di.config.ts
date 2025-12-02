@@ -13,8 +13,8 @@ export const constraintModule = new ContainerModule((bind, unbind, isBound) => {
     bind(ConstraintMenu).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(ConstraintMenu);
     bind(EDITOR_TYPES.DefaultUIElement).toService(ConstraintMenu);
-    bind(ThemeSwitchable).toService(ConstraintMenu)
+    bind(ThemeSwitchable).toService(ConstraintMenu);
 
-    bind(TFGManager).toSelf().inSingletonScope()
-    configureCommand({bind, isBound}, SelectConstraintsCommand)
-})
+    bind(TFGManager).toSelf().inSingletonScope();
+    configureCommand({ bind, isBound }, SelectConstraintsCommand);
+});

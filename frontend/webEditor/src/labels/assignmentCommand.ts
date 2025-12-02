@@ -24,30 +24,36 @@ interface LabelAssignmentAction extends Action {
 }
 
 export namespace AddLabelAssignmentAction {
-    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAssignmentAction {
+    export function create(
+        labelAssignment: LabelAssignment,
+        element?: ContainsDfdLabels & SNodeImpl,
+    ): LabelAssignmentAction {
         return {
             kind: LabelAssignmentCommand.KIND,
-            action: 'add',
+            action: "add",
             labelAssignment,
-            element
-        }
+            element,
+        };
     }
 }
 
 export namespace RemoveLabelAssignmentAction {
-    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAssignmentAction {
+    export function create(
+        labelAssignment: LabelAssignment,
+        element?: ContainsDfdLabels & SNodeImpl,
+    ): LabelAssignmentAction {
         return {
             kind: LabelAssignmentCommand.KIND,
-            action: 'remove',
+            action: "remove",
             labelAssignment,
-            element
-        }
+            element,
+        };
     }
 }
 
 @injectable()
 export class LabelAssignmentCommand implements Command {
-    public static readonly KIND = 'labelAction';
+    public static readonly KIND = "labelAction";
 
     private elements?: ContainsDfdLabels[];
 

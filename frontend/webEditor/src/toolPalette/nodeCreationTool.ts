@@ -20,7 +20,7 @@ export class NodeCreationTool extends CreationTool<SNode, SNodeImpl> {
             type: this.elementType,
             text: defaultTextCapitalized,
             ports: [],
-            labels: []
+            labels: [],
         } as SNode;
     }
 }

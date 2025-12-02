@@ -12,45 +12,47 @@ import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
 export namespace SaveDfdAndDdFileAction {
-  export const KIND = 'saveDfdAndDdFile'
-  export function create(): Action {
-    return { kind: KIND }
-  }
+    export const KIND = "saveDfdAndDdFile";
+    export function create(): Action {
+        return { kind: KIND };
+    }
 }
 
 export class SaveDfdAndDdFileCommand extends SaveFileCommand {
+    static readonly KIND = SaveDfdAndDdFileAction.KIND;
+    private static readonly CLOSING_TAG = "</dataflowdiagram:DataFlowDiagram>";
 
-  static readonly KIND = SaveDfdAndDdFileAction.KIND;
-  private static readonly CLOSING_TAG = "</dataflowdiagram:DataFlowDiagram>";
+    constructor(
+        @inject(TYPES.Action) _: Action,
+        @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
+        @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
+        @inject(SETTINGS.Mode) editorModeController: EditorModeController,
+        @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
+        @inject(FileName) private readonly fileName: FileName,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
+    ) {
+        super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
+    }
 
-  constructor(
-    @inject(TYPES.Action) _: Action,
-    @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
-    @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
-    @inject(SETTINGS.Mode) editorModeController: EditorModeController,
-    @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
-    @inject(FileName) private readonly fileName: FileName,
-    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
-  ) {
-    super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
-  }
+    async getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
+        const savedDiagram = this.createSavedDiagram(context);
 
-  async getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
-    const savedDiagram = this.createSavedDiagram(context);
+        const response = await this.dfdWebSocket.sendMessage("Json2DFD:" + JSON.stringify(savedDiagram));
+        const endIndex =
+            response.indexOf(SaveDfdAndDdFileCommand.CLOSING_TAG) + SaveDfdAndDdFileCommand.CLOSING_TAG.length;
+        const dfdContent = response.substring(0, endIndex).trim();
+        const ddContent = response.substring(endIndex).trim();
 
-    const response = await this.dfdWebSocket.sendMessage("Json2DFD:" + JSON.stringify(savedDiagram));
-    const endIndex = response.indexOf(SaveDfdAndDdFileCommand.CLOSING_TAG) + SaveDfdAndDdFileCommand.CLOSING_TAG.length;
-    const dfdContent = response.substring(0, endIndex).trim();
-    const ddContent = response.substring(endIndex).trim();
-
-    const fileName = this.fileName.getName();
-    return Promise.resolve([{
-      fileName: fileName + ".dataflowdiagram",
-      content: dfdContent
-    }, {
-      fileName: fileName + ".datadictionary",
-      content: ddContent
-    }]);
-  }
-
+        const fileName = this.fileName.getName();
+        return Promise.resolve([
+            {
+                fileName: fileName + ".dataflowdiagram",
+                content: dfdContent,
+            },
+            {
+                fileName: fileName + ".datadictionary",
+                content: ddContent,
+            },
+        ]);
+    }
 }

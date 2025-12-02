@@ -1,7 +1,4 @@
-import {
-    EditLabelUI,
-    SModelRootImpl,
-} from "sprotty";
+import { EditLabelUI, SModelRootImpl } from "sprotty";
 
 // For our use-case the sprotty container is at (0, 0) and fills the whole screen.
 // Scrolling is disabled using CSS which disallows scrolling from the user.

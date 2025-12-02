@@ -1,4 +1,5 @@
-button.delete-button, button.add-button {
+button.delete-button,
+button.add-button {
     background-color: transparent;
     border: none;
     cursor: pointer;

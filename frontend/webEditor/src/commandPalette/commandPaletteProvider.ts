@@ -16,7 +16,6 @@ import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
  */
 @injectable()
 export class WebEditorCommandPaletteActionProvider implements ICommandPaletteActionProvider {
-
     async getActions(root: Readonly<SModelRootImpl>): Promise<(LabeledAction | FolderAction)[]> {
         const fitToScreenAction = DefaultFitToScreenAction.create(root);
         const commitAction = CommitModelAction.create();
@@ -27,7 +26,11 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                 [
                     new LabeledAction("Load diagram from JSON", [LoadJsonFileAction.create(), commitAction], "json"),
                     new LabeledAction("Load DFD and DD", [LoadDfdAndDdFileAction.create(), commitAction], "coffee"),
-                    new LabeledAction("Load Palladio", [LoadPalladioFileAction.create(), commitAction], "fa-puzzle-piece"),
+                    new LabeledAction(
+                        "Load Palladio",
+                        [LoadPalladioFileAction.create(), commitAction],
+                        "fa-puzzle-piece",
+                    ),
                 ],
                 "go-to-file",
             ),
@@ -35,11 +38,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                 "Save",
                 [
                     new LabeledAction("Save diagram as JSON", [SaveJsonFileAction.create()], "json"),
-                    new LabeledAction(
-                        "Save diagram as DFD and DD",
-                        [SaveDfdAndDdFileAction.create()],
-                        "coffee",
-                    ),
+                    new LabeledAction("Save diagram as DFD and DD", [SaveDfdAndDdFileAction.create()], "coffee"),
                     //new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
                 ],
                 "save",

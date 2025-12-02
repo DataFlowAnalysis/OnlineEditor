@@ -14,14 +14,13 @@ import { LayoutMethod } from "./layoutMethod";
 import { calculateTextSize } from "../utils/TextSize";
 
 export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
-
-    private static _method: LayoutMethod = LayoutMethod.LINES
+    private static _method: LayoutMethod = LayoutMethod.LINES;
 
     set method(method: LayoutMethod) {
-        DfdLayoutConfigurator._method = method
+        DfdLayoutConfigurator._method = method;
     }
     get method() {
-        return DfdLayoutConfigurator._method
+        return DfdLayoutConfigurator._method;
     }
 
     protected override graphOptions(): LayoutOptions {

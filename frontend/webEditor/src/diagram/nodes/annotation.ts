@@ -1,14 +1,23 @@
 import { inject, injectable } from "inversify";
-import { MouseListener, TYPES, IActionDispatcher, SModelElementImpl, SChildElementImpl, SetUIExtensionVisibilityAction, AbstractUIExtension, SModelRootImpl } from "sprotty";
+import {
+    MouseListener,
+    TYPES,
+    IActionDispatcher,
+    SModelElementImpl,
+    SChildElementImpl,
+    SetUIExtensionVisibilityAction,
+    AbstractUIExtension,
+    SModelRootImpl,
+} from "sprotty";
 import { Action } from "sprotty-protocol";
 import { DfdNodeImpl } from "./common";
-import "./nodeAnnotationUi.css"
+import "./nodeAnnotationUi.css";
 import { ShownLabels, ShownLabelsValue } from "../../settings/ShownLabels";
 import { SETTINGS } from "../../settings/Settings";
 
 export class DfdNodeAnnotationUIMouseListener extends MouseListener {
     private stillTimeout: number | undefined;
-    private lastTarget?: DfdNodeImpl
+    private lastTarget?: DfdNodeImpl;
     private lastPosition = { x: 0, y: 0 };
 
     constructor(@inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher) {
@@ -27,30 +36,30 @@ export class DfdNodeAnnotationUIMouseListener extends MouseListener {
         this.lastPosition = { x: event.clientX, y: event.clientY };
 
         if (dfdNode === this.lastTarget) {
-            return []
+            return [];
         }
 
         this.stillTimeout = setTimeout(() => {
-                // When the mouse has not moved for 500ms, we show the popup
-                this.stillTimeout = undefined;
+            // When the mouse has not moved for 500ms, we show the popup
+            this.stillTimeout = undefined;
 
-                if (dfdNode.opacity !== 1) {
-                    // Only show when opacity is 1.
-                    // The opacity is not 1 when the node is currently being created but has not been
-                    // placed yet.
-                    // In this case we don't want to show the popup
-                    // and interfere with the creation process.
-                    return;
-                }
+            if (dfdNode.opacity !== 1) {
+                // Only show when opacity is 1.
+                // The opacity is not 1 when the node is currently being created but has not been
+                // placed yet.
+                // In this case we don't want to show the popup
+                // and interfere with the creation process.
+                return;
+            }
 
-                this.showPopup(dfdNode);
+            this.showPopup(dfdNode);
         }, 500);
 
         if (this.lastTarget !== dfdNode) {
-            this.lastTarget = dfdNode
-            return this.hidePopup()
+            this.lastTarget = dfdNode;
+            return this.hidePopup();
         }
-        return []
+        return [];
     }
 
     private findDfdNode(currentNode: SModelElementImpl): DfdNodeImpl | undefined {
@@ -79,7 +88,7 @@ export class DfdNodeAnnotationUIMouseListener extends MouseListener {
     }
 
     private hidePopup() {
-        return [SetUIExtensionVisibilityAction.create({extensionId: DfdNodeAnnotationUI.ID, visible: false})]
+        return [SetUIExtensionVisibilityAction.create({ extensionId: DfdNodeAnnotationUI.ID, visible: false })];
     }
 
     public getMousePosition(): { x: number; y: number } {
@@ -170,8 +179,10 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
 
         node.annotations.forEach((a) => {
             if (
-                ((mode === ShownLabels.INCOMING || mode === ShownLabels.ALL) && a.message.trim().startsWith("Incoming")) ||
-                ((mode === ShownLabels.OUTGOING || mode === ShownLabels.ALL) && a.message.trim().startsWith("Propagated")) ||
+                ((mode === ShownLabels.INCOMING || mode === ShownLabels.ALL) &&
+                    a.message.trim().startsWith("Incoming")) ||
+                ((mode === ShownLabels.OUTGOING || mode === ShownLabels.ALL) &&
+                    a.message.trim().startsWith("Propagated")) ||
                 a.message.startsWith("Constraint")
             ) {
                 const line = document.createElement("div");

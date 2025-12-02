@@ -21,16 +21,16 @@ export class DfdNodeLabelRenderer {
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
     ) {}
 
-    private getLabel(label: LabelAssignment): {type: LabelType, value: LabelTypeValue} | undefined {
+    private getLabel(label: LabelAssignment): { type: LabelType; value: LabelTypeValue } | undefined {
         const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
         const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
-        if (!labelType || ! labelTypeValue) {
-            return undefined
+        if (!labelType || !labelTypeValue) {
+            return undefined;
         }
         return {
             type: labelType,
-            value: labelTypeValue
-        }
+            value: labelTypeValue,
+        };
     }
 
     /**
@@ -39,7 +39,7 @@ export class DfdNodeLabelRenderer {
      * @returns a tuple containing the text and the width of the label in pixel
      */
     computeLabelContent(labelAssignment: LabelAssignment): [string, number] {
-        const label = this.getLabel(labelAssignment)
+        const label = this.getLabel(labelAssignment);
         if (!label) {
             return ["", 0];
         }
@@ -89,8 +89,8 @@ export class DfdNodeLabelRenderer {
      */
     private sortLabels(labels: LabelAssignment[]): void {
         labels.sort((a, b) => {
-            const labelTypeA = this.getLabel(a)
-            const labelTypeB = this.getLabel(b)
+            const labelTypeA = this.getLabel(a);
+            const labelTypeB = this.getLabel(b);
             if (!labelTypeA || !labelTypeB) {
                 return 0;
             }
@@ -123,4 +123,3 @@ export class DfdNodeLabelRenderer {
         );
     }
 }
-

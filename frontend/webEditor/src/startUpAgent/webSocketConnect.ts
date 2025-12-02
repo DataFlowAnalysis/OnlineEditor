@@ -6,7 +6,5 @@ export class WebSocketConnectStartUpAgent implements IStartUpAgent {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(@inject(DfdWebSocket) _: DfdWebSocket) {}
 
-    run(): void {
-    }
-
+    run(): void {}
 }

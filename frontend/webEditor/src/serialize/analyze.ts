@@ -30,20 +30,27 @@ export class AnalyzeCommand extends LoadJsonCommand {
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
-        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
-        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
+        super(
+            logger,
+            labelTypeRegistry,
+            constraintRegistry,
+            editorModeController,
+            actionDispatcher,
+            fileName,
+            loadingIndicator,
+        );
     }
 
     protected async getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined> {
         const savedDiagram = {
-              model: context.modelFactory.createSchema(context.root),
-              labelTypes: this.labelTypeRegistry.getLabelTypes(),
-              constraints: this.constraintRegistry.getConstraintList(),
-              mode: this.editorModeController.get(),
-              version: CURRENT_VERSION
-        }
-        return await this.dfdWebSocket.requestDiagram("Json:" + JSON.stringify(savedDiagram))
+            model: context.modelFactory.createSchema(context.root),
+            labelTypes: this.labelTypeRegistry.getLabelTypes(),
+            constraints: this.constraintRegistry.getConstraintList(),
+            mode: this.editorModeController.get(),
+            version: CURRENT_VERSION,
+        };
+        return await this.dfdWebSocket.requestDiagram("Json:" + JSON.stringify(savedDiagram));
     }
-
 }

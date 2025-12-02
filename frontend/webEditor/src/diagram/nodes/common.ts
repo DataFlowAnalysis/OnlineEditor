@@ -23,17 +23,17 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
     static readonly WIDTH_PADDING = 12;
     static readonly NODE_COLOR = "var(--color-primary)";
     static readonly HIGHLIGHTED_COLOR = "var(--color-highlighted)";
-@inject(DfdNodeLabelRenderer) private readonly dfdNodeLabelRenderer?: DfdNodeLabelRenderer
+    @inject(DfdNodeLabelRenderer) private readonly dfdNodeLabelRenderer?: DfdNodeLabelRenderer;
     text: string = "";
     color?: string;
     labels: LabelAssignment[] = [];
     ports: SPort[] = [];
     hideLabels: boolean = false;
     minimumWidth: number = DfdNodeImpl.DEFAULT_WIDTH;
-    annotations: DfdNodeAnnotation[] = [];  
+    annotations: DfdNodeAnnotation[] = [];
 
     constructor() {
-        super()
+        super();
     }
 
     get editableLabel() {
@@ -51,14 +51,14 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
         }
         const textWidth = calculateTextSize(this.text).width;
         const labelWidths = this.labels.map(
-            (labelAssignment) => this.dfdNodeLabelRenderer?.computeLabelContent(labelAssignment)[1] ?? 0
+            (labelAssignment) => this.dfdNodeLabelRenderer?.computeLabelContent(labelAssignment)[1] ?? 0,
         );
 
         const neededWidth = Math.max(...labelWidths, textWidth, DfdNodeImpl.DEFAULT_WIDTH);
         return neededWidth + DfdNodeImpl.WIDTH_PADDING;
     }
 
-        protected calculateHeight(): number {
+    protected calculateHeight(): number {
         const hasLabels = this.labels.length > 0;
         if (hasLabels && !this.hideLabels) {
             return (
@@ -71,8 +71,8 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
         }
     }
 
-    protected abstract noLabelHeight(): number
-    protected abstract labelStartHeight(): number
+    protected abstract noLabelHeight(): number;
+    protected abstract labelStartHeight(): number;
 
     override get bounds(): Bounds {
         return {

@@ -1,5 +1,12 @@
 import { injectable } from "inversify";
-import { IEditLabelValidator, EditableLabel, SModelElementImpl, EditLabelValidationResult, SChildElementImpl, SEdgeImpl } from "sprotty";
+import {
+    IEditLabelValidator,
+    EditableLabel,
+    SModelElementImpl,
+    EditLabelValidationResult,
+    SChildElementImpl,
+    SEdgeImpl,
+} from "sprotty";
 import { DfdNodeImpl } from "../nodes/common";
 import { DfdInputPortImpl } from "../ports/DfdInputPort";
 

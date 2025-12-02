@@ -16,7 +16,11 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
     static readonly ID = "label-type-editor-ui";
     private labelSectionContainer?: HTMLElement;
 
-    constructor(@inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry, @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher, @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController) {
+    constructor(
+        @inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry,
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController,
+    ) {
         super("left", "down");
         labelTypeRegistry.onUpdate(() => this.renderLabelTypes());
     }
@@ -33,7 +37,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
 
         addButton.onclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             this.labelTypeRegistry.registerLabelType("");
         };
@@ -52,23 +56,21 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         if (!this.labelSectionContainer) {
             return;
         }
-        const width = this.labelSectionContainer.scrollWidth
-        const height = this.labelSectionContainer.scrollHeight
-        this.labelSectionContainer.style.width = `${width}px`
-        this.labelSectionContainer.style.height = `${height}px`
-        const fragment = document.createDocumentFragment()
-        const labelTypes = this.labelTypeRegistry.getLabelTypes()
+        const width = this.labelSectionContainer.scrollWidth;
+        const height = this.labelSectionContainer.scrollHeight;
+        this.labelSectionContainer.style.width = `${width}px`;
+        this.labelSectionContainer.style.height = `${height}px`;
+        const fragment = document.createDocumentFragment();
+        const labelTypes = this.labelTypeRegistry.getLabelTypes();
         for (let i = 0; i < labelTypes.length; i++) {
-            fragment.appendChild(this.buildLabelTypeSection(labelTypes[i]))
+            fragment.appendChild(this.buildLabelTypeSection(labelTypes[i]));
             if (i < labelTypes.length - 1) {
-                fragment.appendChild(document.createElement('hr'))
+                fragment.appendChild(document.createElement("hr"));
             }
         }
-        this.labelSectionContainer!.replaceChildren(fragment)
-        this.labelSectionContainer!.style.width = ''
-        this.labelSectionContainer!.style.height = ''
-
-        
+        this.labelSectionContainer!.replaceChildren(fragment);
+        this.labelSectionContainer!.style.width = "";
+        this.labelSectionContainer!.style.height = "";
     }
 
     private buildLabelTypeSection(labelType: LabelType): HTMLElement {
@@ -83,19 +85,19 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         const addButton = UiElementFactory.buildAddButton("Value");
         addButton.classList.add("label-type-value-add");
 
-        nameInput.value = labelType.name
-        nameInput.placeholder = 'Label Type Name'
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
-        dynamicallySetInputSize(nameInput)
-        setTimeout(() => dynamicallySetInputSize(nameInput), 0)
+        nameInput.value = labelType.name;
+        nameInput.placeholder = "Label Type Name";
+        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        dynamicallySetInputSize(nameInput);
+        setTimeout(() => dynamicallySetInputSize(nameInput), 0);
         nameInput.onchange = () => {
             this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value);
         };
         nameInput.onfocus = () => {
             if (this.editorModeController.isReadOnly()) {
-                nameInput.blur()
+                nameInput.blur();
             }
-        }
+        };
 
         for (let i = 0; i < labelType.values.length; i++) {
             labelTypeValueHolder.appendChild(this.buildLabelTypeValue(labelType, i));
@@ -103,14 +105,14 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
 
         addButton.onclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             this.labelTypeRegistry.registerLabelTypeValue(labelType.id, "");
         };
 
         deleteButton.onclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             this.labelTypeRegistry.unregisterLabelType(labelType.id);
         };
@@ -130,25 +132,24 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         nameInput.classList.add("label-type-value-name");
         const deleteButton = UiElementFactory.buildDeleteButton();
 
-        const value = labelType.values[valueIndex]
+        const value = labelType.values[valueIndex];
 
-        
-        nameInput.value = value.text
-        nameInput.placeholder = 'Value'
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput)
-        nameInput.style.width = '0px'
-        setTimeout(() => dynamicallySetInputSize(nameInput), 0)
+        nameInput.value = value.text;
+        nameInput.placeholder = "Value";
+        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        nameInput.style.width = "0px";
+        setTimeout(() => dynamicallySetInputSize(nameInput), 0);
 
         nameInput.onchange = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value);
         };
 
         deleteButton.onclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             this.labelTypeRegistry.unregisterLabelTypeValue(labelType.id, value.id);
         };
@@ -157,7 +158,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         nameInput.draggable = true;
         nameInput.ondragstart = (event) => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             const assignment: LabelAssignment = {
                 labelTypeId: labelType.id,
@@ -170,7 +171,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         // Only edit on double click
         nameInput.onclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             if (nameInput.getAttribute("clicked") === "true") {
                 return;
@@ -191,15 +192,15 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         };
         nameInput.ondblclick = () => {
             if (this.editorModeController.isReadOnly()) {
-                return
+                return;
             }
             nameInput.removeAttribute("clicked");
             nameInput.focus();
         };
         nameInput.onfocus = (event) => {
             if (this.editorModeController.isReadOnly()) {
-                nameInput.blur()
-                return
+                nameInput.blur();
+                return;
             }
             // we check for the single click here, since this gets triggered before the ondblclick event
             if (nameInput.getAttribute("clicked") !== "true") {

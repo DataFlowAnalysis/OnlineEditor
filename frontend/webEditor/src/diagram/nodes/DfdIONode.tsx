@@ -16,13 +16,12 @@ export class IONodeImpl extends DfdNodeImpl {
         return IONodeImpl.TEXT_HEIGHT;
     }
     protected labelStartHeight(): number {
-        return IONodeImpl.LABEL_START_HEIGHT
+        return IONodeImpl.LABEL_START_HEIGHT;
     }
 }
 
 @injectable()
 export class IONodeView extends ShapeView {
-
     constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
         super();
     }

@@ -2,4 +2,4 @@ export interface IStartUpAgent {
     run(): void;
 }
 
-export const StartUpAgent = Symbol('StartUpAgent')
+export const StartUpAgent = Symbol("StartUpAgent");

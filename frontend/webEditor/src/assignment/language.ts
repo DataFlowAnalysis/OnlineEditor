@@ -6,7 +6,7 @@ import { ConstantWord, ListWord, Word } from "../languages/words";
 import { DfdNodeImpl } from "../diagram/nodes/common";
 import { WordCompletion } from "../languages/autocomplete";
 
-export const ASSIGNMENT_LANGUAGE_ID = 'dfd-assignment-language'
+export const ASSIGNMENT_LANGUAGE_ID = "dfd-assignment-language";
 
 const startOfLineKeywords = ["forward", "assign", "set", "unset"];
 const statementKeywords = [...startOfLineKeywords, "if", "from"];
@@ -59,10 +59,7 @@ export namespace AssignmentLanguageTreeBuilder {
         ];
     }
 
-    function buildSetOrUnsetStatement(
-        labelTypeRegistry: LabelTypeRegistry,
-        keyword: string,
-    ): LanguageTreeNode<Word> {
+    function buildSetOrUnsetStatement(labelTypeRegistry: LabelTypeRegistry, keyword: string): LanguageTreeNode<Word> {
         const labelNode: LanguageTreeNode<Word> = {
             word: new ListWord(new LabelWord(labelTypeRegistry)),
             children: [],
@@ -112,7 +109,11 @@ export namespace AssignmentLanguageTreeBuilder {
         };
     }
 
-    function buildCondition(labelTypeRegistry: LabelTypeRegistry, nextNode: LanguageTreeNode<Word>, port: DfdOutputPortImpl) {
+    function buildCondition(
+        labelTypeRegistry: LabelTypeRegistry,
+        nextNode: LanguageTreeNode<Word>,
+        port: DfdOutputPortImpl,
+    ) {
         const connectors: LanguageTreeNode<Word>[] = ["&&", "||"].map((o) => ({
             word: new ConstantWord(o),
             children: [],
@@ -201,7 +202,7 @@ class LabelWord implements Word {
 
         return [];
     }
-/*
+    /*
     replaceWord(text: string, replacement: ReplacementData) {
         if (replacement.type == "Label" && text == replacement.old) {
             return replacement.replacement;

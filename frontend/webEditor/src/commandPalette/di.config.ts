@@ -4,8 +4,8 @@ import { WebEditorCommandPalette } from "./CommandPalette";
 import { WebEditorCommandPaletteActionProvider } from "./CommandPaletteProvider";
 
 export const commandPaletteModule = new ContainerModule((bind, _, __, rebind) => {
-  rebind(CommandPalette).to(WebEditorCommandPalette).inSingletonScope();
+    rebind(CommandPalette).to(WebEditorCommandPalette).inSingletonScope();
 
-  bind(WebEditorCommandPaletteActionProvider).toSelf().inSingletonScope();
-  bind(TYPES.ICommandPaletteActionProvider).toService(WebEditorCommandPaletteActionProvider);
+    bind(WebEditorCommandPaletteActionProvider).toSelf().inSingletonScope();
+    bind(TYPES.ICommandPaletteActionProvider).toService(WebEditorCommandPaletteActionProvider);
 });

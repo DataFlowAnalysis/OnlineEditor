@@ -7,13 +7,12 @@ import { LabelAssignmentCommand } from "./assignmentCommand";
 import { DfdLabelMouseDropListener } from "./dragAndDrop";
 
 export const labelModule = new ContainerModule((bind, _, isBound) => {
-    bind(LabelTypeRegistry).toSelf().inSingletonScope()
+    bind(LabelTypeRegistry).toSelf().inSingletonScope();
 
     bind(LabelTypeEditorUi).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(LabelTypeEditorUi);
     bind(EDITOR_TYPES.DefaultUIElement).to(LabelTypeEditorUi);
 
-    
     configureCommand({ bind, isBound }, LabelAssignmentCommand);
     bind(TYPES.MouseListener).to(DfdLabelMouseDropListener);
-})
+});

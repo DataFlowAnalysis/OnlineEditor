@@ -7,7 +7,7 @@ import {
     CommitModelAction,
     ILogger,
     TYPES,
-    SNodeImpl
+    SNodeImpl,
 } from "sprotty";
 import { LabelAssignment } from "./LabelType";
 import { AddLabelAssignmentAction } from "./assignmentCommand";

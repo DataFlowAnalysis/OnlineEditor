@@ -5,7 +5,12 @@ import { Action, getBasicType } from "sprotty-protocol";
 import { DfdNodeImpl } from "../diagram/nodes/common";
 import { inject } from "inversify";
 
-function selectConstraints(selectedConstraintNames: string[], root: SModelRootImpl, constraintRegistry: ConstraintRegistry, tfgManager: TFGManager) {
+function selectConstraints(
+    selectedConstraintNames: string[],
+    root: SModelRootImpl,
+    constraintRegistry: ConstraintRegistry,
+    tfgManager: TFGManager,
+) {
     tfgManager.clearTfgs();
     constraintRegistry.setSelectedConstraints(selectedConstraintNames);
 
@@ -41,46 +46,62 @@ function selectConstraints(selectedConstraintNames: string[], root: SModelRootIm
     });
 
     nodes.forEach((node) => {
-        const inTFG = node.annotations!.filter((annotation) =>
-            tfgManager.getSelectedTfgs().has(annotation.tfg!),
-        );
+        const inTFG = node.annotations!.filter((annotation) => tfgManager.getSelectedTfgs().has(annotation.tfg!));
         if (inTFG.length > 0) node.setColor("var(--color-highlighted)", false);
     });
 
-    return root
+    return root;
 }
 
 interface SelectConstraintsAction extends Action {
-    selectedConstraintNames: string[]
+    selectedConstraintNames: string[];
 }
 
 export namespace SelectConstraintsAction {
-    export const KIND = 'select-constraints'
+    export const KIND = "select-constraints";
     export function create(selectedConstraintNames: string[]): SelectConstraintsAction {
         return {
             kind: KIND,
-            selectedConstraintNames
-        }
+            selectedConstraintNames,
+        };
     }
 }
 
 export class SelectConstraintsCommand extends Command {
-    static readonly KIND = SelectConstraintsAction.KIND
-    private oldConstraintSelection?: string[]
+    static readonly KIND = SelectConstraintsAction.KIND;
+    private oldConstraintSelection?: string[];
 
-    constructor(@inject(TYPES.Action) private readonly action: SelectConstraintsAction, @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry, @inject(TFGManager) private readonly tfgManager: TFGManager) {
-        super()
+    constructor(
+        @inject(TYPES.Action) private readonly action: SelectConstraintsAction,
+        @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
+        @inject(TFGManager) private readonly tfgManager: TFGManager,
+    ) {
+        super();
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        this.oldConstraintSelection = this.constraintRegistry.getSelectedConstraints()
-        return selectConstraints(this.action.selectedConstraintNames, context.root, this.constraintRegistry, this.tfgManager)
+        this.oldConstraintSelection = this.constraintRegistry.getSelectedConstraints();
+        return selectConstraints(
+            this.action.selectedConstraintNames,
+            context.root,
+            this.constraintRegistry,
+            this.tfgManager,
+        );
     }
     undo(context: CommandExecutionContext): CommandReturn {
-        return selectConstraints(this.oldConstraintSelection ?? [], context.root, this.constraintRegistry, this.tfgManager)
+        return selectConstraints(
+            this.oldConstraintSelection ?? [],
+            context.root,
+            this.constraintRegistry,
+            this.tfgManager,
+        );
     }
     redo(context: CommandExecutionContext): CommandReturn {
-        return selectConstraints(this.action.selectedConstraintNames, context.root, this.constraintRegistry, this.tfgManager)
+        return selectConstraints(
+            this.action.selectedConstraintNames,
+            context.root,
+            this.constraintRegistry,
+            this.tfgManager,
+        );
     }
-
 }

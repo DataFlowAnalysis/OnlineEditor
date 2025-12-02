@@ -1,24 +1,42 @@
 import { ContainerModule } from "inversify";
-import { configureActionHandler, configureCommand, configureModelElement, EditLabelAction, EditLabelActionHandler, editLabelFeature, SGraphImpl, SGraphView, SLabelImpl, SLabelView, SRoutingHandleImpl, TYPES, withEditLabelFeature } from "sprotty";
+import {
+    configureActionHandler,
+    configureCommand,
+    configureModelElement,
+    EditLabelAction,
+    EditLabelActionHandler,
+    editLabelFeature,
+    SGraphImpl,
+    SGraphView,
+    SLabelImpl,
+    SLabelView,
+    SRoutingHandleImpl,
+    TYPES,
+    withEditLabelFeature,
+} from "sprotty";
 import { ArrowEdgeImpl, ArrowEdgeView, CustomRoutingHandleView } from "./edges/ArrowEdge";
 import { DfdInputPortImpl, DfdInputPortView } from "./ports/DfdInputPort";
 import { DfdOutputPortImpl, DfdOutputPortView } from "./ports/DfdOutputPort";
 import { StorageNodeImpl, StorageNodeView } from "./nodes/DfdStorageNode";
 import { FunctionNodeImpl, FunctionNodeView } from "./nodes/DfdFunctionNode";
 import { IONodeImpl, IONodeView } from "./nodes/DfdIONode";
-import './style.css'
+import "./style.css";
 import { DfdPositionalLabelView } from "./labels/DfdPositionalLabel";
 import { DfdNodeLabelRenderer } from "./nodes/DfdNodeLabels";
 import { FilledBackgroundLabelView } from "./labels/FilledBackgroundLabel";
 import { DfdEditLabelValidatorDecorator } from "./labels/EditLabelDecorator";
 import { DfdEditLabelValidator } from "./labels/EditLabelValidator";
 import { NoScrollEditLabelUI } from "./labels/NoScrollEditLabelUI";
-import { PortAwareSnapper, AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand } from "./ports/portSnapper";
+import {
+    PortAwareSnapper,
+    AlwaysSnapPortsMoveMouseListener,
+    ReSnapPortsAfterLabelChangeCommand,
+} from "./ports/portSnapper";
 import { DfdNodeAnnotationUI, DfdNodeAnnotationUIMouseListener } from "./nodes/annotation";
 
 export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-    
+
     bind(TYPES.IEditLabelValidator).to(DfdEditLabelValidator).inSingletonScope();
     bind(TYPES.IEditLabelValidationDecorator).to(DfdEditLabelValidatorDecorator).inSingletonScope();
     configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
@@ -29,10 +47,10 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
     bind(TYPES.MouseListener).to(AlwaysSnapPortsMoveMouseListener).inSingletonScope();
     configureCommand(context, ReSnapPortsAfterLabelChangeCommand);
 
-    bind(DfdNodeAnnotationUI).toSelf().inSingletonScope()
-    bind(TYPES.IUIExtension).toService(DfdNodeAnnotationUI)
-    bind(DfdNodeAnnotationUIMouseListener).toSelf().inSingletonScope()
-    bind(TYPES.MouseListener).toService(DfdNodeAnnotationUIMouseListener)
+    bind(DfdNodeAnnotationUI).toSelf().inSingletonScope();
+    bind(TYPES.IUIExtension).toService(DfdNodeAnnotationUI);
+    bind(DfdNodeAnnotationUIMouseListener).toSelf().inSingletonScope();
+    bind(TYPES.MouseListener).toService(DfdNodeAnnotationUIMouseListener);
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
 
@@ -59,6 +77,5 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
         enable: [editLabelFeature],
     });
 
-    bind(DfdNodeLabelRenderer).toSelf().inSingletonScope()
-
+    bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();
 });

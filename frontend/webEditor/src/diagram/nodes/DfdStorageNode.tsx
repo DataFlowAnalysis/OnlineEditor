@@ -28,8 +28,8 @@ export class StorageNodeImpl extends DfdNodeImpl {
 @injectable()
 export class StorageNodeView extends ShapeView {
     constructor(@inject(DfdNodeLabelRenderer) private readonly labelRenderer: DfdNodeLabelRenderer) {
-            super();
-        }
+        super();
+    }
 
     render(node: Readonly<DfdNodeImpl>, context: RenderingContext): VNode | undefined {
         if (!this.isVisible(node, context)) {

@@ -80,7 +80,7 @@ export class AssignmentEditUi extends AbstractUIExtension {
             scrollBeyondLastLine: false, // Not needed
             theme: monacoTheme,
             language: ASSIGNMENT_LANGUAGE_ID,
-            readOnly: this.editorModeController.isReadOnly()
+            readOnly: this.editorModeController.isReadOnly(),
         });
 
         this.editor.onDidChangeModelContent(() => {
@@ -126,7 +126,7 @@ export class AssignmentEditUi extends AbstractUIExtension {
 
         this.resizeEditor();
 
-        this.editor?.focus()
+        this.editor?.focus();
     }
 
     private setPort(port: DfdOutputPortImpl, containerElement: HTMLElement) {

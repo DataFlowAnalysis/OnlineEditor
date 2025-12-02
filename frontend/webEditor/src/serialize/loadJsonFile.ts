@@ -19,35 +19,41 @@ export namespace LoadJsonFileAction {
     }
 }
 
-
 export class LoadJsonFileCommand extends LoadJsonCommand {
-  static readonly KIND = LoadJsonFileAction.KIND;
+    static readonly KIND = LoadJsonFileAction.KIND;
 
-  constructor(
-    @inject(TYPES.Action) _: Action,
-    @inject(TYPES.ILogger) logger: ILogger,
-    @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
-    @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
-    @inject(SETTINGS.Mode) editorModeController: EditorModeController,
-    @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
-    @inject(FileName) fileName: FileName,
-    @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
-) {
-    super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
-}
-
-  protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
-    const file = await chooseFile(["application/json"])
-    if (!file) {
-      return undefined
+    constructor(
+        @inject(TYPES.Action) _: Action,
+        @inject(TYPES.ILogger) logger: ILogger,
+        @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
+        @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
+        @inject(SETTINGS.Mode) editorModeController: EditorModeController,
+        @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
+        @inject(FileName) fileName: FileName,
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
+    ) {
+        super(
+            logger,
+            labelTypeRegistry,
+            constraintRegistry,
+            editorModeController,
+            actionDispatcher,
+            fileName,
+            loadingIndicator,
+        );
     }
 
-    this.fileName.setName(file.fileName)
+    protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
+        const file = await chooseFile(["application/json"]);
+        if (!file) {
+            return undefined;
+        }
 
-    return {
-      fileName: file.fileName,
-      content: JSON.parse(file.content) as SavedDiagram
+        this.fileName.setName(file.fileName);
+
+        return {
+            fileName: file.fileName,
+            content: JSON.parse(file.content) as SavedDiagram,
+        };
     }
-  }
-
 }

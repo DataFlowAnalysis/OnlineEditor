@@ -31,7 +31,8 @@
         font-size: 12pt;
     }
 
-    .label-type-values, .label-type-value-add {
+    .label-type-values,
+    .label-type-value-add {
         margin-left: 10px;
     }
 }

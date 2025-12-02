@@ -32,7 +32,7 @@ export class LoadingIndicator extends AbstractUIExtension {
     public showIndicator(text?: string) {
         this.waitTimeout = setTimeout(() => {
             if (!this.waitTimeout) {
-                return
+                return;
             }
             if (this.loadingIndicatorWrapper) {
                 this.loadingIndicatorWrapper.style.display = "flex";
@@ -42,8 +42,7 @@ export class LoadingIndicator extends AbstractUIExtension {
                 this.loadingIndicatorWrapper.focus();
                 this.waitTimeout = undefined;
             }
-        }, 200)
-        
+        }, 200);
     }
 
     public hideIndicator() {

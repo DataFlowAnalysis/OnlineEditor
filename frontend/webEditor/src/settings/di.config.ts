@@ -11,18 +11,18 @@ import { HideEdgeNamesCommand } from "./hideEdgeNames";
 import { NodeNameRegistry, SimplifyNodeNamesCommand } from "./simplifyNodeNames";
 
 export const settingsModule = new ContainerModule((bind, _, isBound) => {
-  bind(SettingsUI).toSelf().inSingletonScope();
-  bind(EDITOR_TYPES.DefaultUIElement).toService(SettingsUI)
-  bind(TYPES.IUIExtension).toService(SettingsUI);
+    bind(SettingsUI).toSelf().inSingletonScope();
+    bind(EDITOR_TYPES.DefaultUIElement).toService(SettingsUI);
+    bind(TYPES.IUIExtension).toService(SettingsUI);
 
-  bind(SETTINGS.Theme).to(ThemeManager).inSingletonScope()
-  bind(SETTINGS.HideEdgeNames).to(BoolSettingsValue).inSingletonScope();
-  bind(SETTINGS.SimplifyNodeNames).to(BoolSettingsValue).inSingletonScope();
-  bind(SETTINGS.Mode).to(EditorModeController).inSingletonScope();
-  bind(SETTINGS.ShownLabels).to(ShownLabelsValue).inSingletonScope()
+    bind(SETTINGS.Theme).to(ThemeManager).inSingletonScope();
+    bind(SETTINGS.HideEdgeNames).to(BoolSettingsValue).inSingletonScope();
+    bind(SETTINGS.SimplifyNodeNames).to(BoolSettingsValue).inSingletonScope();
+    bind(SETTINGS.Mode).to(EditorModeController).inSingletonScope();
+    bind(SETTINGS.ShownLabels).to(ShownLabelsValue).inSingletonScope();
 
-  const context = {bind, isBound}
-  configureCommand(context, HideEdgeNamesCommand)
-  configureCommand(context, SimplifyNodeNamesCommand)
-  bind(NodeNameRegistry).toSelf().inSingletonScope();
-})
+    const context = { bind, isBound };
+    configureCommand(context, HideEdgeNamesCommand);
+    configureCommand(context, SimplifyNodeNamesCommand);
+    bind(NodeNameRegistry).toSelf().inSingletonScope();
+});

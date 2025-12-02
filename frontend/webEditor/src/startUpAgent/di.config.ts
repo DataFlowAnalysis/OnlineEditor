@@ -6,8 +6,8 @@ import { WebSocketConnectStartUpAgent } from "./webSocketConnect";
 import { SettingsInitStartUpAgent } from "./settingsInit";
 
 export const startUpAgentModule = new ContainerModule((bind) => {
-    bind(StartUpAgent).to(LoadDefaultUiExtensionsStartUpAgent)
-    bind(StartUpAgent).to(LoadDefaultDiagramStartUpAgent)  
-    bind(StartUpAgent).to(WebSocketConnectStartUpAgent)
-    bind(StartUpAgent).to(SettingsInitStartUpAgent)
-})
+    bind(StartUpAgent).to(LoadDefaultUiExtensionsStartUpAgent);
+    bind(StartUpAgent).to(LoadDefaultDiagramStartUpAgent);
+    bind(StartUpAgent).to(WebSocketConnectStartUpAgent);
+    bind(StartUpAgent).to(SettingsInitStartUpAgent);
+});

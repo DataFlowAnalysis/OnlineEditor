@@ -22,7 +22,15 @@ export namespace LoadPalladioFileAction {
 
 export class LoadPalladioFileCommand extends LoadJsonCommand {
     static readonly KIND = LoadPalladioFileAction.KIND;
-    private static readonly FILE_ENDINGS = [".pddc", ".allocation", ".nodecharacteristics", ".repository", ".resourceenvironment", ".system", ".usagemodel"];
+    private static readonly FILE_ENDINGS = [
+        ".pddc",
+        ".allocation",
+        ".nodecharacteristics",
+        ".repository",
+        ".resourceenvironment",
+        ".system",
+        ".usagemodel",
+    ];
 
     constructor(
         @inject(TYPES.Action) _: Action,
@@ -33,27 +41,40 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(FileName) fileName: FileName,
         @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
-        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator
+        @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
-        super(logger, labelTypeRegistry, constraintRegistry, editorModeController, actionDispatcher, fileName, loadingIndicator);
+        super(
+            logger,
+            labelTypeRegistry,
+            constraintRegistry,
+            editorModeController,
+            actionDispatcher,
+            fileName,
+            loadingIndicator,
+        );
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
-        const files = await chooseFiles(LoadPalladioFileCommand.FILE_ENDINGS, LoadPalladioFileCommand.FILE_ENDINGS.length);
-        
+        const files = await chooseFiles(
+            LoadPalladioFileCommand.FILE_ENDINGS,
+            LoadPalladioFileCommand.FILE_ENDINGS.length,
+        );
+
         if (
-            LoadPalladioFileCommand.FILE_ENDINGS.some(ending =>
-                !files.find(file => file.fileName.endsWith(ending))
-            )
+            LoadPalladioFileCommand.FILE_ENDINGS.some((ending) => !files.find((file) => file.fileName.endsWith(ending)))
         ) {
-            throw new Error("Please select one file of each required type: .pddc, .allocation, .nodecharacteristics, .repository, .resourceenvironment, .system, .usagemodel");
+            throw new Error(
+                "Please select one file of each required type: .pddc, .allocation, .nodecharacteristics, .repository, .resourceenvironment, .system, .usagemodel",
+            );
         }
         const oldFileName = this.fileName.getName();
-        this.fileName.setName(files[0].fileName)
+        this.fileName.setName(files[0].fileName);
 
-        return this.dfdWebSocket.requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---")).catch((e) => {
-            this.fileName.setName(oldFileName);
-            throw e;
-        });
+        return this.dfdWebSocket
+            .requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---"))
+            .catch((e) => {
+                this.fileName.setName(oldFileName);
+                throw e;
+            });
     }
 }

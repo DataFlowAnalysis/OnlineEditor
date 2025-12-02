@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -e
+
+# Only run when WebEditor files are staged (optional guard)
+if git diff --cached --name-only --diff-filter=ACMRT | grep -q '^Frontend/WebEditor/'; then
+  REPO_ROOT="$(git rev-parse --show-toplevel)"
+  cd "$REPO_ROOT/Frontend/WebEditor"
+  npx lint-staged
+fi

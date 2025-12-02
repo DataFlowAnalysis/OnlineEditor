@@ -1,4 +1,12 @@
-import { ActionDispatcher, Command, CommandExecutionContext, CommandReturn, EMPTY_ROOT, ILogger, SModelRootImpl } from "sprotty";
+import {
+    ActionDispatcher,
+    Command,
+    CommandExecutionContext,
+    CommandReturn,
+    EMPTY_ROOT,
+    ILogger,
+    SModelRootImpl,
+} from "sprotty";
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
@@ -39,7 +47,7 @@ export abstract class LoadJsonCommand extends Command {
         protected editorModeController: EditorModeController,
         private actionDispatcher: ActionDispatcher,
         protected fileName: FileName,
-        private loadingIndicator: LoadingIndicator
+        private loadingIndicator: LoadingIndicator,
     ) {
         super();
     }
@@ -52,7 +60,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
-            this.loadingIndicator.hide()
+            this.loadingIndicator.hide();
             return context.root;
         }
 
@@ -81,26 +89,26 @@ export abstract class LoadJsonCommand extends Command {
             }
             this.logger.info(this, "Editor mode loaded successfully");
 
-            this.oldConstrains = this.constraintRegistry.getConstraintList()
-            const newConstraints = this.file.content.constraints
+            this.oldConstrains = this.constraintRegistry.getConstraintList();
+            const newConstraints = this.file.content.constraints;
             if (newConstraints) {
-                this.constraintRegistry.setConstraintsFromArray(newConstraints)
+                this.constraintRegistry.setConstraintsFromArray(newConstraints);
             } else {
-                this.constraintRegistry.clearConstraints()
+                this.constraintRegistry.clearConstraints();
             }
 
             // TODO: post load actions like layout
-            this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot))
+            this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot));
 
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
 
-            this.loadingIndicator.hide()
+            this.loadingIndicator.hide();
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
             this.newRoot = this.oldRoot;
-            this.loadingIndicator.hide()
+            this.loadingIndicator.hide();
             return this.oldRoot;
         }
     }
@@ -124,12 +132,12 @@ export abstract class LoadJsonCommand extends Command {
         }
 
         if (this.oldConstrains) {
-            this.constraintRegistry.setConstraintsFromArray(this.oldConstrains)
+            this.constraintRegistry.setConstraintsFromArray(this.oldConstrains);
         }
 
-        this.fileName.setName(this.oldFileName ?? 'diagram');
+        this.fileName.setName(this.oldFileName ?? "diagram");
 
-        this.loadingIndicator.hide()
+        this.loadingIndicator.hide();
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
@@ -152,16 +160,16 @@ export abstract class LoadJsonCommand extends Command {
         }
         this.logger.info(this, "Editor mode loaded successfully");
 
-        const newConstraints = this.file?.content.constraints
+        const newConstraints = this.file?.content.constraints;
         if (newConstraints) {
-            this.constraintRegistry.setConstraintsFromArray(newConstraints)
+            this.constraintRegistry.setConstraintsFromArray(newConstraints);
         } else {
-            this.constraintRegistry.clearConstraints()
+            this.constraintRegistry.clearConstraints();
         }
 
-        this.fileName.setName(this.file?.fileName ?? 'diagram');
+        this.fileName.setName(this.file?.fileName ?? "diagram");
 
-        this.loadingIndicator.hide()
+        this.loadingIndicator.hide();
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 

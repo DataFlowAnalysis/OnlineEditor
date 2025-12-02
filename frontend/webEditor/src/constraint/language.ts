@@ -7,7 +7,7 @@ import { ArrowEdge } from "../diagram/edges/ArrowEdge";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { WordCompletion } from "../languages/autocomplete";
 
-export const DSL_LANGUAGE_ID = "dfd-constraint"
+export const DSL_LANGUAGE_ID = "dfd-constraint";
 
 export const constraintDslLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = {
     keywords: ["data", "vertex", "neverFlows", "to", "where", "named", "present", "empty", "type"],
@@ -53,7 +53,10 @@ export const constraintDslLanguageMonarchDefinition: monaco.languages.IMonarchLa
 };
 
 export namespace ConstraintDslTreeBuilder {
-    export function buildTree(modelSource: LocalModelSource, labelTypeRegistry: LabelTypeRegistry): LanguageTreeNode<Word>[] {
+    export function buildTree(
+        modelSource: LocalModelSource,
+        labelTypeRegistry: LabelTypeRegistry,
+    ): LanguageTreeNode<Word>[] {
         const conditions = getConditionalSelectors();
         const conditionalSelector: LanguageTreeNode<Word> = {
             word: new ConstantWord("where"),

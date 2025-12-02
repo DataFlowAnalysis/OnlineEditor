@@ -29,17 +29,17 @@ export class LayoutModelCommand extends Command {
     constructor(
         @inject(TYPES.Action) private readonly action: LayoutModelAction,
         @inject(TYPES.IModelLayoutEngine) private readonly layoutEngine: IModelLayoutEngine,
-        @inject(DfdLayoutConfigurator) private readonly configurator: DfdLayoutConfigurator ,
-        @inject(LoadingIndicator) private readonly loadingIndicator: LoadingIndicator
+        @inject(DfdLayoutConfigurator) private readonly configurator: DfdLayoutConfigurator,
+        @inject(LoadingIndicator) private readonly loadingIndicator: LoadingIndicator,
     ) {
         super();
     }
 
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.loadingIndicator.showIndicator("Layouting...");
-        this.oldRoot = context.root
+        this.oldRoot = context.root;
 
-        this.configurator.method = this.action.layoutMethod
+        this.configurator.method = this.action.layoutMethod;
         // Layouting is normally done on the graph schema.
         // This is not viable for us because the dfd nodes have a dynamically computed size.
         // This is only available on loaded classes of the elements, not the json schema.
@@ -55,10 +55,10 @@ export class LayoutModelCommand extends Command {
     }
 
     undo(context: CommandExecutionContext): SModelRootImpl {
-        return this.oldRoot ?? context.root
+        return this.oldRoot ?? context.root;
     }
 
     redo(context: CommandExecutionContext): SModelRootImpl {
-        return this.newModel ?? context.root
+        return this.newModel ?? context.root;
     }
 }

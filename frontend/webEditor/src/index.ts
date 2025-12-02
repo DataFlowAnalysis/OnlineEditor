@@ -2,9 +2,9 @@ import "reflect-metadata";
 import { Container } from "inversify";
 import { loadDefaultModules, labelEditUiModule } from "sprotty";
 import "sprotty/css/sprotty.css";
-import "./assets/commonStyling.css"
-import "./assets/page.css"
-import "./assets/theme.css"
+import "./assets/commonStyling.css";
+import "./assets/page.css";
+import "./assets/theme.css";
 import "@vscode/codicons/dist/codicon.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { helpUiModule } from "./helpUi/di.config";
@@ -52,10 +52,10 @@ container.load(
     constraintModule,
     assignmentModule,
     editorModeOverwritesModule,
-    loadingIndicatorModule
-)
+    loadingIndicatorModule,
+);
 
-const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)
+const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent);
 for (const startUpAgent of startUpAgents) {
-    startUpAgent.run()
+    startUpAgent.run();
 }

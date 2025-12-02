@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { IEditLabelValidationDecorator, EditLabelValidationResult } from "sprotty";
-import "./editLabelDecorator.css"
+import "./editLabelDecorator.css";
 
 /**
  * Renders the validation result of an dfd edge label to the label edit ui.
