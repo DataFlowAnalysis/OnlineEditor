@@ -19,6 +19,7 @@ import { verify } from "../languages/verify";
 import { DfdCompletionItemProvider } from "../languages/autocomplete";
 import { AnalyzeAction } from "../serialize/analyze";
 import { ApplyableTheme, Theme, ThemeManager, ThemeSwitchable } from "../settings/Theme";
+import { SelectConstraintsAction } from "./selection";
 
 @injectable()
 export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitchable {
@@ -177,7 +178,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         button.id = "run-button";
         button.innerHTML = "Run";
         button.onclick = () => {
-            this.dispatcher.dispatch(AnalyzeAction.create());
+            this.dispatcher.dispatchAll([AnalyzeAction.create(), SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map(c => c.name))]);
         };
 
         wrapper.appendChild(button);
@@ -268,15 +269,14 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
                     this.optionsMenu.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((cb) => {
                         if (cb !== allCb) cb.checked = true;
                     });
-                    // TODO
-                    /*this.dispatcher.dispatch(
-                        ChooseConstraintAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
-                    );*/
+                    this.dispatcher.dispatch(
+                        SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
+                    );
                 } else {
                     this.optionsMenu.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((cb) => {
                         if (cb !== allCb) cb.checked = false;
                     });
-                    //this.dispatcher.dispatch(ChooseConstraintAction.create([]));
+                    this.dispatcher.dispatch(SelectConstraintsAction.create([]));
                 }
             } finally {
                 this.ignoreCheckboxChange = false;
@@ -309,7 +309,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
 
                 allCb.checked = individualCheckboxes.every((cb) => cb.checked);
 
-                //this.dispatcher.dispatch(ChooseConstraintAction.create(selected));
+                this.dispatcher.dispatch(SelectConstraintsAction.create(selected));
             };
 
             label.appendChild(cb);
