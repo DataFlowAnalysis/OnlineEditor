@@ -6,6 +6,7 @@ import { BoolSettingsValue } from "./SettingsValue";
 import { TYPES } from "sprotty";
 import { EditorModeController } from "./editorMode";
 import { ThemeManager } from "./Theme";
+import { ShownLabelsValue } from "./ShownLabels";
 
 export const settingsModule = new ContainerModule((bind) => {
   bind(SettingsUI).toSelf().inSingletonScope();
@@ -16,4 +17,5 @@ export const settingsModule = new ContainerModule((bind) => {
   bind(SETTINGS.HideEdgeNames).to(BoolSettingsValue).inSingletonScope();
   bind(SETTINGS.SimplifyNodeNames).to(BoolSettingsValue).inSingletonScope();
   bind(SETTINGS.Mode).to(EditorModeController).inSingletonScope();
+  bind(SETTINGS.ShownLabels).to(ShownLabelsValue).inSingletonScope()
 })

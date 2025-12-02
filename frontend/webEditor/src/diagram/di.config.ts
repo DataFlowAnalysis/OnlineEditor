@@ -14,6 +14,7 @@ import { DfdEditLabelValidatorDecorator } from "./labels/EditLabelDecorator";
 import { DfdEditLabelValidator } from "./labels/EditLabelValidator";
 import { NoScrollEditLabelUI } from "./labels/NoScrollEditLabelUI";
 import { PortAwareSnapper, AlwaysSnapPortsMoveMouseListener, ReSnapPortsAfterLabelChangeCommand } from "./ports/portSnapper";
+import { DfdNodeAnnotationUI, DfdNodeAnnotationUIMouseListener } from "./nodes/annotation";
 
 export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -27,6 +28,11 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
     bind(TYPES.ISnapper).to(PortAwareSnapper).inSingletonScope();
     bind(TYPES.MouseListener).to(AlwaysSnapPortsMoveMouseListener).inSingletonScope();
     configureCommand(context, ReSnapPortsAfterLabelChangeCommand);
+
+    bind(DfdNodeAnnotationUI).toSelf().inSingletonScope()
+    bind(TYPES.IUIExtension).toService(DfdNodeAnnotationUI)
+    bind(DfdNodeAnnotationUIMouseListener).toSelf().inSingletonScope()
+    bind(TYPES.MouseListener).toService(DfdNodeAnnotationUIMouseListener)
 
     configureModelElement(context, "graph", SGraphImpl, SGraphView);
 

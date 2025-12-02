@@ -5,6 +5,7 @@ import { AccordionUiExtension } from "../accordionUiExtension";
 import { HideEdgeNames, SETTINGS, SimplifyNodeNames } from "./Settings";
 import { EditorModeController } from "./editorMode";
 import { Theme, ThemeManager } from "./Theme";
+import { ShownLabels, ShownLabelsValue } from "./ShownLabels";
 
 @injectable()
 export class SettingsUI extends AccordionUiExtension {
@@ -12,9 +13,10 @@ export class SettingsUI extends AccordionUiExtension {
 
     constructor(
         @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager,
+        @inject(SETTINGS.ShownLabels) private readonly shownLabels: ShownLabelsValue,
         @inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames,
-    @inject(SETTINGS.SimplifyNodeNames) private readonly simplifyNodeNames: SimplifyNodeNames,
-@inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController) {
+        @inject(SETTINGS.SimplifyNodeNames) private readonly simplifyNodeNames: SimplifyNodeNames,
+        @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController) {
         super('right', 'up')
     }
 
@@ -31,6 +33,7 @@ export class SettingsUI extends AccordionUiExtension {
         grid.id = 'settings-content'
         contentElement.appendChild(grid);
         this.addDropDown(grid, "Theme", this.themeManager, [Theme.SYSTEM_DEFAULT, Theme.LIGHT, Theme.DARK])
+        this.addDropDown(grid, "Shown Labels", this.shownLabels, [ShownLabels.INCOMING, ShownLabels.OUTGOING, ShownLabels.ALL])
         this.addBooleanSwitch(grid, "Hide Edge Names", this.hideEdgeNames);
         this.addBooleanSwitch(grid, "Simplify Node Names", this.simplifyNodeNames);
         this.addSwitch(grid, "Read Only", this.editorModeController, {true: "view", false: "edit"});

@@ -6,6 +6,7 @@ import "./assets/commonStyling.css"
 import "./assets/page.css"
 import "./assets/theme.css"
 import "@vscode/codicons/dist/codicon.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import { helpUiModule } from "./helpUi/di.config";
 import { IStartUpAgent, StartUpAgent } from "./startUpAgent/StartUpAgent";
 import { startUpAgentModule } from "./startUpAgent/di.config";
