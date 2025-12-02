@@ -1,5 +1,5 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import {
     PolylineEdgeViewWithGapsOnIntersections,
     SEdgeImpl,
@@ -13,6 +13,7 @@ import {
 } from "sprotty";
 import { VNode } from "snabbdom";
 import { Point, angleOfPoint, toDegrees, SEdge } from "sprotty-protocol";
+import { HideEdgeNames, SETTINGS } from "../../settings/Settings";
 
 export interface ArrowEdge extends SEdge {
     text?: string;
@@ -34,18 +35,8 @@ export class ArrowEdgeImpl extends SEdgeImpl implements WithEditableLabel {
 @injectable()
 export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
 
-    override render(edge: Readonly<SEdgeImpl>, context: RenderingContext, args?: IViewArgs): VNode | undefined {
-        // In the default implementation children of the edge are always rendered, because they
-        // may be visible when the rest of the edge is not.
-        // We only have the edge label as an children which only must be rendered when the rest of the edge is visible.
-        // So as an optimization for big diagrams we don't render the label when the rest of the edge is not visible either.
-        // Otherwise all these labels would be added to the DOM, making it slow..
-        const route = this.edgeRouterRegistry.route(edge, args);
-        if (!this.isVisible(edge, route, context)) {
-            return undefined;
-        }
-
-        return super.render(edge, context, args);
+    constructor(@inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames) {
+        super()
     }
 
 
@@ -75,7 +66,7 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
      * In contrast to the default implementation that we override here,
      * this implementation makes the edge line 10px shorter at the end to make space for the arrow without any overlap.
      */
-    protected renderLine(edge: SEdgeImpl, segments: Point[]): VNode {
+    override renderLine(edge: SEdgeImpl, segments: Point[]): VNode {
         const firstPoint = segments[0];
         let path = `M ${firstPoint.x},${firstPoint.y}`;
         for (let i = 1; i < segments.length; i++) {
@@ -103,6 +94,29 @@ export class ArrowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
                 <path d={path} class-select-path={true} />
             </g>
         );
+    }
+
+    override render(edge: Readonly<SEdgeImpl>, context: RenderingContext, args?: IViewArgs): VNode | undefined {
+        // In the default implementation children of the edge are always rendered, because they
+        // may be visible when the rest of the edge is not.
+        // We only have the edge label as an children which only must be rendered when the rest of the edge is visible.
+        // So as an optimization for big diagrams we don't render the label when the rest of the edge is not visible either.
+        // Otherwise all these labels would be added to the DOM, making it slow..
+        const route = this.edgeRouterRegistry.route(edge, args);
+        if (!this.isVisible(edge, route, context)) {
+            return undefined;
+        }
+        if (route.length === 0) {
+            return this.renderDanglingEdge("Cannot compute route", edge, context);
+        }
+
+
+    return <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback}>
+        {this.renderLine(edge, route)}
+        {this.renderAdditionals(edge, route, context)}
+        {this.renderJunctionPoints(edge, route, context, args)}
+        { this.hideEdgeNames.get() ? undefined : context.renderChildren(edge, { route }) }
+    </g>;
     }
 }
 
