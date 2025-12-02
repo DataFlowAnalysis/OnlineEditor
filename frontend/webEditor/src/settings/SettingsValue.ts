@@ -11,8 +11,11 @@ export class SettingsValue<T> {
   }
 
   set(newValue: T): void {
+    const oldValue = this.value;
     this.value = newValue;
-    this.listeners.forEach(listener => listener(newValue));
+    if (oldValue !== newValue) {
+      this.listeners.forEach(listener => listener(newValue));
+    } 
   }
 
   registerListener(listener: (newValue: T) => void): void {
