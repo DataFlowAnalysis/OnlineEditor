@@ -19,6 +19,8 @@ export class NodeCreationTool extends CreationTool<SNode, SNodeImpl> {
             id: generateRandomSprottyId(),
             type: this.elementType,
             text: defaultTextCapitalized,
+            ports: [],
+            labels: []
         } as SNode;
     }
 }

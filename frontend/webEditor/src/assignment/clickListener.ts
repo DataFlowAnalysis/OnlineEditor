@@ -35,7 +35,6 @@ export class OutputPortEditUIMouseListener extends MouseListener {
     }
 
     doubleClick(target: SModelElementImpl): (Action | Promise<Action>)[] {
-        console.debug(target.type)
         if (target instanceof DfdOutputPortImpl) {
             // The user has double clicked on a dfd output port
             // => show the OutputPortEditUI for this port.
