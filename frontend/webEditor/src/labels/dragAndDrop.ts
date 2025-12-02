@@ -10,7 +10,7 @@ import {
     SNodeImpl
 } from "sprotty";
 import { LabelAssignment } from "./LabelType";
-import { AddLabelAssignmentAction } from "./command";
+import { AddLabelAssignmentAction } from "./assignmentCommand";
 import { containsDfdLabels, ContainsDfdLabels } from "./feature";
 
 export const LABEL_ASSIGNMENT_MIME_TYPE = "application/x-label-assignment";

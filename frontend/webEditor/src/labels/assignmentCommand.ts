@@ -17,16 +17,16 @@ import { inject, injectable } from "inversify";
 import { SETTINGS } from "../settings/Settings";
 import { ContainsDfdLabels, containsDfdLabels } from "./feature";
 
-interface LabelAction extends Action {
+interface LabelAssignmentAction extends Action {
     action: "add" | "remove";
     element?: ContainsDfdLabels & SNodeImpl;
     labelAssignment: LabelAssignment;
 }
 
 export namespace AddLabelAssignmentAction {
-    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAction {
+    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAssignmentAction {
         return {
-            kind: LabelCommand.KIND,
+            kind: LabelAssignmentCommand.KIND,
             action: 'add',
             labelAssignment,
             element
@@ -35,9 +35,9 @@ export namespace AddLabelAssignmentAction {
 }
 
 export namespace RemoveLabelAssignmentAction {
-    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAction {
+    export function create(labelAssignment: LabelAssignment, element?: ContainsDfdLabels & SNodeImpl): LabelAssignmentAction {
         return {
-            kind: LabelCommand.KIND,
+            kind: LabelAssignmentCommand.KIND,
             action: 'remove',
             labelAssignment,
             element
@@ -46,13 +46,13 @@ export namespace RemoveLabelAssignmentAction {
 }
 
 @injectable()
-export class LabelCommand implements Command {
+export class LabelAssignmentCommand implements Command {
     public static readonly KIND = 'labelAction';
 
     private elements?: ContainsDfdLabels[];
 
     constructor(
-        @inject(TYPES.Action) private readonly action: LabelAction,
+        @inject(TYPES.Action) private readonly action: LabelAssignmentAction,
         @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController,
         @inject(TYPES.ISnapper) private readonly snapper: ISnapper,
     ) {}

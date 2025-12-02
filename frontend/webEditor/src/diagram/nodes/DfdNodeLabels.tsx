@@ -7,7 +7,7 @@ import { LabelTypeRegistry } from "../../labels/LabelTypeRegistry";
 import { calculateTextSize } from "../../utils/TextSize";
 import { VNode } from "snabbdom";
 import { ContainsDfdLabels } from "../../labels/feature";
-import { RemoveLabelAssignmentAction } from "../../labels/command";
+import { RemoveLabelAssignmentAction } from "../../labels/assignmentCommand";
 
 @injectable()
 export class DfdNodeLabelRenderer {

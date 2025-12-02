@@ -7,7 +7,7 @@ import { LabelTypeRegistry } from "./LabelTypeRegistry";
 import "./labelTypeEditorUi.css";
 import { dynamicallySetInputSize } from "../utils/TextSize";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dragAndDrop";
-import { AddLabelAssignmentAction } from "./command";
+import { AddLabelAssignmentAction } from "./assignmentCommand";
 import { IActionDispatcher, TYPES } from "sprotty";
 
 export class LabelTypeEditorUi extends AccordionUiExtension {
