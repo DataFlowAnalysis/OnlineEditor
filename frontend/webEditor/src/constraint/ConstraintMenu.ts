@@ -27,7 +27,6 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private editor?: monaco.editor.IStandaloneCodeEditor;
-    private forceReadOnly: boolean;
     private optionsMenu?: HTMLDivElement;
     private ignoreCheckboxChange = false;
     private readonly tree: LanguageTreeNode<Word>[]
@@ -38,14 +37,15 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         @inject(TYPES.ModelSource) modelSource: LocalModelSource,
         @inject(TYPES.IActionDispatcher) private readonly dispatcher: IActionDispatcher,
         @inject(SETTINGS.Mode)
-        editorModeController: EditorModeController,
+        private readonly editorModeController: EditorModeController,
         @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager
     ) {
         super("left", "up");
         this.constraintRegistry = constraintRegistry;
-        this.forceReadOnly = editorModeController.get() !== "edit";
         editorModeController.registerListener(() => {
-            this.forceReadOnly = editorModeController.isReadOnly();
+            this.editor?.updateOptions({
+                readOnly: editorModeController.isReadOnly()
+            })
         });
         constraintRegistry.onUpdate(() => {
             if (this.editor) {
@@ -125,7 +125,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
                 alwaysConsumeMouseWheel: false,
             },
             lineNumbers: "on",
-            readOnly: this.forceReadOnly,
+            readOnly: this.editorModeController.isReadOnly(),
         });
 
         this.editor.setValue(this.constraintRegistry.getConstraintsAsText() || "");

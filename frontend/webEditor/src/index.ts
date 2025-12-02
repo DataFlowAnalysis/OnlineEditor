@@ -23,6 +23,7 @@ import { settingsModule } from "./settings/di.config";
 import { toolPaletteModule } from "./toolPalette/di.config";
 import { constraintModule } from "./constraint/di.config";
 import { assignmentModule } from "./assignment/di.config";
+import { editorModeOverwritesModule } from "./editModeOverwrites/di.config";
 
 const container = new Container();
 
@@ -48,7 +49,8 @@ container.load(
     settingsModule,
     toolPaletteModule,
     constraintModule,
-    assignmentModule
+    assignmentModule,
+    editorModeOverwritesModule
 )
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent)

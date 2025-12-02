@@ -9,12 +9,14 @@ import { dynamicallySetInputSize } from "../utils/TextSize";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dragAndDrop";
 import { AddLabelAssignmentAction } from "./assignmentCommand";
 import { IActionDispatcher, TYPES } from "sprotty";
+import { SETTINGS } from "../settings/Settings";
+import { EditorModeController } from "../settings/editorMode";
 
 export class LabelTypeEditorUi extends AccordionUiExtension {
     static readonly ID = "label-type-editor-ui";
     private labelSectionContainer?: HTMLElement;
 
-    constructor(@inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry, @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher) {
+    constructor(@inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry, @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher, @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController) {
         super("left", "down");
         labelTypeRegistry.onUpdate(() => this.renderLabelTypes());
     }
@@ -30,6 +32,9 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         const addButton = UiElementFactory.buildAddButton("Label Type");
 
         addButton.onclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             this.labelTypeRegistry.registerLabelType("");
         };
 
@@ -86,16 +91,27 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         nameInput.onchange = () => {
             this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value);
         };
+        nameInput.onfocus = () => {
+            if (this.editorModeController.isReadOnly()) {
+                nameInput.blur()
+            }
+        }
 
         for (let i = 0; i < labelType.values.length; i++) {
             labelTypeValueHolder.appendChild(this.buildLabelTypeValue(labelType, i));
         }
 
         addButton.onclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             this.labelTypeRegistry.registerLabelTypeValue(labelType.id, "");
         };
 
         deleteButton.onclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             this.labelTypeRegistry.unregisterLabelType(labelType.id);
         };
 
@@ -124,16 +140,25 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         setTimeout(() => dynamicallySetInputSize(nameInput), 0)
 
         nameInput.onchange = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value);
         };
 
         deleteButton.onclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             this.labelTypeRegistry.unregisterLabelTypeValue(labelType.id, value.id);
         };
 
         // Allow dragging to create a label assignment
         nameInput.draggable = true;
         nameInput.ondragstart = (event) => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             const assignment: LabelAssignment = {
                 labelTypeId: labelType.id,
                 labelTypeValueId: value.id,
@@ -144,6 +169,9 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
 
         // Only edit on double click
         nameInput.onclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             if (nameInput.getAttribute("clicked") === "true") {
                 return;
             }
@@ -162,10 +190,17 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
             }, 500);
         };
         nameInput.ondblclick = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return
+            }
             nameInput.removeAttribute("clicked");
             nameInput.focus();
         };
         nameInput.onfocus = (event) => {
+            if (this.editorModeController.isReadOnly()) {
+                nameInput.blur()
+                return
+            }
             // we check for the single click here, since this gets triggered before the ondblclick event
             if (nameInput.getAttribute("clicked") !== "true") {
                 event.preventDefault();
