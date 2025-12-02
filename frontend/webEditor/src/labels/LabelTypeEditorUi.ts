@@ -87,7 +87,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
 
         nameInput.value = labelType.name;
         nameInput.placeholder = "Label Type Name";
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        nameInput.oninput = (e: Event) => this.onInputHandler(e as InputEvent, nameInput);
         dynamicallySetInputSize(nameInput);
         setTimeout(() => dynamicallySetInputSize(nameInput), 0);
         nameInput.onchange = () => {
@@ -136,7 +136,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
 
         nameInput.value = value.text;
         nameInput.placeholder = "Value";
-        nameInput.oninput = (e: InputEvent) => this.onInputHandler(e, nameInput);
+        nameInput.oninput = (e: Event) => this.onInputHandler(e as InputEvent, nameInput);
         nameInput.style.width = "0px";
         setTimeout(() => dynamicallySetInputSize(nameInput), 0);
 

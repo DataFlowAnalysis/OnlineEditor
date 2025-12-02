@@ -7,7 +7,7 @@ import { ThemeSwitchable } from "../settings/Theme";
 import { TFGManager } from "./tfgManager";
 import { SelectConstraintsCommand } from "./selection";
 
-export const constraintModule = new ContainerModule((bind, unbind, isBound) => {
+export const constraintModule = new ContainerModule((bind, _, isBound) => {
     bind(ConstraintRegistry).toSelf().inSingletonScope();
 
     bind(ConstraintMenu).toSelf().inSingletonScope();
