@@ -2,7 +2,6 @@ export interface Token {
     text: string;
     line: number;
     column: number;
-    whiteSpaceAfter?: string;
 }
 
 export interface LanguageTreeNode<W> {

@@ -1,8 +1,9 @@
 import { CompletionWord, WordCompletion } from "./autocomplete";
+import { ReplaceableWord, ReplacementData } from "./replace";
 import { VerifyWord } from "./verify";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
-export type Word = VerifyWord & CompletionWord;
+export type Word = VerifyWord & CompletionWord & ReplaceableWord;
 
 export class ConstantWord implements Word {
     constructor(private readonly word: string) {}
@@ -57,6 +58,16 @@ export class NegatableWord implements Word {
         }
         return this.word.completionOptions(part);
     }
+
+    replace(text: string, replacement: ReplacementData): string {
+        if (!this.word.replace) {
+            return text
+        }
+        if (text.startsWith('!')) {
+            return this.replace(text.substring(1), replacement)
+        }
+        return this.word.replace(text, replacement)
+    }
 }
 
 export class ListWord implements Word {
@@ -77,5 +88,13 @@ export class ListWord implements Word {
         const last = parts[parts.length - 1];
 
         return this.word.completionOptions(last);
+    }
+
+    replace(text: string, replacement: ReplacementData): string {
+        if (!this.word.replace) {
+            return text
+        }
+        const parts = text.split(',')
+        return parts.map(p => this.word.replace!(p, replacement)).join(',')
     }
 }

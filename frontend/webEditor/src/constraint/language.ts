@@ -6,6 +6,7 @@ import { SModelRoot } from "sprotty-protocol";
 import { ArrowEdge } from "../diagram/edges/ArrowEdge";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { WordCompletion } from "../languages/autocomplete";
+import { ReplacementData } from "../languages/replace";
 
 export const DSL_LANGUAGE_ID = "dfd-constraint";
 
@@ -288,6 +289,13 @@ export namespace ConstraintDslTreeBuilder {
 
             return [];
         }
+
+        replace(text: string, replacement: ReplacementData) {
+        if (replacement.type == "label" && text == replacement.old) {
+            return replacement.replacement;
+        }
+        return text;
+        }
     }
 
     class NameWord implements Word {
@@ -378,5 +386,13 @@ export namespace ConstraintDslTreeBuilder {
 
             return [];
         }
+
+        replace(text: string, replacement: ReplacementData) {
+            if (!this.characteristicSelectorData.replace) {
+                return text
+            }
+            const parts = text.split(',')
+            return parts.map(p => this.characteristicSelectorData.replace(p, replacement)).join(',')
+        }   
     }
 }

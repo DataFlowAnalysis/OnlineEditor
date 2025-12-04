@@ -11,6 +11,7 @@ import { AddLabelAssignmentAction } from "./assignmentCommand";
 import { IActionDispatcher, TYPES } from "sprotty";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
+import { ReplaceAction } from "./renameCommand";
 
 export class LabelTypeEditorUi extends AccordionUiExtension {
     static readonly ID = "label-type-editor-ui";
@@ -91,7 +92,16 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         dynamicallySetInputSize(nameInput);
         setTimeout(() => dynamicallySetInputSize(nameInput), 0);
         nameInput.onchange = () => {
+            if (this.editorModeController.isReadOnly()) {
+                return;
+            }
+            const replacements = labelType.values.map(t => ({
+                old: `${labelType.name}.${t}`,
+                replacement: `${nameInput.value}.${t}`,
+                type: 'label'
+            }))
             this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value);
+            this.actionDispatcher.dispatch(ReplaceAction.create(replacements))
         };
         nameInput.onfocus = () => {
             if (this.editorModeController.isReadOnly()) {
@@ -144,7 +154,13 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
             if (this.editorModeController.isReadOnly()) {
                 return;
             }
+            const replacements = [{
+                old: `${labelType.name}.${value.text}`,
+                replacement: `${labelType.name}.${nameInput.value}`,
+                type: 'label'
+            }]
             this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value);
+            this.actionDispatcher.dispatch(ReplaceAction.create(replacements))
         };
 
         deleteButton.onclick = () => {

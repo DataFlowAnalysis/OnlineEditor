@@ -5,6 +5,7 @@ import { LanguageTreeNode } from "../languages/tokenize";
 import { ConstantWord, ListWord, Word } from "../languages/words";
 import { DfdNodeImpl } from "../diagram/nodes/common";
 import { WordCompletion } from "../languages/autocomplete";
+import { ReplacementData } from "../languages/replace";
 
 export const ASSIGNMENT_LANGUAGE_ID = "dfd-assignment-language";
 
@@ -202,13 +203,13 @@ class LabelWord implements Word {
 
         return [];
     }
-    /*
-    replaceWord(text: string, replacement: ReplacementData) {
-        if (replacement.type == "Label" && text == replacement.old) {
+    
+    replace(text: string, replacement: ReplacementData) {
+        if (replacement.type == "label" && text == replacement.old) {
             return replacement.replacement;
         }
         return text;
-    }*/
+    }
 }
 
 class InputWord extends InputAwareWord implements Word {
@@ -227,13 +228,6 @@ class InputWord extends InputAwareWord implements Word {
         }
         return [`Unknown input "${word}"`];
     }
-
-    /*replaceWord(text: string, replacement: ReplacementData) {
-        if (replacement.type == "Input" && text == replacement.old) {
-            return replacement.replacement;
-        }
-        return text;
-    }*/
 }
 
 class InputLabelWord implements Word {
@@ -275,15 +269,13 @@ class InputLabelWord implements Word {
         return [...inputErrors, ...labelErrors];
     }
 
-    /*replaceWord(text: string, replacement: ReplacementData) {
+    replaceWord(text: string, replacement: ReplacementData) {
         const [input, label] = this.getParts(text);
-        if (replacement.type == "Input" && input === replacement.old) {
-            return replacement.replacement + (label ? "." + label : "");
-        } else if (replacement.type == "Label" && label === replacement.old) {
+        if (replacement.type == "label" && label === replacement.old) {
             return input + "." + replacement.replacement;
         }
         return text;
-    }*/
+    }
 
     private getParts(text: string): [string, string] | [string, undefined] {
         if (text.includes(".")) {

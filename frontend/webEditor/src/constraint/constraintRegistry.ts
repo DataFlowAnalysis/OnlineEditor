@@ -13,6 +13,7 @@ export class ConstraintRegistry {
 
     public setConstraints(constraints: string[]): void {
         this.constraints = this.splitIntoConstraintTexts(constraints).map((c) => this.mapToConstraint(c));
+        this.constraintListChanged();
     }
 
     public setConstraintsFromArray(constraints: Constraint[]): void {
