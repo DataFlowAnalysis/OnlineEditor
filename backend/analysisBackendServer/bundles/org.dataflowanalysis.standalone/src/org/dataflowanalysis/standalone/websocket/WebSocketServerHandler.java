@@ -95,12 +95,12 @@ public class WebSocketServerHandler extends WebSocketAdapter
 				newJson = deserializeJsonAndAnnotate(message);	    				
 	    	}
 	    	else if (message.startsWith("Json2DFD:")) {
-	    		message = message.replaceFirst("Json2DFD:" + name + ":", "");   		
+	    		message = message.replaceFirst("Json2DFD:", "");   		
 				var webEditorDfd = deserializeJson(message);
 			    return name + ":" + Converter.convertToDFDandStringify(webEditorDfd, name);	
 	    	} 
 	    	else if (message.startsWith("DFD:")) {
-	    		newJson = safeLoadAndConvertDFDString(message);
+	    		newJson = safeLoadAndConvertDFDString(message, name);
 	    	} else {
 	    	    newJson = safeLoadAndConvertPCMString(message);
 	    	}
@@ -143,10 +143,8 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		return webEditorDfd;
     }
     
-    private WebEditorDfd safeLoadAndConvertDFDString(String message) {
+    private WebEditorDfd safeLoadAndConvertDFDString(String message, String name) {
 		message = message.replaceFirst("DFD:", "");
-		var name = message.split(":")[0];
-		message = message.replaceFirst(name + ":", "");
 		var dfdMessage = message.split("\n:DD:\n")[0];
 		var ddMessage = message.split("\n:DD:\n")[1];
 		try {            
