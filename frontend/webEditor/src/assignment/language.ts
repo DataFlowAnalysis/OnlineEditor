@@ -203,7 +203,7 @@ class LabelWord implements Word {
 
         return [];
     }
-    
+
     replace(text: string, replacement: ReplacementData) {
         if (replacement.type == "label" && text == replacement.old) {
             return replacement.replacement;

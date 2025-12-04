@@ -291,10 +291,10 @@ export namespace ConstraintDslTreeBuilder {
         }
 
         replace(text: string, replacement: ReplacementData) {
-        if (replacement.type == "label" && text == replacement.old) {
-            return replacement.replacement;
-        }
-        return text;
+            if (replacement.type == "label" && text == replacement.old) {
+                return replacement.replacement;
+            }
+            return text;
         }
     }
 
@@ -389,10 +389,10 @@ export namespace ConstraintDslTreeBuilder {
 
         replace(text: string, replacement: ReplacementData) {
             if (!this.characteristicSelectorData.replace) {
-                return text
+                return text;
             }
-            const parts = text.split(',')
-            return parts.map(p => this.characteristicSelectorData.replace(p, replacement)).join(',')
-        }   
+            const parts = text.split(",");
+            return parts.map((p) => this.characteristicSelectorData.replace(p, replacement)).join(",");
+        }
     }
 }

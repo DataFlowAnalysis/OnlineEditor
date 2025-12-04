@@ -21,7 +21,7 @@
     transition:
         grid-template-rows 300ms ease,
         /* ease-out animation: https://cubic-bezier.com/#0,.7,.4,1 */ /* mirrored version of the curve above */
-            grid-template-columns 300ms cubic-bezier(0, 0.7, 0.4, 1),
+        grid-template-columns 300ms cubic-bezier(0, 0.7, 0.4, 1),
         padding-top 300ms ease;
 
     /* space between accordion button and the content, otherwise they would be directly next to each other without any spacing */

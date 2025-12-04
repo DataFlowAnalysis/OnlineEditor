@@ -23,13 +23,13 @@ export function replace(
     const tokens = tokenize(lines);
     const replaced = replaceTokens(tokens, tree, tree, 0, replacement);
     for (let i = 0; i < tokens.length; i++) {
-        replaceToken(i)
+        replaceToken(i);
     }
-    return lines
+    return lines;
 
     function replaceToken(index: number) {
         const token = replaced[index];
-        const lengthDiff = token.newText.length - token.text.length
+        const lengthDiff = token.newText.length - token.text.length;
         const lineIndex = token.line - 1;
         const line = lines[lineIndex];
         const before = line.substring(0, token.column - 1);

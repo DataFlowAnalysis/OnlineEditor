@@ -29,7 +29,7 @@ export class ReplaceCommand extends Command {
         @inject(TYPES.Action) private readonly action: ReplaceAction,
         @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-        @inject(TYPES.ModelSource) private readonly localModelSource: LocalModelSource
+        @inject(TYPES.ModelSource) private readonly localModelSource: LocalModelSource,
     ) {
         super();
     }
@@ -39,7 +39,7 @@ export class ReplaceCommand extends Command {
         for (const replacement of this.action.replacements) {
             this.constraintRegistry.setConstraints(
                 replace(
-                    this.constraintRegistry.getConstraintsAsText().split('\n'),
+                    this.constraintRegistry.getConstraintsAsText().split("\n"),
                     ConstraintDslTreeBuilder.buildTree(this.localModelSource, this.labelTypeRegistry),
                     replacement,
                 ),

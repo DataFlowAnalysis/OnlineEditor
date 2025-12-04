@@ -95,13 +95,13 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
             if (this.editorModeController.isReadOnly()) {
                 return;
             }
-            const replacements = labelType.values.map(t => ({
+            const replacements = labelType.values.map((t) => ({
                 old: `${labelType.name}.${t}`,
                 replacement: `${nameInput.value}.${t}`,
-                type: 'label'
-            }))
+                type: "label",
+            }));
             this.labelTypeRegistry.updateLabelTypeName(labelType.id, nameInput.value);
-            this.actionDispatcher.dispatch(ReplaceAction.create(replacements))
+            this.actionDispatcher.dispatch(ReplaceAction.create(replacements));
         };
         nameInput.onfocus = () => {
             if (this.editorModeController.isReadOnly()) {
@@ -154,13 +154,15 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
             if (this.editorModeController.isReadOnly()) {
                 return;
             }
-            const replacements = [{
-                old: `${labelType.name}.${value.text}`,
-                replacement: `${labelType.name}.${nameInput.value}`,
-                type: 'label'
-            }]
+            const replacements = [
+                {
+                    old: `${labelType.name}.${value.text}`,
+                    replacement: `${labelType.name}.${nameInput.value}`,
+                    type: "label",
+                },
+            ];
             this.labelTypeRegistry.updateLabelTypeValueText(labelType.id, value.id, nameInput.value);
-            this.actionDispatcher.dispatch(ReplaceAction.create(replacements))
+            this.actionDispatcher.dispatch(ReplaceAction.create(replacements));
         };
 
         deleteButton.onclick = () => {

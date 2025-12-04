@@ -61,12 +61,12 @@ export class NegatableWord implements Word {
 
     replace(text: string, replacement: ReplacementData): string {
         if (!this.word.replace) {
-            return text
+            return text;
         }
-        if (text.startsWith('!')) {
-            return this.replace(text.substring(1), replacement)
+        if (text.startsWith("!")) {
+            return this.replace(text.substring(1), replacement);
         }
-        return this.word.replace(text, replacement)
+        return this.word.replace(text, replacement);
     }
 }
 
@@ -92,9 +92,9 @@ export class ListWord implements Word {
 
     replace(text: string, replacement: ReplacementData): string {
         if (!this.word.replace) {
-            return text
+            return text;
         }
-        const parts = text.split(',')
-        return parts.map(p => this.word.replace!(p, replacement)).join(',')
+        const parts = text.split(",");
+        return parts.map((p) => this.word.replace!(p, replacement)).join(",");
     }
 }
