@@ -1,0 +1,22 @@
+.assignment-edit-ui {
+    position: absolute;
+    padding: 10px;
+
+    -webkit-user-select: none;
+    user-select: none;
+
+    background: var(--color-primary);
+
+    div.unavailable-inputs {
+        /* spacing between editor and this text */
+        padding-bottom: 5px;
+    }
+
+    div.validation-label.validation-error {
+        color: var(--color-error);
+    }
+
+    div.validation-label.validation-success {
+        color: var(--color-valid);
+    }
+}
