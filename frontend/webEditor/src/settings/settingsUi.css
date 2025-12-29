@@ -108,3 +108,11 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+.settings-ui #hashHolder {
+    font-size: small;
+    margin-top: 8px;
+    display: flex;
+    gap: 2px;
+}
+
