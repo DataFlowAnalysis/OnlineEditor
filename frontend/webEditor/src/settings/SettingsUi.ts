@@ -6,7 +6,6 @@ import { HideEdgeNames, SETTINGS, SimplifyNodeNames } from "./Settings";
 import { EditorModeController } from "./editorMode";
 import { Theme, ThemeManager } from "./Theme";
 import { ShownLabels, ShownLabelsValue } from "./ShownLabels";
-import hashJson from './hash.json'
 
 @injectable()
 export class SettingsUI extends AccordionUiExtension {
@@ -43,27 +42,11 @@ export class SettingsUI extends AccordionUiExtension {
         this.addBooleanSwitch(grid, "Hide Edge Names", this.hideEdgeNames);
         this.addBooleanSwitch(grid, "Simplify Node Names", this.simplifyNodeNames);
         this.addSwitch(grid, "Read Only", this.editorModeController, { true: "view", false: "edit" });
-        contentElement.appendChild(this.buildCommitHash())
     }
 
     protected initializeHeaderContent(headerElement: HTMLElement): void {
         headerElement.classList.add("settings-accordion-icon");
         headerElement.innerText = "Settings";
-    }
-
-    private buildCommitHash(): HTMLElement {
-        const holder = document.createElement('div')
-        holder.id = 'hashHolder'
-        holder.innerHTML = 'Commit:'
-
-        const link = document.createElement('a')
-        link.innerHTML = hashJson.hash.substring(0, 6)
-        link.href = `https://github.com/DataFlowAnalysis/OnlineEditor/tree/${hashJson.hash}`
-        link.id = 'hash'
-        link.target = '_blank'
-
-        holder.appendChild(link)
-        return holder
     }
 
     private addBooleanSwitch(container: HTMLElement, title: string, value: SettingsValue<boolean>): void {
