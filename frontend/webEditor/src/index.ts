@@ -54,7 +54,7 @@ container.load(
     assignmentModule,
     editorModeOverwritesModule,
     loadingIndicatorModule,
-    deleteKeyModule
+    deleteKeyModule,
 );
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent);
