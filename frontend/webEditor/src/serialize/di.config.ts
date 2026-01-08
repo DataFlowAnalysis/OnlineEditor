@@ -9,6 +9,7 @@ import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
 import { LoadThreatModelingFileCommand } from "./loadThreatModelingFile.ts";
+import { SaveThreatsTableCommand } from "./saveThreatsTable.ts";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -19,6 +20,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadThreatModelingFileCommand);
     configureCommand(context, SaveJsonFileCommand);
     configureCommand(context, SaveDfdAndDdFileCommand);
+    configureCommand(context, SaveThreatsTableCommand)
     configureCommand(context, AnalyzeCommand);
 
     rebind(TYPES.IModelFactory).to(DfdModelFactory);

@@ -11,6 +11,7 @@ import { LayoutModelAction } from "../layout/command";
 import { SaveJsonFileAction } from "../serialize/saveJsonFile";
 import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
 import { LoadThreatModelingFileAction } from "../serialize/loadThreatModelingFile.ts";
+import { SaveThreatsTableAction } from "../serialize/saveThreatsTable.ts";
 
 /**
  * Provides possible actions for the command palette.
@@ -46,6 +47,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                     new LabeledAction("Save diagram as JSON", [SaveJsonFileAction.create()], "json"),
                     new LabeledAction("Save diagram as DFD and DD", [SaveDfdAndDdFileAction.create()], "coffee"),
                     //new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
+                    new LabeledAction("Save threats table", [SaveThreatsTableAction.create()], "fa-triangle-exclamation")
                 ],
                 "save",
             ),
