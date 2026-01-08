@@ -10,6 +10,7 @@ import { LayoutMethod } from "../layout/layoutMethod";
 import { LayoutModelAction } from "../layout/command";
 import { SaveJsonFileAction } from "../serialize/saveJsonFile";
 import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
+import { LoadThreatModelingFileAction } from "../serialize/loadThreatModelingFile.ts";
 
 /**
  * Provides possible actions for the command palette.
@@ -31,6 +32,11 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                         [LoadPalladioFileAction.create(), commitAction],
                         "fa-puzzle-piece",
                     ),
+                    new LabeledAction(
+                        "Load Threat Modeling File (JSON)",
+                        [LoadThreatModelingFileAction.create(), commitAction],
+                        "fa-triangle-exclamation"
+                    )
                 ],
                 "go-to-file",
             ),

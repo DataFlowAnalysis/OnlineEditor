@@ -147,7 +147,7 @@ export class LabelAssignmentCommand implements Command {
     }
 }
 
-function getAllElements(elements: readonly SChildElementImpl[]): SModelElementImpl[] {
+export function getAllElements(elements: readonly SChildElementImpl[]): SModelElementImpl[] {
     const elementsList: SModelElementImpl[] = [];
     for (const element of elements) {
         elementsList.push(element);
