@@ -37,6 +37,30 @@
     }
 }
 
+#annotation-process-button {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    width: fit-content;
+    cursor: pointer;
+}
+
+#annotation-process-button::before {
+    content: "";
+    background-image: url("@fortawesome/fontawesome-free/svgs/solid/play.svg");
+    display: inline-block;
+    filter: invert(1);
+    height: 16px;
+    width: 16px;
+    background-size: 16px 16px;
+    vertical-align: text-top;
+}
+
 /* Label Type value */
 .label-type-value input {
     background-color: var(--color-background);

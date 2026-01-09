@@ -12,6 +12,7 @@ import { IActionDispatcher, TYPES } from "sprotty";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
 import { ReplaceAction } from "./renameCommand";
+import { BeginLabelingProcessAction } from "../labelingProcess/labelingProcessCommand.ts";
 
 export class LabelTypeEditorUi extends AccordionUiExtension {
     static readonly ID = "label-type-editor-ui";
@@ -46,11 +47,23 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
         this.labelSectionContainer = document.createElement("div");
         this.renderLabelTypes();
 
+        contentElement.appendChild(this.buildAnnotationProcessButton())
         contentElement.appendChild(this.labelSectionContainer);
         contentElement.appendChild(addButton);
     }
     protected initializeHeaderContent(headerElement: HTMLElement) {
         headerElement.innerText = "Label Types";
+    }
+
+    private buildAnnotationProcessButton(): HTMLElement {
+        const button = document.createElement("button");
+        button.id = "annotation-process-button";
+        button.innerHTML = "Start annotation process";
+        button.onclick = () => {
+            this.actionDispatcher.dispatch(BeginLabelingProcessAction.create(this.labelTypeRegistry));
+        };
+
+        return button;
     }
 
     private renderLabelTypes(): void {
