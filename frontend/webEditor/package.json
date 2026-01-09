@@ -32,7 +32,7 @@
         "preview": "vite preview",
         "format": "prettier --write \"./**/*.{html,css,ts,tsx,json}\"",
         "lint": "eslint --max-warnings 0 --no-warn-ignored",
-        "prepare": "husky"
+        "prepare": "cd ../../ && husky ./frontend/webEditor/.husky"
     },
     "lint-staged": {
         "*.{html,css,ts,tsx,json}": [
