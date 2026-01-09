@@ -25,6 +25,7 @@ import { constraintModule } from "./constraint/di.config";
 import { assignmentModule } from "./assignment/di.config";
 import { editorModeOverwritesModule } from "./editModeOverwrites/di.config";
 import { loadingIndicatorModule } from "./loadingIndicator/di.config";
+import { deleteKeyModule } from "./deleteKey/di.config";
 
 const container = new Container();
 
@@ -53,6 +54,7 @@ container.load(
     assignmentModule,
     editorModeOverwritesModule,
     loadingIndicatorModule,
+    deleteKeyModule,
 );
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent);
