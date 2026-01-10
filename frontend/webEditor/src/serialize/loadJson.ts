@@ -5,7 +5,9 @@ import {
     CommandReturn,
     EMPTY_ROOT,
     ILogger,
+    isLocateable,
     SModelRootImpl,
+    SNodeImpl,
 } from "sprotty";
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
@@ -17,6 +19,8 @@ import { DefaultFitToScreenAction } from "../fitToScreen/action";
 import { FileName } from "../fileName/fileName";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
+import { LayoutModelAction } from "../layout/command";
+import { LayoutMethod } from "../layout/layoutMethod";
 
 export interface FileData<T> {
     fileName: string;
@@ -97,8 +101,13 @@ export abstract class LoadJsonCommand extends Command {
                 this.constraintRegistry.clearConstraints();
             }
 
-            // TODO: post load actions like layout
-            this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot));
+            const containsUnPositionedNodes = this.newRoot.children
+                .filter((child) => child instanceof SNodeImpl)
+                .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
+            if (containsUnPositionedNodes) {
+                await this.actionDispatcher.dispatch(LayoutModelAction.create(LayoutMethod.LINES));
+            }
+            await this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot));
 
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
