@@ -6,9 +6,9 @@ import {
     TYPES,
 } from "sprotty";
 import { Action } from "sprotty-protocol";
-import { LabelingProcessState, LabelingProcessUi, LabelTypeValueWithLabelType } from "./labelingProcessUi.ts";
+import { LabelingProcessState, LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
-import { LabelType } from "../labels/LabelType.ts";
+import { LabelAssignment, LabelType } from "../labels/LabelType.ts";
 
 export interface LabelingProcessAction extends Action {
     state: LabelingProcessState
@@ -34,12 +34,12 @@ export namespace BeginLabelingProcessAction {
 export namespace NextLabelingProcessAction {
     export function create(
         labelTypeRegistry: LabelTypeRegistry,
-        finishedLabels: LabelTypeValueWithLabelType[]
+        finishedLabels: LabelAssignment[]
     ): LabelingProcessAction {
         const pendingLabels = transformLabelTypeArray(labelTypeRegistry.getLabelTypes())
             .filter(
                 (label) => !finishedLabels.some(
-                    finishedLabel => finishedLabel.labelType === label.labelType && finishedLabel.labelTypeValue === label.labelTypeValue
+                    finishedLabel => finishedLabel.labelTypeId === label.labelTypeId && finishedLabel.labelTypeValueId === label.labelTypeValueId
                 )
             )
 
@@ -67,11 +67,14 @@ export namespace CompleteLabelingProcessAction {
     }
 }
 
-function transformLabelTypeArray(labelTypes: LabelType[]): LabelTypeValueWithLabelType[] {
-    const transformed: LabelTypeValueWithLabelType[] = []
+function transformLabelTypeArray(labelTypes: LabelType[]): LabelAssignment[] {
+    const transformed: LabelAssignment[] = []
     for (const labelType of labelTypes) {
         for (const labelTypeValue of labelType.values) {
-            transformed.push({ labelType, labelTypeValue });
+            transformed.push({
+                labelTypeId: labelType.id,
+                labelTypeValueId: labelTypeValue.id
+            });
         }
     }
     return transformed;

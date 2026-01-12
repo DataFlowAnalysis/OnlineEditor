@@ -1,5 +1,5 @@
 import { generateRandomSprottyId } from "../utils/idGenerator";
-import { LabelType, LabelTypeValue } from "./LabelType";
+import { LabelAssignment, LabelType, LabelTypeValue } from "./LabelType";
 
 export class LabelTypeRegistry {
     private labelTypes: LabelType[] = [];
@@ -97,5 +97,21 @@ export class LabelTypeRegistry {
 
     public getLabelType(id: string): LabelType | undefined {
         return this.labelTypes.find((type) => type.id === id);
+    }
+
+    /**
+     * Resolves a `LabelAssignment` and returns the matching `LabelType` and `LabelTypeValue`.
+     * If the `LabelAssignment` cannot be resolved, returns `{}`.
+     * @param labelAssignment The IDs of the `LabelType` and `LabelTypeValue`. to resolve.
+     */
+    public getLabelAssignment(labelAssignment: LabelAssignment): Partial<{ labelType: LabelType, labelTypeValue: LabelTypeValue }>
+    {
+        const labelType = this.getLabelType(labelAssignment.labelTypeId);
+        const labelTypeValue = labelType?.values
+            .find((value) => value.id === labelAssignment.labelTypeValueId);
+
+        if (!labelType || !labelTypeValue) return {};
+
+        return {labelType, labelTypeValue};
     }
 }

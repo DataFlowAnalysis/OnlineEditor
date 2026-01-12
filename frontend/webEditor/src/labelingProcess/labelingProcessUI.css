@@ -3,8 +3,9 @@
     top: 40px;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: fit-content;
 
-    padding: 4px 12px;
+    padding: 10px 20px;
 
     display: flex;
     flex-direction: row;
@@ -15,4 +16,17 @@
     /* Make text of the elements non-selectable */
     -webkit-user-select: none; /* Safari only supports user select using the -webkit prefix */
     user-select: none;
+}
+
+.labeling-process-button {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    width: fit-content;
+    cursor: pointer;
 }
