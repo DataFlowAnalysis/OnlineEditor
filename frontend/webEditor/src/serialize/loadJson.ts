@@ -101,13 +101,7 @@ export abstract class LoadJsonCommand extends Command {
                 this.constraintRegistry.clearConstraints();
             }
 
-            const containsUnPositionedNodes = this.newRoot.children
-                .filter((child) => child instanceof SNodeImpl)
-                .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
-            if (containsUnPositionedNodes) {
-                await this.actionDispatcher.dispatch(LayoutModelAction.create(LayoutMethod.LINES));
-            }
-            await this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot));
+            this.postLoadActions();
 
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
@@ -212,5 +206,19 @@ export abstract class LoadJsonCommand extends Command {
             modelSchema.children.forEach((child: SModelElement) => this.preprocessModelSchema(child));
         }
         return modelSchema;
+    }
+
+    private async postLoadActions() {
+        if (!this.newRoot) {
+            return;
+        }
+
+        const containsUnPositionedNodes = this.newRoot.children
+            .filter((child) => child instanceof SNodeImpl)
+            .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
+        if (containsUnPositionedNodes) {
+            await this.actionDispatcher.dispatch(LayoutModelAction.create(LayoutMethod.LINES));
+        }
+        return this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot, false));
     }
 }
