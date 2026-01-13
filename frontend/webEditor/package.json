@@ -33,7 +33,7 @@
         "preview": "vite preview",
         "format": "prettier --write \"./**/*.{html,css,ts,tsx,json}\"",
         "lint": "eslint --max-warnings 0 --no-warn-ignored",
-        "prepare": "husky",
+        "prepare": "cd ../../ && husky ./frontend/webEditor/.husky",
         "postprepare": "npm run fetch-hash",
         "prebuild": "npm run fetch-hash",
         "predev": "npm run fetch-hash",
