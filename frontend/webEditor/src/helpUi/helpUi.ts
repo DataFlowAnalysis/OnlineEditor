@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import "./helpUi.css";
 import { AccordionUiExtension } from "../accordionUiExtension";
+import hashJson from "./hash.json";
 
 @injectable()
 export class HelpUI extends AccordionUiExtension {
@@ -35,9 +36,26 @@ export class HelpUI extends AccordionUiExtension {
             <p><kbd>Esc</kbd>: Disable current creation tool</p>
             <p>Toggle Creation Tool: Refer to key in the tool palette</p>
         `;
+
+        contentElement.appendChild(this.buildCommitHash());
     }
     protected initializeHeaderContent(headerElement: HTMLElement) {
         headerElement.classList.add("help-accordion-icon");
         headerElement.innerText = "Keyboard Shortcuts | Help";
+    }
+
+    private buildCommitHash(): HTMLElement {
+        const holder = document.createElement("div");
+        holder.id = "hashHolder";
+        holder.innerHTML = "Commit:";
+
+        const link = document.createElement("a");
+        link.innerHTML = hashJson.hash.substring(0, 6);
+        link.href = `https://github.com/DataFlowAnalysis/OnlineEditor/tree/${hashJson.hash}`;
+        link.id = "hash";
+        link.target = "_blank";
+
+        holder.appendChild(link);
+        return holder;
     }
 }
