@@ -6,6 +6,7 @@
         "type": "git",
         "url": "https://github.com/DataFlowAnalysis/OnlineEditor.git"
     },
+    "type": "module",
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.3",
         "@eslint/js": "^9.39.2",
@@ -32,7 +33,11 @@
         "preview": "vite preview",
         "format": "prettier --write \"./**/*.{html,css,ts,tsx,json}\"",
         "lint": "eslint --max-warnings 0 --no-warn-ignored",
-        "prepare": "husky"
+        "prepare": "husky",
+        "postprepare": "npm run fetch-hash",
+        "prebuild": "npm run fetch-hash",
+        "predev": "npm run fetch-hash",
+        "fetch-hash": "node ./scripts/fetchHash.js"
     },
     "lint-staged": {
         "*.{html,css,ts,tsx,json}": [

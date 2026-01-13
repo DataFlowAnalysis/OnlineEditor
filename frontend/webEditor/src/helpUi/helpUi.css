@@ -14,4 +14,11 @@
         vertical-align: text-top;
         margin-right: 4px;
     }
+
+    #hashHolder {
+        font-size: small;
+        margin-top: 4px;
+        display: flex;
+        gap: 2px;
+    }
 }
