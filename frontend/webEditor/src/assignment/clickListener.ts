@@ -3,7 +3,6 @@ import { MouseListener, SModelElementImpl, SetUIExtensionVisibilityAction } from
 import { Action } from "sprotty-protocol";
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort";
 import { AssignmentEditUi } from "./AssignmentEditUi";
-import { AddLabelToOutputPortAction } from "../labelingProcess/threatModelingAssignmehtCommand.ts";
 
 /**
  * Detects when a dfd output port is double clicked and shows the OutputPortEditUI
@@ -50,16 +49,5 @@ export class OutputPortEditUIMouseListener extends MouseListener {
         }
 
         return [];
-    }
-
-    contextMenu(target:SModelElementImpl, event:MouseEvent): (Action | Promise<Action>)[] {
-        event.preventDefault();
-
-        if (!(target instanceof DfdOutputPortImpl)) {
-            return []
-        }
-        return [
-            AddLabelToOutputPortAction.create(target)
-        ]
     }
 }

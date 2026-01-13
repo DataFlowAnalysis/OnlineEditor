@@ -58,7 +58,7 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
     private buildAnnotationProcessButton(): HTMLElement {
         const button = document.createElement("button");
         button.id = "annotation-process-button";
-        button.innerHTML = "Start annotation process";
+        button.innerHTML = "Start labeling process";
         button.onclick = () => {
             this.actionDispatcher.dispatch(BeginLabelingProcessAction.create(this.labelTypeRegistry));
         };

@@ -18,6 +18,16 @@
     user-select: none;
 }
 
+.labeling-highlight {
+    stroke: green;
+    fill: green;
+}
+
+.labeling-highlight * {
+    stroke: inherit;
+    fill: inherit;
+}
+
 .labeling-process-button {
     background-color: green;
     color: white;

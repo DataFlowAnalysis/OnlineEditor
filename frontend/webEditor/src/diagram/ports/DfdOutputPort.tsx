@@ -16,6 +16,9 @@ export interface DfdOutputPort extends SPort {
 
 @injectable()
 export class DfdOutputPortImpl extends DfdPortImpl {
+    static readonly PORT_COLOR = "var(--color-primary)";
+
+    private color?: string;
     private behavior: string = "";
     private validBehavior: boolean = true;
     private tree?: LanguageTreeNode<VerifyWord>[];
@@ -52,6 +55,8 @@ export class DfdOutputPortImpl extends DfdPortImpl {
             style["--port-color"] = "#ff6961";
         }
 
+        if (this.color) style["--port-color"] = this.color
+
         return style;
     }
 
@@ -74,6 +79,10 @@ export class DfdOutputPortImpl extends DfdPortImpl {
 
     public getBehavior() {
         return this.behavior;
+    }
+
+    public setColor(color: string, override: boolean = true) {
+        if (override || this.color === DfdOutputPortImpl.PORT_COLOR) this.color = color;
     }
 }
 

@@ -8,24 +8,23 @@ import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
 
 
 interface ThreatModelingLabelAssignmentToOutputPortAction extends Action {
-    element: DfdOutputPortImpl;// & SNodeImpl;
-    //labelAssignment: LabelAssignment;
+    element: DfdOutputPortImpl;
 }
 
 export namespace AddLabelToOutputPortAction {
     export function create(
-        element: DfdOutputPortImpl,// & SNodeImpl,
+        element: DfdOutputPortImpl,
     ): ThreatModelingLabelAssignmentToOutputPortAction {
         return {
-            kind: ThreatModelingAddLabelToOutputPortCommand.KIND,
+            kind: OutputPortAssignmentCommand.KIND,
             element
         };
     }
 }
 
 @injectable()
-export class ThreatModelingAddLabelToOutputPortCommand implements Command {
-    public static readonly KIND = "threatModeling-addLabelToOutputPort";
+export class OutputPortAssignmentCommand implements Command {
+    public static readonly KIND = "addLabelToOutputPort";
 
     private previousBehavior?: string
     private newBehavior?: string
@@ -40,11 +39,8 @@ export class ThreatModelingAddLabelToOutputPortCommand implements Command {
         const labelProcessState = this.labelingProcessUI.getState()
         if (labelProcessState.state !== "inProgress") return context.root;
 
-        const { labelType, labelTypeValue } = this.labelTypeRegistry.getLabelAssignment(labelProcessState.activeLabel)
+        const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(labelProcessState.activeLabel)
         if (!labelType || !labelTypeValue) return context.root;
-
-        console.error(labelType)
-        console.error(labelTypeValue)
 
         this.previousBehavior = this.action.element.getBehavior()
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {

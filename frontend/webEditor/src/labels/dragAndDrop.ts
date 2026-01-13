@@ -59,7 +59,7 @@ export class DfdLabelMouseDropListener extends MouseListener {
     }
 }
 
-function getParentWithDfdLabels(
+export function getParentWithDfdLabels(
     element: SChildElementImpl | SModelElementImpl,
 ): (SModelElementImpl & ContainsDfdLabels) | undefined {
     if (containsDfdLabels(element)) {

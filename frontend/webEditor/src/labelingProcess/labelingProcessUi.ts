@@ -64,25 +64,18 @@ export class LabelingProcessUi extends AbstractUIExtension {
         if (this.state.state !== 'inProgress') return;
 
         const text = document.createElement('span')
-        const { labelType, labelTypeValue } = this.labelTypeRegistry.getLabelAssignment(this.state.activeLabel)
+        const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(this.state.activeLabel)
         if (!labelType || !labelTypeValue) {
             text.innerText = `Couldn't resolve the LabelType or LabelTypeValue`
         } else {
             let targetElement = ""
             if (isThreatModelingLabelType(labelType)) {
-                switch (labelType.intendedFor) {
-                    case 'Vertex':
-                        targetElement = "nodes";
-                        break;
-                    case 'Flow':
-                        targetElement = "output pins";
-                        break;
-                }
+                targetElement = labelType.intendedFor === "Vertex" ? "node" : "output pin"
             } else {
-                targetElement = "nodes and output pins"
+                targetElement = "node or output pin"
             }
 
-            text.innerText = `Please click all ${targetElement} that are ${labelType.name}.${labelTypeValue.text}`
+            text.innerText = `Right click to assign ${labelType.name}.${labelTypeValue.text} to a ${targetElement}`
         }
 
         const nextStepButton = document.createElement('button')
