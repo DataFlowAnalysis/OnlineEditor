@@ -36,4 +36,18 @@ export async function isPresent(page: Page, id: string) {
 export async function init(page: Page) {
     await page.goto("/");
     await page.waitForSelector(".sprotty-graph");
+    await page.focus(".sprotty-graph");
+}
+
+export async function getPosition(page: Page, id: string) {
+    const element = await page.locator(id).first();
+    if ((await element.count()) == 0) {
+        throw "Element not found";
+    }
+    const transform = (await element.getAttribute("transform")) ?? "";
+    const match = /translate\((\d+(?:\.\d+)?), *(\d+(?:\.\d+)?)\)/.exec(transform);
+    if (!match) {
+        return { x: 0, y: 0 };
+    }
+    return { x: Number(match[1]), y: Number(match[2]) };
 }
