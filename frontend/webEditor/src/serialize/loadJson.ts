@@ -5,6 +5,7 @@ import {
     CommandReturn,
     EMPTY_ROOT,
     ILogger,
+    InitializeCanvasBoundsAction,
     isLocateable,
     SModelRootImpl,
     SNodeImpl,
@@ -65,7 +66,8 @@ export abstract class LoadJsonCommand extends Command {
         this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
             this.loadingIndicator.hide();
-            return context.root;
+            this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
+            return this.oldRoot;
         }
 
         try {
@@ -111,6 +113,7 @@ export abstract class LoadJsonCommand extends Command {
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
             this.newRoot = this.oldRoot;
+            this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             this.loadingIndicator.hide();
             return this.oldRoot;
         }
