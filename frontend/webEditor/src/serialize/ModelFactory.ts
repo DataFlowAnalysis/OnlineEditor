@@ -40,7 +40,11 @@ export class DfdModelFactory extends SModelFactory {
             } as SLabel);
         }
 
-        return super.createElement(schema, parent);
+        const element = super.createElement(schema, parent);
+        if (!element.features) {
+            element.features = new Set<symbol>();
+        }
+        return element;
     }
 
     override createSchema(element: SModelElementImpl): SModelElement {
