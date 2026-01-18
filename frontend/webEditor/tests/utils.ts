@@ -40,7 +40,7 @@ export async function init(page: Page) {
 }
 
 export async function getPosition(page: Page, id: string) {
-    const element = await page.locator(id).first();
+    const element = page.locator(id).first();
     if ((await element.count()) == 0) {
         throw "Element not found";
     }
@@ -50,4 +50,10 @@ export async function getPosition(page: Page, id: string) {
         return { x: 0, y: 0 };
     }
     return { x: Number(match[1]), y: Number(match[2]) };
+}
+
+export async function mockBackEnd(page: Page, route: string, response: string) {
+    await page.route(`*/**/${route}`, async (route) => {
+        await route.fulfill({ body: response });
+    });
 }
