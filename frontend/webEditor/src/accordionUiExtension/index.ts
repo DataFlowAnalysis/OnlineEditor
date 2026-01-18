@@ -7,23 +7,25 @@ import "./accordion.css";
  */
 @injectable()
 export abstract class AccordionUiExtension extends AbstractUIExtension {
+    private readonly mainCheckbox: HTMLInputElement;
+
     constructor(
         private chevronPosition: "left" | "right",
         private chevronOrientation: "up" | "down",
     ) {
         super();
+        this.mainCheckbox = document.createElement("input");
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
         containerElement.classList.add("ui-float");
 
         // create hidden checkbox used for toggling
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
+        this.mainCheckbox.type = "checkbox";
         const checkboxId = this.id() + "-checkbox";
-        checkbox.id = checkboxId;
-        checkbox.classList.add("accordion-state");
-        checkbox.hidden = true;
+        this.mainCheckbox.id = checkboxId;
+        this.mainCheckbox.classList.add("accordion-state");
+        this.mainCheckbox.hidden = true;
 
         // create clickable label for the checkbox
         const label = document.createElement("label");
@@ -44,7 +46,7 @@ export abstract class AccordionUiExtension extends AbstractUIExtension {
         this.initializeHidableContent(contentHolder);
         accordionContent.appendChild(contentHolder);
 
-        containerElement.appendChild(checkbox);
+        containerElement.appendChild(this.mainCheckbox);
         containerElement.appendChild(label);
         containerElement.appendChild(accordionContent);
     }
@@ -60,4 +62,8 @@ export abstract class AccordionUiExtension extends AbstractUIExtension {
      * @param contentElement The containing element of the header
      */
     protected abstract initializeHeaderContent(headerElement: HTMLElement): void;
+
+    protected toggleStatus() {
+        this.mainCheckbox.checked = !this.mainCheckbox.checked;
+    }
 }
