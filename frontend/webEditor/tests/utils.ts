@@ -23,10 +23,10 @@ export function getControlKeyEquivalent(browserName: "chromium" | "firefox" | "w
     return browserName === "webkit" ? "Meta" : "Control";
 }
 
-export async function waitForElement(page: Page, id: string, present = true) {
+export async function waitForElement(page: Page, selector: string, present = true) {
     const options = present ? undefined : { state: "detached" as const };
     // @ts-expect-error This should work. Just giving it undefined does...
-    return page.waitForSelector(id, options);
+    return page.waitForSelector(selector, options);
 }
 
 export async function isPresent(page: Page, id: string) {
