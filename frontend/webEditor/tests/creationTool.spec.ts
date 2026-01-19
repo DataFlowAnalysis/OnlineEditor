@@ -1,7 +1,7 @@
 import test, { expect } from "@playwright/test";
 import { getControlKeyEquivalent, init, pressKey, waitForElement } from "./utils";
 
-test.only("test creation tools", async ({ page, browserName }) => {
+test("test creation tools", async ({ page, browserName }) => {
     const CONTROL_KEY = getControlKeyEquivalent(browserName);
     await init(page);
 
