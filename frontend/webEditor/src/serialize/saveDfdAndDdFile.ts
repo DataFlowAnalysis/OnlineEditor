@@ -6,7 +6,6 @@ import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { EditorModeController } from "../settings/editorMode";
 import { DfdWebSocket } from "../webSocket/webSocket";
 import { Action } from "sprotty-protocol";
-import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
@@ -28,7 +27,6 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
-        @inject(FileName) private readonly fileName: FileName,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
         super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
