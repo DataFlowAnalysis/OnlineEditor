@@ -1,4 +1,5 @@
 import { Page } from "@playwright/test";
+import { MockWebSocket } from "./mockWebSocket";
 
 export async function takeGraphScreenshot(page: Page) {
     const graphs = await page.locator(".sprotty-graph").all();
@@ -34,8 +35,16 @@ export async function isPresent(page: Page, id: string) {
 }
 
 export async function init(page: Page) {
+    await page.addInitScript(() => {
+        // @ts-expect-error not an exact match, but mocks everything we need
+        window.WebSocket = MockWebSocket;
+    });
     await page.goto("/");
     await page.waitForSelector(".sprotty-graph");
+    await focus(page);
+}
+
+export async function focus(page: Page) {
     await page.focus(".sprotty-graph");
 }
 
@@ -52,8 +61,12 @@ export async function getPosition(page: Page, id: string) {
     return { x: Number(match[1]), y: Number(match[2]) };
 }
 
-export async function mockBackEnd(page: Page, route: string, response: string) {
-    await page.route(`*/**/${route}`, async (route) => {
-        await route.fulfill({ body: response });
-    });
+export async function getZoom(page: Page) {
+    const rootG = page.locator("#sprotty_root > g");
+    const transform = (await rootG.getAttribute("transform")) ?? "";
+    const match = /scale\((\d+(?:\.\d+))\)/.exec(transform);
+    if (match) {
+        return Number(match[1]);
+    }
+    return NaN;
 }

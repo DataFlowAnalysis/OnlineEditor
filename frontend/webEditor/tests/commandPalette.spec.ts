@@ -1,5 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
-import { init, pressKey } from "./utils";
+import { getZoom, init, pressKey, takeGraphScreenshot, focus } from "./utils";
 
 const COMMAND_PALETTE_ID = "#sprotty_command-palette";
 
@@ -101,6 +101,65 @@ test.skip("Test load", async ({ page }) => {
         }
         fileChooser.setFiles([]);
     }
+});
+
+// flaky
+test("Test save", async ({ page, browserName }) => {
+    await init(page);
+    await openPalette(page);
+
+    const [jsonDownload] = await Promise.all([page.waitForEvent("download"), select(page, 1, 0)]);
+    const jsonFileName = jsonDownload.suggestedFilename();
+    expect(jsonFileName.endsWith(".json"), `Expected ${jsonFileName} to end with .json`).toBeTruthy();
+    await jsonDownload.delete();
+
+    // as webkit has issues downloading multiple files, we skip for now
+    if (browserName === "webkit") {
+        return;
+    }
+
+    // due to browser animations focusing the downloads section late, we need to wait for them to finish here
+    await page.waitForTimeout(1000);
+    await focus(page);
+    await openPalette(page);
+
+    const [dfdDownload, ddDownload] = await Promise.all([
+        page.waitForEvent("download", (d) => d.suggestedFilename().includes("dataflowdiagram")),
+        page.waitForEvent("download", (d) => d.suggestedFilename().includes("datadictionary")),
+        select(page, 1, 1),
+    ]);
+    const dfdFileName = dfdDownload.suggestedFilename();
+    const ddFileName = ddDownload.suggestedFilename();
+
+    expect(
+        dfdFileName.endsWith(".dataflowdiagram"),
+        `Expected ${dfdFileName} to end with .dataflowdiagram`,
+    ).toBeTruthy();
+    expect(ddFileName.endsWith(".datadictionary"), `Expected ${ddFileName} to end with .datadictionary`).toBeTruthy();
+    await dfdDownload.delete();
+    await ddDownload.delete();
+});
+
+test("Test Fit to Screen", async ({ page }) => {
+    await init(page);
+    await openPalette(page);
+
+    const initialZoom = await getZoom(page);
+    const initialScreenshot = await takeGraphScreenshot(page);
+
+    await page.mouse.wheel(0, 100);
+    await page.waitForTimeout(500);
+    const postScrollZoom = await getZoom(page);
+    expect(postScrollZoom).not.toBe(initialZoom);
+    const postScrollScreenshot = await takeGraphScreenshot(page);
+    expect(postScrollScreenshot).not.toEqual(initialScreenshot);
+
+    await select(page, 4);
+    await page.waitForTimeout(500);
+    const postFitZoom = await getZoom(page);
+    expect(postFitZoom).not.toBe(postScrollZoom);
+    const postFitScreenshot = await takeGraphScreenshot(page);
+    expect(postFitScreenshot).not.toEqual(postScrollScreenshot);
 });
 
 async function openPalette(page: Page) {
