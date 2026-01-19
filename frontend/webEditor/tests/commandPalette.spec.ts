@@ -1,5 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
-import { getZoom, init, pressKey, takeGraphScreenshot, focus } from "./utils";
+import { getZoom, init, pressKey, takeGraphScreenshot, focus, getPosition } from "./utils";
 
 const COMMAND_PALETTE_ID = "#sprotty_command-palette";
 
@@ -103,7 +103,6 @@ test.skip("Test load", async ({ page }) => {
     }
 });
 
-// flaky
 test("Test save", async ({ page, browserName }) => {
     await init(page);
     await openPalette(page);
@@ -162,6 +161,52 @@ test("Test Fit to Screen", async ({ page }) => {
     expect(postFitScreenshot).not.toEqual(postScrollScreenshot);
 });
 
+test("Test layout", async ({ page }) => {
+    const ID = "#sprotty_4myuyr";
+    await init(page);
+    const previousScreenshots = [await takeGraphScreenshot(page)];
+    const previousPositions = [await getPosition(page, ID)];
+
+    // Lines
+    await testLayout(0);
+    // Wrapping Lines
+    await testLayout(1);
+    // Circles
+    await testLayout(2);
+
+    // test default which should be Lines
+    await openPalette(page);
+    await select(page, 4);
+    await page.waitForTimeout(250);
+    const newScreenshot = await takeGraphScreenshot(page);
+    const newPosition = await getPosition(page, ID);
+    expect(newPosition).toEqual(previousPositions[1]);
+    expect(newScreenshot).not.toEqual(previousScreenshots);
+    for (const i of [0, 2, 3]) {
+        expect(newPosition).not.toEqual(previousPositions[i]);
+        expect(newScreenshot).not.toEqual(previousScreenshots[i]);
+    }
+
+    async function testLayout(childIndex: number) {
+        await openPalette(page);
+        await select(page, 4, childIndex);
+        await page.waitForTimeout(250);
+        const newScreenshot = await takeGraphScreenshot(page);
+        const newPosition = await getPosition(page, ID);
+        for (const previousPosition of previousPositions) {
+            expect(
+                newPosition,
+                `Expected (${newPosition.x},${newPosition.y}) not to be (${previousPosition.x},${previousPosition.y}) at ${childIndex}`,
+            ).not.toEqual(previousPosition);
+        }
+        for (const previousScreenshot of previousScreenshots) {
+            expect(newScreenshot, `Expected screenshot difference at ${childIndex}`).not.toEqual(previousScreenshot);
+        }
+        previousPositions.push(newPosition);
+        previousScreenshots.push(newScreenshot);
+    }
+});
+
 async function openPalette(page: Page) {
     await pressKey(page, "Control", "Space");
     await page.waitForSelector(COMMAND_PALETTE_ID, { state: "visible" });
@@ -178,6 +223,6 @@ async function select(page: Page, parentIndex: number, childIndex?: number) {
             await pressKey(page, "ArrowDown");
         }
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(250);
     await pressKey(page, "Enter");
 }
