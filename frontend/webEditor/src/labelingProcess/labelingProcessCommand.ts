@@ -109,7 +109,7 @@ export class LabelingProcessCommand implements Command {
     }
 
     highlightShapes(context: CommandExecutionContext) {
-        if (this.action.state.state !== "inProgress") return context.root;
+        if (this.action.state.state !== "inProgress") return;
 
         const { labelType } = this.labelTypeRegistry.resolveLabelAssignment(this.action.state.activeLabel)
         if (!labelType) return;
@@ -124,7 +124,7 @@ export class LabelingProcessCommand implements Command {
             outputPortColor = DfdOutputPortImpl.PORT_COLOR
         } else {
             nodeColor = DfdNodeImpl.NODE_COLOR
-            outputPortColor = DfdOutputPortImpl.PORT_COLOR
+            outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
         }
 
         getAllElements(context.root.children)

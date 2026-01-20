@@ -83,6 +83,7 @@ export class LabelingProcessUi extends AbstractUIExtension {
         nextStepButton.classList.add("labeling-process-button")
         nextStepButton.addEventListener('click', () => {
             if (this.state.state !== 'inProgress') return;
+
             this.actionDispatcher.dispatch(NextLabelingProcessAction.create(
                 this.labelTypeRegistry,
                 [...this.state.finishedLabels, this.state.activeLabel]

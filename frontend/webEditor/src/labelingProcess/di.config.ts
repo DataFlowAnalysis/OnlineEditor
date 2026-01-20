@@ -5,11 +5,15 @@ import { LabelingProcessCommand } from "./labelingProcessCommand.ts";
 import { EDITOR_TYPES } from "../editorTypes.ts";
 import { OutputPortAssignmentCommand } from "./outputPortAssignmentCommand.ts";
 import { ClickToAssignMouseListener } from "./ClickToAssignMouseListener.ts";
+import { ExcludesDialog } from "./excludesDialog.ts";
 
 export const labelingProcessModule = new ContainerModule((bind, _, isBound) => {
     bind(LabelingProcessUi).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(LabelingProcessUi);
     bind(EDITOR_TYPES.DefaultUIElement).to(LabelingProcessUi);
+
+    bind(ExcludesDialog).toSelf().inSingletonScope();
+    bind(TYPES.IUIExtension).toService(ExcludesDialog);
 
     bind(TYPES.MouseListener).to(ClickToAssignMouseListener).inSingletonScope();
 
