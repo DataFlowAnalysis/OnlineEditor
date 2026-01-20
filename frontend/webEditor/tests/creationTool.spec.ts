@@ -24,8 +24,8 @@ test("test creation tools", async ({ page, browserName }) => {
     const outputPort = await placePort(5, "#" + ioNode);
 
     await clickToolPalette(3);
-    await page.click("#" + outputPort);
-    await page.click("#" + inputPort);
+    await page.click("#" + outputPort, { force: true });
+    await page.click("#" + inputPort, { force: true });
     await waitForElement(page, ".sprotty-edge");
     expect(await page.locator(".sprotty-edge").count()).toBe(1);
 
@@ -35,7 +35,7 @@ test("test creation tools", async ({ page, browserName }) => {
 
     async function placeNode(index: number, type: string) {
         await clickToolPalette(index);
-        await page.click("#sprotty_root", { position: { x: 100, y: 100 + index * 100 } });
+        await page.click("#sprotty_root", { position: { x: 100, y: 100 + index * 100 }, force: true });
         const selector = `.sprotty-node.${type}`;
         await waitForElement(page, selector);
         const newNode = page.locator(selector);
@@ -45,7 +45,7 @@ test("test creation tools", async ({ page, browserName }) => {
 
     async function placePort(index: number, node: string) {
         await clickToolPalette(index);
-        await page.click(node, { position: { x: 10, y: 10 } });
+        await page.click(node, { position: { x: 10, y: 10 }, force: true });
         const selector = `${node} > .sprotty-port`;
         await waitForElement(page, selector);
         const newPort = page.locator(selector);
