@@ -1,0 +1,2 @@
+## WebKit
+While most shortcuts use Meta key instead of Control, for opening the command palette Control needs to used, as Meta+Space is something else on MacOs and thus it would conflict. (idk its wierd)
