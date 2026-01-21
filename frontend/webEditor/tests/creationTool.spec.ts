@@ -35,7 +35,7 @@ test("test creation tools", async ({ page, browserName }) => {
 
     async function placeNode(index: number, type: string) {
         await clickToolPalette(index);
-        await page.click("#sprotty_root", { position: { x: 100, y: 100 + index * 100 }, force: true });
+        await page.click("#sprotty_root", { position: { x: 200, y: 100 + index * 100 }, force: true });
         const selector = `.sprotty-node.${type}`;
         await waitForElement(page, selector);
         const newNode = page.locator(selector);
@@ -45,6 +45,9 @@ test("test creation tools", async ({ page, browserName }) => {
 
     async function placePort(index: number, node: string) {
         await clickToolPalette(index);
+        // we hover and then move to avoid clicking the annotation ui
+        await page.hover(node, { position: { x: 50, y: 10 } });
+        await page.waitForTimeout(750);
         await page.click(node, { position: { x: 10, y: 10 }, force: true });
         const selector = `${node} > .sprotty-port`;
         await waitForElement(page, selector);
