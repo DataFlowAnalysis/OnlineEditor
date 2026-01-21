@@ -41,7 +41,7 @@ export class DfdModelFactory extends SModelFactory {
         }
 
         const element = super.createElement(schema, parent);
-        if (!element.features) {
+        if (element.features === undefined) {
             element.features = new Set<symbol>();
         }
         return element;

@@ -155,6 +155,9 @@ export class PasteElementsCommand extends Command {
             // createSchema only does a shallow copy, so we need to do an additional deep copy here because
             // we want to support copying elements with objects and arrays in them.
             const schema = JSON.parse(JSON.stringify(context.modelFactory.createSchema(element))) as SModelElement;
+            if ("features" in schema) {
+                schema.features = undefined;
+            }
 
             schema.id = generateRandomSprottyId();
             this.copyElementIdMapping[element.id] = schema.id;
