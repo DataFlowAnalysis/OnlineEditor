@@ -5,10 +5,10 @@ import { inject } from "inversify";
 import { LabelingProcessUi } from "./labelingProcessUi.ts";
 import { AddLabelToOutputPortAction } from "./outputPortAssignmentCommand.ts";
 import { containsDfdLabels } from "../labels/feature";
-import { AddLabelAssignmentAction } from "../labels/assignmentCommand.ts";
 import { getParentWithDfdLabels } from "../labels/dragAndDrop.ts";
+import { AddThreatModelingLabelToNodeAction } from "./threatModelingAssignmentCommand.ts";
 
-export class ClickToAssignMouseListener extends MouseListener {
+export class LabelingProcessMouseListener extends MouseListener {
 
     constructor(
         @inject(LabelingProcessUi) private readonly labelingProcessUi: LabelingProcessUi
@@ -31,10 +31,8 @@ export class ClickToAssignMouseListener extends MouseListener {
         if (!dfdLabelElement) return []
         if (containsDfdLabels(dfdLabelElement)) {
             if (!(dfdLabelElement instanceof SNodeImpl)) return [];
-            return [AddLabelAssignmentAction.create(
-                processState.activeLabel,
-                dfdLabelElement
-            )]
+
+            return [AddThreatModelingLabelToNodeAction.create(dfdLabelElement)]
         }
 
         return []

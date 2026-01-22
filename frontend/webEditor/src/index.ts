@@ -26,7 +26,6 @@ import { assignmentModule } from "./assignment/di.config";
 import { editorModeOverwritesModule } from "./editModeOverwrites/di.config";
 import { loadingIndicatorModule } from "./loadingIndicator/di.config";
 import { labelingProcessModule } from "./labelingProcess/di.config.ts";
-import { uiDialogModule } from "./uiDialog/di.config.ts";
 
 const container = new Container();
 
@@ -52,7 +51,6 @@ container.load(
     settingsModule,
     labelingProcessModule,
     toolPaletteModule,
-    uiDialogModule,
     constraintModule,
     assignmentModule,
     editorModeOverwritesModule,

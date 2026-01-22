@@ -4,8 +4,9 @@ import { LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelingProcessCommand } from "./labelingProcessCommand.ts";
 import { EDITOR_TYPES } from "../editorTypes.ts";
 import { OutputPortAssignmentCommand } from "./outputPortAssignmentCommand.ts";
-import { ClickToAssignMouseListener } from "./ClickToAssignMouseListener.ts";
+import { LabelingProcessMouseListener } from "./labelingProcessMouseListener.ts";
 import { ExcludesDialog } from "./excludesDialog.ts";
+import { ThreatModelingAssignmentCommand } from "./threatModelingAssignmentCommand.ts";
 
 export const labelingProcessModule = new ContainerModule((bind, _, isBound) => {
     bind(LabelingProcessUi).toSelf().inSingletonScope();
@@ -15,8 +16,9 @@ export const labelingProcessModule = new ContainerModule((bind, _, isBound) => {
     bind(ExcludesDialog).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(ExcludesDialog);
 
-    bind(TYPES.MouseListener).to(ClickToAssignMouseListener).inSingletonScope();
+    bind(TYPES.MouseListener).to(LabelingProcessMouseListener).inSingletonScope();
 
     configureCommand({bind, isBound}, LabelingProcessCommand)
+    configureCommand({bind, isBound}, ThreatModelingAssignmentCommand);
     configureCommand({bind, isBound}, OutputPortAssignmentCommand);
 })

@@ -3,7 +3,6 @@ import {
     Command,
     CommandExecutionContext,
     CommandReturn,
-    IActionDispatcher,
     TYPES,
 } from "sprotty";
 import { inject, injectable } from "inversify";
@@ -17,7 +16,6 @@ import {
 import { LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
 import { ExcludesDialog } from "./excludesDialog.ts";
-import { CreateShowDialogAction } from "../uiDialog/showDialogCommand.ts";
 
 
 interface ThreatModelingLabelAssignmentToOutputPortAction extends Action {
@@ -33,7 +31,7 @@ export namespace AddLabelToOutputPortAction {
         return {
             kind: OutputPortAssignmentCommand.KIND,
             element,
-            collisionMode: collisionMode ?? 'overwrite'
+            collisionMode: collisionMode ?? 'askUser'
         };
     }
 }
@@ -49,7 +47,6 @@ export class OutputPortAssignmentCommand implements Command {
         @inject(TYPES.Action) private readonly action: ThreatModelingLabelAssignmentToOutputPortAction,
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @inject(LabelingProcessUi) private readonly labelingProcessUI: LabelingProcessUi,
-        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
         @inject(ExcludesDialog) private readonly excludesDialog: ExcludesDialog
     ) {}
 
@@ -80,8 +77,13 @@ export class OutputPortAssignmentCommand implements Command {
         }
 
         if (this.action.collisionMode === "askUser") {
-            this.actionDispatcher.dispatch(CreateShowDialogAction.create(this.excludesDialog))
-            //TODO add actions on button presses
+            this.excludesDialog.update({
+                previousLabelAssignments: collisions,
+                newLabelAssignment: { labelType, labelTypeValue },
+                confirmAction: AddLabelToOutputPortAction.create(this.action.element, "overwrite")
+            })
+            this.excludesDialog.show(context.root);
+
             return context.root
         }
 
@@ -163,7 +165,7 @@ function findAllCollisions(
         }
     }
 
-    //TODO what about multiple entries for the same collision??
+    //TODO currently finds multiple entries for the same collision??
     return collisions;
 }
 

@@ -11,13 +11,11 @@
     align-items: center;
 }
 
-.dialog-container.hidden {
-    display: none;
-}
-
 .dialog {
     z-index: 101;
     position: relative;
+
+    max-width: 50%;
 
     background-color: var(--color-background);
     border-radius: 5px;
@@ -28,4 +26,29 @@
     justify-content: center;
     align-items: center;
     gap: 4px;
+}
+
+.dialog-text {
+    text-align: center;
+}
+
+.dialog-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.dialog-button {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    width: fit-content;
+    cursor: pointer;
 }
