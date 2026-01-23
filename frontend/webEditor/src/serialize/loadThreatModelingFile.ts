@@ -1,7 +1,8 @@
 import {
+    ActionDispatcher,
     Command,
     CommandExecutionContext,
-    CommandReturn,
+    CommandReturn, IActionDispatcher,
     ILogger,
     ISnapper,
     SModelElementImpl,
@@ -22,6 +23,7 @@ import { getAllElements } from "../labels/assignmentCommand.ts";
 import { ContainsDfdLabels, containsDfdLabels } from "../labels/feature.ts";
 import { snapPortsOfNode } from "../diagram/ports/portSnapper.ts";
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort.tsx";
+import { ResetLabelingProcessAction } from "../labelingProcess/labelingProcessCommand.ts";
 
 // Replaces the type of the `values` of a `LabelType` with a subclass of `LabelTypeValue`
 type OverwriteLabelTypeValueType<T extends LabelType, S extends LabelTypeValue> = Omit<T, "values"> & { values: S[] }
@@ -55,11 +57,12 @@ export class LoadThreatModelingFileCommand extends Command {
 
     constructor(
         @inject(TYPES.Action) _: Action,
-        @inject(TYPES.ILogger) private logger: ILogger,
-        @inject(LabelTypeRegistry) private labelTypeRegistry: LabelTypeRegistry,
-        @inject(ConstraintRegistry) private constraintRegistry: ConstraintRegistry,
-        @inject(LoadingIndicator) private loadingIndicator: LoadingIndicator,
-        @inject(TYPES.ISnapper) private snapper: ISnapper
+        @inject(TYPES.ILogger) private readonly logger: ILogger,
+        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
+        @inject(ConstraintRegistry) private readonly constraintRegistry: ConstraintRegistry,
+        @inject(LoadingIndicator) private readonly loadingIndicator: LoadingIndicator,
+        @inject(TYPES.ISnapper) private readonly snapper: ISnapper,
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {
         super();
     }
@@ -126,6 +129,9 @@ export class LoadThreatModelingFileCommand extends Command {
         this.constraintRegistry.clearConstraints();
         this.constraintRegistry.setConstraintsFromArray(newConstraints);
         this.logger.info(this, "Constraints loaded successfully");
+
+        //Reset labeling process
+        this.actionDispatcher.dispatch(ResetLabelingProcessAction.create())
 
         this.loadingIndicator.hide();
         return context.root;

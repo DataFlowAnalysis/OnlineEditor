@@ -58,6 +58,7 @@ export class LabelingProcessUi extends AbstractUIExtension {
 
     private showPendingContents(): void {
         this.containerElement.classList.remove("ui-float")
+        this.containerElement.replaceChildren('')
     }
 
     private showInProgressContents(): void {

@@ -18,6 +18,15 @@ export interface LabelingProcessAction extends Action {
     state: LabelingProcessState
 }
 
+export namespace ResetLabelingProcessAction {
+    export function create(): LabelingProcessAction {
+        return {
+            kind: LabelingProcessCommand.KIND,
+            state: { state: 'pending' }
+        }
+    }
+}
+
 export namespace BeginLabelingProcessAction {
     export function create(
         labelTypeRegistry: LabelTypeRegistry
@@ -109,22 +118,21 @@ export class LabelingProcessCommand implements Command {
     }
 
     highlightShapes(context: CommandExecutionContext) {
-        if (this.action.state.state !== "inProgress") return;
+        let nodeColor = DfdNodeImpl.NODE_COLOR
+        let outputPortColor = DfdOutputPortImpl.PORT_COLOR
 
-        const { labelType } = this.labelTypeRegistry.resolveLabelAssignment(this.action.state.activeLabel)
-        if (!labelType) return;
+        if (this.action.state.state === "inProgress") {
+            const { labelType } = this.labelTypeRegistry.resolveLabelAssignment(this.action.state.activeLabel)
+            if (!labelType) return;
 
-        let nodeColor = ""
-        let outputPortColor = ""
-        if (!isThreatModelingLabelType(labelType)) {
-            nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
-            outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
-        } else if (labelType.intendedFor === "Vertex") {
-            nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
-            outputPortColor = DfdOutputPortImpl.PORT_COLOR
-        } else {
-            nodeColor = DfdNodeImpl.NODE_COLOR
-            outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+            if (!isThreatModelingLabelType(labelType)) {
+                nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+                outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+            } else if (labelType.intendedFor === "Vertex") {
+                nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+            } else {
+                outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+            }
         }
 
         getAllElements(context.root.children)
