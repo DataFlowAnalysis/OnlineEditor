@@ -16,17 +16,56 @@
     /* Make text of the elements non-selectable */
     -webkit-user-select: none; /* Safari only supports user select using the -webkit prefix */
     user-select: none;
-}
 
-.labeling-process-button {
-    background-color: green;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    width: fit-content;
-    cursor: pointer;
+    .labeling-process-button {
+        background-color: green;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        width: fit-content;
+        cursor: pointer;
+    }
+
+    .additional-information-icon {
+        content: "";
+        background-image: url("@fortawesome/fontawesome-free/svgs/regular/circle-question.svg");
+        background-repeat: no-repeat;
+        display: inline-block;
+        filter: invert(var(--dark-mode));
+        height: 16px;
+        width: 16px;
+        background-size: 16px 16px;
+        vertical-align: text-top;
+        margin-left: 4px;
+        margin-right: 4px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .additional-information-container {
+        position: absolute;
+        top: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        padding: 4px 16px;
+        border: 2px solid var(--color-primary);
+        border-radius: 10px;
+        font-size: 12px;
+        white-space: nowrap;
+
+        opacity: 0;
+        pointer-events: none; /* prevents flicker */
+    }
+
+    .additional-information-icon:hover .additional-information-container {
+        opacity: 1;
+    }
 }

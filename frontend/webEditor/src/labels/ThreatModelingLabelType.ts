@@ -6,8 +6,7 @@ export interface ThreatModelingLabelType extends LabelType {
 
 export interface ThreatModelingLabelTypeValue extends LabelTypeValue {
     excludes: LabelAssignment[]
-    //defaultPinBehavior: string,
-    additionalInformation: string[]
+    additionalInformation?: string
 }
 
 export function isThreatModelingLabelType(labelType: LabelType): labelType is ThreatModelingLabelType {
@@ -16,5 +15,4 @@ export function isThreatModelingLabelType(labelType: LabelType): labelType is Th
 
 export function isThreatModelingLabelTypeValue(labelTypeValue: LabelTypeValue): labelTypeValue is ThreatModelingLabelTypeValue {
     return "excludes" in labelTypeValue
-        && "additionalInformation" in labelTypeValue
 }

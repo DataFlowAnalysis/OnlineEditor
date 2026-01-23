@@ -12,7 +12,8 @@ import { AnalyzeAction } from "../serialize/analyze.ts";
 import { SelectConstraintsAction } from "../constraint/selection.ts";
 import { ConstraintRegistry } from "../constraint/constraintRegistry.ts";
 import { SaveThreatsTableAction } from "../serialize/saveThreatsTable.ts";
-import { isThreatModelingLabelType } from "../labels/ThreatModelingLabelType.ts";
+import { isThreatModelingLabelType, isThreatModelingLabelTypeValue } from "../labels/ThreatModelingLabelType.ts";
+import { marked } from "marked";
 
 export type LabelingProcessState
     = { state: 'pending' }
@@ -70,12 +71,19 @@ export class LabelingProcessUi extends AbstractUIExtension {
         } else {
             let targetElement = ""
             if (isThreatModelingLabelType(labelType)) {
-                targetElement = labelType.intendedFor === "Vertex" ? "node" : "output pin"
+                targetElement = labelType.intendedFor === "Vertex" ? "a node" : "an output pin"
             } else {
-                targetElement = "node or output pin"
+                targetElement = "a node or output pin"
             }
 
-            text.innerText = `Right click to assign ${labelType.name}.${labelTypeValue.text} to a ${targetElement}`
+            const labelHTML = document.createElement("strong")
+            labelHTML.innerText = `${labelType.name}.${labelTypeValue.text}`
+
+            text.append(
+                `Right click ${targetElement} to assign `,
+                labelHTML,
+                this.generateAdditionalInformation() ?? '',
+            )
         }
 
         const nextStepButton = document.createElement('button')
@@ -113,6 +121,27 @@ export class LabelingProcessUi extends AbstractUIExtension {
         })
 
         this.containerElement.replaceChildren(text, finalStepsButton)
+    }
+
+    private generateAdditionalInformation(): HTMLElement | undefined {
+        if (this.state.state !== "inProgress") return;
+
+        const { labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(this.state.activeLabel)
+        if (!labelTypeValue
+            || !isThreatModelingLabelTypeValue(labelTypeValue)
+            || !labelTypeValue.additionalInformation
+        ) return;
+
+        const icon = document.createElement('div')
+        icon.classList.add('additional-information-icon')
+
+        const container = document.createElement('div')
+        container.classList.add('additional-information-container')
+
+        icon.appendChild(container)
+        container.innerHTML = marked.parse(labelTypeValue.additionalInformation, { async: false })
+
+        return icon;
     }
 
     public getState(): LabelingProcessState {

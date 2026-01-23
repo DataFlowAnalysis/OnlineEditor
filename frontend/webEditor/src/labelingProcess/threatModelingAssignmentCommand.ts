@@ -70,10 +70,6 @@ export class ThreatModelingAssignmentCommand implements Command {
             )
         const collisions = findCollisions({ labelType, labelTypeValue }, possibleCollisions )
 
-        console.error(this.action.element.labels)
-        console.error(possibleCollisions)
-        console.error(collisions)
-
         if (collisions .length == 0) {
             this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
                 labelProcessState.activeLabel,
