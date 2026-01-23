@@ -3,7 +3,7 @@ import { injectable, inject } from "inversify";
 import { Command, CommandExecutionContext, CommandReturn, IActionDispatcher, SNodeImpl, TYPES } from "sprotty";
 import { ContainsDfdLabels } from "../labels/feature.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
-import { LabelingProcessUi } from "./labelingProcessUi.ts";
+import { LabelingProcessState, LabelingProcessUi } from "./labelingProcessUi.ts";
 import { ExcludesDialog } from "./excludesDialog.ts";
 import {
     isThreatModelingLabelType,
@@ -52,13 +52,7 @@ export class ThreatModelingAssignmentCommand implements Command {
         if (!labelType || !labelTypeValue) return context.root;
 
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
-            this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
-                labelProcessState.activeLabel,
-                this.action.element,
-            ))
-            if (this.action.element instanceof DfdNodeImpl) {
-                this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
-            }
+            this.handleSimpleCase(labelProcessState)
             return context.root;
         }
 
@@ -74,30 +68,65 @@ export class ThreatModelingAssignmentCommand implements Command {
             )
         const collisions = findCollisions({ labelType, labelTypeValue }, possibleCollisions )
 
-        if (collisions .length == 0) {
-            this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
-                labelProcessState.activeLabel,
-                this.action.element,
-            ))
-            if (this.action.element instanceof DfdNodeImpl) {
-                this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
-            }
+        if (collisions.length == 0) {
+            this.handleSimpleCase(labelProcessState)
             return context.root;
         }
 
         if (this.action.collisionMode === "askUser") {
-            this.excludesDialog.update({
-                previousLabelAssignments: collisions ,
-                newLabelAssignment: { labelType, labelTypeValue },
-                confirmAction: AddThreatModelingLabelToNodeAction.create(this.action.element, "overwrite")
-            })
-            this.excludesDialog.show(context.root);
-
+            this.handleAskUser(
+                { labelType, labelTypeValue },
+                collisions,
+                context
+            )
             return context.root
         }
 
-        //this.action.collisionMode === "overwrite"
-        for (const collision of collisions ) {
+        this.handleOverwrite(labelProcessState, collisions)
+        return context.root;
+    }
+
+    redo(context: CommandExecutionContext): CommandReturn {
+        return context.root;
+    }
+
+    undo(context: CommandExecutionContext): CommandReturn {
+        if (this.action.collisionMode === "askUser") return context.root;
+
+        return context.root;
+    }
+
+    private handleSimpleCase(
+        labelProcessState: LabelingProcessState & { state: "inProgress" },
+    ) {
+        this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
+            labelProcessState.activeLabel,
+            this.action.element,
+        ))
+        if (this.action.element instanceof DfdNodeImpl) {
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+        }
+    }
+
+    private handleAskUser(
+        candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
+        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[],
+        context: CommandExecutionContext
+    ) {
+        this.excludesDialog.update({
+            previousLabelAssignments: collisions ,
+            newLabelAssignment: candidate,
+            confirmAction: AddThreatModelingLabelToNodeAction.create(this.action.element, "overwrite")
+        })
+
+        this.excludesDialog.show(context.root);
+    }
+
+    private handleOverwrite(
+        labelProcessState: LabelingProcessState & { state: "inProgress" },
+        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
+    ) {
+        for (const collision of collisions) {
             this.actionDispatcher.dispatch(RemoveLabelAssignmentAction.create(
                 { labelTypeId: collision.labelType.id, labelTypeValueId: collision.labelTypeValue.id },
                 this.action.element,
@@ -110,18 +139,6 @@ export class ThreatModelingAssignmentCommand implements Command {
         if (this.action.element instanceof DfdNodeImpl) {
             this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
         }
-
-        return context.root;
-    }
-
-    redo(context: CommandExecutionContext): CommandReturn {
-        return context.root;
-    }
-
-    undo(context: CommandExecutionContext): CommandReturn {
-        if (this.action.collisionMode === "askUser") return context.root;
-
-        return context.root;
     }
 }
 

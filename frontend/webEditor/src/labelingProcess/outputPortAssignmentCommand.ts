@@ -16,6 +16,7 @@ import {
 import { LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
 import { ExcludesDialog } from "./excludesDialog.ts";
+import { LabelType, LabelTypeValue } from "../labels/LabelType.ts";
 
 
 interface ThreatModelingLabelAssignmentToOutputPortAction extends Action {
@@ -59,9 +60,7 @@ export class OutputPortAssignmentCommand implements Command {
 
         this.previousBehavior = this.action.element.getBehavior()
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
-            this.newBehavior = `${this.previousBehavior}\nset ${labelType.name}.${labelTypeValue.text}`
-            this.action.element.setBehavior(this.newBehavior);
-            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            this.handleNonThreatModelingCase(labelType, labelTypeValue);
             return context.root;
         }
 
@@ -76,33 +75,16 @@ export class OutputPortAssignmentCommand implements Command {
         console.error(collisions)
 
         if (collisions.length == 0) {
-            lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
-            this.newBehavior = lines.join("\n")
-            this.action.element.setBehavior(this.newBehavior);
-            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            this.handleSimpleCase(lines, { labelType, labelTypeValue })
             return context.root;
         }
 
         if (this.action.collisionMode === "askUser") {
-            this.excludesDialog.update({
-                previousLabelAssignments: collisions,
-                newLabelAssignment: { labelType, labelTypeValue },
-                confirmAction: AddLabelToOutputPortAction.create(this.action.element, "overwrite")
-            })
-            this.excludesDialog.show(context.root);
-
+            this.handleAskUser({ labelType, labelTypeValue }, collisions, context)
             return context.root
         }
 
-        //this.action.collisionMode === "overwrite"
-        for (const collision of collisions) {
-            lines = removeLabelAssignment(lines, { labelType: collision.labelType, labelTypeValue: collision.labelTypeValue })
-        }
-        lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
-        this.newBehavior = lines.join("\n")
-        this.action.element.setBehavior(this.newBehavior);
-        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
-
+        this.handleOverwrite(lines, { labelType, labelTypeValue }, collisions)
         return context.root
     }
 
@@ -118,6 +100,52 @@ export class OutputPortAssignmentCommand implements Command {
 
         this.action.element.setBehavior(this.previousBehavior);
         return context.root;
+    }
+
+    private handleNonThreatModelingCase(
+        labelType: LabelType,
+        labelTypeValue: LabelTypeValue,
+    ) {
+        this.newBehavior = `${this.previousBehavior}\nset ${labelType.name}.${labelTypeValue.text}`
+        this.action.element.setBehavior(this.newBehavior);
+        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+    }
+
+    private handleSimpleCase(
+        lines: string[],
+        candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
+    ) {
+        lines = addLabelAssignment(lines, candidate, this.labelTypeRegistry)
+        this.newBehavior = lines.join("\n")
+        this.action.element.setBehavior(this.newBehavior);
+        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+    }
+
+    private handleAskUser(
+        candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
+        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[],
+        context: CommandExecutionContext
+    ) {
+        this.excludesDialog.update({
+            previousLabelAssignments: collisions,
+            newLabelAssignment: candidate,
+            confirmAction: AddLabelToOutputPortAction.create(this.action.element, "overwrite")
+        })
+        this.excludesDialog.show(context.root);
+    }
+
+    private handleOverwrite(
+        lines: string[],
+        candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
+        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[],
+    ) {
+        for (const collision of collisions) {
+            lines = removeLabelAssignment(lines, { labelType: collision.labelType, labelTypeValue: collision.labelTypeValue })
+        }
+        lines = addLabelAssignment(lines, candidate, this.labelTypeRegistry)
+        this.newBehavior = lines.join("\n")
+        this.action.element.setBehavior(this.newBehavior);
+        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
     }
 }
 
