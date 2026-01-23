@@ -31,6 +31,11 @@
     }
 
     .additional-information-icon {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .additional-information-icon::before {
         content: "";
         background-image: url("@fortawesome/fontawesome-free/svgs/regular/circle-question.svg");
         background-repeat: no-repeat;
@@ -42,8 +47,6 @@
         vertical-align: text-top;
         margin-left: 4px;
         margin-right: 4px;
-        position: relative;
-        cursor: pointer;
     }
 
     .additional-information-container {
@@ -53,11 +56,8 @@
         transform: translateX(-50%);
         z-index: 50;
 
-        background-color: var(--color-background);
-        color: var(--color-foreground);
         padding: 4px 16px;
-        border: 2px solid var(--color-primary);
-        border-radius: 10px;
+        border: 1px solid var(--color-foreground);
         font-size: 12px;
         white-space: nowrap;
 

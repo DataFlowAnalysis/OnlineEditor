@@ -83,6 +83,7 @@ export class LabelingProcessUi extends AbstractUIExtension {
                 `Right click ${targetElement} to assign `,
                 labelHTML,
                 this.generateAdditionalInformation() ?? '',
+                ' to it.'
             )
         }
 
@@ -132,11 +133,11 @@ export class LabelingProcessUi extends AbstractUIExtension {
             || !labelTypeValue.additionalInformation
         ) return;
 
-        const icon = document.createElement('div')
+        const icon = document.createElement('span')
         icon.classList.add('additional-information-icon')
 
         const container = document.createElement('div')
-        container.classList.add('additional-information-container')
+        container.classList.add('additional-information-container', 'ui-float')
 
         icon.appendChild(container)
         container.innerHTML = marked.parse(labelTypeValue.additionalInformation, { async: false })
