@@ -67,10 +67,10 @@ export class OutputPortAssignmentCommand implements Command {
         let lines = this.previousBehavior
             .split("\n")
             .map(line => line.trim());
-        const collisions = findAllCollisions(lines, labelType, labelTypeValue, this.labelTypeRegistry)
+        const collisions = findAllCollisions(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
 
         if (collisions.length == 0) {
-            lines = addLabelAssignment(lines, labelType, labelTypeValue, this.labelTypeRegistry)
+            lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
             this.newBehavior = lines.join("\n")
             this.action.element.setBehavior(this.newBehavior);
             return context.root;
@@ -89,9 +89,9 @@ export class OutputPortAssignmentCommand implements Command {
 
         //this.action.collisionMode === "overwrite"
         for (const collision of collisions) {
-            lines = removeLabelAssignment(lines, collision.labelType, collision.labelTypeValue)
+            lines = removeLabelAssignment(lines, { labelType: collision.labelType, labelTypeValue: collision.labelTypeValue })
         }
-        lines = addLabelAssignment(lines, labelType, labelTypeValue, this.labelTypeRegistry)
+        lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
         this.newBehavior = lines.join("\n")
         this.action.element.setBehavior(this.newBehavior);
 
@@ -115,17 +115,16 @@ export class OutputPortAssignmentCommand implements Command {
 
 function findAllCollisions(
     portBehavior: string[],
-    newLabelType: ThreatModelingLabelType,
-    newLabelTypeValue: ThreatModelingLabelTypeValue,
+    candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     labelTypeRegistry: LabelTypeRegistry
 ): { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] {
-    const collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] = [];
+    const collisions: Set<{ labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }> = new Set();
 
     for (let i = 0; i < portBehavior.length; i++) {
         const line = portBehavior[i]
 
         //Search for a previous assignment that excludes the new assignment
-        if (line.match(`unset ${newLabelType.name}.${newLabelTypeValue.text}`)) {
+        if (line.match(`unset ${candidate.labelType.name}.${candidate.labelTypeValue.text}`)) {
             //Searches for the previous `set` assignment
             //Assumes that each `set` assignment is directly followed by their `unset` (`exclude`) assignments
             for (let j = i; j >= 0; j--) {
@@ -144,13 +143,13 @@ function findAllCollisions(
 
                     if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) continue;
 
-                    collisions.push({ labelType, labelTypeValue })
+                    collisions.add({ labelType, labelTypeValue })
                 }
             }
         }
 
         //Search for a previous assignment that is excluded by the new assignment
-        for (const exclude of newLabelTypeValue.excludes) {
+        for (const exclude of candidate.labelTypeValue.excludes) {
             const { labelType, labelTypeValue } = labelTypeRegistry.resolveLabelAssignment(exclude);
             if (
                 !labelType
@@ -160,13 +159,13 @@ function findAllCollisions(
             ) continue;
 
             if (line.match(`set ${labelType.name}.${labelTypeValue.text}`)) {
-                collisions.push({ labelType, labelTypeValue });
+                collisions.add({ labelType, labelTypeValue });
             }
         }
     }
 
-    //TODO currently finds multiple entries for the same collision??
-    return collisions;
+    collisions.delete(candidate)
+    return Array.from(collisions);
 }
 
 /**
@@ -174,12 +173,11 @@ function findAllCollisions(
  */
 function addLabelAssignment(
     portBehavior: string[],
-    labelType: ThreatModelingLabelType,
-    labelTypeValue: ThreatModelingLabelTypeValue,
+    toAdd: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     labelTypeRegistry: LabelTypeRegistry
 ): string[] {
-    const setAssignment = `set ${labelType.name}.${labelTypeValue.text}`
-    const unsetAssignments: string[] = labelTypeValue.excludes.map((exclude) => {
+    const setAssignment = `set ${toAdd.labelType.name}.${toAdd.labelTypeValue.text}`
+    const unsetAssignments: string[] = toAdd.labelTypeValue.excludes.map((exclude) => {
         const { labelType, labelTypeValue } = labelTypeRegistry.resolveLabelAssignment(exclude)
         if ( !labelType || !labelTypeValue ) return "";
         return `unset ${labelType.name}.${labelTypeValue.text}`
@@ -193,13 +191,12 @@ function addLabelAssignment(
  */
 function removeLabelAssignment(
     portBehavior: string[],
-    labelType: ThreatModelingLabelType,
-    labelTypeValue: ThreatModelingLabelTypeValue
+    toRemove: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
 ): string[] {
     let removing = false;
 
     return portBehavior.filter(line => {
-        if (line === `set ${labelType.name}.${labelTypeValue.text}`) {
+        if (line === `set ${toRemove.labelType.name}.${toRemove.labelTypeValue.text}`) {
             removing = true;
             return false;
         }

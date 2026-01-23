@@ -1,5 +1,4 @@
 import {
-    ActionDispatcher,
     Command,
     CommandExecutionContext,
     CommandReturn, IActionDispatcher,
