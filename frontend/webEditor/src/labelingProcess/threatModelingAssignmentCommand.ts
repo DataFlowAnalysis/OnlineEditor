@@ -58,44 +58,23 @@ export class ThreatModelingAssignmentCommand implements Command {
             return context.root;
         }
 
-        const collisions = this.action.element.labels
+        const possibleCollisions = this.action.element.labels
             .map(label => this.labelTypeRegistry.resolveLabelAssignment(label))
-            .filter(assignedLabel => {
-                if (!assignedLabel.labelType
-                    || !assignedLabel.labelTypeValue
-                    || !isThreatModelingLabelType(assignedLabel.labelType)
-                    || !isThreatModelingLabelTypeValue(assignedLabel.labelTypeValue)
-                ) {
-                    return false;
-                }
+            .filter((label) : label is Required<{ labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }> =>
+                label.labelType !== undefined
+                && label.labelTypeValue !== undefined
+            )
+            .filter(label =>
+                    isThreatModelingLabelType(label.labelType)
+                    && isThreatModelingLabelTypeValue(label.labelTypeValue)
+            )
+        const collisions = findCollisions({ labelType, labelTypeValue }, possibleCollisions )
 
-                // Does a previously assigned label exclude the new label?
-                if (!assignedLabel.labelTypeValue.excludes.some(
-                    (exclude) =>
-                        exclude.labelTypeId === labelType.id
-                        && exclude.labelTypeValueId === labelTypeValue.id
-                )) {
-                    return true;
-                }
-
-                // Does the new label exclude the previously assigned label?
-                if (labelTypeValue.excludes.some(
-                    (exclude) =>
-                        exclude.labelTypeId === assignedLabel.labelType?.id
-                        && exclude.labelTypeValueId === assignedLabel.labelTypeValue?.id
-                )) {
-                    return true;
-                }
-
-                return false;
-            }) as { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
-        //     ^ Assignments that are partial or are of the wrong type are filtered out above.
-        //     Typescript does not recognize that the filter ensures that the array only contains the correct types.
-        //     Therefore, we need to cast the array to the correct type.
-
+        console.error(this.action.element.labels)
+        console.error(possibleCollisions)
         console.error(collisions)
 
-        if (collisions.length == 0) {
+        if (collisions .length == 0) {
             this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
                 labelProcessState.activeLabel,
                 this.action.element,
@@ -105,7 +84,7 @@ export class ThreatModelingAssignmentCommand implements Command {
 
         if (this.action.collisionMode === "askUser") {
             this.excludesDialog.update({
-                previousLabelAssignments: collisions,
+                previousLabelAssignments: collisions ,
                 newLabelAssignment: { labelType, labelTypeValue },
                 confirmAction: AddThreatModelingLabelToNodeAction.create(this.action.element, "overwrite")
             })
@@ -115,7 +94,7 @@ export class ThreatModelingAssignmentCommand implements Command {
         }
 
         //this.action.collisionMode === "overwrite"
-        for (const collision of collisions) {
+        for (const collision of collisions ) {
             this.actionDispatcher.dispatch(RemoveLabelAssignmentAction.create(
                 { labelTypeId: collision.labelType.id, labelTypeValueId: collision.labelTypeValue.id },
                 this.action.element,
@@ -138,4 +117,20 @@ export class ThreatModelingAssignmentCommand implements Command {
 
         return context.root;
     }
+}
+
+function findCollisions(
+    candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
+    assigned: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
+): { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] {
+    return assigned.filter(existing =>
+        candidate.labelTypeValue.excludes.some(exclude =>
+            exclude.labelTypeId === existing.labelType.id
+            && exclude.labelTypeValueId === existing.labelTypeValue.id
+        )
+        || existing.labelTypeValue.excludes.some(exclude =>
+            exclude.labelTypeId === candidate.labelType.id
+            && exclude.labelTypeValueId === candidate.labelTypeValue.id
+        )
+    )
 }

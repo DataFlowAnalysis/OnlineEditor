@@ -44,6 +44,10 @@ export class ExcludesDialog extends AbstractUIExtension {
     }
 
     public update(state?: ExcludesDialogData) {
+        if (!this.containerElement) {
+            if (!this.initialize()) return;
+        }
+
         this.state = state;
         this.updateText();
         this.updateButtons();
