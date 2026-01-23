@@ -61,6 +61,7 @@ export class OutputPortAssignmentCommand implements Command {
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
             this.newBehavior = `${this.previousBehavior}\nset ${labelType.name}.${labelTypeValue.text}`
             this.action.element.setBehavior(this.newBehavior);
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
             return context.root;
         }
 
@@ -69,10 +70,16 @@ export class OutputPortAssignmentCommand implements Command {
             .map(line => line.trim());
         const collisions = findAllCollisions(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
 
+        console.error(this.previousBehavior)
+        console.error(`${labelType.name}.${labelTypeValue.text}`)
+        console.error(labelTypeValue.excludes)
+        console.error(collisions)
+
         if (collisions.length == 0) {
             lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
             this.newBehavior = lines.join("\n")
             this.action.element.setBehavior(this.newBehavior);
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
             return context.root;
         }
 
@@ -94,6 +101,7 @@ export class OutputPortAssignmentCommand implements Command {
         lines = addLabelAssignment(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
         this.newBehavior = lines.join("\n")
         this.action.element.setBehavior(this.newBehavior);
+        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
 
         return context.root
     }

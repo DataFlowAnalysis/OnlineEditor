@@ -84,7 +84,6 @@ export namespace CompleteLabelingProcessAction {
 export class LabelingProcessCommand implements Command {
 
     public static readonly KIND = "labelingProcess"
-    public static readonly HIGHLIGHT_COLOR = '#00FF00'
 
     private previousState?: LabelingProcessState = undefined;
 
@@ -126,12 +125,12 @@ export class LabelingProcessCommand implements Command {
             if (!labelType) return;
 
             if (!isThreatModelingLabelType(labelType)) {
-                nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
-                outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+                nodeColor = LabelingProcessUi.ASSIGNABLE_COLOR
+                outputPortColor = LabelingProcessUi.ASSIGNABLE_COLOR
             } else if (labelType.intendedFor === "Vertex") {
-                nodeColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+                nodeColor = LabelingProcessUi.ASSIGNABLE_COLOR
             } else {
-                outputPortColor = LabelingProcessCommand.HIGHLIGHT_COLOR
+                outputPortColor = LabelingProcessUi.ASSIGNABLE_COLOR
             }
         }
 

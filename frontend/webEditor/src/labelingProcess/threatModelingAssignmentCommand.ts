@@ -12,6 +12,7 @@ import {
     ThreatModelingLabelTypeValue,
 } from "../labels/ThreatModelingLabelType.ts";
 import { AddLabelAssignmentAction, RemoveLabelAssignmentAction } from "../labels/assignmentCommand.ts";
+import { DfdNodeImpl } from "../diagram/nodes/common.ts";
 
 interface ThreatModelingLabelAssignmentToNodeAction extends Action {
     element: ContainsDfdLabels & SNodeImpl;
@@ -55,6 +56,9 @@ export class ThreatModelingAssignmentCommand implements Command {
                 labelProcessState.activeLabel,
                 this.action.element,
             ))
+            if (this.action.element instanceof DfdNodeImpl) {
+                this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            }
             return context.root;
         }
 
@@ -75,6 +79,9 @@ export class ThreatModelingAssignmentCommand implements Command {
                 labelProcessState.activeLabel,
                 this.action.element,
             ))
+            if (this.action.element instanceof DfdNodeImpl) {
+                this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            }
             return context.root;
         }
 
@@ -100,6 +107,9 @@ export class ThreatModelingAssignmentCommand implements Command {
             labelProcessState.activeLabel,
             this.action.element,
         ))
+        if (this.action.element instanceof DfdNodeImpl) {
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+        }
 
         return context.root;
     }

@@ -24,6 +24,12 @@ export type LabelingProcessState
 export class LabelingProcessUi extends AbstractUIExtension {
     static readonly ID = "labeling-process-ui";
 
+    static readonly ASSIGNABLE_COLOR = "#00ff00"
+    static readonly ALREADY_ASSIGNED_COLOR = "#ffff00"
+    static readonly COLLISION_COLOR = "#ff0000"
+    // ^ The colors are defined here, but the UI elements are colored during the 'LabelingProcessCommand' and the
+    // respective AssignmentCommand
+
     private state: LabelingProcessState;
 
     constructor(
@@ -140,8 +146,18 @@ export class LabelingProcessUi extends AbstractUIExtension {
         const container = document.createElement('div')
         container.classList.add('additional-information-container', 'ui-float')
 
+        const explanation = document.createElement('div')
+        explanation.classList.add('additional-information-colors-explanation')
+        explanation.append(
+            'Colors: ',
+            createColorLabel(LabelingProcessUi.ASSIGNABLE_COLOR, 'Label is assignable'),
+            createColorLabel(LabelingProcessUi.ALREADY_ASSIGNED_COLOR, 'Label is already assigned'),
+            createColorLabel(LabelingProcessUi.COLLISION_COLOR, 'Label will collide'),
+        )
+
         icon.appendChild(container)
         container.innerHTML = marked.parse(labelTypeValue.additionalInformation, { async: false })
+        container.appendChild(explanation)
 
         return icon;
     }
@@ -154,4 +170,24 @@ export class LabelingProcessUi extends AbstractUIExtension {
         this.state = state;
         this.updateContents();
     }
+}
+
+function createColorLabel(color: string, text: string): HTMLElement {
+    const container = document.createElement('span')
+    container.style.display = 'flex'
+    container.style.flexDirection = 'row'
+    container.style.gap = '4px'
+
+    const box = document.createElement('div')
+    box.style.background = color
+    box.style.width = '12px'
+    box.style.height = '12px'
+    box.style.display = 'inline-block'
+    box.style.verticalAlign = 'middle'
+
+    const label = document.createElement('span')
+    label.innerText = text
+
+    container.append(box, label)
+    return container
 }

@@ -68,4 +68,10 @@
     .additional-information-icon:hover .additional-information-container {
         opacity: 1;
     }
+
+    .additional-information-colors-explanation {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
 }
