@@ -154,7 +154,7 @@ export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command
     }
 }
 
-function findCollisions(
+export function findCollisions(
     portBehavior: string[],
     candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     labelTypeRegistry: LabelTypeRegistry

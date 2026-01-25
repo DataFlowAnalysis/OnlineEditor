@@ -9,10 +9,16 @@ import { Action } from "sprotty-protocol";
 import { LabelingProcessState, LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
 import { LabelAssignment } from "../labels/LabelType.ts";
-import { isThreatModelingLabelType } from "../labels/ThreatModelingLabelType.ts";
+import {
+    isThreatModelingLabelType,
+    isThreatModelingLabelTypeValue,
+    ThreatModelingLabelType, ThreatModelingLabelTypeValue,
+} from "../labels/ThreatModelingLabelType.ts";
 import { getAllElements } from "../labels/assignmentCommand.ts";
 import { DfdNodeImpl } from "../diagram/nodes/common.ts";
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort.tsx";
+import { findCollisions as findNodeCollisions } from "./threatModelingLabelAssignmentCommand.ts";
+import { findCollisions as findOutputPortCollisions } from "./threatModelingLabelAssignmentToOutputPortCommand.ts";
 
 export interface LabelingProcessAction extends Action {
     state: LabelingProcessState
@@ -117,30 +123,66 @@ export class LabelingProcessCommand implements Command {
     }
 
     highlightShapes(context: CommandExecutionContext) {
-        let nodeColor = DfdNodeImpl.NODE_COLOR
-        let outputPortColor = DfdOutputPortImpl.PORT_COLOR
+        if (this.action.state.state !== "inProgress") return;
 
-        if (this.action.state.state === "inProgress") {
-            const { labelType } = this.labelTypeRegistry.resolveLabelAssignment(this.action.state.activeLabel)
-            if (!labelType) return;
+        const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(this.action.state.activeLabel)
+        if (!labelType || !labelTypeValue) return;
 
-            if (!isThreatModelingLabelType(labelType)) {
-                nodeColor = LabelingProcessUi.ASSIGNABLE_COLOR
-                outputPortColor = LabelingProcessUi.ASSIGNABLE_COLOR
-            } else if (labelType.intendedFor === "Vertex") {
-                nodeColor = LabelingProcessUi.ASSIGNABLE_COLOR
+
+        const applyColorToNode = (node: DfdNodeImpl) => {
+            if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
+                node.setColor(LabelingProcessUi.ASSIGNABLE_COLOR)
+                return;
+            }
+
+            if (labelType.intendedFor !== "Vertex") {
+                node.setColor(DfdNodeImpl.NODE_COLOR)
+                return;
+            }
+
+            const assignedLabels = node.labels
+                .map(label => this.labelTypeRegistry.resolveLabelAssignment(label))
+                .filter((label) : label is Required<{ labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }> =>
+                    label.labelType !== undefined
+                    && label.labelTypeValue !== undefined
+                )
+                .filter(label =>
+                    isThreatModelingLabelType(label.labelType)
+                    && isThreatModelingLabelTypeValue(label.labelTypeValue)
+                )
+            if (findNodeCollisions({ labelType, labelTypeValue }, assignedLabels).length === 0) {
+                node.setColor(LabelingProcessUi.ASSIGNABLE_COLOR)
             } else {
-                outputPortColor = LabelingProcessUi.ASSIGNABLE_COLOR
+                node.setColor(LabelingProcessUi.COLLISION_COLOR)
+            }
+        }
+
+        const applyColorToOutputPort = (port: DfdOutputPortImpl) => {
+            if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
+                port.setColor(LabelingProcessUi.ASSIGNABLE_COLOR)
+                return;
+            }
+
+            if (labelType.intendedFor !== "Flow") {
+                port.setColor(DfdOutputPortImpl.PORT_COLOR)
+                return;
+            }
+
+            const behavior = port.getBehavior().split("\n")
+            if (findOutputPortCollisions(behavior, { labelType, labelTypeValue }, this.labelTypeRegistry).length === 0) {
+                port.setColor(LabelingProcessUi.ASSIGNABLE_COLOR)
+            } else {
+                port.setColor(LabelingProcessUi.COLLISION_COLOR)
             }
         }
 
         getAllElements(context.root.children)
             .filter((element) => element instanceof DfdNodeImpl)
-            .forEach(node => node.setColor(nodeColor))
+            .forEach(applyColorToNode)
 
         getAllElements(context.root.children)
             .filter((element) => element instanceof DfdOutputPortImpl)
-            .forEach(port => port.setColor(outputPortColor))
+            .forEach(applyColorToOutputPort)
     }
 
 }

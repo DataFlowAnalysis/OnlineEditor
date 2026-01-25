@@ -137,7 +137,7 @@ export class ThreatModelingLabelAssignmentCommand implements Command {
     }
 }
 
-function findCollisions(
+export function findCollisions(
     candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     assigned: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
 ): { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] {
