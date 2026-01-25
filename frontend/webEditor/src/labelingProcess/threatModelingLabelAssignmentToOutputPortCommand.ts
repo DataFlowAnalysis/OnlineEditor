@@ -16,7 +16,6 @@ import {
 import { LabelingProcessUi } from "./labelingProcessUi.ts";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry.ts";
 import { ExcludesDialog } from "./excludesDialog.ts";
-import { LabelType, LabelTypeValue } from "../labels/LabelType.ts";
 
 
 interface ThreatModelingLabelAssignmentToOutputPortAction extends Action {
@@ -58,13 +57,12 @@ export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command
         const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(labelProcessState.activeLabel)
         if (!labelType || !labelTypeValue) return context.root;
 
-        this.previousBehavior = this.action.element.getBehavior()
-            .trim()
-            .split("\n")
-            .filter(line => line !== "")
-            .join("\n")
+        this.previousBehavior = this.action.element.getBehavior().trim()
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
-            this.handleNonThreatModelingCase(labelType, labelTypeValue);
+            this.applyNewBehavior([
+                `${this.previousBehavior}`,
+                `set ${labelType.name}.${labelTypeValue.text}`
+            ])
             return context.root;
         }
 
@@ -72,11 +70,6 @@ export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command
             .split("\n")
             .map(line => line.trim());
         const collisions = findCollisions(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
-
-        console.error(this.previousBehavior)
-        console.error(`${labelType.name}.${labelTypeValue.text}`)
-        console.error(labelTypeValue.excludes)
-        console.error(collisions)
 
         if (collisions.length == 0) {
             this.handleSimpleCase(lines, { labelType, labelTypeValue })
@@ -107,23 +100,12 @@ export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command
         return context.root;
     }
 
-    private handleNonThreatModelingCase(
-        labelType: LabelType,
-        labelTypeValue: LabelTypeValue,
-    ) {
-        this.newBehavior = `${this.previousBehavior}\nset ${labelType.name}.${labelTypeValue.text}`
-        this.action.element.setBehavior(this.newBehavior);
-        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
-    }
-
     private handleSimpleCase(
         lines: string[],
         candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     ) {
         lines = addLabelAssignment(lines, candidate, this.labelTypeRegistry)
-        this.newBehavior = lines.join("\n")
-        this.action.element.setBehavior(this.newBehavior);
-        this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+        this.applyNewBehavior(lines)
     }
 
     private handleAskUser(
@@ -148,7 +130,13 @@ export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command
             lines = removeLabelAssignment(lines, { labelType: collision.labelType, labelTypeValue: collision.labelTypeValue })
         }
         lines = addLabelAssignment(lines, candidate, this.labelTypeRegistry)
-        this.newBehavior = lines.join("\n")
+        this.applyNewBehavior(lines)
+    }
+
+    private applyNewBehavior(lines: string[]) {
+        this.newBehavior = lines
+            .filter(line => line !== '')
+            .join("\n")
         this.action.element.setBehavior(this.newBehavior);
         this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
     }
@@ -159,17 +147,27 @@ export function findCollisions(
     candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     labelTypeRegistry: LabelTypeRegistry
 ): { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] {
-    const collisions: Set<{ labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }> = new Set();
+    //Prevents duplicate entries.
+    //Native JS Sets cannot compare { labelType, labelTypeValue } correctly, therefore this complex solution is required.
+    const collisions = new Map<
+        string,
+        { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }
+    >();
+    const computeCompositeKey = (
+        labelType: ThreatModelingLabelType,
+        labelTypeValue: ThreatModelingLabelTypeValue
+    ) => `${labelType.id}.${labelTypeValue.id}`
 
     for (let i = 0; i < portBehavior.length; i++) {
         const line = portBehavior[i]
 
         //Search for a previous assignment that excludes the new assignment
-        if (line.match(`unset ${candidate.labelType.name}.${candidate.labelTypeValue.text}`)) {
+        if (line.trim() === `unset ${candidate.labelType.name}.${candidate.labelTypeValue.text}`) {
             //Searches for the previous `set` assignment
-            //Assumes that each `set` assignment is directly followed by their `unset` (`exclude`) assignments
+            //Assumes that each `set` assignment is directly followed by its `unset` assignments (based on it's
+            //'excludes' property)
             for (let j = i; j >= 0; j--) {
-                if (portBehavior[j].match(`set`)) {
+                if (portBehavior[j].startsWith(`set`)) {
                     const parts = portBehavior[j].split(" ")
                     const label = parts[1]
                     const [ labelTypeName, labelTypeValueText ] = label.split(".")
@@ -184,7 +182,10 @@ export function findCollisions(
 
                     if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) continue;
 
-                    collisions.add({ labelType, labelTypeValue })
+                    collisions.set(
+                        computeCompositeKey(labelType, labelTypeValue),
+                        { labelType, labelTypeValue }
+                    )
                 }
             }
         }
@@ -199,14 +200,16 @@ export function findCollisions(
                 || !isThreatModelingLabelTypeValue(labelTypeValue)
             ) continue;
 
-            if (line.match(`set ${labelType.name}.${labelTypeValue.text}`)) {
-                collisions.add({ labelType, labelTypeValue });
+            if (line.trim() === `set ${labelType.name}.${labelTypeValue.text}`) {
+                collisions.set(
+                    computeCompositeKey(labelType, labelTypeValue),
+                    { labelType, labelTypeValue }
+                );
             }
         }
     }
 
-    collisions.delete(candidate)
-    return Array.from(collisions);
+    return Array.from(collisions.values());
 }
 
 /**
