@@ -3,10 +3,10 @@ import { Action } from "sprotty-protocol/lib/actions";
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort.tsx";
 import { inject } from "inversify";
 import { LabelingProcessUi } from "./labelingProcessUi.ts";
-import { AddLabelToOutputPortAction } from "./outputPortAssignmentCommand.ts";
+import { AddLabelToOutputPortAction } from "./threatModelingLabelAssignmentToOutputPortCommand.ts";
 import { containsDfdLabels } from "../labels/feature";
 import { getParentWithDfdLabels } from "../labels/dragAndDrop.ts";
-import { AddThreatModelingLabelToNodeAction } from "./threatModelingAssignmentCommand.ts";
+import { AddThreatModelingLabelToNodeAction } from "./threatModelingLabelAssignmentCommand.ts";
 
 export class LabelingProcessMouseListener extends MouseListener {
 

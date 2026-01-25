@@ -30,7 +30,7 @@ export namespace AddLabelToOutputPortAction {
         collisionMode?: 'overwrite' | 'askUser'
     ): ThreatModelingLabelAssignmentToOutputPortAction {
         return {
-            kind: OutputPortAssignmentCommand.KIND,
+            kind: ThreatModelingLabelAssignmentToOutputPortCommand.KIND,
             element,
             collisionMode: collisionMode ?? 'askUser'
         };
@@ -38,7 +38,7 @@ export namespace AddLabelToOutputPortAction {
 }
 
 @injectable()
-export class OutputPortAssignmentCommand implements Command {
+export class ThreatModelingLabelAssignmentToOutputPortCommand implements Command {
     public static readonly KIND = "addLabelToOutputPort";
 
     private previousBehavior?: string
@@ -59,15 +59,19 @@ export class OutputPortAssignmentCommand implements Command {
         if (!labelType || !labelTypeValue) return context.root;
 
         this.previousBehavior = this.action.element.getBehavior()
+            .trim()
+            .split("\n")
+            .filter(line => line !== "")
+            .join("\n")
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
             this.handleNonThreatModelingCase(labelType, labelTypeValue);
             return context.root;
         }
 
-        let lines = this.previousBehavior
+        const lines = this.previousBehavior
             .split("\n")
             .map(line => line.trim());
-        const collisions = findAllCollisions(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
+        const collisions = findCollisions(lines, { labelType, labelTypeValue }, this.labelTypeRegistry)
 
         console.error(this.previousBehavior)
         console.error(`${labelType.name}.${labelTypeValue.text}`)
@@ -76,27 +80,28 @@ export class OutputPortAssignmentCommand implements Command {
 
         if (collisions.length == 0) {
             this.handleSimpleCase(lines, { labelType, labelTypeValue })
-            return context.root;
-        }
-
-        if (this.action.collisionMode === "askUser") {
+        } else if (this.action.collisionMode === "askUser") {
             this.handleAskUser({ labelType, labelTypeValue }, collisions, context)
-            return context.root
+        } else {
+            this.handleOverwrite(lines, { labelType, labelTypeValue }, collisions)
         }
 
-        this.handleOverwrite(lines, { labelType, labelTypeValue }, collisions)
         return context.root
     }
 
     redo(context: CommandExecutionContext): CommandReturn {
-        if (!this.newBehavior) return context.root;
+        if (!this.newBehavior
+            || this.action.collisionMode === "askUser"
+        ) return context.root;
 
         this.action.element.setBehavior(this.newBehavior);
         return context.root;
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
-        if (!this.previousBehavior) return context.root;
+        if (!this.previousBehavior
+            || this.action.collisionMode === "askUser"
+        ) return context.root;
 
         this.action.element.setBehavior(this.previousBehavior);
         return context.root;
@@ -149,7 +154,7 @@ export class OutputPortAssignmentCommand implements Command {
     }
 }
 
-function findAllCollisions(
+function findCollisions(
     portBehavior: string[],
     candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
     labelTypeRegistry: LabelTypeRegistry

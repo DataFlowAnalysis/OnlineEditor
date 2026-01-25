@@ -25,7 +25,7 @@ export namespace AddThreatModelingLabelToNodeAction {
         collisionMode?: 'overwrite' | 'askUser'
     ): ThreatModelingLabelAssignmentToNodeAction {
         return {
-            kind: ThreatModelingAssignmentCommand.KIND,
+            kind: ThreatModelingLabelAssignmentCommand.KIND,
             element,
             collisionMode: collisionMode ?? 'askUser'
         };
@@ -33,7 +33,7 @@ export namespace AddThreatModelingLabelToNodeAction {
 }
 
 @injectable()
-export class ThreatModelingAssignmentCommand implements Command {
+export class ThreatModelingLabelAssignmentCommand implements Command {
     public static readonly KIND = "threatModeling-addLabelToNode";
 
     constructor(
@@ -70,19 +70,16 @@ export class ThreatModelingAssignmentCommand implements Command {
 
         if (collisions.length == 0) {
             this.handleSimpleCase(labelProcessState)
-            return context.root;
-        }
-
-        if (this.action.collisionMode === "askUser") {
+        } else if (this.action.collisionMode === "askUser") {
             this.handleAskUser(
                 { labelType, labelTypeValue },
                 collisions,
                 context
             )
-            return context.root
+        } else {
+            this.handleOverwrite(labelProcessState, collisions)
         }
 
-        this.handleOverwrite(labelProcessState, collisions)
         return context.root;
     }
 
@@ -91,8 +88,6 @@ export class ThreatModelingAssignmentCommand implements Command {
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
-        if (this.action.collisionMode === "askUser") return context.root;
-
         return context.root;
     }
 
