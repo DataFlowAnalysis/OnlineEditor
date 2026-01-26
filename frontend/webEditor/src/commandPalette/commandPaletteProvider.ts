@@ -10,8 +10,9 @@ import { LayoutMethod } from "../layout/layoutMethod";
 import { LayoutModelAction } from "../layout/command";
 import { SaveJsonFileAction } from "../serialize/saveJsonFile";
 import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
-import { LoadThreatModelingFileAction } from "../serialize/loadThreatModelingFile.ts";
 import { SaveThreatsTableAction } from "../serialize/saveThreatsTable.ts";
+import { LoadThreatModelingUserFileAction } from "../serialize/loadThreatModelingUserFile.ts";
+import { LoadThreatModelingLinddunFileAction } from "../serialize/loadThreatModelingLinddunFile.ts";
 
 /**
  * Provides possible actions for the command palette.
@@ -35,9 +36,14 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                     ),
                     new LabeledAction(
                         "Load Threat Modeling File (JSON)",
-                        [LoadThreatModelingFileAction.create(), commitAction],
+                        [LoadThreatModelingUserFileAction.create(), commitAction],
                         "fa-triangle-exclamation"
-                    )
+                    ),
+                    new LabeledAction(
+                        "Load LINDDUN Threat Modeling File",
+                        [LoadThreatModelingLinddunFileAction.create(), commitAction],
+                        "fa-triangle-exclamation"
+                    ),
                 ],
                 "go-to-file",
             ),

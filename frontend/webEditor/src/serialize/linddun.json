@@ -1,0 +1,399 @@
+{
+    "threatKnowledgeName": "LINDDUN",
+    "threatKnowledgeVersion": "0.3",
+    "labels": [
+        {
+            "id": "T-RhN06vgx",
+            "name": "DataForm",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-xUrF9mGH",
+                    "text": "Hashed",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-ISc2fMXE"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-XT9WKSWb",
+                    "text": "Encrypted",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-ISc2fMXE"
+                        }
+                    ],
+                    "additionalInformation": "#todo There is a difference by who possesses the encryption key (e.g. symmetrical encryption maintains deniability, asymmetrical encryption does not)\n# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-bQVu96ih",
+                    "text": "Aggregated",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-ISc2fMXE"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-xUrF9mGH"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-cubKHVGd",
+                    "text": "Noisy",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-ISc2fMXE",
+                    "text": "Raw",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-XT9WKSWb"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-ISc2fMXE"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-bQVu96ih"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-xUrF9mGH"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-PRhK8ZRm"
+                        }
+                    ],
+                    "additionalInformation": "# Description\nBasic data, no encryption, no added anything\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-PRhK8ZRm",
+                    "text": "Sanitized",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-ISc2fMXE"
+                        },
+                        {
+                            "labelTypeId": "T-RhN06vgx",
+                            "labelTypeValueId": "L-xUrF9mGH"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-hqzmK4lj",
+            "name": "VertexLocation",
+            "intendedFor": "Vertex",
+            "values": [
+                {
+                    "id": "L-Y9Hi8FwJ",
+                    "text": "User",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-BnqZZq2f"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-EU7CXdo5"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-BnqZZq2f",
+                    "text": "Organization",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-Y9Hi8FwJ"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-EU7CXdo5"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-EU7CXdo5",
+                    "text": "External",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-Y9Hi8FwJ"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-BnqZZq2f"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-hDctW1RZ",
+            "name": "DataSensitivity",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-oHu78JWj",
+                    "text": "Public",
+                    "excludes": [],
+                    "additionalInformation": "# Relations\n- ...\n\n# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-h1fGHkX7",
+                    "text": "PersonalData",
+                    "excludes": [],
+                    "additionalInformation": "# Relations\n- excludes [[Public]]\n\n# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-4lebOxF1",
+            "name": "DataIdentifiability",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-Vdnn8zIC",
+                    "text": "QuasiIdentifiable",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-4hzWLvca",
+                    "text": "Pseudonym",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-AziCqUMB",
+                    "text": "UniquelyIdentifiable",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-ki3tgyjB",
+                    "text": "Authenticated",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-Qu9VVPG4",
+            "name": "DataInterveniability",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-u7wWmGo9",
+                    "text": "Accessible",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-s2Op4rNS",
+                    "text": "Deletable",
+                    "excludes": [],
+                    "additionalInformation": "# Relations\n- includes [[Rectification Possible]]\n\n# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-7Ix5ydqW",
+                    "text": "None",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-Qu9VVPG4",
+                            "labelTypeValueId": "L-0YOIZs6L"
+                        },
+                        {
+                            "labelTypeId": "T-Qu9VVPG4",
+                            "labelTypeValueId": "L-s2Op4rNS"
+                        },
+                        {
+                            "labelTypeId": "T-Qu9VVPG4",
+                            "labelTypeValueId": "L-AJf2Su62"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-0YOIZs6L",
+                    "text": "ControlViaPreferences",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-IYBKXU20",
+                    "text": "OptIn",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-uIQJl0lr",
+                    "text": "OptOut",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-AJf2Su62",
+                    "text": "RectificationPossible",
+                    "excludes": [],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-3TGOog3X",
+            "name": "DataPrecision",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-JKy1Otrb",
+                    "text": "ExcessiveDataTypes",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-I78hTu4G"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n- Exact Location if Rough Location is sufficient\n# Elicitation Questions\n\n# Output Pin Behavior\n```\nforward *\nset ...\n```"
+                },
+                {
+                    "id": "L-uoXCDQCw",
+                    "text": "ExcessiveFrequency",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-I78hTu4G"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-76VjjaH1",
+                    "text": "ExcessiveVolume",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-I78hTu4G"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-I78hTu4G",
+                    "text": "StrictlyNecessary",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-76VjjaH1"
+                        },
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-uoXCDQCw"
+                        },
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-JKy1Otrb"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        },
+        {
+            "id": "T-IqL9df0D",
+            "name": "DataIntegrity",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-AcyIOqAF",
+                    "text": "Signed",
+                    "excludes": [],
+                    "additionalInformation": "#todo does Signed make sense like this?\n#todo There is a difference between symmetric and asymmetric Signatures\n\n# Description\nSigning data removes deniability\n\n# Examples\n\n# Elicitation Questions\n# Output Pin Behavior\n```\nforward *\nset ...\n```"
+                }
+            ]
+        },
+        {
+            "id": "T-1ez1Gjk9",
+            "name": "Observability",
+            "intendedFor": null,
+            "values": [
+                {
+                    "id": "L-irbu2qs8",
+                    "text": "FullyVisible",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeValueId": "L-M5uQ5X3f"
+                        },
+                        {
+                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeValueId": "L-nvKZS1U9"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-M5uQ5X3f",
+                    "text": "MetadataOnly",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeValueId": "L-irbu2qs8"
+                        },
+                        {
+                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeValueId": "L-nvKZS1U9"
+                        }
+                    ],
+                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
+                },
+                {
+                    "id": "L-nvKZS1U9",
+                    "text": "NonObservable",
+                    "excludes": [],
+                    "additionalInformation": "# Relations\n- excludes [[Fully Visible]]\n- excludes [[Metadata Only]]\n\n# Description\n\n# Examples\n\n# Elicitation Questions"
+                }
+            ]
+        }
+    ],
+    "constraints": [
+        {
+            "name": "IdentifyingthroughUniqueIdentifier",
+            "constraint": "data DataIdentifiability.UniquelyIdentifiable neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+        },
+        {
+            "name": "DatawithexcessiveVolumeisprocessed",
+            "constraint": "data DataPrecision.ExcessiveVolume neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+        },
+        {
+            "name": "DatawithexcessiveFrequencyisprocessed",
+            "constraint": "data DataPrecision.ExcessiveFrequency neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+        },
+        {
+            "name": "NonRepudiationthroughSignature",
+            "constraint": "data DataIntegrity.Signed neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "IdentifyingthroughQuasiIdentifier",
+            "constraint": "data DataIdentifiability.QuasiIdentifiable neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+        }
+    ]
+}

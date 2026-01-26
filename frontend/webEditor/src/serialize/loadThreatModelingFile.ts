@@ -27,23 +27,14 @@ import { ResetLabelingProcessAction } from "../labelingProcess/labelingProcessCo
 // Replaces the type of the `values` of a `LabelType` with a subclass of `LabelTypeValue`
 type OverwriteLabelTypeValueType<T extends LabelType, S extends LabelTypeValue> = Omit<T, "values"> & { values: S[] }
 
-type ThreatModelingFileFormat = {
+export type ThreatModelingFileFormat = {
     threatKnowledgeName: string,
     threatKnowledgeVersion: string,
     labels: OverwriteLabelTypeValueType<ThreatModelingLabelType, ThreatModelingLabelTypeValue>[],
     constraints: Constraint[]
 }
 
-export namespace LoadThreatModelingFileAction {
-    export const KIND = "loadThreatModelingFile";
-
-    export function create(): Action {
-        return { kind: KIND };
-    }
-}
-
-export class LoadThreatModelingFileCommand extends Command {
-    static readonly KIND = LoadThreatModelingFileAction.KIND;
+export abstract class LoadThreatModelingFileCommand extends Command {
 
     private fileContent: ThreatModelingFileFormat | undefined;
 
@@ -66,7 +57,7 @@ export class LoadThreatModelingFileCommand extends Command {
         super();
     }
 
-    private async getFileContent(): Promise<ThreatModelingFileFormat | undefined> {
+    protected async getFileContent(): Promise<ThreatModelingFileFormat | undefined> {
         const file = await chooseFile(["application/json"]);
         if (!file) return undefined
 

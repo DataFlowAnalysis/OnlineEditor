@@ -8,8 +8,9 @@ import { DfdModelFactory } from "./ModelFactory";
 import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
-import { LoadThreatModelingFileCommand } from "./loadThreatModelingFile.ts";
 import { SaveThreatsTableCommand } from "./saveThreatsTable.ts";
+import { LoadThreatModelingUserFileCommand } from "./loadThreatModelingUserFile.ts";
+import { LoadThreatModelingLinddunFileCommand } from "./loadThreatModelingLinddunFile.ts";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -17,7 +18,8 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadJsonFileCommand);
     configureCommand(context, LoadDfdAndDdFileCommand);
     configureCommand(context, LoadPalladioFileCommand);
-    configureCommand(context, LoadThreatModelingFileCommand);
+    configureCommand(context, LoadThreatModelingUserFileCommand);
+    configureCommand(context, LoadThreatModelingLinddunFileCommand);
     configureCommand(context, SaveJsonFileCommand);
     configureCommand(context, SaveDfdAndDdFileCommand);
     configureCommand(context, SaveThreatsTableCommand)
