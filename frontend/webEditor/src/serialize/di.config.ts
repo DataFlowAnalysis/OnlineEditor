@@ -9,6 +9,7 @@ import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
 import { LoadFromUrlCommand } from "./LoadUrl";
+import { JsonDropHandler, LoadDroppedFileCommand } from "./dropListener";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -20,6 +21,9 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, SaveJsonFileCommand);
     configureCommand(context, SaveDfdAndDdFileCommand);
     configureCommand(context, AnalyzeCommand);
+    configureCommand(context, LoadDroppedFileCommand);
+
+    bind(TYPES.MouseListener).to(JsonDropHandler);
 
     rebind(TYPES.IModelFactory).to(DfdModelFactory);
 });
