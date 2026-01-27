@@ -19,18 +19,17 @@ export class JsonDropHandler extends MouseListener {
     drop(_target: SModelElementImpl, ev: DragEvent): Promise<Action>[] {
         this.logger.log(this, "Drop event detected", ev);
 
-        // Prevent default behavior which would open the file in the browser
-        ev.preventDefault();
-
         const file = ev.dataTransfer?.files[0];
         if (!file) {
             return [];
         }
 
         if (file.type !== "application/json") {
-            alert("Diagram file must be in JSON format");
             return [];
         }
+
+        // Prevent default behavior which would open the file in the browser
+        ev.preventDefault();
 
         return [file.text().then((t) => LoadDroppedFileAction.create(file.name, JSON.parse(t)))];
     }
