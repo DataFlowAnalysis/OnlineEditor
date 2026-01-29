@@ -174,7 +174,7 @@ export class PasteElementsCommand extends Command {
                 });
             }
 
-            const newElement = context.modelFactory.createElement(schema);
+            const newElement = context.modelFactory.createElement(schema, context.root);
             this.newElements.push(newElement);
         });
 

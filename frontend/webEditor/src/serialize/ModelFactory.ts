@@ -40,6 +40,9 @@ export class DfdModelFactory extends SModelFactory {
             } as SLabel);
         }
 
+        if ("features" in schema) {
+            delete schema["features"];
+        }
         const element = super.createElement(schema, parent);
         if (element.features === undefined) {
             element.features = new Set<symbol>();
