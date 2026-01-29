@@ -8,12 +8,14 @@ import "./labelTypeEditorUi.css";
 import { dynamicallySetInputSize } from "../utils/TextSize";
 import { LABEL_ASSIGNMENT_MIME_TYPE } from "./dragAndDrop";
 import { AddLabelAssignmentAction } from "./assignmentCommand";
-import { IActionDispatcher, TYPES } from "sprotty";
+import { IActionDispatcher, KeyListener, SModelElementImpl, TYPES } from "sprotty";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
 import { ReplaceAction } from "./renameCommand";
+import { Action } from "sprotty-protocol";
+import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
-export class LabelTypeEditorUi extends AccordionUiExtension {
+export class LabelTypeEditorUi extends AccordionUiExtension implements KeyListener {
     static readonly ID = "label-type-editor-ui";
     private labelSectionContainer?: HTMLElement;
 
@@ -240,5 +242,18 @@ export class LabelTypeEditorUi extends AccordionUiExtension {
             event.preventDefault();
         }
         dynamicallySetInputSize(input);
+    }
+
+    keyDown(_element: SModelElementImpl, event: KeyboardEvent): Action[] {
+        // Toggle the accordion on press of T
+        if (matchesKeystroke(event, "KeyT")) {
+            this.toggleStatus();
+        }
+
+        return [];
+    }
+
+    keyUp(): Action[] {
+        return [];
     }
 }
