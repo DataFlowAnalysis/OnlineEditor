@@ -196,7 +196,7 @@ export abstract class LoadJsonCommand extends Command {
      *
      * @param modelSchema The model schema to preprocess
      */
-    private static preprocessModelSchema(modelSchema: SModelRoot): SModelRoot {
+    public static preprocessModelSchema(modelSchema: SModelRoot): SModelRoot {
         // These properties are all not included in the root typing and if present are not loaded and handled correctly. So they are removed.
         if ("features" in modelSchema) {
             delete modelSchema["features"];
