@@ -10,6 +10,7 @@ import { LayoutMethod } from "../layout/layoutMethod";
 import { LayoutModelAction } from "../layout/command";
 import { SaveJsonFileAction } from "../serialize/saveJsonFile";
 import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
+import { SaveImageAction } from "../serialize/image";
 
 /**
  * Provides possible actions for the command palette.
@@ -39,7 +40,7 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                 [
                     new LabeledAction("Save diagram as JSON", [SaveJsonFileAction.create()], "json"),
                     new LabeledAction("Save diagram as DFD and DD", [SaveDfdAndDdFileAction.create()], "coffee"),
-                    //new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
+                    new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
                 ],
                 "save",
             ),
