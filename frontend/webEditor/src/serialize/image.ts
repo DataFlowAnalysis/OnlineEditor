@@ -1,8 +1,9 @@
-import { Command, CommandExecutionContext, CommandReturn, TYPES } from "sprotty";
+import { Command, CommandExecutionContext, CommandReturn, IVNodePostprocessor, ModelRenderer, TYPES, ViewRegistration, ViewRegistry } from "sprotty";
 import themeCss from "../assets/theme.css?raw";
 import elementCss from "../diagram/style.css?raw";
+import toHTML from "snabbdom-to-html"
 import { Action } from "sprotty-protocol";
-import { inject } from "inversify";
+import { inject, multiInject } from "inversify";
 import { FileName } from "../fileName/fileName";
 
 export namespace SaveImageAction {
@@ -21,21 +22,24 @@ export class SaveImageCommand extends Command {
     constructor(
         @inject(TYPES.Action) _: Action,
         @inject(FileName) private readonly fileName: FileName,
+        @inject(TYPES.ViewRegistry) private readonly viewRegistry: ViewRegistry,
+        @multiInject(TYPES.IVNodePostprocessor) private readonly postProcessors: IVNodePostprocessor[]
     ) {
         super();
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        const root = document.getElementById("sprotty_root");
-        if (!root) return context.root;
-        const firstChild = root.children[0];
-        if (!firstChild) return context.root;
-        const innerSvg = firstChild.innerHTML;
+        const renderer = new ModelRenderer(this.viewRegistry, 'main', this.postProcessors )
+        const svg = renderer.renderElement(context.root)
+        if (!svg) return context.root
+        console.debug(toHTML(svg))
+
+
         /* The result svg will render (0,0) as the top left corner of the svg.
          * We calculate the minimum translation of all children.
          * We then offset the whole svg by this opposite of this amount.
          */
-        const minTranslate = { x: Infinity, y: Infinity };
+        /*const minTranslate = { x: Infinity, y: Infinity };
         for (const child of firstChild.children) {
             const childTranslate = this.getMinTranslate(child as HTMLElement);
             minTranslate.x = Math.min(minTranslate.x, childTranslate.x);
@@ -47,8 +51,8 @@ export class SaveImageCommand extends Command {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = this.fileName.getName() + ".svg";
-        link.click();
+        link.download = this.fileName.getName() + ".svg";*/
+        //link.click();
 
         return context.root;
     }
