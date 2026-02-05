@@ -65,12 +65,8 @@ export namespace ConstraintDslTreeBuilder {
         };
 
         const destinationSelectors = getAbstractSelectors(modelSource, labelTypeRegistry);
-        destinationSelectors.forEach((destinationSelector) => {
-            getLeaves(destinationSelector).forEach((n) => {
-                n.canBeFinal = true;
-                n.children.push(conditionalSelector);
-            });
-        });
+        appendChildrenToLeaves(destinationSelectors, [...destinationSelectors, conditionalSelector], true);
+
         const nodeDestinationSelector: LanguageTreeNode<Word> = {
             word: new ConstantWord("vertex"),
             children: destinationSelectors,
@@ -88,24 +84,16 @@ export namespace ConstraintDslTreeBuilder {
         };
 
         const nodeSelectors = getAbstractSelectors(modelSource, labelTypeRegistry);
-        nodeSelectors.forEach((nodeSelector) => {
-            getLeaves(nodeSelector).forEach((n) => {
-                n.children.push(dataSourceSelector);
-                n.children.push(neverFlows);
-            });
-        });
+        appendChildrenToLeaves(nodeSelectors, [...nodeSelectors, dataSourceSelector, neverFlows], false);
+
         const nodeSourceSelector: LanguageTreeNode<Word> = {
             word: new ConstantWord("vertex"),
             children: nodeSelectors,
         };
 
         const dataSelectors = getAbstractSelectors(modelSource, labelTypeRegistry);
-        dataSelectors.forEach((dataSelector) => {
-            getLeaves(dataSelector).forEach((n) => {
-                n.children.push(nodeSourceSelector);
-                n.children.push(neverFlows);
-            });
-        });
+        appendChildrenToLeaves(dataSelectors, [...dataSelectors, nodeSourceSelector, neverFlows], false);
+
         dataSourceSelector.children = dataSelectors;
 
         const nameNode: LanguageTreeNode<Word> = {
@@ -130,6 +118,21 @@ export namespace ConstraintDslTreeBuilder {
             result = result.concat(getLeaves(n));
         }
         return result;
+    }
+
+    function getAllLeaves(words: LanguageTreeNode<Word>[]) {
+        return words.flatMap(getLeaves);
+    }
+
+    function appendChildrenToLeaves(
+        words: LanguageTreeNode<Word>[],
+        children: LanguageTreeNode<Word>[],
+        makeFinal: boolean,
+    ) {
+        getAllLeaves(words).forEach((n) => {
+            n.canBeFinal = makeFinal;
+            n.children.push(...children);
+        });
     }
 
     function getAbstractSelectors(
