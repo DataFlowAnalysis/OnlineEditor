@@ -40,7 +40,8 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                 [
                     new LabeledAction("Save diagram as JSON", [SaveJsonFileAction.create()], "json"),
                     new LabeledAction("Save diagram as DFD and DD", [SaveDfdAndDdFileAction.create()], "coffee"),
-                    new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
+                    new LabeledAction("Save diagram as SVG", [SaveImageAction.create("svg")], "file-media"),
+                    new LabeledAction("Save diagram as PDF", [SaveImageAction.create("pdf")], "file-pdf"),
                 ],
                 "save",
             ),
