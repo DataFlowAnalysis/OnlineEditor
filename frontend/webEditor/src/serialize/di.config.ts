@@ -9,7 +9,7 @@ import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
 import { LoadFromUrlCommand } from "./LoadUrl";
-import { SaveImageCommand } from "./export";
+import { ExportCommand } from "./export";
 import { JsonDropHandler, LoadDroppedFileCommand } from "./dropListener";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
@@ -22,7 +22,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, SaveJsonFileCommand);
     configureCommand(context, SaveDfdAndDdFileCommand);
     configureCommand(context, AnalyzeCommand);
-    configureCommand(context, SaveImageCommand);
+    configureCommand(context, ExportCommand);
     configureCommand(context, LoadDroppedFileCommand);
 
     bind(TYPES.MouseListener).to(JsonDropHandler);
