@@ -10,7 +10,7 @@ import { LayoutMethod } from "../layout/layoutMethod";
 import { LayoutModelAction } from "../layout/command";
 import { SaveJsonFileAction } from "../serialize/saveJsonFile";
 import { SaveDfdAndDdFileAction } from "../serialize/saveDfdAndDdFile";
-import { SaveImageAction } from "../serialize/export";
+import { ExportAction } from "../serialize/export";
 
 /**
  * Provides possible actions for the command palette.
@@ -47,10 +47,10 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
             new FolderAction(
                 "Export",
                 [
-                    new LabeledAction("Export diagram as SVG", [SaveImageAction.create("svg", false)], "file-media"),
-                    new LabeledAction("Export selection as SVG", [SaveImageAction.create("svg", true)], "file-media"),
-                    new LabeledAction("Export diagram as PDF", [SaveImageAction.create("pdf", false)], "file-pdf"),
-                    new LabeledAction("Export selection as PDF", [SaveImageAction.create("pdf", true)], "file-pdf"),
+                    new LabeledAction("Export diagram as SVG", [ExportAction.create("svg", false)], "file-media"),
+                    new LabeledAction("Export selection as SVG", [ExportAction.create("svg", true)], "file-media"),
+                    new LabeledAction("Export diagram as PDF", [ExportAction.create("pdf", false)], "file-pdf"),
+                    new LabeledAction("Export selection as PDF", [ExportAction.create("pdf", true)], "file-pdf"),
                 ],
                 "export",
             ),

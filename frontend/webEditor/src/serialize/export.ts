@@ -31,15 +31,15 @@ const patch = init([
     eventListenersModule, // attaches event listeners
 ]);
 
-interface SaveImageAction extends Action {
+interface ExportAction extends Action {
     saveType: "svg" | "pdf";
     selectionOnly: boolean;
 }
 
-export namespace SaveImageAction {
+export namespace ExportAction {
     export const KIND = "save-image";
 
-    export function create(saveType: "svg" | "pdf", selectionOnly: boolean): SaveImageAction {
+    export function create(saveType: "svg" | "pdf", selectionOnly: boolean): ExportAction {
         return {
             kind: KIND,
             saveType,
@@ -54,12 +54,15 @@ interface SVGResult {
     height: number;
 }
 
-export class SaveImageCommand extends Command {
-    static readonly KIND = SaveImageAction.KIND;
+/**
+ * Exports the diagram as either a svg or pdf
+ */
+export class ExportCommand extends Command {
+    static readonly KIND = ExportAction.KIND;
     private static readonly PADDING = 5;
 
     constructor(
-        @inject(TYPES.Action) private readonly action: SaveImageAction,
+        @inject(TYPES.Action) private readonly action: ExportAction,
         @inject(FileName) private readonly fileName: FileName,
         @inject(TYPES.ViewRegistry) private readonly viewRegistry: ViewRegistry,
         @multiInject(TYPES.IVNodePostprocessor) private readonly postProcessors: IVNodePostprocessor[],
@@ -98,6 +101,11 @@ export class SaveImageCommand extends Command {
         return context.root;
     }
 
+    /**
+     * Generates saveable svg code
+     * @param dom A dummy root element attached to the Dom
+     * @returns The generated svg
+     */
     getSVG(context: CommandExecutionContext, dom: HTMLElement): SVGResult | undefined {
         // render diagram virtually
         if (this.action.selectionOnly) {
@@ -147,11 +155,11 @@ export class SaveImageCommand extends Command {
         if (!holderG.data) holderG.data = {};
         if (!holderG.data.attrs) holderG.data.attrs = {};
         holderG.data.attrs["transform"] =
-            `translate(${-minTranslate.x + SaveImageCommand.PADDING},${-minTranslate.y + SaveImageCommand.PADDING})`;
+            `translate(${-minTranslate.x + ExportCommand.PADDING},${-minTranslate.y + ExportCommand.PADDING})`;
         if (!svg.data) svg.data = {};
         if (!svg.data.attrs) svg.data.attrs = {};
-        const width = maxSize.x - minTranslate.x + 2 * SaveImageCommand.PADDING;
-        const height = maxSize.y - minTranslate.y + 2 * SaveImageCommand.PADDING;
+        const width = maxSize.x - minTranslate.x + 2 * ExportCommand.PADDING;
+        const height = maxSize.y - minTranslate.y + 2 * ExportCommand.PADDING;
         svg.data.attrs.width = width;
         svg.data.attrs.height = height;
         svg.data.attrs.viewBox = `0 0 ${width} ${height}`;
@@ -189,6 +197,11 @@ export class SaveImageCommand extends Command {
         link.click();
     }
 
+    /**
+     * Recursively removes the selected class
+     * Should be called before rendering
+     * @param v Root VNode
+     */
     private removeSelectedClass(v: VNode) {
         if (v.data?.class?.selected) {
             v.data.class.selected = false;
@@ -201,6 +214,12 @@ export class SaveImageCommand extends Command {
         }
     }
 
+    /**
+     * Recursively removes the routing handles of edges.
+     * Needs to happen before removing classes
+     * @param v
+     * @returns
+     */
     private removeRoutingHandles(v: VNode) {
         if (!v.children) return;
         v.children = v.children?.filter((c) => {
@@ -213,6 +232,10 @@ export class SaveImageCommand extends Command {
         }
     }
 
+    /**
+     * Recursively transforms the computed style of the html elements to properties on the VNode
+     * @param v The current VNode
+     */
     private transformStyleToAttributes(v: VNode) {
         if (!v.elm) return;
 
@@ -263,6 +286,10 @@ export class SaveImageCommand extends Command {
         }
     }
 
+    /**
+     * Recursively removes html attributes the svg file does not need.
+     * @param v The current VNode
+     */
     private removeUnusedAttributes(v: VNode) {
         if (!v.data) v.data = {};
         if (v.data.attrs) {
@@ -282,6 +309,13 @@ export class SaveImageCommand extends Command {
         }
     }
 
+    /**
+     * Recursively iterates the VNodes an centers the text position manually.
+     * This should happen after transforming the style to attributes
+     * @param v Current VNode
+     * @param maxSiblingSize biggest size of siblings
+     * @param maxSiblingX biggest x of siblings
+     */
     private centerText(v: VNode, maxSiblingSize: number = 0, maxSiblingX: number = 0) {
         if (getVNodeSVGType(v) == "text") {
             if (!v.data) v.data = {};
@@ -341,7 +375,6 @@ function getMinTranslate(e: VNode, parentOffset: { x: number; y: number } = { x:
 
 /**
  * Calculates the absolute translation of an element relative to the svg.
- * If the element has no translation, the offset of the parent is returned.
  * @param e the element to get the translation from
  * @param parentOffset Offset of the containing element
  * @returns Offset of the child relative to the svg
@@ -363,6 +396,13 @@ function getTranslate(
     return { x: newX, y: newY };
 }
 
+/**
+ * Gets the maximum size the canvas needs by adding its position and size and finding the maximum of this among children.
+ * This is done by recursively.
+ * @param e the root element for the sizing
+ * @param parentOffset Offset of the containing element
+ * @returns Required canvas size
+ */
 function getMaxRequiredCanvasSize(
     e: VNode,
     parentOffset: { x: number; y: number } = { x: 0, y: 0 },
@@ -380,6 +420,12 @@ function getMaxRequiredCanvasSize(
     return maxSize;
 }
 
+/**
+ * Calculates the size the canvas needs to be to accommodate the given element
+ * @param e the element to calculate for
+ * @param parentOffset Offset of the containing element
+ * @returns The size required for the element
+ */
 function getRequiredCanvasSize(
     e: VNode,
     parentOffset: { x: number; y: number } = { x: 0, y: 0 },
@@ -397,6 +443,10 @@ function getVNodeSVGType(v: VNode): string | undefined {
     return v.sel?.split(/#|\./)[0];
 }
 
+/**
+ * @param v VNode to check
+ * @returns The relevant style properties for the node type
+ */
 function getRelevantStyleProps(v: VNode): string[] {
     const type = getVNodeSVGType(v);
     switch (type) {
@@ -418,6 +468,10 @@ function getRelevantStyleProps(v: VNode): string[] {
     }
 }
 
+/**
+ * @param key CSS key
+ * @returns The default value for a given CSS key
+ */
 function getDefaultPropertyValues(key: string) {
     switch (key) {
         case "stroke-dasharray":
@@ -433,6 +487,9 @@ function getDefaultPropertyValues(key: string) {
     }
 }
 
+/**
+ * VNodePostprocessor removing all non-selected elements
+ */
 class SelectionPostProcessor implements IVNodePostprocessor {
     decorate(v: VNode, element: SModelElementImpl): VNode {
         let shouldRender = this.isSelected(element);
