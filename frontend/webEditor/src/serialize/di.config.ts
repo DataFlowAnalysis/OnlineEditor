@@ -9,7 +9,7 @@ import { SaveJsonFileCommand } from "./saveJsonFile";
 import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
 import { LoadFromUrlCommand } from "./LoadUrl";
-import { SaveImageCommand } from "./image";
+import { SaveImageCommand } from "./export";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
