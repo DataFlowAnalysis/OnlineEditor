@@ -4,6 +4,7 @@ import {
     CommandReturn,
     IVNodePostprocessor,
     ModelRenderer,
+    SModelRootImpl,
     TYPES,
     ViewRegistry,
 } from "sprotty";
@@ -14,6 +15,9 @@ import { classModule, eventListenersModule, h, init, propsModule, styleModule, V
 import { Action } from "sprotty-protocol";
 import { inject, multiInject } from "inversify";
 import { FileName } from "../fileName/fileName";
+import { jsPDF } from "jspdf";
+import "svg2pdf.js";
+import { calculateTextSize } from "../utils/TextSize";
 
 const patch = init([
     // Init patch function with chosen modules
@@ -23,14 +27,25 @@ const patch = init([
     eventListenersModule, // attaches event listeners
 ]);
 
+interface SaveImageAction extends Action {
+    saveType: "svg" | "pdf";
+}
+
 export namespace SaveImageAction {
     export const KIND = "save-image";
 
-    export function create(): Action {
+    export function create(saveType: "svg" | "pdf"): SaveImageAction {
         return {
             kind: KIND,
+            saveType,
         };
     }
+}
+
+interface SVGResult {
+    svg: string;
+    width: number;
+    height: number;
 }
 
 export class SaveImageCommand extends Command {
@@ -38,7 +53,7 @@ export class SaveImageCommand extends Command {
     private static readonly PADDING = 5;
 
     constructor(
-        @inject(TYPES.Action) _: Action,
+        @inject(TYPES.Action) private readonly action: SaveImageAction,
         @inject(FileName) private readonly fileName: FileName,
         @inject(TYPES.ViewRegistry) private readonly viewRegistry: ViewRegistry,
         @multiInject(TYPES.IVNodePostprocessor) private readonly postProcessors: IVNodePostprocessor[],
@@ -46,7 +61,7 @@ export class SaveImageCommand extends Command {
         super();
     }
 
-    execute(context: CommandExecutionContext): CommandReturn {
+    async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         const dummyRoot = document.createElement("div");
         dummyRoot.style.position = "absolute";
         dummyRoot.style.left = "-100000px";
@@ -54,10 +69,18 @@ export class SaveImageCommand extends Command {
         dummyRoot.style.visibility = "hidden";
 
         document.body.appendChild(dummyRoot);
+        let result: SVGResult | undefined;
         try {
-            this.makeImage(context, dummyRoot);
+            result = this.getSVG(context, dummyRoot);
         } finally {
             document.body.removeChild(dummyRoot);
+        }
+        if (result) {
+            if (this.action.saveType === "svg") {
+                this.writeSVG(result);
+            } else {
+                this.writePDF(result);
+            }
         }
 
         return context.root;
@@ -69,7 +92,7 @@ export class SaveImageCommand extends Command {
         return context.root;
     }
 
-    makeImage(context: CommandExecutionContext, dom: HTMLElement) {
+    getSVG(context: CommandExecutionContext, dom: HTMLElement): SVGResult | undefined {
         // render diagram virtually
         const renderer = new ModelRenderer(this.viewRegistry, "hidden", this.postProcessors);
         const svg = renderer.renderElement(context.root);
@@ -85,6 +108,10 @@ export class SaveImageCommand extends Command {
         patch(dom, dummyDom);
         // apply style and clean attributes
         transformStyleToAttributes(dummyDom);
+        // Centering does not work properly for pdfs. We fix this manually
+        if (this.action.saveType === "pdf") {
+            centerText(dummyDom, 0);
+        }
         removeUnusedAttributes(dummyDom);
 
         // compute diagram offset and size
@@ -95,11 +122,11 @@ export class SaveImageCommand extends Command {
         const maxSize = { x: 0, y: 0 };
         for (const child of actualElements) {
             if (typeof child == "string") continue;
-            const childTranslate = this.getMinTranslate(child);
+            const childTranslate = getMinTranslate(child);
             minTranslate.x = Math.min(minTranslate.x, childTranslate.x);
             minTranslate.y = Math.min(minTranslate.y, childTranslate.y);
 
-            const childSize = this.getMaxRequieredCanvasSize(child);
+            const childSize = getMaxRequiredCanvasSize(child);
             maxSize.x = Math.max(maxSize.x, childSize.x);
             maxSize.y = Math.max(maxSize.y, childSize.y);
         }
@@ -121,92 +148,109 @@ export class SaveImageCommand extends Command {
         svg.data.attrs.version = "1.0";
         svg.data.attrs.xmlns = "http://www.w3.org/2000/svg";
 
-        // download file
-        const blob = new Blob([toHTML(svg)], { type: "image/svg+xml" });
+        return { svg: toHTML(svg), width, height };
+    }
+
+    async writePDF(svg: SVGResult) {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = svg.svg.trim();
+        const svgEl = wrapper.querySelector("svg");
+        if (!svgEl) return;
+        const doc = new jsPDF({
+            orientation: svg.width > svg.height ? "landscape" : "portrait",
+            format: [svg.width, svg.height],
+        });
+        await doc.svg(svgEl, {
+            x: 0,
+            y: 0,
+            width: svg.width,
+        });
+        doc.save(this.fileName.getName() + ".pdf");
+    }
+
+    writeSVG(svg: SVGResult) {
+        const blob = new Blob([svg.svg], { type: "image/svg+xml" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.download = this.fileName.getName() + ".svg";
         link.click();
     }
+}
 
-    /**
-     * Gets the minimum translation of an element relative to the svg.
-     * This is done by recursively getting the translation of all child elements
-     * @param e the element to get the translation from
-     * @param parentOffset Offset of the containing element
-     * @returns Minimum absolute offset of any child element relative to the svg
-     */
-    private getMinTranslate(
-        e: VNode,
-        parentOffset: { x: number; y: number } = { x: 0, y: 0 },
-    ): { x: number; y: number } {
-        const myTranslate = this.getTranslate(e, parentOffset);
-        const minTranslate = myTranslate ?? { x: Infinity, y: Infinity };
+/**
+ * Gets the minimum translation of an element relative to the svg.
+ * This is done by recursively getting the translation of all child elements
+ * @param e the element to get the translation from
+ * @param parentOffset Offset of the containing element
+ * @returns Minimum absolute offset of any child element relative to the svg
+ */
+function getMinTranslate(e: VNode, parentOffset: { x: number; y: number } = { x: 0, y: 0 }): { x: number; y: number } {
+    const myTranslate = getTranslate(e, parentOffset);
+    const minTranslate = myTranslate ?? { x: Infinity, y: Infinity };
 
-        const children = e.children ?? [];
-        for (const child of children) {
-            if (typeof child == "string") continue;
-            const childTranslate = this.getMinTranslate(child, myTranslate);
-            minTranslate.x = Math.min(minTranslate.x, childTranslate.x);
-            minTranslate.y = Math.min(minTranslate.y, childTranslate.y);
-        }
-        return minTranslate;
+    const children = e.children ?? [];
+    for (const child of children) {
+        if (typeof child == "string") continue;
+        const childTranslate = getMinTranslate(child, myTranslate);
+        minTranslate.x = Math.min(minTranslate.x, childTranslate.x);
+        minTranslate.y = Math.min(minTranslate.y, childTranslate.y);
     }
+    return minTranslate;
+}
 
-    /**
-     * Calculates the absolute translation of an element relative to the svg.
-     * If the element has no translation, the offset of the parent is returned.
-     * @param e the element to get the translation from
-     * @param parentOffset Offset of the containing element
-     * @returns Offset of the child relative to the svg
-     */
-    private getTranslate(
-        e: VNode,
-        parentOffset: { x: number; y: number } = { x: 0, y: 0 },
-    ): { x: number; y: number } | undefined {
-        const transform = e.data?.attrs?.["transform"] as string | undefined;
-        if (!transform) return undefined;
-        const translateMatch = transform.match(/translate\(([^)]+)\)/);
-        if (!translateMatch) return parentOffset;
-        const translate = translateMatch[1].match(/(-?[0-9.]+)(?:, | |,)(-?[0-9.]+)/);
-        if (!translate) return parentOffset;
-        const x = parseFloat(translate[1]);
-        const y = parseFloat(translate[2]);
-        const newX = x + parentOffset.x;
-        const newY = y + parentOffset.y;
-        return { x: newX, y: newY };
+/**
+ * Calculates the absolute translation of an element relative to the svg.
+ * If the element has no translation, the offset of the parent is returned.
+ * @param e the element to get the translation from
+ * @param parentOffset Offset of the containing element
+ * @returns Offset of the child relative to the svg
+ */
+function getTranslate(
+    e: VNode,
+    parentOffset: { x: number; y: number } = { x: 0, y: 0 },
+): { x: number; y: number } | undefined {
+    const transform = e.data?.attrs?.["transform"] as string | undefined;
+    if (!transform) return undefined;
+    const translateMatch = transform.match(/translate\(([^)]+)\)/);
+    if (!translateMatch) return parentOffset;
+    const translate = translateMatch[1].match(/(-?[0-9.]+)(?:, | |,)(-?[0-9.]+)/);
+    if (!translate) return parentOffset;
+    const x = parseFloat(translate[1]);
+    const y = parseFloat(translate[2]);
+    const newX = x + parentOffset.x;
+    const newY = y + parentOffset.y;
+    return { x: newX, y: newY };
+}
+
+function getMaxRequiredCanvasSize(
+    e: VNode,
+    parentOffset: { x: number; y: number } = { x: 0, y: 0 },
+): { x: number; y: number } {
+    const myTranslate = getTranslate(e, parentOffset);
+    const maxSize = getRequiredCanvasSize(e, parentOffset);
+
+    const children = e.children ?? [];
+    for (const child of children) {
+        if (typeof child == "string") continue;
+        const childTranslate = getMaxRequiredCanvasSize(child, myTranslate);
+        maxSize.x = Math.max(maxSize.x, childTranslate.x);
+        maxSize.y = Math.max(maxSize.y, childTranslate.y);
     }
+    return maxSize;
+}
 
-    private getMaxRequieredCanvasSize(
-        e: VNode,
-        parentOffset: { x: number; y: number } = { x: 0, y: 0 },
-    ): { x: number; y: number } {
-        const myTranslate = this.getTranslate(e, parentOffset);
-        const maxSize = this.getRequieredCanvasSize(e, parentOffset);
+function getRequiredCanvasSize(
+    e: VNode,
+    parentOffset: { x: number; y: number } = { x: 0, y: 0 },
+): { x: number; y: number } {
+    const width = (e.data?.attrs?.["width"] as number | undefined) ?? 0;
+    const height = (e.data?.attrs?.["height"] as number | undefined) ?? 0;
+    const translate = getTranslate(e, parentOffset) ?? parentOffset;
 
-        const children = e.children ?? [];
-        for (const child of children) {
-            if (typeof child == "string") continue;
-            const childTranslate = this.getMaxRequieredCanvasSize(child, myTranslate);
-            maxSize.x = Math.max(maxSize.x, childTranslate.x);
-            maxSize.y = Math.max(maxSize.y, childTranslate.y);
-        }
-        return maxSize;
-    }
-
-    private getRequieredCanvasSize(
-        e: VNode,
-        parentOffset: { x: number; y: number } = { x: 0, y: 0 },
-    ): { x: number; y: number } {
-        const width = (e.data?.attrs?.["width"] as number | undefined) ?? 0;
-        const height = (e.data?.attrs?.["height"] as number | undefined) ?? 0;
-        const translate = this.getTranslate(e, parentOffset) ?? parentOffset;
-
-        const x = translate.x + width;
-        const y = translate.y + height;
-        return { x: x, y: y };
-    }
+    const x = translate.x + width;
+    const y = translate.y + height;
+    return { x: x, y: y };
 }
 
 function transformStyleToAttributes(v: VNode) {
@@ -238,7 +282,7 @@ function transformStyleToAttributes(v: VNode) {
         if (value.endsWith("px")) {
             value = value.substring(0, value.length - 2);
         }
-        if (value != getDefaultValues(key)) {
+        if (value != getDefaultPropertyValues(key)) {
             v.data.attrs[key] = value;
         }
     }
@@ -278,6 +322,41 @@ function removeUnusedAttributes(v: VNode) {
     }
 }
 
+function centerText(v: VNode, maxSiblingSize: number = 0, maxSiblingX: number = 0) {
+    if (getVNodeSVGType(v) == "text") {
+        if (!v.data) v.data = {};
+        if (!v.data.attrs) v.data.attrs = {};
+
+        v.data.attrs["text-anchor"] = "start";
+        if (v.data.class?.["port-text"] === true) {
+            if (v.text === "I") {
+                v.data.attrs.x = 2.8;
+            } else {
+                v.data.attrs.x = 1.3;
+            }
+        } else {
+            const width = calculateTextSize(v.text, `${v.data.attrs["font-size"] ?? 0}px sans-serif `).width;
+            v.data.attrs.x = maxSiblingSize / 2 - width / 2 + maxSiblingX;
+        }
+    }
+
+    if (!v.children) return;
+
+    let newMaxSiblingSize = 0;
+    let newMaxSiblingX = 0;
+    for (const child of v.children) {
+        if (typeof child === "string") continue;
+        if (getVNodeSVGType(child) == "text") continue;
+        newMaxSiblingSize = Math.max(newMaxSiblingSize, Number(child.data?.attrs?.width ?? 0));
+        newMaxSiblingX = Math.max(newMaxSiblingX, Number(child.data?.attrs?.x ?? 0));
+    }
+
+    for (const child of v.children) {
+        if (typeof child === "string") continue;
+        centerText(child, newMaxSiblingSize, newMaxSiblingX);
+    }
+}
+
 function getVNodeSVGType(v: VNode): string | undefined {
     return v.sel?.split(/#|\./)[0];
 }
@@ -303,7 +382,7 @@ function getRelevantStyleProps(v: VNode): string[] {
     }
 }
 
-function getDefaultValues(key: string) {
+function getDefaultPropertyValues(key: string) {
     switch (key) {
         case "stroke-dasharray":
             return "none";
