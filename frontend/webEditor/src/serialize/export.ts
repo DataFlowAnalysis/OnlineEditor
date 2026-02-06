@@ -2,9 +2,13 @@ import {
     Command,
     CommandExecutionContext,
     CommandReturn,
+    isSelectable,
     IVNodePostprocessor,
     ModelRenderer,
+    SChildElementImpl,
+    SModelElementImpl,
     SModelRootImpl,
+    SParentElementImpl,
     TYPES,
     ViewRegistry,
 } from "sprotty";
@@ -29,15 +33,17 @@ const patch = init([
 
 interface SaveImageAction extends Action {
     saveType: "svg" | "pdf";
+    selectionOnly: boolean;
 }
 
 export namespace SaveImageAction {
     export const KIND = "save-image";
 
-    export function create(saveType: "svg" | "pdf"): SaveImageAction {
+    export function create(saveType: "svg" | "pdf", selectionOnly: boolean): SaveImageAction {
         return {
             kind: KIND,
             saveType,
+            selectionOnly,
         };
     }
 }
@@ -94,6 +100,9 @@ export class SaveImageCommand extends Command {
 
     getSVG(context: CommandExecutionContext, dom: HTMLElement): SVGResult | undefined {
         // render diagram virtually
+        if (this.action.selectionOnly) {
+            this.postProcessors.push(new SelectionPostProcessor());
+        }
         const renderer = new ModelRenderer(this.viewRegistry, "hidden", this.postProcessors);
         const svg = renderer.renderElement(context.root);
         if (!svg) return;
@@ -105,14 +114,17 @@ export class SaveImageCommand extends Command {
 
         // render svg into dom
         const dummyDom = h("div", {}, [svg]);
+        // remove selection as we do not want it on an export
+        this.removeSelectedClass(dummyDom);
+        this.removeRoutingHandles(dummyDom);
         patch(dom, dummyDom);
         // apply style and clean attributes
-        transformStyleToAttributes(dummyDom);
+        this.transformStyleToAttributes(dummyDom);
         // Centering does not work properly for pdfs. We fix this manually
         if (this.action.saveType === "pdf") {
-            centerText(dummyDom, 0);
+            this.centerText(dummyDom, 0);
         }
-        removeUnusedAttributes(dummyDom);
+        this.removeUnusedAttributes(dummyDom);
 
         // compute diagram offset and size
         const holderG = svg.children?.[0];
@@ -175,6 +187,134 @@ export class SaveImageCommand extends Command {
         link.href = url;
         link.download = this.fileName.getName() + ".svg";
         link.click();
+    }
+
+    private removeSelectedClass(v: VNode) {
+        if (v.data?.class?.selected) {
+            v.data.class.selected = false;
+        }
+
+        if (!v.children) return;
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            this.removeSelectedClass(child);
+        }
+    }
+
+    private removeRoutingHandles(v: VNode) {
+        if (!v.children) return;
+        v.children = v.children?.filter((c) => {
+            if (typeof c == "string") return true;
+            return c.data?.class?.["sprotty-routing-handle"] !== true;
+        });
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            this.removeRoutingHandles(child);
+        }
+    }
+
+    private transformStyleToAttributes(v: VNode) {
+        if (!v.elm) return;
+
+        if (!v.data) v.data = {};
+        if (!v.data.style) v.data.style = {};
+        if (!v.data.attrs) v.data.attrs = {};
+
+        const computedStyle = getComputedStyle(v.elm as Element) as VNodeStyle;
+        for (const key of getRelevantStyleProps(v)) {
+            let value = v.data.style[key] ?? computedStyle[key];
+            if (key == "fill" && value.startsWith("color(srgb")) {
+                const srgb = /color\(srgb ([^ ]+) ([^ ]+) ([^ ]+)(?: ?\/ ?([^ ]+))?\)/.exec(value);
+                if (srgb) {
+                    const r = Math.round(Number(srgb[1]) * 255);
+                    const g = Math.round(Number(srgb[2]) * 255);
+                    const b = Math.round(Number(srgb[3]) * 255);
+                    const a = srgb[4] ? Number(srgb[4]) : 1;
+                    value = `rgb(${r},${g},${b})`;
+
+                    v.data.attrs["fill-opacity"] = a;
+                }
+            }
+            if (key == "font-family") {
+                value = "sans-serif";
+            }
+
+            if (value.endsWith("px")) {
+                value = value.substring(0, value.length - 2);
+            }
+            if (value != getDefaultPropertyValues(key)) {
+                v.data.attrs[key] = value;
+            }
+        }
+
+        if (getVNodeSVGType(v) == "text") {
+            const oldY = (v.data.attrs.y as number | undefined) ?? 0;
+            const fontSize = computedStyle.fontSize
+                ? Number(computedStyle.fontSize.substring(0, computedStyle.fontSize.length - 2))
+                : 12;
+            const newY = oldY + 0.35 * fontSize;
+            v.data.attrs.y = newY;
+        }
+
+        if (!v.children) return;
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            this.transformStyleToAttributes(child);
+        }
+    }
+
+    private removeUnusedAttributes(v: VNode) {
+        if (!v.data) v.data = {};
+        if (v.data.attrs) {
+            delete v.data.attrs["id"];
+            delete v.data.attrs["tabindex"];
+        }
+        if (v.data.class) {
+            for (const clas in v.data.class) {
+                v.data.class[clas] = false;
+            }
+        }
+
+        if (!v.children) return;
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            this.removeUnusedAttributes(child);
+        }
+    }
+
+    private centerText(v: VNode, maxSiblingSize: number = 0, maxSiblingX: number = 0) {
+        if (getVNodeSVGType(v) == "text") {
+            if (!v.data) v.data = {};
+            if (!v.data.attrs) v.data.attrs = {};
+
+            v.data.attrs["text-anchor"] = "start";
+            if (v.data.class?.["port-text"] === true) {
+                if (v.text === "I") {
+                    v.data.attrs.x = 2.8;
+                } else {
+                    v.data.attrs.x = 1.3;
+                }
+            } else {
+                const width = calculateTextSize(v.text, `${v.data.attrs["font-size"] ?? 0}px sans-serif `).width;
+                v.data.attrs.x = maxSiblingSize / 2 - width / 2 + maxSiblingX;
+            }
+        }
+
+        if (!v.children) return;
+
+        let newMaxSiblingSize = undefined;
+        let newMaxSiblingX = undefined;
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            if (getVNodeSVGType(child) == "text") continue;
+            newMaxSiblingSize = Math.max(newMaxSiblingSize ?? -Infinity, Number(child.data?.attrs?.width ?? 0));
+            newMaxSiblingX = Math.max(newMaxSiblingX ?? -Infinity, Number(child.data?.attrs?.x ?? 0));
+        }
+
+        for (const child of v.children) {
+            if (typeof child === "string") continue;
+            this.centerText(child, newMaxSiblingSize, newMaxSiblingX);
+        }
     }
 }
 
@@ -253,110 +393,6 @@ function getRequiredCanvasSize(
     return { x: x, y: y };
 }
 
-function transformStyleToAttributes(v: VNode) {
-    if (!v.elm) return;
-
-    if (!v.data) v.data = {};
-    if (!v.data.style) v.data.style = {};
-    if (!v.data.attrs) v.data.attrs = {};
-
-    const computedStyle = getComputedStyle(v.elm as Element) as VNodeStyle;
-    for (const key of getRelevantStyleProps(v)) {
-        let value = v.data.style[key] ?? computedStyle[key];
-        if (key == "fill" && value.startsWith("color(srgb")) {
-            const srgb = /color\(srgb ([^ ]+) ([^ ]+) ([^ ]+)(?: ?\/ ?([^ ]+))?\)/.exec(value);
-            if (srgb) {
-                const r = Math.round(Number(srgb[1]) * 255);
-                const g = Math.round(Number(srgb[2]) * 255);
-                const b = Math.round(Number(srgb[3]) * 255);
-                const a = srgb[4] ? Number(srgb[4]) : 1;
-                value = `rgb(${r},${g},${b})`;
-
-                v.data.attrs["fill-opacity"] = a;
-            }
-        }
-        if (key == "font-family") {
-            value = "sans-serif";
-        }
-
-        if (value.endsWith("px")) {
-            value = value.substring(0, value.length - 2);
-        }
-        if (value != getDefaultPropertyValues(key)) {
-            v.data.attrs[key] = value;
-        }
-    }
-
-    if (getVNodeSVGType(v) == "text") {
-        const oldY = (v.data.attrs.y as number | undefined) ?? 0;
-        const fontSize = computedStyle.fontSize
-            ? Number(computedStyle.fontSize.substring(0, computedStyle.fontSize.length - 2))
-            : 12;
-        const newY = oldY + 0.35 * fontSize;
-        v.data.attrs.y = newY;
-    }
-
-    if (!v.children) return;
-    for (const child of v.children) {
-        if (typeof child === "string") continue;
-        transformStyleToAttributes(child);
-    }
-}
-
-function removeUnusedAttributes(v: VNode) {
-    if (!v.data) v.data = {};
-    if (v.data.attrs) {
-        delete v.data.attrs["id"];
-        delete v.data.attrs["tabindex"];
-    }
-    if (v.data.class) {
-        for (const clas in v.data.class) {
-            v.data.class[clas] = false;
-        }
-    }
-
-    if (!v.children) return;
-    for (const child of v.children) {
-        if (typeof child === "string") continue;
-        removeUnusedAttributes(child);
-    }
-}
-
-function centerText(v: VNode, maxSiblingSize: number = 0, maxSiblingX: number = 0) {
-    if (getVNodeSVGType(v) == "text") {
-        if (!v.data) v.data = {};
-        if (!v.data.attrs) v.data.attrs = {};
-
-        v.data.attrs["text-anchor"] = "start";
-        if (v.data.class?.["port-text"] === true) {
-            if (v.text === "I") {
-                v.data.attrs.x = 2.8;
-            } else {
-                v.data.attrs.x = 1.3;
-            }
-        } else {
-            const width = calculateTextSize(v.text, `${v.data.attrs["font-size"] ?? 0}px sans-serif `).width;
-            v.data.attrs.x = maxSiblingSize / 2 - width / 2 + maxSiblingX;
-        }
-    }
-
-    if (!v.children) return;
-
-    let newMaxSiblingSize = 0;
-    let newMaxSiblingX = 0;
-    for (const child of v.children) {
-        if (typeof child === "string") continue;
-        if (getVNodeSVGType(child) == "text") continue;
-        newMaxSiblingSize = Math.max(newMaxSiblingSize, Number(child.data?.attrs?.width ?? 0));
-        newMaxSiblingX = Math.max(newMaxSiblingX, Number(child.data?.attrs?.x ?? 0));
-    }
-
-    for (const child of v.children) {
-        if (typeof child === "string") continue;
-        centerText(child, newMaxSiblingSize, newMaxSiblingX);
-    }
-}
-
 function getVNodeSVGType(v: VNode): string | undefined {
     return v.sel?.split(/#|\./)[0];
 }
@@ -394,5 +430,50 @@ function getDefaultPropertyValues(key: string) {
             return 1;
         default:
             return undefined;
+    }
+}
+
+class SelectionPostProcessor implements IVNodePostprocessor {
+    decorate(v: VNode, element: SModelElementImpl): VNode {
+        let shouldRender = this.isSelected(element);
+        if (element instanceof SChildElementImpl && this.hasSelectedParent(element)) {
+            shouldRender = true;
+        }
+        if (element instanceof SParentElementImpl && this.hasSelectedChild(element)) {
+            shouldRender = true;
+        }
+        if (shouldRender) {
+            return v;
+        }
+        return h("g");
+    }
+    postUpdate() {}
+
+    private hasSelectedParent(element: Readonly<SChildElementImpl>) {
+        if (this.isSelected(element.parent)) {
+            return true;
+        }
+        if (element.parent instanceof SChildElementImpl) {
+            if (this.hasSelectedParent(element.parent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private hasSelectedChild(element: Readonly<SParentElementImpl>) {
+        for (const child of element.children) {
+            if (this.isSelected(child)) {
+                return true;
+            }
+            if (this.hasSelectedChild(child)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private isSelected(element: Readonly<SModelElementImpl>) {
+        return isSelectable(element) && element.selected;
     }
 }
