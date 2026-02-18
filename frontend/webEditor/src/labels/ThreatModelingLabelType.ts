@@ -1,7 +1,7 @@
 import { LabelAssignment, LabelType, LabelTypeValue } from "./LabelType.ts";
 
 export interface ThreatModelingLabelType extends LabelType {
-    intendedFor: 'Vertex' | 'Flow' //TODO maybe stattdessen hier 'Node' und 'Edge' verwenden
+    intendedFor: 'Vertex' | 'Flow'
 }
 
 export interface ThreatModelingLabelTypeValue extends LabelTypeValue {
