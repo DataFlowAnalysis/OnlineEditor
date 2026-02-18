@@ -1,100 +1,8 @@
 {
     "threatKnowledgeName": "LINDDUN",
-    "threatKnowledgeVersion": "0.4",
+    "threatKnowledgeVersion": "1",
     "xDecafVersion": 1,
     "labels": [
-        {
-            "id": "T-RhN06vgx",
-            "name": "DataForm",
-            "intendedFor": "Flow",
-            "values": [
-                {
-                    "id": "L-xUrF9mGH",
-                    "text": "Hashed",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-ISc2fMXE"
-                        }
-                    ],
-                    "additionalInformation": "**Description:**  \nData transformed using a one-way cryptographic function, typically for comparison or verification.\n\n**Examples:**\n- Hashed passwords\n- Hashed email addresses for matching\n- Hash-based identifiers\n\n**Elicitation questions:**\n- Is the hashing salted or unsalted?\n- Can the original value be reconstructed (directly or via lookup)?\n- Is hashing used consistently across systems?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-XT9WKSWb",
-                    "text": "Encrypted",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-ISc2fMXE"
-                        }
-                    ],
-                    "additionalInformation": "#todo There is a difference by who possesses the encryption key (e.g. symmetrical encryption maintains deniability, asymmetrical encryption does not)\n\n**Description:**\nData transformed using cryptography so it is unreadable without a decryption key.\n\n**Examples:**\n- Encrypted customer databases at rest\n- TLS-encrypted data in transit\n- Encrypted backups\n\n**Elicitation questions:**\n- Is the data encrypted at rest, in transit, or both?\n- Who controls the encryption keys?\n- Can the system process the data while it remains encrypted?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-bQVu96ih",
-                    "text": "Aggregated",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-ISc2fMXE"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-xUrF9mGH"
-                        }
-                    ],
-                    "additionalInformation": "**Description:**  \nData combined across multiple records or individuals so that individual-level details are not directly visible.\n\n**Examples:**\n- Average daily step count across all users\n- Monthly sales totals by region\n- Percentage of users who enabled a feature\n\n**Elicitation questions:**\n- Can individual records be reconstructed from this data?\n- What is the minimum group size represented?\n- Is aggregation done before storage or only at reporting time?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-cubKHVGd",
-                    "text": "Noisy",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData deliberately altered with random noise to reduce accuracy and protect individuals (often used in privacy-preserving techniques).\n\n**Examples:**\n- Differentially private statistics\n- Location data with jitter added\n- Slightly perturbed survey results\n\n**Elicitation questions:**\n- What privacy mechanism introduces the noise?\n- Is the noise reversible or cumulative?\n- What accuracy trade-offs are acceptable?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-ISc2fMXE",
-                    "text": "Raw",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-XT9WKSWb"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-ISc2fMXE"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-bQVu96ih"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-xUrF9mGH"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-PRhK8ZRm"
-                        }
-                    ],
-                    "additionalInformation": "**Description:**  \nData in its original, unprocessed form as collected from the source.\n\n**Examples:**\n- Raw sensor readings\n- Original application logs\n- Unfiltered user input\n\n**Elicitation questions:**\n- Is any transformation applied before storage?\n- How long is raw data retained?\n- Who has access to the raw form?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-PRhK8ZRm",
-                    "text": "Sanitized",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-ISc2fMXE"
-                        },
-                        {
-                            "labelTypeId": "T-RhN06vgx",
-                            "labelTypeValueId": "L-xUrF9mGH"
-                        }
-                    ],
-                    "additionalInformation": "**Description:**  \nData that has been cleaned or modified to remove or reduce sensitive elements.\n\n**Examples:**\n- Logs with IP addresses removed\n- Datasets with names redacted\n- Masked account numbers\n\n**Elicitation questions:**\n- What fields were removed or masked?\n- Is sanitization irreversible?\n- Is sanitization applied consistently?\n\n[[ChatGPT]]"
-                }
-            ]
-        },
         {
             "id": "T-hqzmK4lj",
             "name": "VertexLocation",
@@ -110,10 +18,14 @@
                         },
                         {
                             "labelTypeId": "T-hqzmK4lj",
-                            "labelTypeValueId": "L-EU7CXdo5"
+                            "labelTypeValueId": "L-jdroojuo"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-oHu78JWj"
                         }
                     ],
-                    "additionalInformation": "**Description:**  \nData resides on or is processed directly on the user\u2019s device.\n\n**Examples:**\n- Data stored locally in a mobile app\n- On-device analytics or ML inference\n- Browser-based form data before submission\n\n**Elicitation questions:**\n- Does data leave the user\u2019s device?\n- Is data encrypted at rest on the device?\n- What happens if the device is lost or compromised?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description:**  \nData resides on or is processed directly on the user\u2019s device.\n\n**Examples:**\n- Data stored locally in a mobile app\n- On-device analytics or ML inference\n- Browser-based form data before submission\n\n[[ChatGPT]]"
                 },
                 {
                     "id": "L-BnqZZq2f",
@@ -125,14 +37,18 @@
                         },
                         {
                             "labelTypeId": "T-hqzmK4lj",
-                            "labelTypeValueId": "L-EU7CXdo5"
+                            "labelTypeValueId": "L-jdroojuo"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-oHu78JWj"
                         }
                     ],
-                    "additionalInformation": "**Description:**  \nData is stored or processed within systems controlled by the organization.\n\n**Examples:**\n- Internal databases\n- Company-managed cloud infrastructure\n- Internal analytics platforms\n\n**Elicitation questions:**\n- Which internal systems store or process the data?\n- Who within the organization can access it?\n- In which countries or regions is it hosted?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description:**  \nData is stored or processed within systems controlled by the organization.\n\n**Examples:**\n- Internal databases\n- Company-managed cloud infrastructure\n- Internal analytics platforms\n\n**Elicitation questions:**\n- Which internal systems store or process the data?\n- Who within the organization can access it?\n\n[[ChatGPT]]"
                 },
                 {
-                    "id": "L-EU7CXdo5",
-                    "text": "External",
+                    "id": "L-oHu78JWj",
+                    "text": "Public",
                     "excludes": [
                         {
                             "labelTypeId": "T-hqzmK4lj",
@@ -141,9 +57,32 @@
                         {
                             "labelTypeId": "T-hqzmK4lj",
                             "labelTypeValueId": "L-BnqZZq2f"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-jdroojuo"
                         }
                     ],
-                    "additionalInformation": "**Description:**  \nData is transferred to or processed by third parties outside the organization\u2019s direct control.\n\n**Examples:**\n- Cloud service providers\n- Payment processors\n- Analytics or marketing vendors\n\n**Elicitation questions:**\n- Which third parties receive this data?\n- What contractual or technical safeguards exist?\n- Is data shared in raw, pseudonymized, or aggregated form?\n- Is cross-border transfer involved?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description**\n- Endpoints that are accessible by anyone. No technical safeguards prevent or limit that access to data.\n\n**Examples**\n- Searching user by phone number can be used to discover/confirm someone else's phone number.\n- The original publication of a company's foundation reveals the home addresses of the founders.\n- Query interfaces to search for people working in specific area, may reveal their location of employment.\n- Posting private messages to a person through a social network in a public forum that may be seen and monitored by many.\n- The lack of encryption enables an external adversary to read the personal data being exchanged with the system.\n\n**Elicitation Questions**\n\n[[LINDDUN (Sion 2025)]]"
+                },
+                {
+                    "id": "L-jdroojuo",
+                    "text": "ThirdParty",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-Y9Hi8FwJ"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-BnqZZq2f"
+                        },
+                        {
+                            "labelTypeId": "T-hqzmK4lj",
+                            "labelTypeValueId": "L-oHu78JWj"
+                        }
+                    ],
+                    "additionalInformation": "**Description:**  \nData is transferred to or processed by third parties outside the organization\u2019s direct control.\n\n**Examples:**\n- Cloud service providers\n- Payment processors\n- Analytics or marketing vendors\n\n[[ChatGPT]]"
                 }
             ]
         },
@@ -153,57 +92,41 @@
             "intendedFor": "Flow",
             "values": [
                 {
-                    "id": "L-oHu78JWj",
-                    "text": "Public",
-                    "excludes": [
-                        {
-                            "labelTypeId": "T-hDctW1RZ",
-                            "labelTypeValueId": "L-h1fGHkX7"
-                        }
-                    ],
-                    "additionalInformation": "**Description:**  \nData that is intentionally made available to the general public.\n\n**Examples:**\n- Public social media posts\n- Published reports\n- Open government datasets\n\n**Elicitation questions:**\n- Was this data deliberately made public?\n- Are there reuse or licensing limits?\n- Could context make it sensitive anyway?\n\n[[ChatGPT]]"
-                },
-                {
                     "id": "L-h1fGHkX7",
                     "text": "PersonalData",
                     "excludes": [
                         {
                             "labelTypeId": "T-hDctW1RZ",
-                            "labelTypeValueId": "L-oHu78JWj"
+                            "labelTypeValueId": "L-lovys0HK"
                         }
                     ],
                     "additionalInformation": "**Description:**\nData relating to an identified or identifiable individual.\n\n**Examples:**\n- Names, emails, IP addresses\n- Behavioral profiles\n- Location histories\n\n**Elicitation questions:**\n- Can this data identify a person directly or indirectly?\n- Is it regulated under privacy laws?\n- What harm could result from misuse?\n\n[[ChatGPT]]"
-                }
-            ]
-        },
-        {
-            "id": "T-4lebOxF1",
-            "name": "DataIdentifiability",
-            "intendedFor": "Flow",
-            "values": [
-                {
-                    "id": "L-Vdnn8zIC",
-                    "text": "QuasiIdentifiable",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData that is not directly identifying alone but can identify individuals when combined.\n\n**Examples:**\n- ZIP code + birth date + gender\n- Job title + department\n- Partial location histories\n\n**Elicitation questions:**\n- What other datasets could be combined with this?\n- Has re-identification risk been assessed?\n- Is this data shared externally?\n\n[[ChatGPT]]"
                 },
                 {
-                    "id": "L-4hzWLvca",
-                    "text": "Pseudonym",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData linked to an identifier that does not directly reveal identity but can be re-linked.\n\n**Examples:**\n- User IDs instead of names\n- Device IDs\n- Tokenized identifiers\n\n**Elicitation questions:**\n- Where is the mapping between pseudonym and real identity stored?\n- Who can access the re-identification key?\n- Is the pseudonym stable over time?\n\n[[ChatGPT]]"
+                    "id": "L-lovys0HK",
+                    "text": "PublicData",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hDctW1RZ",
+                            "labelTypeValueId": "L-h1fGHkX7"
+                        },
+                        {
+                            "labelTypeId": "T-hDctW1RZ",
+                            "labelTypeValueId": "L-KQpPJy98"
+                        }
+                    ],
+                    "additionalInformation": "**Description:**  \nData that is intentionally made available to the general public.\n\n**Examples:**\n- Public social media posts\n- Published reports\n- Open government datasets\n\n**Elicitation questions:**\n- Was this data deliberately made public?\n- Are there reuse or licensing limits?\n- Could context make it sensitive anyway?\n\n[[ChatGPT]]"
                 },
                 {
-                    "id": "L-AziCqUMB",
-                    "text": "UniquelyIdentifiable",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData that uniquely and directly identifies a person.\n\n**Examples:**\n- Full name + address\n- National ID number\n- Biometric identifiers\n\n**Elicitation questions:**\n- Does this data uniquely identify an individual on its own?\n- Is it legally protected or regulated?\n- Is collection strictly necessary?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-ki3tgyjB",
-                    "text": "Authenticated",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData directly tied to a verified, logged-in identity.\n\n**Examples:**\n- User account profiles\n- Authenticated API usage logs\n- Payment transaction histories\n\n**Elicitation questions:**\n- Does this data require user authentication to generate or access?\n- Is identity verified or merely asserted?\n- Can activity be traced to a specific account?\n\n[[ChatGPT]]"
+                    "id": "L-KQpPJy98",
+                    "text": "PersonalDataAboutOtherPeople",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-hDctW1RZ",
+                            "labelTypeValueId": "L-lovys0HK"
+                        }
+                    ],
+                    "additionalInformation": "**Description**\n\n**Examples**\n\n**Elicitation Questions**"
                 }
             ]
         },
@@ -216,13 +139,7 @@
                     "id": "L-u7wWmGo9",
                     "text": "Accessible",
                     "excludes": [],
-                    "additionalInformation": "**Description:**  \nIndividuals can access their data.\n\n**Examples:**\n- User dashboards\n- Data access request portals\n- Download-your-data features\n\n**Elicitation questions:**\n- How can users access their data?\n- Are there authentication or rate limits?\n- Is access complete or partial?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-s2Op4rNS",
-                    "text": "Deletable",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nIndividuals can request deletion of their data.\n\n**Examples:**\n- Account deletion workflows\n- \u201cRight to be forgotten\u201d processes\n\n**Elicitation questions:**\n- Is deletion permanent or soft-deleted?\n- Are backups also deleted?\n- What legal exceptions apply?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description:**  \nThe lack of control in accessing the personal data that is being processed.\n\n**Examples:**\n- The data subject is unable to access their personal data held and processed by the service.\n- The sensor data from a wearable is transmitted to a lifestyle tracking app, but the user cannot access statistics and information derived from their data.\n- It is not possible for a data subject to request access, neither directly through the system nor indirectly through a helpdesk.\n\n**Elicitation questions:**\n- Do data subjects lack the ability to access the personal data being collected, processed, stored, or disclosed about them?\n\n[[LINDDUN (Sion 2025)]]"
                 },
                 {
                     "id": "L-7Ix5ydqW",
@@ -247,25 +164,19 @@
                     "id": "L-0YOIZs6L",
                     "text": "ControlViaPreferences",
                     "excludes": [],
-                    "additionalInformation": "# Description\n\n# Examples\n\n# Elicitation Questions"
-                },
-                {
-                    "id": "L-IYBKXU20",
-                    "text": "OptIn",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData is collected or processed only after explicit consent.\n\n**Examples:**\n- Marketing email subscriptions\n- Location tracking enabled by default off\n\n**Elicitation questions:**\n- What constitutes valid consent?\n- Is consent granular?\n- How is consent recorded?\n\n[[ChatGPT]]"
-                },
-                {
-                    "id": "L-uIQJl0lr",
-                    "text": "OptOut",
-                    "excludes": [],
-                    "additionalInformation": "**Description:**  \nData is collected by default but individuals can refuse or stop processing.\n\n**Examples:**\n- Analytics cookies with opt-out\n- Default personalization settings\n\n**Elicitation questions:**\n- How easy is it to opt out?\n- Does opt-out fully stop processing?\n- Are users clearly informed?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description**\nThe lack of control of a data subject to set preferences or consent in how personal data is processed (or collected/stored).\n\n**Examples**\n- The data subject is unable to set appropriate preferences on which data is shared and why.\n- The data subject is unable to set their consent preferences for the processing of personal data.\n\n**Elicitation Questions**\n- Does the system enable the data subject to configure which personal data is processed and for what purposes?\n- Can the data subject alter their preferences afterwards?\n\n[[LINDDUN (Sion 2025)]]"
                 },
                 {
                     "id": "L-AJf2Su62",
                     "text": "RectificationPossible",
                     "excludes": [],
-                    "additionalInformation": "**Description:**  \nIndividuals can correct inaccurate or outdated data.\n\n**Examples:**\n- Profile edit features\n- Address update forms\n\n**Elicitation questions:**\n- Which fields can users edit themselves?\n- How are corrections propagated?\n- Are changes logged?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description:**  \nThe control (or lack thereof) in rectifying incorrect data or removing personal data that is no longer relevant.\n\n**Examples:**\n- The data subject is unable to correct their personal data.\n- When a data subject deletes their social media account, the account is disabled, but the actual data is not erased.\n- A data subject is unable to update their home address after relocating.\n\n**Elicitation questions:**\n- Do data subjects have the ability to correct or delete their personal data?\n\n[[LINDDUN (Sion 2025)]]"
+                },
+                {
+                    "id": "L-W2Cqnyye",
+                    "text": "Awareness",
+                    "excludes": [],
+                    "additionalInformation": "**Description**\n(Un)awareness of processing focuses on data subjects (not) being aware about the collection, processing, storage, or disclosure of their personal data. The user does not need to be the data subject.\n\n**Examples**\n- Data subjects are not aware of the identities of the third parties with whom their data will be shared.\n- The privacy notice provided to the data subject was not presented in clear and plain language.\n- Data subjects are unaware that traffic cameras collect not only number plates but also facial images.\n- The data subject is unaware that their personal data is collected from third parties to construct more detailed user profiles for targeted advertising (e.g., Facebook).\n- The data subject is unaware the data may also be used for marketing purposes.\n- The data subject was not informed why or for how long their personal data is processed.\n- A user posting a picture on social media may not be aware that others in the picture are automatically tagged with a facial recognition system.\n- Using a DNA testing service can entail sharing medical information about family members.\n- A service invites a user to share their address book to find contacts on a service.\n\n**Elicitation Questions**\n- Are data subjects insufficiently informed about the processing of personal data, including the purposes and methods of the processing involved?\n- If a user shares personal data of others, is it clear what, why, and how that data is further processed?\n\n[[LINDDUN (Sion 2025)]]"
                 }
             ]
         },
@@ -283,7 +194,7 @@
                             "labelTypeValueId": "L-I78hTu4G"
                         }
                     ],
-                    "additionalInformation": "**Description:**  \nUnnecessary categories or attributes are collected.\n\n**Examples:**\n- Collecting gender when not needed\n- Storing device fingerprints unnecessarily\n\n**Elicitation questions:**\n- Why is each data type needed?\n- What happens if this field is removed?\n- Who requested its inclusion?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description:**  \nThe system acquires more sensitive or \ufb01negrained data than strictly necessary for its functionality.\n\n**Examples:**\n- Tracking a patient\u2019s weight is pertinent for dieting apps but not for a contact tracing application.\n- A smart meter shares realtime measurements rather than the aggregated consumption.\n- A camera application on a smartphone does not necessarily need to record the picture\u2019s location.\n\n**Elicitation questions:**\n- Is the data more sensitive than strictly necessary?\n- Is the data more \ufb01ne-grained than strictly necessary?\n- Does the data encoding include additional (meta)data?\n\n[[LINDDUN (Sion 2025)]]"
                 },
                 {
                     "id": "L-uoXCDQCw",
@@ -305,7 +216,7 @@
                             "labelTypeValueId": "L-I78hTu4G"
                         }
                     ],
-                    "additionalInformation": "**Description**\nThe total quantity of data collected and stored, considering scale across users, time, and systems. Volume affects storage risk, breach impact, system performance, and feasibility of privacy controls.\n\n**Examples**\n- Millions of daily log entries\n- High-resolution telemetry collected continuously\n- Small profile dataset per user but retained for millions of users\n- Large historical dataset kept for analytics\n\n**Elicitation questions**\n- How much data is collected per user, per event, or per time period?\n- What is the total volume currently stored?\n- How fast does the dataset grow?\n- Is all collected data actively used?\n- Could older data be summarized, sampled, or deleted?\n\n[[ChatGPT]]"
+                    "additionalInformation": "**Description**\nThe system acquires more data than strictly needed for its functionality.\n\n**Examples**\n- Small profile dataset per user but retained for millions of users\n- Large historical dataset kept for analytics\n\n**Elicitation questions**\n- Is the amount of collected data necessary for the correct functioning of the system?\n- Are there more data subjects involved than necessary?\n\n[[LINDDUN (Sion 2025)]]"
                 },
                 {
                     "id": "L-I78hTu4G",
@@ -340,6 +251,17 @@
                         }
                     ],
                     "additionalInformation": "**Description**\nThe length of time data is stored before it is deleted, anonymized, or irreversibly aggregated. Retention directly affects privacy risk, breach impact, and regulatory compliance.\n\n**Examples**\n- Authentication logs retained for 30 days for security investigations\n- Customer account data retained for the life of the account plus 90 days\n- Transaction records retained for 7 years to meet legal obligations\n- Telemetry data aggregated after 14 days and raw data deleted\n\n**Elicitation questions**\n- What is the defined retention period for this data?\n- Does retention differ between active systems, archives, and backups?\n- What event triggers deletion (time-based, account closure, user request)?\n- Is data deleted, anonymized, or merely archived at the end of retention?\n- Are there legal or contractual reasons for extended retention?\n\n[[ChatGPT]]"
+                },
+                {
+                    "id": "L-sZLmyixT",
+                    "text": "ExcessiveEnrichment",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-3TGOog3X",
+                            "labelTypeValueId": "L-I78hTu4G"
+                        }
+                    ],
+                    "additionalInformation": "**Description**\nPersonal data is further treated, analyzed, and enriched in a way that is not necessary to achieve the functionality of the system.\n\n**Examples**\n- A camera application on a smartphone does not need to perform face-based recognition or emotion detection.\n- Analyzing a user's blog posts for language proficiency is unnecessary for blogging functionality.\n- User profiles accumulate unnecessary details over time, tracking a broad range of actions or service usage that is not essential for the provided functionality.\n- Sentiment analysis can be applied to faces in pictures to derive the emotional state of the individual in the photo.\n\n**Elicitation Questions**\n- Is the data enrichment/analysis necessary for the system's functionality?\n\n[[LINDDUN (Sion 2025)]]"
                 }
             ]
         },
@@ -373,8 +295,33 @@
             ]
         },
         {
-            "id": "T-1ez1Gjk9",
-            "name": "Observability",
+            "id": "T-OEnmvpc0",
+            "name": "DataIdentifiers",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-mSnT5dRo",
+                    "text": "QuasiIdentifier",
+                    "excludes": [],
+                    "additionalInformation": "**Description:**  \nData that contains combinations of attributes that are unique to a data subject.\n\n**Examples:**\n- Browser fingerprinting entails the combination of various properties to create a unique identifier, serving as a pseudonym for the user.\n- A combination of various attributes (city, birth date, language preference, etc.) could be adequate to identify individuals.\n\n**Elicitation questions:**\n- Is there free-form user provided data that is received or processed by the system?\n- Is data collected that may reveal the identifying information?"
+                },
+                {
+                    "id": "L-KMjL5GNo",
+                    "text": "DirectIdentifier",
+                    "excludes": [],
+                    "additionalInformation": "**Description:**  \nData that uniquely and directly identifies a person.\n\n**Examples:**\n- Full name + address\n- National ID number\n- Biometric identifiers\n\n**Elicitation questions:**\n- Does this data uniquely identify an individual on its own?\n- Is it legally protected or regulated?\n\n[[ChatGPT]]"
+                },
+                {
+                    "id": "L-fJBfXb28",
+                    "text": "RevealingAttributes",
+                    "excludes": [],
+                    "additionalInformation": "**Description**\nA number of revealing attributes are included in the data which support the identification of the data subject.\n\n**Examples**\n- When an individual shares detailed data (such as location, employer, device type, etc.) in a feedback form, the provided information may be revealing enough to uniquely identify that person.\n\n**Elicitation Questions**\n- Is there free-form user provided data that is received or processed by the system?\n- Is data collected that may reveal the identifying information?"
+                }
+            ]
+        },
+        {
+            "id": "T-VRJKLL6a",
+            "name": "DataObservability",
             "intendedFor": null,
             "values": [
                 {
@@ -382,11 +329,11 @@
                     "text": "FullyVisible",
                     "excludes": [
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-M5uQ5X3f"
                         },
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-nvKZS1U9"
                         }
                     ],
@@ -397,11 +344,11 @@
                     "text": "MetadataOnly",
                     "excludes": [
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-irbu2qs8"
                         },
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-nvKZS1U9"
                         }
                     ],
@@ -412,15 +359,39 @@
                     "text": "NonObservable",
                     "excludes": [
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-irbu2qs8"
                         },
                         {
-                            "labelTypeId": "T-1ez1Gjk9",
+                            "labelTypeId": "T-VRJKLL6a",
                             "labelTypeValueId": "L-M5uQ5X3f"
                         }
                     ],
                     "additionalInformation": "**Description:**  \nNeither content nor metadata is accessible.\n\n**Examples:**\n- End-to-end encrypted messages with sealed metadata\n- Secure enclaves\n\n**Elicitation questions:**\n- Who (if anyone) can observe anything?\n- Is this by design or limitation?\n- How is misuse detected?\n\n[[ChatGPT]]"
+                }
+            ]
+        },
+        {
+            "id": "T-06mBkaWM",
+            "name": "Data",
+            "intendedFor": "Flow",
+            "values": [
+                {
+                    "id": "L-kX4fJEps",
+                    "text": "HasSideEffects",
+                    "excludes": [
+                        {
+                            "labelTypeId": "T-06mBkaWM",
+                            "labelTypeValueId": "L-I78hTu4G"
+                        }
+                    ],
+                    "additionalInformation": "**Description**\nAction side-effects can cause an action to be attributable to an individual.\n\n**Examples**\n- Read notifications serve as evidence that the user has opened/read the message.\n- An individual's browser history may be used to substantiate claims about their online activities.\n- Actions can be logged as evidence.\n\n**Elicitation Questions**\n- Do (passive) interactions with the system (e.g., receiving a message) have side-effects (e.g., trigger transmissions, logging)?"
+                },
+                {
+                    "id": "L-OFziM7dm",
+                    "text": "ContainsHiddenData",
+                    "excludes": [],
+                    "additionalInformation": "**Description**\nEmbedded or hidden data can be used to reveal additional information.\n\n**Examples**\n- Data watermarked with hidden artifacts (uniquely linked to a person) can be used to track the person revealing or disclosing the data afterwards.\n- Remote resources (e.g. image in email) are automatically loaded to track the user opening it.\n- Secrets shared with one person, or modified for each recipient can serve as evidence of the disclosure of that data by that person.\n\n**Elicitation Questions**\n- Are there embedded data or hidden patterns in the data or transmissions?"
                 }
             ]
         }
@@ -428,23 +399,99 @@
     "constraints": [
         {
             "name": "DataWithExcessiveFrequencyIsProcessed",
-            "constraint": "data DataPrecision.ExcessiveFrequency neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+            "constraint": "data DataPrecision.ExcessiveFrequency neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
         },
         {
             "name": "DataWithExcessiveVolumeIsProcessed",
-            "constraint": "data DataPrecision.ExcessiveVolume neverFlows vertex VertexLocation.Organization,VertexLocation.External"
-        },
-        {
-            "name": "IdentifyingThroughQuasiIdentifier",
-            "constraint": "data DataIdentifiability.QuasiIdentifiable neverFlows vertex VertexLocation.Organization,VertexLocation.External"
-        },
-        {
-            "name": "IdentifyingThroughUniqueIdentifier",
-            "constraint": "data DataIdentifiability.UniquelyIdentifiable neverFlows vertex VertexLocation.Organization,VertexLocation.External"
+            "constraint": "data DataPrecision.ExcessiveVolume neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
         },
         {
             "name": "NonRepudiationThroughSignature",
             "constraint": "data DataIntegrity.Signed neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "DataWithExcessiveTypesIsProcessed",
+            "constraint": "data DataPrecision.ExcessiveDataTypes neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "DataIsEnriched",
+            "constraint": "data DataPrecision.ExcessiveEnrichment neverFlows VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "DataIsStoredForLongerThanNeeded",
+            "constraint": "data DataPrecision.ExcessiveRetention neverFlows VertexLocation.Organization"
+        },
+        {
+            "name": "PersonalDataCollectionCannotBeControlled",
+            "constraint": "data !DataInterveniability.ControlViaPreferences neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "PersonalDataCannotBeAccessed",
+            "constraint": "data !DataInterveniability.Accessible neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "PersonalDataCannotBeRectified",
+            "constraint": "data !DataInterveniability.RectificationPossible neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "InsufficientTransparency",
+            "constraint": "data !DataInterveniability.Awareness neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "StoringofIdentifiedData",
+            "constraint": "data DataIdentifiers.DirectIdentifier,DataIdentifiers.QuasiIdentifier neverFlows vertex type STORE"
+        },
+        {
+            "name": "LinkingThroughUniqueIdentifier",
+            "constraint": "data DataIdentifiers.DirectIdentifier neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "DataIsDisclosedToOtherParties",
+            "constraint": "neverFlows vertex VertexLocation.ThirdParty,VertexLocation.Public"
+        },
+        {
+            "name": "LinkingThroughQuasiIdentifier",
+            "constraint": "data DataIdentifiers.QuasiIdentifier neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "LinkingThroughDataOfDifferentIndividuals",
+            "constraint": "data DataSensitivity.PersonalDataAboutOtherPeople neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "ProfilingAnIndividual",
+            "constraint": "data DataSensitivity.PersonalData neverFlows vertex VertexLocation.Organization,VertexLocation.ThirdParty"
+        },
+        {
+            "name": "PersonalDataIsPublishedMoreBroadlyThanNecessary",
+            "constraint": "data DataSensitivity.PersonalData neverFlows VertexLocation.Public"
+        },
+        {
+            "name": "DataHasSideEffects",
+            "constraint": "data Data.HasSideEffects neverFlows"
+        },
+        {
+            "name": "NonRepudiationThroughHiddenData",
+            "constraint": "data Data.ContainsHiddenData neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "ImplicitDataDisclosure",
+            "constraint": "data Data.HasSideEffects neverFlows vertex type STORE"
+        },
+        {
+            "name": "ProcessingOfIdentifiedData",
+            "constraint": "data DataIdentifiers.DirectIdentifier neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "ProcessingOfIdentifiedMetadata",
+            "constraint": "data DataIdentifiers.DirectIdentifier data DataObservability.MetadataOnly neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "ProcessingOfQuasiIdentifiedData",
+            "constraint": "data DataIdentifiers.QuasiIdentifier neverFlows vertex VertexLocation.Organization"
+        },
+        {
+            "name": "ProcessingOfRevealingAttributes",
+            "constraint": "data DataIdentifiers.RevealingAttributes neverFlows vertex VertexLocation.Organization"
         }
     ]
 }

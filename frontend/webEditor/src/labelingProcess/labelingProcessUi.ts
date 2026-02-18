@@ -14,6 +14,7 @@ import { ConstraintRegistry } from "../constraint/constraintRegistry.ts";
 import { SaveThreatsTableAction } from "../serialize/saveThreatsTable.ts";
 import { isThreatModelingLabelType, isThreatModelingLabelTypeValue } from "../labels/ThreatModelingLabelType.ts";
 import { marked } from "marked";
+import { SaveJsonFileAction } from "../serialize/saveJsonFile.ts";
 
 export type LabelingProcessState
     = { state: 'pending' }
@@ -119,13 +120,13 @@ export class LabelingProcessUi extends AbstractUIExtension {
         const finalStepsButton = document.createElement('button')
         finalStepsButton.innerText = "Check constraints and download threats"
         finalStepsButton.classList.add("labeling-process-button")
-        finalStepsButton.addEventListener('click', () => {
-            this.actionDispatcher.dispatchAll([
+        finalStepsButton.addEventListener('click', async () => {
+            await this.actionDispatcher.dispatch(SaveJsonFileAction.create())
+            await this.actionDispatcher.dispatchAll([
                 AnalyzeAction.create(),
                 SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
-            ]).then(() =>
-                this.actionDispatcher.dispatch(SaveThreatsTableAction.create())
-            )
+            ])
+            await this.actionDispatcher.dispatch(SaveThreatsTableAction.create())
         })
 
         this.containerElement.replaceChildren(text, finalStepsButton)
