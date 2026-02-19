@@ -6,7 +6,6 @@ import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { EditorModeController } from "../settings/editorMode";
 import { DfdWebSocket } from "../webSocket/webSocket";
 import { Action } from "sprotty-protocol";
-import { FileName } from "../fileName/fileName";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
@@ -28,7 +27,6 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
-        @inject(FileName) private readonly fileName: FileName,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
         super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
@@ -38,19 +36,20 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
         const savedDiagram = this.createSavedDiagram(context);
 
         const response = await this.dfdWebSocket.sendMessage("Json2DFD:" + JSON.stringify(savedDiagram));
+        const nameEndIndex = response.indexOf(":");
+        const name = response.substring(0, nameEndIndex);
         const endIndex =
             response.indexOf(SaveDfdAndDdFileCommand.CLOSING_TAG) + SaveDfdAndDdFileCommand.CLOSING_TAG.length;
-        const dfdContent = response.substring(0, endIndex).trim();
+        const dfdContent = response.substring(nameEndIndex + 1, endIndex).trim();
         const ddContent = response.substring(endIndex).trim();
 
-        const fileName = this.fileName.getName();
         return Promise.resolve([
             {
-                fileName: fileName + ".dataflowdiagram",
+                fileName: name + ".dataflowdiagram",
                 content: dfdContent,
             },
             {
-                fileName: fileName + ".datadictionary",
+                fileName: name + ".datadictionary",
                 content: ddContent,
             },
         ]);
