@@ -10,18 +10,16 @@ import { ContainsDfdLabels } from "../../labels/feature";
 import { RemoveLabelAssignmentAction } from "../../labels/assignmentCommand";
 
 @injectable()
-export class DfdNodeLabelRenderer {
+export class DfdNodeLabelSizeCalculator {
     static readonly LABEL_HEIGHT = 10;
     static readonly LABEL_SPACE_BETWEEN = 2;
-    static readonly LABEL_SPACING_HEIGHT = DfdNodeLabelRenderer.LABEL_HEIGHT + DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN;
+    static readonly LABEL_SPACING_HEIGHT =
+        DfdNodeLabelSizeCalculator.LABEL_HEIGHT + DfdNodeLabelSizeCalculator.LABEL_SPACE_BETWEEN;
     static readonly LABEL_TEXT_PADDING = 8;
 
-    constructor(
-        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
-        @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
-    ) {}
+    constructor(@inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry) {}
 
-    private getLabel(label: LabelAssignment): { type: LabelType; value: LabelTypeValue } | undefined {
+    protected getLabel(label: LabelAssignment): { type: LabelType; value: LabelTypeValue } | undefined {
         const labelType = this.labelTypeRegistry.getLabelType(label.labelTypeId);
         const labelTypeValue = labelType?.values.find((value) => value.id === label.labelTypeValueId);
         if (!labelType || !labelTypeValue) {
@@ -45,9 +43,19 @@ export class DfdNodeLabelRenderer {
         }
 
         const text = `${label.type.name}: ${label.value.text}`;
-        const width = calculateTextSize(text, "5pt sans-serif").width + DfdNodeLabelRenderer.LABEL_TEXT_PADDING;
+        const width = calculateTextSize(text, "5pt sans-serif").width + DfdNodeLabelSizeCalculator.LABEL_TEXT_PADDING;
 
         return [text, width];
+    }
+}
+
+@injectable()
+export class DfdNodeLabelRenderer extends DfdNodeLabelSizeCalculator {
+    constructor(
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
+        @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
+    ) {
+        super(labelTypeRegistry);
     }
 
     renderSingleNodeLabel(node: ContainsDfdLabels & SNodeImpl, label: LabelAssignment, x: number, y: number): VNode {
