@@ -84,10 +84,14 @@ export class ThreatModelingLabelAssignmentCommand implements Command {
     }
 
     redo(context: CommandExecutionContext): CommandReturn {
+        // Do nothing since only simple case and overwrite case would need to be redone.
+        // Both these cases work by calling other commands.
         return context.root;
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
+        // Do nothing since only simple case and overwrite case would need to be undone.
+        // Both these cases work by calling other commands.
         return context.root;
     }
 
