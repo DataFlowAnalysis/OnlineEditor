@@ -45,7 +45,7 @@ export class LoadDefaultDiagramCommand extends LoadJsonCommand {
     }
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
-        return this.loadDAC();
+        return this.loadOnlineShop();
     }
 
     protected async loadOnlineShop() {
