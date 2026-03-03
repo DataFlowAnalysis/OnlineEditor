@@ -49,11 +49,12 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
             return this.minimumWidth + DfdNodeImpl.WIDTH_PADDING;
         }
         const textWidth = calculateTextSize(this.text).width;
+        const editLabelWidth = this.editableLabel ? calculateTextSize(this.editableLabel.text).width : 0;
         const labelWidths = this.labels.map(
             (labelAssignment) => this.dfdNodeLabelRenderer?.computeLabelContent(labelAssignment)[1] ?? 0,
         );
 
-        const neededWidth = Math.max(...labelWidths, textWidth, DfdNodeImpl.DEFAULT_WIDTH);
+        const neededWidth = Math.max(...labelWidths, textWidth, editLabelWidth, DfdNodeImpl.DEFAULT_WIDTH);
         return neededWidth + DfdNodeImpl.WIDTH_PADDING;
     }
 
