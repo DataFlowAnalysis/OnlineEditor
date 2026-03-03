@@ -8,11 +8,11 @@
     },
     "type": "module",
     "devDependencies": {
-        "@eslint/eslintrc": "^3.3.3",
-        "@eslint/js": "^9.39.2",
+        "@eslint/eslintrc": "^3.3.4",
+        "@eslint/js": "^10.0.1",
         "@fortawesome/fontawesome-free": "^7.0.0",
         "@vscode/codicons": "^0.0.44",
-        "eslint": "^9.39.2",
+        "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.8",
         "husky": "^9.1.7",
         "inversify": "^6.2.2",
@@ -24,7 +24,7 @@
         "sprotty-elk": "^1.4.0",
         "sprotty-protocol": "^1.4.0",
         "typescript": "^5.8.3",
-        "typescript-eslint": "^8.54.0",
+        "typescript-eslint": "^8.56.1",
         "vite": "^7.3.1"
     },
     "scripts": {
