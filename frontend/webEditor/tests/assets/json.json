@@ -1,0 +1,30 @@
+{
+    "canvasBounds": { "x": 0, "y": 0, "width": 1549, "height": 919 },
+    "scroll": { "x": -718.5708429602527, "y": -356.4018869430463 },
+    "zoom": 0.8135132245021809,
+    "position": { "x": 0, "y": 0 },
+    "size": { "width": -1, "height": -1 },
+    "features": {},
+    "type": "graph",
+    "id": "root",
+    "children": [
+        {
+            "position": { "x": 299.5, "y": 119 },
+            "size": { "width": -1, "height": -1 },
+            "strokeWidth": 0,
+            "selected": false,
+            "hoverFeedback": false,
+            "opacity": 1,
+            "text": "json",
+            "labels": [],
+            "ports": [],
+            "hideLabels": false,
+            "minimumWidth": 50,
+            "annotations": [],
+            "features": {},
+            "id": "1cdyzc",
+            "type": "node:input-output",
+            "children": []
+        }
+    ]
+}
