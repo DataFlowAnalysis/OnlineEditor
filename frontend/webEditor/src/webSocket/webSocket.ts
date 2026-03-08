@@ -10,7 +10,7 @@ export class DfdWebSocket {
         resolve?: (v: string) => void;
         reject?: (e: Error) => void;
     } = {};
-    private static readonly WS_URL = "ws://localhost:3000/events/";
+    private static readonly WS_URL = "wss://xdecaf.dalu-wins.de/websocket";
 
     constructor(
         @inject(TYPES.ILogger) private readonly logger: ILogger,
