@@ -2,6 +2,7 @@ import { SModelRoot } from "sprotty-protocol";
 import { Constraint } from "../constraint/Constraint";
 import { LabelType } from "../labels/LabelType";
 import { EditorMode } from "../settings/editorMode";
+import { Violation } from "../violationUi/Violation";
 
 export interface SavedDiagram {
     model: SModelRoot;
@@ -12,8 +13,3 @@ export interface SavedDiagram {
     violations?: Violation[];
 }
 export const CURRENT_VERSION = 1;
-
-export interface Violation {
-    constraint: string; // Der verletzte Constraint
-    violationCauseGraph: string[]; // Pfad der Verletzung
-}

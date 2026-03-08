@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Violation } from "../serialize/SavedDiagram";
+import { Violation } from "./Violation";
 
 @injectable()
 export class ViolationService {

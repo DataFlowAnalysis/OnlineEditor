@@ -1,104 +1,50 @@
 .violation-ui {
     right: 20px;
     bottom: 70px;
-    padding: 10px 10px;
-
+    padding: 10px;
     max-width: 30vw;
+    overflow: hidden; 
 
-    .tab-pane {
-        display: none;
-        font-size: 13px;
-        max-width: 100%;
-    }
-
-    .tab-pane.active {
+    .violation-content {
+        width: 100%;
         display: block;
-    }
-
-    .violation-tabs {
-        display: flex;
-        margin-bottom: 10px;
-    }
-
-    .tab-btn {
-        flex: 1;
-        padding: 5px;
-        cursor: pointer;
-        border: none;
-        background: none;
-        font-size: 12px;
-        color: var(--sprotty-label-color);
-    }
-
-    .tab-btn.active {
-        border-bottom: 2px solid #007acc;
-        font-weight: bold;
-    }
-
-    #ai-api-key {
-        background-color: var(--color-background);
-        color: var(--color-foreground);
-        border: 1px solid var(--color-foreground);
-        border-radius: 6px;
-    }
-
-    .api-key-container {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-        padding: 5px;
-
-        label {
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        input {
-            width: 100%;
-            padding: 4px 8px;
-            font-size: 12px;
-            border: 1px solid var(--color-foreground);
-            border-radius: 3px;
-            background: var(--sprotty-input-background, var(--color-background));
-            color: var(--sprotty-label-color);
-            box-sizing: border-box;
-        }
-    }
-
-    .button-container {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 20px;
-    }
-
-    .generate-btn {
-        background-color: var(--sprotty-button-background, #007acc);
-        color: var(--sprotty-button-foreground, #ffffff);
-        border: none;
-        padding: 6px 12px;
-        font-size: 12px;
-        border-radius: 4px;
-        cursor: pointer;
     }
 
     .summary-text {
         width: 100%;
-        display: block;
-        white-space: normal;
-        word-wrap: break-word;
-        overflow-wrap: anywhere;
         max-height: 250px;
         overflow-y: auto;
+        overflow-x: hidden; 
     }
 
-    .summary-text p {
-        margin: 0;
-        display: block;
+    .violation-list {
         width: 100%;
-        white-space: normal;
+    }
+
+    .violation-item {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+    }
+
+    .violation-table {
+        width: 100%;
+        table-layout: auto; 
+        border-collapse: collapse;
+    }
+
+    .violation-table td {
+        padding: 4px 8px;
+        vertical-align: top;
+        font-size: 12px;
+        word-break: break-all; 
+        overflow-wrap: anywhere;
+        white-space: normal; 
+    }
+
+    .violation-table td:first-child {
+        font-weight: bold;
+        color: var(--sprotty-label-color);
     }
 
     .status-info {
@@ -112,11 +58,5 @@
         padding: 20px 10px;
         box-sizing: border-box;
         margin: 0 auto;
-    }
-
-    .violation-item {
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: left; /* Die Items selbst wieder linksbündig */
     }
 }
