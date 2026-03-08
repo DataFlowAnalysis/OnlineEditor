@@ -45,6 +45,7 @@
     .violation-table td:first-child {
         font-weight: bold;
         color: var(--sprotty-label-color);
+        white-space: nowrap;
     }
 
     .status-info {
