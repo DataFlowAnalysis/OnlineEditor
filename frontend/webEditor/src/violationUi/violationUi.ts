@@ -71,7 +71,7 @@ export class ViolationUI extends AccordionUiExtension {
                         <td>${v.inducingVertices.join(", ")}</td>
                     </tr>
                     <tr>
-                        <td>Flow Graph</td>
+                        <td>Flow Graph <span class="help-icon" data-tooltip="The part of the graph responsible for the violation."></span></td>
                         <td>${v.tfg.join(", ")}</td>
                     </tr>
                 </table>
