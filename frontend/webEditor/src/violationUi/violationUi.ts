@@ -62,15 +62,17 @@ export class ViolationUI extends AccordionUiExtension {
                     </tr>
                     <tr>
                         <td>Violation in</td>
-                        <td>${v.violatedVertices}</td>
+                        <td>${v.violatedVertices.join(", ")}</td>
                     </tr>
                     <tr>
-                        <td>Induced by</td>
-                        <td>${v.inducingVertices}</td>
+                        <td>
+                            Induced by <span class="help-icon" data-tooltip="The vertex responsible for the data label causing this violation."></span>
+                        </td>
+                        <td>${v.inducingVertices.join(", ")}</td>
                     </tr>
                     <tr>
-                        <td>Flow Cause</td>
-                        <td>${v.tfg}</td>
+                        <td>Flow Graph</td>
+                        <td>${v.tfg.join(", ")}</td>
                     </tr>
                 </table>
             </div>
