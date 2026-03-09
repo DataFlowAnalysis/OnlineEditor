@@ -1,11 +1,15 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { SChildElementImpl, SModelElementImpl, SModelFactory, SParentElementImpl } from "sprotty";
 import { DfdNode } from "../diagram/nodes/common";
 import { getBasicType, SLabel, SModelElement } from "sprotty-protocol";
 import { ArrowEdge } from "../diagram/edges/ArrowEdge";
+import { containsDfdLabels } from "../labels/feature";
+import { DfdNodeLabelSizeCalculator } from "../diagram/nodes/DfdNodeLabels";
 
 @injectable()
 export class DfdModelFactory extends SModelFactory {
+    @inject(DfdNodeLabelSizeCalculator) dfdNodeLabelRenderer?: DfdNodeLabelSizeCalculator;
+
     override createElement(schema: SModelElement | SModelElementImpl, parent?: SParentElementImpl): SChildElementImpl {
         if (schema instanceof SModelElementImpl) {
             return super.createElement(schema, parent);
@@ -46,6 +50,9 @@ export class DfdModelFactory extends SModelFactory {
         const element = super.createElement(schema, parent);
         if (element.features === undefined) {
             element.features = new Set<symbol>();
+        }
+        if (containsDfdLabels(element)) {
+            element.dfdNodeLabelRenderer = this.dfdNodeLabelRenderer;
         }
         return element;
     }

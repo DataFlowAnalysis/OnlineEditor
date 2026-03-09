@@ -105,4 +105,8 @@ export class DfdCompletionItemProvider implements monaco.languages.CompletionIte
             suggestions: r,
         };
     }
+
+    public setTree(tree: CompletionLanguageTreeNode[]) {
+        this.tree = tree;
+    }
 }
