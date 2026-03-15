@@ -117,7 +117,14 @@ export class ExportCommand extends Command {
 
         // add stylesheets
         const styleHolder = document.createElement("style");
-        styleHolder.innerHTML = `${themeCss}\n${elementCss}`;
+        // extract light mode variables from them
+        const defaultColorsMatch = /:root ({[^}]*})/.exec(themeCss);
+        let colors = themeCss;
+        if (defaultColorsMatch) {
+            colors = `* ${defaultColorsMatch[1]}`;
+        }
+
+        styleHolder.innerHTML = `${colors}\n${elementCss}`;
         dom.appendChild(styleHolder);
 
         // render svg into dom
