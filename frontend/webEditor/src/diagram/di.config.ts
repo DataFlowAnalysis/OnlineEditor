@@ -22,7 +22,7 @@ import { FunctionNodeImpl, FunctionNodeView } from "./nodes/DfdFunctionNode";
 import { IONodeImpl, IONodeView } from "./nodes/DfdIONode";
 import "./style.css";
 import { DfdPositionalLabelView } from "./labels/DfdPositionalLabel";
-import { DfdNodeLabelRenderer } from "./nodes/DfdNodeLabels";
+import { DfdNodeLabelRenderer, DfdNodeLabelSizeCalculator } from "./nodes/DfdNodeLabels";
 import { FilledBackgroundLabelView } from "./labels/FilledBackgroundLabel";
 import { DfdEditLabelValidatorDecorator } from "./labels/EditLabelDecorator";
 import { DfdEditLabelValidator } from "./labels/EditLabelValidator";
@@ -77,5 +77,6 @@ export const diagramModule = new ContainerModule((bind, unbind, isBound, rebind)
         enable: [editLabelFeature],
     });
 
+    bind(DfdNodeLabelSizeCalculator).toSelf().inSingletonScope();
     bind(DfdNodeLabelRenderer).toSelf().inSingletonScope();
 });

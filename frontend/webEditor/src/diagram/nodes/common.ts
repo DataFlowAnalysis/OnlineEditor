@@ -6,8 +6,7 @@ import { calculateTextSize } from "../../utils/TextSize";
 import { ArrowEdgeImpl } from "../edges/ArrowEdge";
 import { VNodeStyle } from "snabbdom";
 import { DfdInputPortImpl } from "../ports/DfdInputPort";
-import { inject } from "inversify";
-import { DfdNodeLabelRenderer } from "./DfdNodeLabels";
+import { DfdNodeLabelSizeCalculator } from "./DfdNodeLabels";
 import { containsDfdLabelFeature } from "../../labels/feature";
 
 export interface DfdNode extends SNode {
@@ -23,7 +22,7 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
     static readonly WIDTH_PADDING = 12;
     static readonly NODE_COLOR = "var(--color-primary)";
     static readonly HIGHLIGHTED_COLOR = "var(--color-highlighted)";
-    @inject(DfdNodeLabelRenderer) private readonly dfdNodeLabelRenderer?: DfdNodeLabelRenderer;
+    dfdNodeLabelRenderer?: DfdNodeLabelSizeCalculator;
     text: string = "";
     color?: string;
     labels: LabelAssignment[] = [];
@@ -50,11 +49,12 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
             return this.minimumWidth + DfdNodeImpl.WIDTH_PADDING;
         }
         const textWidth = calculateTextSize(this.text).width;
+        const editLabelWidth = this.editableLabel ? calculateTextSize(this.editableLabel.text).width : 0;
         const labelWidths = this.labels.map(
             (labelAssignment) => this.dfdNodeLabelRenderer?.computeLabelContent(labelAssignment)[1] ?? 0,
         );
 
-        const neededWidth = Math.max(...labelWidths, textWidth, DfdNodeImpl.DEFAULT_WIDTH);
+        const neededWidth = Math.max(...labelWidths, textWidth, editLabelWidth, DfdNodeImpl.DEFAULT_WIDTH);
         return neededWidth + DfdNodeImpl.WIDTH_PADDING;
     }
 
@@ -63,8 +63,8 @@ export abstract class DfdNodeImpl extends SNodeImpl implements WithEditableLabel
         if (hasLabels && !this.hideLabels) {
             return (
                 this.labelStartHeight() +
-                this.labels.length * DfdNodeLabelRenderer.LABEL_SPACING_HEIGHT +
-                DfdNodeLabelRenderer.LABEL_SPACE_BETWEEN
+                this.labels.length * DfdNodeLabelSizeCalculator.LABEL_SPACING_HEIGHT +
+                DfdNodeLabelSizeCalculator.LABEL_SPACE_BETWEEN
             );
         } else {
             return this.noLabelHeight();

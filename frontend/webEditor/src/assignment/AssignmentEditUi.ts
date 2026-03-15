@@ -22,6 +22,7 @@ export class AssignmentEditUi extends AbstractUIExtension {
 
     private port?: DfdOutputPortImpl;
     private tree?: LanguageTreeNode<Word>[];
+    private completionProvider?: DfdCompletionItemProvider;
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private unavailableInputsLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
@@ -137,10 +138,13 @@ export class AssignmentEditUi extends AbstractUIExtension {
         containerElement.style.top = `${bounds.y}px`;
 
         this.tree = AssignmentLanguageTreeBuilder.buildTree(port, this.labelTypeRegistry);
-        monaco.languages.registerCompletionItemProvider(
-            ASSIGNMENT_LANGUAGE_ID,
-            new DfdCompletionItemProvider(this.tree),
-        );
+        if (this.completionProvider) {
+            this.completionProvider.setTree(this.tree);
+        } else {
+            this.completionProvider = new DfdCompletionItemProvider(this.tree);
+            monaco.languages.registerCompletionItemProvider(ASSIGNMENT_LANGUAGE_ID, this.completionProvider);
+        }
+
         if (!this.editor) {
             throw new Error("Expected editor to be initialized");
         }
