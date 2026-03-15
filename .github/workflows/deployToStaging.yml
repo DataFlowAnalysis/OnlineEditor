@@ -1,0 +1,67 @@
+name: Deploy to Staging
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+  issue_comment:
+    types: [created]
+      
+jobs:
+  build:
+    # Run normally for push & workflow_dispatch
+    # OR only when someone comments /stage on a PR
+    if: >
+      github.event_name != 'issue_comment' ||
+      (
+        github.event.issue.pull_request &&
+        contains(github.event.comment.body, '/stage')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      
+      - name: Switch to PR branch
+        if: github.event.issue.pull_request
+        env:
+          GITHUB_TOKEN: ${{ secrets.XDECAF_EDITOR_STAGING }}
+        run: gh pr checkout ${{ github.event.issue.number }}
+      
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Extract branch name
+        shell: bash
+        run: |
+          if [[ "$${{ github.event_name }}" == 'workflow_dispatch' ]]; then
+            echo "folder=branches/${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "folder=tags/${GITHUB_REF#refs/tags/}" | sed 's/\./_/g' >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            echo "folder=prs/${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "folder=not_found" >> $GITHUB_OUTPUT
+          fi
+        id: extract_folder_name
+
+      - name: Install and Build
+        working-directory: frontend/webEditor
+        run: |
+          npm i
+          npx vite build --base=/OnlineEditorStaging/${{ steps.extract_folder_name.outputs.folder }}/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
+        with:
+          branch: gh-pages
+          repository-name: DataFlowAnalysis/OnlineEditorStaging
+          folder: ./frontend/webEditor/dist
+          target-folder: ${{ steps.extract_folder_name.outputs.folder }}
+          token: ${{ secrets.XDECAF_EDITOR_STAGING }}
+          clean: true
+          single-commit: false
