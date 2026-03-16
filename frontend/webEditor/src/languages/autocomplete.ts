@@ -77,7 +77,7 @@ function transformResult(comp: WordCompletion, tokens: Token[]): monaco.language
             lineNumber,
             wordStart + (comp.startOffset ?? 0),
             lineNumber,
-            wordStart + (comp.startOffset ?? 0) + comp.insertText.length,
+            wordStart + (comp.startOffset ?? 0),
         ),
     };
 }
@@ -104,5 +104,9 @@ export class DfdCompletionItemProvider implements monaco.languages.CompletionIte
         return {
             suggestions: r,
         };
+    }
+
+    public setTree(tree: CompletionLanguageTreeNode[]) {
+        this.tree = tree;
     }
 }

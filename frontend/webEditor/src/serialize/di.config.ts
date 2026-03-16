@@ -11,6 +11,8 @@ import { AnalyzeCommand } from "./analyze";
 import { SaveThreatsTableCommand } from "./saveThreatsTable.ts";
 import { LoadThreatModelingUserFileCommand } from "./loadThreatModelingUserFile.ts";
 import { LoadThreatModelingLinddunFileCommand } from "./loadThreatModelingLinddunFile.ts";
+import { LoadFromUrlCommand } from "./LoadUrl";
+import { JsonDropHandler, LoadDroppedFileCommand } from "./dropListener";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -20,10 +22,14 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, LoadPalladioFileCommand);
     configureCommand(context, LoadThreatModelingUserFileCommand);
     configureCommand(context, LoadThreatModelingLinddunFileCommand);
+    configureCommand(context, LoadFromUrlCommand);
     configureCommand(context, SaveJsonFileCommand);
     configureCommand(context, SaveDfdAndDdFileCommand);
-    configureCommand(context, SaveThreatsTableCommand)
+    configureCommand(context, SaveThreatsTableCommand);
     configureCommand(context, AnalyzeCommand);
+    configureCommand(context, LoadDroppedFileCommand);
+
+    bind(TYPES.MouseListener).to(JsonDropHandler);
 
     rebind(TYPES.IModelFactory).to(DfdModelFactory);
 });

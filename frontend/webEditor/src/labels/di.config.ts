@@ -13,6 +13,7 @@ export const labelModule = new ContainerModule((bind, _, isBound) => {
     bind(LabelTypeEditorUi).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(LabelTypeEditorUi);
     bind(EDITOR_TYPES.DefaultUIElement).to(LabelTypeEditorUi);
+    bind(TYPES.KeyListener).toService(LabelTypeEditorUi);
 
     configureCommand({ bind, isBound }, LabelAssignmentCommand);
     configureCommand({ bind, isBound }, ReplaceCommand);

@@ -5,7 +5,10 @@ import {
     CommandReturn,
     EMPTY_ROOT,
     ILogger,
+    InitializeCanvasBoundsAction,
+    isLocateable,
     SModelRootImpl,
+    SNodeImpl,
 } from "sprotty";
 import { SavedDiagram } from "./SavedDiagram";
 import { Action, SModelElement, SModelRoot } from "sprotty-protocol";
@@ -17,6 +20,8 @@ import { DefaultFitToScreenAction } from "../fitToScreen/action";
 import { FileName } from "../fileName/fileName";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
+import { LayoutModelAction } from "../layout/command";
+import { LayoutMethod } from "../layout/layoutMethod";
 
 export interface FileData<T> {
     fileName: string;
@@ -61,7 +66,8 @@ export abstract class LoadJsonCommand extends Command {
         this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
             this.loadingIndicator.hide();
-            return context.root;
+            this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
+            return this.oldRoot;
         }
 
         try {
@@ -97,8 +103,7 @@ export abstract class LoadJsonCommand extends Command {
                 this.constraintRegistry.clearConstraints();
             }
 
-            // TODO: post load actions like layout
-            this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot));
+            this.postLoadActions();
 
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
@@ -108,6 +113,7 @@ export abstract class LoadJsonCommand extends Command {
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
             this.newRoot = this.oldRoot;
+            this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             this.loadingIndicator.hide();
             return this.oldRoot;
         }
@@ -190,7 +196,7 @@ export abstract class LoadJsonCommand extends Command {
      *
      * @param modelSchema The model schema to preprocess
      */
-    private static preprocessModelSchema(modelSchema: SModelRoot): SModelRoot {
+    public static preprocessModelSchema(modelSchema: SModelRoot): SModelRoot {
         // These properties are all not included in the root typing and if present are not loaded and handled correctly. So they are removed.
         if ("features" in modelSchema) {
             delete modelSchema["features"];
@@ -203,5 +209,19 @@ export abstract class LoadJsonCommand extends Command {
             modelSchema.children.forEach((child: SModelElement) => this.preprocessModelSchema(child));
         }
         return modelSchema;
+    }
+
+    private async postLoadActions() {
+        if (!this.newRoot) {
+            return;
+        }
+
+        const containsUnPositionedNodes = this.newRoot.children
+            .filter((child) => child instanceof SNodeImpl)
+            .some((child) => isLocateable(child) && child.position.x === 0 && child.position.y === 0);
+        if (containsUnPositionedNodes) {
+            await this.actionDispatcher.dispatch(LayoutModelAction.create(LayoutMethod.LINES));
+        }
+        return this.actionDispatcher.dispatch(DefaultFitToScreenAction.create(this.newRoot, false));
     }
 }

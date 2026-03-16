@@ -13,6 +13,10 @@ function getFiles(acceptedTypes: string[], amount: number): Promise<File[]> {
             }
             resolve(Array.from(input.files));
         };
+
+        input.oncancel = () => {
+            reject("Canceled file selection");
+        };
     });
 
     input.click();
@@ -34,7 +38,7 @@ function readFile(file: File): Promise<FileData<string>> {
 }
 
 export async function chooseFiles(acceptedTypes: string[], amount: number): Promise<FileData<string>[]> {
-    const files = await getFiles(acceptedTypes, amount);
+    const files = await getFiles(acceptedTypes, amount).catch(() => [] as File[]);
     return Promise.all(files.map(readFile));
 }
 
