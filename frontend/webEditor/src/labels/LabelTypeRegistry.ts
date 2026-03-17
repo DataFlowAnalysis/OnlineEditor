@@ -101,10 +101,10 @@ export class LabelTypeRegistry {
 
     public getAllLabelAssignments(): LabelAssignment[] {
         return this.labelTypes
-            .map(labelType => labelType.values
-                .map(labelTypeValue => {
-                    return { labelTypeId: labelType.id, labelTypeValueId: labelTypeValue.id }
-                })
+            .map((labelType) =>
+                labelType.values.map((labelTypeValue) => {
+                    return { labelTypeId: labelType.id, labelTypeValueId: labelTypeValue.id };
+                }),
             )
             .flat();
     }
@@ -114,14 +114,14 @@ export class LabelTypeRegistry {
      * If the `LabelAssignment` cannot be resolved, returns `{}`.
      * @param labelAssignment The IDs of the `LabelType` and `LabelTypeValue`. to resolve.
      */
-    public resolveLabelAssignment(labelAssignment: LabelAssignment): Partial<{ labelType: LabelType, labelTypeValue: LabelTypeValue }>
-    {
+    public resolveLabelAssignment(
+        labelAssignment: LabelAssignment,
+    ): Partial<{ labelType: LabelType; labelTypeValue: LabelTypeValue }> {
         const labelType = this.getLabelType(labelAssignment.labelTypeId);
-        const labelTypeValue = labelType?.values
-            .find((value) => value.id === labelAssignment.labelTypeValueId);
+        const labelTypeValue = labelType?.values.find((value) => value.id === labelAssignment.labelTypeValueId);
 
         if (!labelType || !labelTypeValue) return {};
 
-        return {labelType, labelTypeValue};
+        return { labelType, labelTypeValue };
     }
 }

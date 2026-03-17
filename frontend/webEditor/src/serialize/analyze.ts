@@ -50,11 +50,11 @@ export class AnalyzeCommand extends LoadJsonCommand {
     protected async getFile(context: CommandExecutionContext): Promise<FileData<SavedDiagram> | undefined> {
         const savedDiagram = {
             model: context.modelFactory.createSchema(context.root),
-            labelTypes: this.labelTypeRegistry.getLabelTypes().map(label =>
-                isThreatModelingLabelType(label) ?
-                    threatModelingLabelTypeToBackendPayload(label, true)
-                    : label
-            ),
+            labelTypes: this.labelTypeRegistry
+                .getLabelTypes()
+                .map((label) =>
+                    isThreatModelingLabelType(label) ? threatModelingLabelTypeToBackendPayload(label, true) : label,
+                ),
             constraints: this.constraintRegistry.getConstraintList(),
             mode: this.editorModeController.get(),
             version: CURRENT_VERSION,

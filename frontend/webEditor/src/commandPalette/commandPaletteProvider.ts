@@ -37,12 +37,12 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                     new LabeledAction(
                         "Load Threat Modeling File (JSON)",
                         [LoadThreatModelingUserFileAction.create(), commitAction],
-                        "fa-triangle-exclamation"
+                        "fa-triangle-exclamation",
                     ),
                     new LabeledAction(
                         "Load LINDDUN Threat Modeling File",
                         [LoadThreatModelingLinddunFileAction.create(), commitAction],
-                        "fa-triangle-exclamation"
+                        "fa-triangle-exclamation",
                     ),
                 ],
                 "go-to-file",
@@ -53,7 +53,11 @@ export class WebEditorCommandPaletteActionProvider implements ICommandPaletteAct
                     new LabeledAction("Save diagram as JSON", [SaveJsonFileAction.create()], "json"),
                     new LabeledAction("Save diagram as DFD and DD", [SaveDfdAndDdFileAction.create()], "coffee"),
                     //new LabeledAction("Save viewport as image", [SaveImageAction.create()], "device-camera"),
-                    new LabeledAction("Save threats table", [SaveThreatsTableAction.create()], "fa-triangle-exclamation")
+                    new LabeledAction(
+                        "Save threats table",
+                        [SaveThreatsTableAction.create()],
+                        "fa-triangle-exclamation",
+                    ),
                 ],
                 "save",
             ),

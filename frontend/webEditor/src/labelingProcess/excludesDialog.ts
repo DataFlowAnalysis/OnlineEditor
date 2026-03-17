@@ -8,7 +8,7 @@ import { Action } from "sprotty-protocol";
 export type ExcludesDialogData = {
     previousLabelAssignments: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue }[];
     newLabelAssignment: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue };
-    confirmAction: Action
+    confirmAction: Action;
 };
 
 export class ExcludesDialog extends AbstractUIExtension {
@@ -93,10 +93,10 @@ export class ExcludesDialog extends AbstractUIExtension {
             "Replace with " +
             `${this.state.newLabelAssignment.labelType.name}.${this.state.newLabelAssignment.labelTypeValue.text}`;
 
-        const confirmAction = this.state.confirmAction
+        const confirmAction = this.state.confirmAction;
         overwriteWithNewLabelButton.addEventListener("click", () => {
             this.hide();
-            this.actionDispatcher.dispatch(confirmAction)
+            this.actionDispatcher.dispatch(confirmAction);
         });
 
         this.buttonContainer.replaceChildren(keepPreviousLabelButton, overwriteWithNewLabelButton);

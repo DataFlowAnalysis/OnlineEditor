@@ -13,8 +13,8 @@ import { getAllElements } from "../labels/assignmentCommand.ts";
 import { DfdNodeImpl } from "../diagram/nodes/common.ts";
 import { DfdNodeAnnotation } from "../annotation/DFDNodeAnnotation.ts";
 
-const CSV_COLUMN_SEPARATOR = ","
-const CSV_LINE_SEPARATOR = "\n"
+const CSV_COLUMN_SEPARATOR = ",";
+const CSV_LINE_SEPARATOR = "\n";
 
 export namespace SaveThreatsTableAction {
     export const KIND = "saveThreatsTable";
@@ -38,8 +38,7 @@ export class SaveThreatsTableCommand extends SaveFileCommand {
     }
 
     getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
-        const allDfdNodeElements = getAllElements(context.root.children)
-            .filter((elem) => elem instanceof DfdNodeImpl);
+        const allDfdNodeElements = getAllElements(context.root.children).filter((elem) => elem instanceof DfdNodeImpl);
 
         const toExport: { nodeId: string; nodeText: string; violatedConstraint: string }[] = [];
         for (const dfdNode of allDfdNodeElements) {
@@ -68,39 +67,37 @@ export class SaveThreatsTableCommand extends SaveFileCommand {
     }
 
     private extractViolatedConstraintFromMessage(message: string): string {
-        return message
-            .replace("Constraint ", "")
-            .replace(" violated", "")
+        return message.replace("Constraint ", "").replace(" violated", "");
     }
 
     private static toCSV<T extends object>(array: T[]): string {
-        let csv = ""
+        let csv = "";
 
         if (array.length == 0) return csv;
 
         //Header
         for (const headerEntry of Object.keys(array[0])) {
-            csv += SaveThreatsTableCommand.escapeCSVEntry(headerEntry)
-            csv += CSV_COLUMN_SEPARATOR
+            csv += SaveThreatsTableCommand.escapeCSVEntry(headerEntry);
+            csv += CSV_COLUMN_SEPARATOR;
         }
-        csv += CSV_LINE_SEPARATOR
+        csv += CSV_LINE_SEPARATOR;
 
         //Content
         for (const row of array) {
             for (const entry of Object.values(row)) {
-                csv += SaveThreatsTableCommand.escapeCSVEntry(entry)
-                csv += CSV_COLUMN_SEPARATOR
+                csv += SaveThreatsTableCommand.escapeCSVEntry(entry);
+                csv += CSV_COLUMN_SEPARATOR;
             }
-            csv += CSV_LINE_SEPARATOR
+            csv += CSV_LINE_SEPARATOR;
         }
 
-        return csv
+        return csv;
     }
 
     private static escapeCSVEntry(value: unknown): string {
         if (value == null) return "";
 
-        const str = String(value)
+        const str = String(value);
         if (/[",\n]/.test(str)) {
             return `"${str.replace(/"/g, '""')}"`;
         }

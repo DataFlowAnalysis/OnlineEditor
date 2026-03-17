@@ -18,7 +18,7 @@ export const labelingProcessModule = new ContainerModule((bind, _, isBound) => {
 
     bind(TYPES.MouseListener).to(LabelingProcessMouseListener).inSingletonScope();
 
-    configureCommand({bind, isBound}, LabelingProcessCommand)
-    configureCommand({bind, isBound}, ThreatModelingLabelAssignmentCommand);
-    configureCommand({bind, isBound}, ThreatModelingLabelAssignmentToOutputPortCommand);
-})
+    configureCommand({ bind, isBound }, LabelingProcessCommand);
+    configureCommand({ bind, isBound }, ThreatModelingLabelAssignmentCommand);
+    configureCommand({ bind, isBound }, ThreatModelingLabelAssignmentToOutputPortCommand);
+});

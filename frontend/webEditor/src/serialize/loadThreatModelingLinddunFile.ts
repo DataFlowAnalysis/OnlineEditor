@@ -1,6 +1,6 @@
 import { Action } from "sprotty-protocol";
 import { LoadThreatModelingFileCommand, ThreatModelingFileFormat } from "./loadThreatModelingFile.ts";
-import LINDDUN from './linddun.json'
+import LINDDUN from "./linddun.json";
 
 export namespace LoadThreatModelingLinddunFileAction {
     export const KIND = "LoadThreatModelingLINDDUNFile";

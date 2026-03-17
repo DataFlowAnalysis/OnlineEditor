@@ -1,20 +1,22 @@
 import { LabelAssignment, LabelType, LabelTypeValue } from "./LabelType.ts";
 
 export interface ThreatModelingLabelType extends LabelType {
-    intendedFor: 'Vertex' | 'Flow'
+    intendedFor: "Vertex" | "Flow";
 }
 
 export interface ThreatModelingLabelTypeValue extends LabelTypeValue {
-    excludes: LabelAssignment[]
-    additionalInformation?: string
+    excludes: LabelAssignment[];
+    additionalInformation?: string;
 }
 
 export function isThreatModelingLabelType(labelType: LabelType): labelType is ThreatModelingLabelType {
     return "intendedFor" in labelType;
 }
 
-export function isThreatModelingLabelTypeValue(labelTypeValue: LabelTypeValue): labelTypeValue is ThreatModelingLabelTypeValue {
-    return "excludes" in labelTypeValue
+export function isThreatModelingLabelTypeValue(
+    labelTypeValue: LabelTypeValue,
+): labelTypeValue is ThreatModelingLabelTypeValue {
+    return "excludes" in labelTypeValue;
 }
 
 /**
@@ -26,20 +28,20 @@ export function isThreatModelingLabelTypeValue(labelTypeValue: LabelTypeValue): 
  */
 export function threatModelingLabelTypeToBackendPayload(
     labelType: ThreatModelingLabelType,
-    recursive: boolean
+    recursive: boolean,
 ): LabelType {
-    const { intendedFor, values, ...defaultAttributes } = labelType
+    // 'intendedFor' is removed from the payload
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { intendedFor, values, ...defaultAttributes } = labelType;
 
-    let transformedValues = values
+    let transformedValues = values;
     if (recursive) {
-        transformedValues = values.map(value =>
-            isThreatModelingLabelTypeValue(value)
-                ? threatModelingLabelTypeValueToBackendPayload(value)
-                : value
-        )
+        transformedValues = values.map((value) =>
+            isThreatModelingLabelTypeValue(value) ? threatModelingLabelTypeValueToBackendPayload(value) : value,
+        );
     }
 
-    return { ...defaultAttributes, values: transformedValues }
+    return { ...defaultAttributes, values: transformedValues };
 }
 
 /**
@@ -48,6 +50,8 @@ export function threatModelingLabelTypeToBackendPayload(
  * @param labelTypeValue The `ThreatModelingLabelTypeValue` to transform
  */
 function threatModelingLabelTypeValueToBackendPayload(labelTypeValue: ThreatModelingLabelTypeValue): LabelTypeValue {
-    const { excludes, additionalInformation, ...defaultAttributes} = labelTypeValue;
-    return { ...defaultAttributes }
+    // 'excludes' and 'additionalInformation' is removed from the payload
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { excludes, additionalInformation, ...defaultAttributes } = labelTypeValue;
+    return { ...defaultAttributes };
 }

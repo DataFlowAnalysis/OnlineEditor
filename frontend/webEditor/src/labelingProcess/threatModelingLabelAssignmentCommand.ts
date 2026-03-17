@@ -16,18 +16,18 @@ import { DfdNodeImpl } from "../diagram/nodes/common.ts";
 
 interface ThreatModelingLabelAssignmentToNodeAction extends Action {
     element: ContainsDfdLabels & SNodeImpl;
-    collisionMode: 'overwrite' | 'askUser'
+    collisionMode: "overwrite" | "askUser";
 }
 
 export namespace AddThreatModelingLabelToNodeAction {
     export function create(
         element: ContainsDfdLabels & SNodeImpl,
-        collisionMode?: 'overwrite' | 'askUser'
+        collisionMode?: "overwrite" | "askUser",
     ): ThreatModelingLabelAssignmentToNodeAction {
         return {
             kind: ThreatModelingLabelAssignmentCommand.KIND,
             element,
-            collisionMode: collisionMode ?? 'askUser'
+            collisionMode: collisionMode ?? "askUser",
         };
     }
 }
@@ -41,43 +41,45 @@ export class ThreatModelingLabelAssignmentCommand implements Command {
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
         @inject(LabelingProcessUi) private readonly labelingProcessUI: LabelingProcessUi,
         @inject(ExcludesDialog) private readonly excludesDialog: ExcludesDialog,
-        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher
+        @inject(TYPES.IActionDispatcher) private readonly actionDispatcher: IActionDispatcher,
     ) {}
 
     execute(context: CommandExecutionContext): CommandReturn {
-        const labelProcessState = this.labelingProcessUI.getState()
+        const labelProcessState = this.labelingProcessUI.getState();
         if (labelProcessState.state !== "inProgress") return context.root;
 
-        const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(labelProcessState.activeLabel)
+        const { labelType, labelTypeValue } = this.labelTypeRegistry.resolveLabelAssignment(
+            labelProcessState.activeLabel,
+        );
         if (!labelType || !labelTypeValue) return context.root;
 
         if (!isThreatModelingLabelType(labelType) || !isThreatModelingLabelTypeValue(labelTypeValue)) {
-            this.handleSimpleCase(labelProcessState)
+            this.handleSimpleCase(labelProcessState);
             return context.root;
         }
 
         const possibleCollisions = this.action.element.labels
-            .map(label => this.labelTypeRegistry.resolveLabelAssignment(label))
-            .filter((label) : label is Required<{ labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }> =>
-                label.labelType !== undefined
-                && label.labelTypeValue !== undefined
+            .map((label) => this.labelTypeRegistry.resolveLabelAssignment(label))
+            .filter(
+                (
+                    label,
+                ): label is Required<{
+                    labelType: ThreatModelingLabelType;
+                    labelTypeValue: ThreatModelingLabelTypeValue;
+                }> => label.labelType !== undefined && label.labelTypeValue !== undefined,
             )
-            .filter(label =>
-                    isThreatModelingLabelType(label.labelType)
-                    && isThreatModelingLabelTypeValue(label.labelTypeValue)
-            )
-        const collisions = findCollisions({ labelType, labelTypeValue }, possibleCollisions )
+            .filter(
+                (label) =>
+                    isThreatModelingLabelType(label.labelType) && isThreatModelingLabelTypeValue(label.labelTypeValue),
+            );
+        const collisions = findCollisions({ labelType, labelTypeValue }, possibleCollisions);
 
         if (collisions.length == 0) {
-            this.handleSimpleCase(labelProcessState)
+            this.handleSimpleCase(labelProcessState);
         } else if (this.action.collisionMode === "askUser") {
-            this.handleAskUser(
-                { labelType, labelTypeValue },
-                collisions,
-                context
-            )
+            this.handleAskUser({ labelType, labelTypeValue }, collisions, context);
         } else {
-            this.handleOverwrite(labelProcessState, collisions)
+            this.handleOverwrite(labelProcessState, collisions);
         }
 
         return context.root;
@@ -95,64 +97,65 @@ export class ThreatModelingLabelAssignmentCommand implements Command {
         return context.root;
     }
 
-    private handleSimpleCase(
-        labelProcessState: LabelingProcessState & { state: "inProgress" },
-    ) {
-        this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
-            labelProcessState.activeLabel,
-            this.action.element,
-        ))
+    private handleSimpleCase(labelProcessState: LabelingProcessState & { state: "inProgress" }) {
+        this.actionDispatcher.dispatch(
+            AddLabelAssignmentAction.create(labelProcessState.activeLabel, this.action.element),
+        );
         if (this.action.element instanceof DfdNodeImpl) {
-            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR);
         }
     }
 
     private handleAskUser(
-        candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
-        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[],
-        context: CommandExecutionContext
+        candidate: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue },
+        collisions: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue }[],
+        context: CommandExecutionContext,
     ) {
         this.excludesDialog.update({
-            previousLabelAssignments: collisions ,
+            previousLabelAssignments: collisions,
             newLabelAssignment: candidate,
-            confirmAction: AddThreatModelingLabelToNodeAction.create(this.action.element, "overwrite")
-        })
+            confirmAction: AddThreatModelingLabelToNodeAction.create(this.action.element, "overwrite"),
+        });
 
         this.excludesDialog.show(context.root);
     }
 
     private handleOverwrite(
         labelProcessState: LabelingProcessState & { state: "inProgress" },
-        collisions: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
+        collisions: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue }[],
     ) {
         for (const collision of collisions) {
-            this.actionDispatcher.dispatch(RemoveLabelAssignmentAction.create(
-                { labelTypeId: collision.labelType.id, labelTypeValueId: collision.labelTypeValue.id },
-                this.action.element,
-            ))
+            this.actionDispatcher.dispatch(
+                RemoveLabelAssignmentAction.create(
+                    { labelTypeId: collision.labelType.id, labelTypeValueId: collision.labelTypeValue.id },
+                    this.action.element,
+                ),
+            );
         }
-        this.actionDispatcher.dispatch(AddLabelAssignmentAction.create(
-            labelProcessState.activeLabel,
-            this.action.element,
-        ))
+        this.actionDispatcher.dispatch(
+            AddLabelAssignmentAction.create(labelProcessState.activeLabel, this.action.element),
+        );
         if (this.action.element instanceof DfdNodeImpl) {
-            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR)
+            this.action.element.setColor(LabelingProcessUi.ALREADY_ASSIGNED_COLOR);
         }
     }
 }
 
 export function findCollisions(
-    candidate: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue },
-    assigned: { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[]
-): { labelType: ThreatModelingLabelType, labelTypeValue: ThreatModelingLabelTypeValue }[] {
-    return assigned.filter(existing =>
-        candidate.labelTypeValue.excludes.some(exclude =>
-            exclude.labelTypeId === existing.labelType.id
-            && exclude.labelTypeValueId === existing.labelTypeValue.id
-        )
-        || existing.labelTypeValue.excludes.some(exclude =>
-            exclude.labelTypeId === candidate.labelType.id
-            && exclude.labelTypeValueId === candidate.labelTypeValue.id
-        )
-    )
+    candidate: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue },
+    assigned: { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue }[],
+): { labelType: ThreatModelingLabelType; labelTypeValue: ThreatModelingLabelTypeValue }[] {
+    return assigned.filter(
+        (existing) =>
+            candidate.labelTypeValue.excludes.some(
+                (exclude) =>
+                    exclude.labelTypeId === existing.labelType.id &&
+                    exclude.labelTypeValueId === existing.labelTypeValue.id,
+            ) ||
+            existing.labelTypeValue.excludes.some(
+                (exclude) =>
+                    exclude.labelTypeId === candidate.labelType.id &&
+                    exclude.labelTypeValueId === candidate.labelTypeValue.id,
+            ),
+    );
 }

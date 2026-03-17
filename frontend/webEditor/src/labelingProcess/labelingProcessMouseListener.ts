@@ -9,10 +9,7 @@ import { getParentWithDfdLabels } from "../labels/dragAndDrop.ts";
 import { AddThreatModelingLabelToNodeAction } from "./threatModelingLabelAssignmentCommand.ts";
 
 export class LabelingProcessMouseListener extends MouseListener {
-
-    constructor(
-        @inject(LabelingProcessUi) private readonly labelingProcessUi: LabelingProcessUi
-    ) {
+    constructor(@inject(LabelingProcessUi) private readonly labelingProcessUi: LabelingProcessUi) {
         super();
     }
 
@@ -23,18 +20,18 @@ export class LabelingProcessMouseListener extends MouseListener {
 
         // Adds label to Output Port
         if (target instanceof DfdOutputPortImpl) {
-            return [AddLabelToOutputPortAction.create(target)]
+            return [AddLabelToOutputPortAction.create(target)];
         }
 
         // Adds label to nodes
         const dfdLabelElement = getParentWithDfdLabels(target);
-        if (!dfdLabelElement) return []
+        if (!dfdLabelElement) return [];
         if (containsDfdLabels(dfdLabelElement)) {
             if (!(dfdLabelElement instanceof SNodeImpl)) return [];
 
-            return [AddThreatModelingLabelToNodeAction.create(dfdLabelElement)]
+            return [AddThreatModelingLabelToNodeAction.create(dfdLabelElement)];
         }
 
-        return []
+        return [];
     }
 }

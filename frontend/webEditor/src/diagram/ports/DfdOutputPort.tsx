@@ -55,7 +55,7 @@ export class DfdOutputPortImpl extends DfdPortImpl {
             style["--port-color"] = "#ff6961";
         }
 
-        if (this.color) style["--port-color"] = this.color
+        if (this.color) style["--port-color"] = this.color;
 
         return style;
     }

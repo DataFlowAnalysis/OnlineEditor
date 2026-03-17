@@ -1,7 +1,8 @@
 import {
     Command,
     CommandExecutionContext,
-    CommandReturn, IActionDispatcher,
+    CommandReturn,
+    IActionDispatcher,
     ILogger,
     ISnapper,
     SModelElementImpl,
@@ -25,17 +26,16 @@ import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort.tsx";
 import { ResetLabelingProcessAction } from "../labelingProcess/labelingProcessCommand.ts";
 
 // Replaces the type of the `values` of a `LabelType` with a subclass of `LabelTypeValue`
-type OverwriteLabelTypeValueType<T extends LabelType, S extends LabelTypeValue> = Omit<T, "values"> & { values: S[] }
+type OverwriteLabelTypeValueType<T extends LabelType, S extends LabelTypeValue> = Omit<T, "values"> & { values: S[] };
 
 export type ThreatModelingFileFormat = {
-    threatKnowledgeName: string,
-    threatKnowledgeVersion: string,
-    labels: OverwriteLabelTypeValueType<ThreatModelingLabelType, ThreatModelingLabelTypeValue>[],
-    constraints: Constraint[]
-}
+    threatKnowledgeName: string;
+    threatKnowledgeVersion: string;
+    labels: OverwriteLabelTypeValueType<ThreatModelingLabelType, ThreatModelingLabelTypeValue>[];
+    constraints: Constraint[];
+};
 
 export abstract class LoadThreatModelingFileCommand extends Command {
-
     private fileContent: ThreatModelingFileFormat | undefined;
 
     // UNDO / REDO storage
@@ -59,7 +59,7 @@ export abstract class LoadThreatModelingFileCommand extends Command {
 
     protected async getFileContent(): Promise<ThreatModelingFileFormat | undefined> {
         const file = await chooseFile(["application/json"]);
-        if (!file) return undefined
+        if (!file) return undefined;
 
         return JSON.parse(file.content) as ThreatModelingFileFormat;
     }
@@ -67,10 +67,10 @@ export abstract class LoadThreatModelingFileCommand extends Command {
     async execute(context: CommandExecutionContext): Promise<SModelRootImpl> {
         this.loadingIndicator.showIndicator("Loading labels and constraints...");
 
-        const fileContent = await this.getFileContent()
+        const fileContent = await this.getFileContent();
         if (!fileContent) return context.root;
 
-        this.logger.info(this, "File loaded successfully.")
+        this.logger.info(this, "File loaded successfully.");
         this.fileContent = fileContent;
 
         //Import labels
@@ -83,9 +83,8 @@ export abstract class LoadThreatModelingFileCommand extends Command {
         //Remove all old LabelAssignments
         const allElements = getAllElements(context.root.children);
 
-        const allDfdLabelElements = allElements
-            .filter((element) => containsDfdLabels(element));
-        allDfdLabelElements.forEach(element => {
+        const allDfdLabelElements = allElements.filter((element) => containsDfdLabels(element));
+        allDfdLabelElements.forEach((element) => {
             if (element.labels.length > 0) {
                 this.oldLabelAssignments.set(element, element.labels);
                 element.labels = [];
@@ -97,10 +96,9 @@ export abstract class LoadThreatModelingFileCommand extends Command {
         this.logger.info(this, "Removed label assignments");
 
         //Remove OutputPin Behavior except 'forward'
-        const allOutputPorts = allElements
-            .filter((element) => element instanceof DfdOutputPortImpl)
-        allOutputPorts.forEach(outputPort => {
-            const outputPortBehavior = outputPort.getBehavior()
+        const allOutputPorts = allElements.filter((element) => element instanceof DfdOutputPortImpl);
+        allOutputPorts.forEach((outputPort) => {
+            const outputPortBehavior = outputPort.getBehavior();
 
             this.oldOutputPortBehavior.set(outputPort, outputPortBehavior);
 
@@ -109,9 +107,8 @@ export abstract class LoadThreatModelingFileCommand extends Command {
             const newBehavior = match ? match[0] : "";
             this.newOutputPortBehavior.set(outputPort, newBehavior);
             outputPort.setBehavior(newBehavior);
-        })
+        });
         this.logger.info(this, "Updated output port behavior");
-
 
         //Import constraints
         this.oldConstraints = this.constraintRegistry.getConstraintList();
@@ -121,7 +118,7 @@ export abstract class LoadThreatModelingFileCommand extends Command {
         this.logger.info(this, "Constraints loaded successfully");
 
         //Reset labeling process
-        this.actionDispatcher.dispatch(ResetLabelingProcessAction.create())
+        this.actionDispatcher.dispatch(ResetLabelingProcessAction.create());
 
         this.loadingIndicator.hide();
         return context.root;
@@ -147,7 +144,7 @@ export abstract class LoadThreatModelingFileCommand extends Command {
         //OutputPin Behavior
         this.oldOutputPortBehavior.forEach((behavior, outputPort) => {
             outputPort.setBehavior(behavior);
-        })
+        });
         this.logger.info(this, "Updated output port behavior");
 
         // Constraints
@@ -180,7 +177,7 @@ export abstract class LoadThreatModelingFileCommand extends Command {
         //OutputPin Behavior
         this.newOutputPortBehavior.forEach((behavior, outputPort) => {
             outputPort.setBehavior(behavior);
-        })
+        });
         this.logger.info(this, "Updated output port behavior");
 
         // Constraints
