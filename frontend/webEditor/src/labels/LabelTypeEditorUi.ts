@@ -12,6 +12,7 @@ import { IActionDispatcher, KeyListener, SModelElementImpl, TYPES } from "sprott
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
 import { ReplaceAction } from "./renameCommand";
+import { BeginLabelingProcessAction } from "../labelingProcess/labelingProcessCommand.ts";
 import { Action } from "sprotty-protocol";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
@@ -48,11 +49,23 @@ export class LabelTypeEditorUi extends AccordionUiExtension implements KeyListen
         this.labelSectionContainer = document.createElement("div");
         this.renderLabelTypes();
 
+        contentElement.appendChild(this.buildAnnotationProcessButton());
         contentElement.appendChild(this.labelSectionContainer);
         contentElement.appendChild(addButton);
     }
     protected initializeHeaderContent(headerElement: HTMLElement) {
         headerElement.innerText = "Label Types";
+    }
+
+    private buildAnnotationProcessButton(): HTMLElement {
+        const button = document.createElement("button");
+        button.id = "annotation-process-button";
+        button.innerHTML = "Start labeling process";
+        button.onclick = () => {
+            this.actionDispatcher.dispatch(BeginLabelingProcessAction.create(this.labelTypeRegistry));
+        };
+
+        return button;
     }
 
     private renderLabelTypes(): void {
