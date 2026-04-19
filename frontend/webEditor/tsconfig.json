@@ -27,5 +27,5 @@
         "experimentalDecorators": true,
         "sourceMap": true
     },
-    "include": ["src"]
+    "include": ["src", "tests"]
 }
