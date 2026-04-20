@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.dataflowanalysis.analysis.dfd.dsl.DFDDSLContextProvider;
 import org.dataflowanalysis.analysis.dfd.simple.DFDSimpleTransposeFlowGraphFinder;
 import org.dataflowanalysis.analysis.dsl.AnalysisConstraint;
 import org.dataflowanalysis.analysis.utils.StringView;
@@ -135,7 +136,7 @@ public class Converter {
 			.filter(it -> it.constraint() != null && !it.constraint().isEmpty())
 			.map(it -> {
 			    StringView string = new StringView("- " + it.name() + ": " + it.constraint().replace("\n", ""));
-				var constraint = AnalysisConstraint.fromString(string);
+				var constraint = AnalysisConstraint.fromString(string, new DFDDSLContextProvider());
 				if (constraint.failed()) {
 					logger.error(constraint.getError());
 					throw new IllegalArgumentException("Unable to parse constraint: " + it.name());  					
