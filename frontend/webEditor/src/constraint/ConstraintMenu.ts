@@ -7,7 +7,7 @@ import { ConstraintRegistry } from "./constraintRegistry";
 // Inline completions are enabled to allow autocompletion of keywords and inputs/label types/label values.
 import "monaco-editor/esm/vs/editor/contrib/hover/browser/hoverContribution";
 import "monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { editor, languages, MarkerSeverity } from "monaco-editor/esm/vs/editor/editor.api";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
@@ -26,7 +26,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
     static readonly ID = "constraint-menu";
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
-    private editor?: monaco.editor.IStandaloneCodeEditor;
+    private editor?: editor.IStandaloneCodeEditor;
     private optionsMenu?: HTMLDivElement;
     private ignoreCheckboxChange = false;
     private readonly tree: LanguageTreeNode<Word>[];
@@ -97,12 +97,12 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         keyboardShortcutLabel.innerHTML = "Press <kbd>CTRL</kbd>+<kbd>Space</kbd> for autocompletion";
         wrapper.appendChild(keyboardShortcutLabel);
 
-        monaco.languages.register({ id: DSL_LANGUAGE_ID });
-        monaco.languages.setMonarchTokensProvider(DSL_LANGUAGE_ID, constraintDslLanguageMonarchDefinition);
-        monaco.languages.registerCompletionItemProvider(DSL_LANGUAGE_ID, new DfdCompletionItemProvider(this.tree));
+        languages.register({ id: DSL_LANGUAGE_ID });
+        languages.setMonarchTokensProvider(DSL_LANGUAGE_ID, constraintDslLanguageMonarchDefinition);
+        languages.registerCompletionItemProvider(DSL_LANGUAGE_ID, new DfdCompletionItemProvider(this.tree));
 
         const monacoTheme = this.themeManager.getTheme() === Theme.DARK ? "vs-dark" : "vs";
-        this.editor = monaco.editor.create(this.editorContainer, {
+        this.editor = editor.create(this.editorContainer, {
             minimap: {
                 // takes too much space, not useful for our use case
                 enabled: false,
@@ -139,14 +139,14 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
             this.constraintRegistry.setConstraints(model.getLinesContent());
 
             const content = model.getLinesContent();
-            const marker: monaco.editor.IMarkerData[] = [];
+            const marker: editor.IMarkerData[] = [];
             const emptyContent = content.length == 0 || (content.length == 1 && content[0] === "");
             // empty content gets accepted as valid as it represents no constraints
             if (!emptyContent) {
                 const errors = verify(tokenize(content), this.tree);
                 marker.push(
                     ...errors.map((e) => ({
-                        severity: monaco.MarkerSeverity.Error,
+                        severity: MarkerSeverity.Error,
                         startLineNumber: e.line,
                         startColumn: e.startColumn,
                         endLineNumber: e.line,
@@ -160,7 +160,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
                 marker.length == 0 ? "Valid constraints" : `Invalid constraints: ${marker.length} errors`;
             this.validationLabel.classList.toggle("valid", marker.length == 0);
 
-            monaco.editor.setModelMarkers(model, "constraint", marker);
+            editor.setModelMarkers(model, "constraint", marker);
         });
 
         return wrapper;

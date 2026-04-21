@@ -1,7 +1,7 @@
 import { CompletionWord, WordCompletion } from "./autocomplete";
 import { ReplaceableWord, ReplacementData } from "./replace";
 import { VerifyWord } from "./verify";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { languages } from "monaco-editor/esm/vs/editor/editor.api";
 
 export type Word = VerifyWord & CompletionWord & ReplaceableWord;
 
@@ -19,7 +19,7 @@ export class ConstantWord implements Word {
         return [
             {
                 insertText: this.word,
-                kind: monaco.languages.CompletionItemKind.Keyword,
+                kind: languages.CompletionItemKind.Keyword,
             },
         ];
     }

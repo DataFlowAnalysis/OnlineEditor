@@ -4,13 +4,13 @@ import { AnyWord, ConstantWord, NegatableWord, Word } from "../languages/words";
 import { LanguageTreeNode } from "../languages/tokenize";
 import { SModelRoot } from "sprotty-protocol";
 import { ArrowEdge } from "../diagram/edges/ArrowEdge";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { languages } from "monaco-editor/esm/vs/editor/editor.api";
 import { WordCompletion } from "../languages/autocomplete";
 import { ReplacementData } from "../languages/replace";
 
 export const DSL_LANGUAGE_ID = "dfd-constraint";
 
-export const constraintDslLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = {
+export const constraintDslLanguageMonarchDefinition: languages.IMonarchLanguage = {
     keywords: ["data", "vertex", "neverFlows", "to", "where", "named", "present", "empty", "type"],
 
     symbols: /[=><!~?:&|+\-*/^%]+/,
@@ -207,8 +207,8 @@ export namespace ConstraintDslTreeBuilder {
                     {
                         label: "intersection()",
                         insertText: "intersection($0)",
-                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                        kind: monaco.languages.CompletionItemKind.Function,
+                        insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        kind: languages.CompletionItemKind.Function,
                     },
                 ];
             }
@@ -241,7 +241,7 @@ export namespace ConstraintDslTreeBuilder {
             if (parts.length == 1) {
                 return this.labelTypeRegistry.getLabelTypes().map((l) => ({
                     insertText: l.name,
-                    kind: monaco.languages.CompletionItemKind.Class,
+                    kind: languages.CompletionItemKind.Class,
                 }));
             } else if (parts.length == 2) {
                 const type = this.labelTypeRegistry.getLabelTypes().find((l) => l.name === parts[0]);
@@ -251,12 +251,12 @@ export namespace ConstraintDslTreeBuilder {
 
                 const possibleValues: WordCompletion[] = type.values.map((l) => ({
                     insertText: l.text,
-                    kind: monaco.languages.CompletionItemKind.Enum,
+                    kind: languages.CompletionItemKind.Enum,
                     startOffset: parts[0].length + 1,
                 }));
                 possibleValues.push({
                     insertText: "$" + type.name,
-                    kind: monaco.languages.CompletionItemKind.Variable,
+                    kind: languages.CompletionItemKind.Variable,
                     startOffset: parts[0].length + 1,
                 });
                 return possibleValues;
@@ -309,7 +309,7 @@ export namespace ConstraintDslTreeBuilder {
             return [
                 {
                     insertText: ":",
-                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    kind: languages.CompletionItemKind.Keyword,
                 },
             ];
         }
@@ -332,7 +332,7 @@ export namespace ConstraintDslTreeBuilder {
         completionOptions(): WordCompletion[] {
             return this.getAllPortNames().map((n) => ({
                 insertText: n,
-                kind: monaco.languages.CompletionItemKind.Variable,
+                kind: languages.CompletionItemKind.Variable,
             }));
         }
         verify(word: string): string[] {
