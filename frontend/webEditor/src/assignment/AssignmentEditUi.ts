@@ -3,7 +3,7 @@ import { AbstractUIExtension, getAbsoluteClientBounds, SModelRootImpl, TYPES, Vi
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort";
 import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 import { DfdNodeImpl } from "../diagram/nodes/common";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { editor, languages, MarkerSeverity } from "monaco-editor/esm/vs/editor/editor.api";
 import { ASSIGNMENT_LANGUAGE_ID, assignmentLanguageMonarchDefinition, AssignmentLanguageTreeBuilder } from "./language";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { DfdCompletionItemProvider } from "../languages/autocomplete";
@@ -26,7 +26,7 @@ export class AssignmentEditUi extends AbstractUIExtension {
     private editorContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private validationLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
     private unavailableInputsLabel: HTMLDivElement = document.createElement("div") as HTMLDivElement;
-    private editor?: monaco.editor.IStandaloneCodeEditor;
+    private editor?: editor.IStandaloneCodeEditor;
 
     constructor(
         @inject(LabelTypeRegistry) private readonly labelTypeRegistry: LabelTypeRegistry,
@@ -66,11 +66,11 @@ export class AssignmentEditUi extends AbstractUIExtension {
         keyboardShortcutLabel.innerHTML = "Press <kbd>CTRL</kbd>+<kbd>Space</kbd> for autocompletion";
         containerElement.appendChild(keyboardShortcutLabel);
 
-        monaco.languages.register({ id: ASSIGNMENT_LANGUAGE_ID });
-        monaco.languages.setMonarchTokensProvider(ASSIGNMENT_LANGUAGE_ID, assignmentLanguageMonarchDefinition);
+        languages.register({ id: ASSIGNMENT_LANGUAGE_ID });
+        languages.setMonarchTokensProvider(ASSIGNMENT_LANGUAGE_ID, assignmentLanguageMonarchDefinition);
 
         const monacoTheme = this.themeManager.getTheme() === Theme.DARK ? "vs-dark" : "vs";
-        this.editor = monaco.editor.create(this.editorContainer, {
+        this.editor = editor.create(this.editorContainer, {
             minimap: {
                 // takes too much space, not useful for our use case
                 enabled: false,
@@ -142,7 +142,7 @@ export class AssignmentEditUi extends AbstractUIExtension {
             this.completionProvider.setTree(this.tree);
         } else {
             this.completionProvider = new DfdCompletionItemProvider(this.tree);
-            monaco.languages.registerCompletionItemProvider(ASSIGNMENT_LANGUAGE_ID, this.completionProvider);
+            languages.registerCompletionItemProvider(ASSIGNMENT_LANGUAGE_ID, this.completionProvider);
         }
 
         if (!this.editor) {
@@ -224,14 +224,14 @@ export class AssignmentEditUi extends AbstractUIExtension {
 
         const content = model.getLinesContent();
         this.port?.setBehavior(content.join("\n"));
-        const marker: monaco.editor.IMarkerData[] = [];
+        const marker: editor.IMarkerData[] = [];
         const emptyContent = content.length == 0 || (content.length == 1 && content[0] === "");
         // empty content gets accepted as valid as it represents no constraints
         if (!emptyContent) {
             const errors = verify(tokenize(content), this.tree);
             marker.push(
                 ...errors.map((e) => ({
-                    severity: monaco.MarkerSeverity.Error,
+                    severity: MarkerSeverity.Error,
                     startLineNumber: e.line,
                     startColumn: e.startColumn,
                     endLineNumber: e.line,
@@ -253,6 +253,6 @@ export class AssignmentEditUi extends AbstractUIExtension {
             this.validationLabel.classList.add("validation-error");
         }
 
-        monaco.editor.setModelMarkers(model, "constraint", marker);
+        editor.setModelMarkers(model, "constraint", marker);
     }
 }
