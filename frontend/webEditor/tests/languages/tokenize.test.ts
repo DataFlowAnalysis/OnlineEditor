@@ -1,19 +1,22 @@
 import { expect, it } from "vitest";
 import { Token, tokenize } from "../../src/languages/tokenize";
+import { joinLines } from "./LanguageTestUtils";
 
 it("Tokenization", () => {
     for (const testSet of TEST_DATA) {
         const result = tokenize(testSet.input);
-        expect(result.length, `Unexpected Token length for input "${testSet.input.join("\\n")}"`).toBe(
+        expect(result.length, `Unexpected Token length for input "${joinLines(testSet.input)}"`).toBe(
             testSet.expected.length,
         );
         for (let i = 0; i < testSet.expected.length; i++) {
             const keysToTest = Object.keys(testSet.expected[i]) as (keyof Token)[];
             for (const key of keysToTest) {
-                expect(
-                    result[i][key],
-                    `Property of token ${i} with key "${key}" for input "${testSet.input.join("\\n")}" did not match`,
-                ).toBe(testSet.expected[i][key]);
+                expect
+                    .soft(
+                        result[i][key],
+                        `Property of token ${i} with key "${key}" for input "${joinLines(testSet.input)}" did not match`,
+                    )
+                    .toBe(testSet.expected[i][key]);
             }
         }
     }
