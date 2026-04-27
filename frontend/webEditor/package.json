@@ -18,7 +18,7 @@
         "inversify": "^6.2.2",
         "lint-staged": "^16.4.0",
         "monaco-editor": "^0.52.2",
-        "prettier": "^3.8.1",
+        "prettier": "^3.8.3",
         "reflect-metadata": "^0.2.2",
         "snabbdom": "^3.6.3",
         "snabbdom-to-html": "^7.1.0",
