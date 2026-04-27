@@ -1,6 +1,6 @@
 import { FileData, LoadJsonCommand } from "./loadJson";
-import defaultDiagram from "./defaultDiagram.json";
 import { SavedDiagram } from "./SavedDiagram";
+import defaultDiagram from "./defaultDiagram.json"
 import { Action } from "sprotty-protocol";
 import { inject } from "inversify";
 import { TYPES, ILogger, ActionDispatcher } from "sprotty";
@@ -45,8 +45,9 @@ export class LoadDefaultDiagramCommand extends LoadJsonCommand {
 
     protected async getFile(): Promise<FileData<SavedDiagram> | undefined> {
         return {
-            fileName: "diagram.json",
+            fileName: "Online Shop",
             content: defaultDiagram as SavedDiagram,
         };
     }
+
 }
