@@ -2,8 +2,8 @@
 Tests whether the functions verify, complete and replace to what they are supposed to with a simple custom language:
 
 root
- ├── circle1 <─────────┐
- │      └── circle2* ──┘
+ ├─> circle1 <─────────┐
+ │      └─> circle2* ──┘
  │
  └──> child
         ├──> !child1
@@ -49,6 +49,7 @@ const INVALID_EXPRESSIONS: InvalidExpressionTestData[] = [
 ];
 const AUTOCOMPLETE_TEST_DATA: AutoCompleteTestData[] = [
     { input: ["root "], completionOptions: ["circle1", "child"], exactOptionCount: true },
+    { input: ["root c"], completionOptions: ["circle1", "child"], exactOptionCount: true },
     {
         input: ["root", "circle1 circle2", "circle1 circle2", "circle1 circle2", "circle1 circle2", "circle1 "],
         completionOptions: ["circle2"],
