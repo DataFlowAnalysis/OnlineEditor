@@ -18,7 +18,7 @@ export function generateTests(
             const result = verify(tokens, tree);
             expect(
                 result.length,
-                `Valid Expression ${joinLines(validExpressions[i])} had Errors: ${result.join("\n")}`,
+                `Valid Expression ${joinLines(validExpressions[i])} had Errors: ${result.map((v) => JSON.stringify(v)).join("\n")}`,
             ).toBe(0);
         });
     }
@@ -41,7 +41,7 @@ export function generateTests(
                                     e.startColumn === expectedError.startColumn &&
                                     (expectedError.endColumn === undefined || e.endColumn === expectedError.endColumn),
                             ),
-                            `Could not find Error at ${expectedError} in ${joinLines(invalidExpressions[i].input)}`,
+                            `Could not find Error at ${JSON.stringify(expectedError)} in ${joinLines(invalidExpressions[i].input)}`,
                         )
                         .toBeDefined();
                 }
