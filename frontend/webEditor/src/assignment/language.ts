@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { languages } from "monaco-editor/esm/vs/editor/editor.api";
 import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { LanguageTreeNode } from "../languages/tokenize";
@@ -12,7 +12,7 @@ export const ASSIGNMENT_LANGUAGE_ID = "dfd-assignment-language";
 const startOfLineKeywords = ["forward", "assign", "set", "unset"];
 const statementKeywords = [...startOfLineKeywords, "if", "from"];
 const constantsKeywords = ["TRUE", "FALSE"];
-export const assignmentLanguageMonarchDefinition: monaco.languages.IMonarchLanguage = {
+export const assignmentLanguageMonarchDefinition: languages.IMonarchLanguage = {
     keywords: [...statementKeywords, ...constantsKeywords],
 
     operators: ["=", "||", "&&", "!"],
@@ -158,7 +158,7 @@ class LabelWord implements Word {
         if (parts.length == 1) {
             return this.labelTypeRegistry.getLabelTypes().map((l) => ({
                 insertText: l.name,
-                kind: monaco.languages.CompletionItemKind.Class,
+                kind: languages.CompletionItemKind.Class,
             }));
         } else if (parts.length == 2) {
             const type = this.labelTypeRegistry.getLabelTypes().find((l) => l.name === parts[0]);
@@ -168,7 +168,7 @@ class LabelWord implements Word {
 
             return type.values.map((l) => ({
                 insertText: l.text,
-                kind: monaco.languages.CompletionItemKind.Enum,
+                kind: languages.CompletionItemKind.Enum,
                 startOffset: parts[0].length + 1,
             }));
         }
@@ -217,7 +217,7 @@ class InputWord extends InputAwareWord implements Word {
         const inputs = this.getAvailableInputs();
         return inputs.map((input) => ({
             insertText: input,
-            kind: monaco.languages.CompletionItemKind.Variable,
+            kind: languages.CompletionItemKind.Variable,
         }));
     }
 

@@ -1,21 +1,21 @@
 import { LanguageTreeNode, Token, tokenize } from "./tokenize";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { languages, Position, editor, Range } from "monaco-editor/esm/vs/editor/editor.api";
 import { VerifyWord } from "./verify";
 
 interface RequiredCompletionParts {
-    kind: monaco.languages.CompletionItemKind;
+    kind: languages.CompletionItemKind;
     insertText: string;
     startOffset?: number;
 }
 
-export type WordCompletion = RequiredCompletionParts & Partial<monaco.languages.CompletionItem>;
+export type WordCompletion = RequiredCompletionParts & Partial<languages.CompletionItem>;
 
 export interface CompletionWord extends VerifyWord {
     completionOptions(currentWord: string): WordCompletion[];
 }
 type CompletionLanguageTreeNode = LanguageTreeNode<CompletionWord>;
 
-export function complete(tokens: Token[], tree: CompletionLanguageTreeNode[]): monaco.languages.CompletionItem[] {
+export function complete(tokens: Token[], tree: CompletionLanguageTreeNode[]): languages.CompletionItem[] {
     return transformResults(completeNode(tokens, tree, 0, tree), tokens);
 }
 
@@ -53,8 +53,8 @@ function completeNode(
     return result;
 }
 
-function transformResults(comp: WordCompletion[], tokens: Token[]): monaco.languages.CompletionItem[] {
-    const result: monaco.languages.CompletionItem[] = [];
+function transformResults(comp: WordCompletion[], tokens: Token[]): languages.CompletionItem[] {
+    const result: languages.CompletionItem[] = [];
     const filtered = comp.filter(
         (c, idx) => comp.findIndex((c2) => c2.insertText === c.insertText && c2.kind === c.kind) === idx,
     );
@@ -65,7 +65,7 @@ function transformResults(comp: WordCompletion[], tokens: Token[]): monaco.langu
     return result;
 }
 
-function transformResult(comp: WordCompletion, tokens: Token[]): monaco.languages.CompletionItem {
+function transformResult(comp: WordCompletion, tokens: Token[]): languages.CompletionItem {
     const wordStart = tokens.length == 0 ? 1 : tokens[tokens.length - 1].column;
     const lineNumber = tokens.length == 0 ? 1 : tokens[tokens.length - 1].line;
     return {
@@ -73,7 +73,7 @@ function transformResult(comp: WordCompletion, tokens: Token[]): monaco.language
         kind: comp.kind,
         label: comp.label ?? comp.insertText,
         insertTextRules: comp.insertTextRules,
-        range: new monaco.Range(
+        range: new Range(
             lineNumber,
             wordStart + (comp.startOffset ?? 0),
             lineNumber,
@@ -82,15 +82,15 @@ function transformResult(comp: WordCompletion, tokens: Token[]): monaco.language
     };
 }
 
-export class DfdCompletionItemProvider implements monaco.languages.CompletionItemProvider {
+export class DfdCompletionItemProvider implements languages.CompletionItemProvider {
     constructor(private tree: CompletionLanguageTreeNode[]) {}
 
     triggerCharacters = [".", "(", " ", ","];
 
     provideCompletionItems(
-        model: monaco.editor.ITextModel,
-        position: monaco.Position,
-    ): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+        model: editor.ITextModel,
+        position: Position,
+    ): languages.ProviderResult<languages.CompletionList> {
         const allLines = model.getLinesContent();
         const includedLines: string[] = [];
         for (let i = 0; i < position.lineNumber - 1; i++) {
