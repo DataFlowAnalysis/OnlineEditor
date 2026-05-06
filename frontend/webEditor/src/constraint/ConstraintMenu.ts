@@ -18,6 +18,7 @@ import { constraintDslLanguageMonarchDefinition, ConstraintDslTreeBuilder, DSL_L
 import { verify } from "../languages/verify";
 import { DfdCompletionItemProvider } from "../languages/autocomplete";
 import { AnalyzeAction } from "../serialize/analyze";
+import { RepairAction } from "../serialize/repair";
 import { ApplyableTheme, Theme, ThemeManager, ThemeSwitchable } from "../settings/Theme";
 import { SelectConstraintsAction } from "./selection";
 
@@ -83,6 +84,7 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
     protected initializeContents(containerElement: HTMLElement): void {
         super.initializeContents(containerElement);
         containerElement.appendChild(this.buildRunButton());
+        containerElement.appendChild(this.buildRepairButton());
     }
 
     private buildConstraintInputWrapper(): HTMLElement {
@@ -176,6 +178,24 @@ export class ConstraintMenu extends AccordionUiExtension implements ThemeSwitcha
         button.onclick = () => {
             this.dispatcher.dispatchAll([
                 AnalyzeAction.create(),
+                SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
+            ]);
+        };
+
+        wrapper.appendChild(button);
+        return wrapper;
+    }
+
+    private buildRepairButton(): HTMLElement {
+        const wrapper = document.createElement("div");
+        wrapper.id = "repair-button-container";
+
+        const button = document.createElement("button");
+        button.id = "repair-button";
+        button.innerHTML = "Repair";
+        button.onclick = () => {
+            this.dispatcher.dispatchAll([
+                RepairAction.create(),
                 SelectConstraintsAction.create(this.constraintRegistry.getConstraintList().map((c) => c.name)),
             ]);
         };
