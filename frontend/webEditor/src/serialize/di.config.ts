@@ -10,6 +10,7 @@ import { SaveDfdAndDdFileCommand } from "./saveDfdAndDdFile";
 import { AnalyzeCommand } from "./analyze";
 import { LoadFromUrlCommand } from "./LoadUrl";
 import { JsonDropHandler, LoadDroppedFileCommand } from "./dropListener";
+import { RepairCommand } from "./repair";
 
 export const serializeModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -22,6 +23,7 @@ export const serializeModule = new ContainerModule((bind, unbind, isBound, rebin
     configureCommand(context, SaveDfdAndDdFileCommand);
     configureCommand(context, AnalyzeCommand);
     configureCommand(context, LoadDroppedFileCommand);
+    configureCommand(context, RepairCommand);
 
     bind(TYPES.MouseListener).to(JsonDropHandler);
 
