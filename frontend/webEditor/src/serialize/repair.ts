@@ -21,7 +21,7 @@ export interface RepairAction extends Action {
 export namespace RepairAction {
     export const KIND = "repair";
 
-    export function create(repairType: RepairType): Action {
+    export function create(repairType: RepairType): RepairAction {
         return {
             kind: KIND,
             repairType,
