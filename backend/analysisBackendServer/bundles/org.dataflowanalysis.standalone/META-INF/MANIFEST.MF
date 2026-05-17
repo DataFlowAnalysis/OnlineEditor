@@ -32,7 +32,9 @@ Require-Bundle: org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
  org.apache.log4j;bundle-version="1.2.24",
  dev.arcovia.mitigation.sat,
  dev.arcovia.mitigation.ilp;bundle-version="1.0.0",
- org.sat4j.core;bundle-version="2.3.6"
+ org.sat4j.core;bundle-version="2.3.6",
+ dev.arcovia.mitigation.smt;bundle-version="1.0.0",
+ tools.mdsd.library.standalone.initialization;bundle-version="0.2.0"
 Automatic-Module-Name: DataFlowAnalalysisStandalone
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 

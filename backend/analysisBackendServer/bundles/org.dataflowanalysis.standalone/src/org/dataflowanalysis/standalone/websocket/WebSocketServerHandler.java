@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import org.dataflowanalysis.standalone.mitigation.*;
+
 public class WebSocketServerHandler extends WebSocketAdapter
 {
     private static Map<Integer, Session> sessions = new HashMap<>();
@@ -151,6 +153,8 @@ public class WebSocketServerHandler extends WebSocketAdapter
     private WebEditorDfd deserializeJsonAndRepair(String json){
         var objectMapper = new ObjectMapper();
         WebEditorDfd webEditorDfd;
+        String type = json.split(":")[0];
+        json = json.replace(type + ":", "");
         try {
             webEditorDfd = objectMapper.readValue(json, WebEditorDfd.class);
         } catch (IOException e) {
@@ -160,7 +164,7 @@ public class WebSocketServerHandler extends WebSocketAdapter
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         try {
-            return Converter.repairDFD(webEditorDfd);
+            return MitigationAddon.repairDFD(webEditorDfd, type);
         } catch (Exception e) {
             e.printStackTrace(); 
             return null;

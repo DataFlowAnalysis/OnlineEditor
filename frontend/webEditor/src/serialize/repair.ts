@@ -11,18 +11,28 @@ import { Action } from "sprotty-protocol";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
 import { LoadingIndicator } from "../loadingIndicator/loadingIndicator";
 
-export namespace RepairAction {
-    export const KIND = "repair";
+export type RepairType = "SAT" | "SMT" | "ILP";
 
-    export function create(): Action {
-        return { kind: KIND };
+export interface RepairAction extends Action {
+    kind: typeof RepairAction.KIND;
+    repairType: RepairType;
+}
+
+export namespace RepairAction {
+    export const KIND = "repair";    
+
+    export function create(repairType: RepairType): Action {
+        return {
+            kind: KIND,
+            repairType,
+        };
     }
 }
 export class RepairCommand extends LoadJsonCommand {
     static readonly KIND = RepairAction.KIND;
 
     constructor(
-        @inject(TYPES.Action) _: Action,
+        @inject(TYPES.Action) private readonly action: RepairAction,
         @inject(TYPES.ILogger) logger: ILogger,
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
@@ -51,6 +61,6 @@ export class RepairCommand extends LoadJsonCommand {
             mode: this.editorModeController.get(),
             version: CURRENT_VERSION,
         };
-        return await this.dfdWebSocket.requestDiagram("repair:" + JSON.stringify(savedDiagram));
+        return await this.dfdWebSocket.requestDiagram("repair:" + this.action.repairType + ":" + JSON.stringify(savedDiagram));
     }
 }
