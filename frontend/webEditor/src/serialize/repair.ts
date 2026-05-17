@@ -19,7 +19,7 @@ export interface RepairAction extends Action {
 }
 
 export namespace RepairAction {
-    export const KIND = "repair";    
+    export const KIND = "repair";
 
     export function create(repairType: RepairType): Action {
         return {
@@ -61,6 +61,8 @@ export class RepairCommand extends LoadJsonCommand {
             mode: this.editorModeController.get(),
             version: CURRENT_VERSION,
         };
-        return await this.dfdWebSocket.requestDiagram("repair:" + this.action.repairType + ":" + JSON.stringify(savedDiagram));
+        return await this.dfdWebSocket.requestDiagram(
+            "repair:" + this.action.repairType + ":" + JSON.stringify(savedDiagram),
+        );
     }
 }
