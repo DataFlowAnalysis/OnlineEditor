@@ -87,10 +87,15 @@ public class WebSocketServerHandler extends WebSocketAdapter
     	WebEditorDfd newJson = null;
     	
 		var name = message.split(":")[0];
-		message = message.replaceFirst(name + ":", "");	 
+		message = message.replaceFirst(name + ":", "");	 		
+		
     	
     	try {
-	    	if (message.startsWith("Json:")) {
+    	    if (message.startsWith("repair:")) {
+    	        message = message.substring(message.indexOf(":") + 1);
+    	        newJson = deserializeJsonAndRepair(message);
+    	    }
+    	    else if (message.startsWith("Json:")) {
 	    		message = message.substring(message.indexOf(":") + 1);	    		
 				newJson = deserializeJsonAndAnnotate(message);	    				
 	    	}
@@ -141,6 +146,25 @@ public class WebSocketServerHandler extends WebSocketAdapter
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		return webEditorDfd;
+    }
+    
+    private WebEditorDfd deserializeJsonAndRepair(String json){
+        var objectMapper = new ObjectMapper();
+        WebEditorDfd webEditorDfd;
+        try {
+            webEditorDfd = objectMapper.readValue(json, WebEditorDfd.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid Json Model");
+        } 
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return Converter.repairDFD(webEditorDfd);
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            return null;
+        }
     }
     
     private WebEditorDfd safeLoadAndConvertDFDString(String message, String name) {

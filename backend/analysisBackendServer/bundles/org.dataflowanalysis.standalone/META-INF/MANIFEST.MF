@@ -19,9 +19,9 @@ Require-Bundle: org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
  org.eclipse.jetty.websocket.common;bundle-version="11.0.24",
  org.eclipse.jetty.websocket.servlet;bundle-version="11.0.24",
  org.slf4j.api;bundle-version="1.7.30",
- org.dataflowanalysis.analysis;bundle-version="3.0.0",
- org.dataflowanalysis.analysis.dfd;bundle-version="3.0.0",
- org.dataflowanalysis.converter;bundle-version="3.0.0",
+ org.dataflowanalysis.analysis,
+ org.dataflowanalysis.analysis.dfd,
+ org.dataflowanalysis.converter,
  org.dataflowanalysis.pcm.extension.nodecharacteristics;bundle-version="0.1.0",
  org.dataflowanalysis.analysis.pcm,
  org.palladiosimulator.commons.stoex;bundle-version="5.2.1",
@@ -29,7 +29,10 @@ Require-Bundle: org.dataflowanalysis.dfd.datadictionary;bundle-version="2.0.0",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.13.2",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.13.2",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.13.2",
- org.apache.log4j;bundle-version="1.2.24"
+ org.apache.log4j;bundle-version="1.2.24",
+ dev.arcovia.mitigation.sat,
+ dev.arcovia.mitigation.ilp;bundle-version="1.0.0",
+ org.sat4j.core;bundle-version="2.3.6"
 Automatic-Module-Name: DataFlowAnalalysisStandalone
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 

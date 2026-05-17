@@ -183,7 +183,8 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
                     a.message.trim().startsWith("Incoming")) ||
                 ((mode === ShownLabels.OUTGOING || mode === ShownLabels.ALL) &&
                     a.message.trim().startsWith("Propagated")) ||
-                a.message.startsWith("Constraint")
+                a.message.startsWith("Constraint") ||
+                a.message.startsWith("Mitigation")
             ) {
                 const line = document.createElement("div");
                 line.style.display = "flex";

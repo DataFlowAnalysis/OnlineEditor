@@ -27,7 +27,7 @@ function selectConstraints(
         let wasAdjusted = false;
         if (constraintRegistry.selectedContainsAllConstraints()) {
             annotations.forEach((annotation) => {
-                if (annotation.message.startsWith("Constraint")) {
+                if (annotation.message.startsWith("Constraint") || annotation.message.startsWith("Mitigation")) {
                     wasAdjusted = true;
                     node.setColor(annotation.color!);
                 }
@@ -35,7 +35,10 @@ function selectConstraints(
         }
         selectedConstraintNames.forEach((name) => {
             annotations.forEach((annotation) => {
-                if (annotation.message.startsWith("Constraint ") && annotation.message.split(" ")[1] === name) {
+                if (
+                    (annotation.message.startsWith("Constraint ") && annotation.message.split(" ")[1] === name) ||
+                    annotation.message.startsWith("Mitigation")
+                ) {
                     node.setColor(annotation.color!);
                     wasAdjusted = true;
                     tfgManager.addTfg(annotation.tfg!);

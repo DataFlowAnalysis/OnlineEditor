@@ -148,6 +148,11 @@
 			<unit id="org.dataflowanalysis.converter.feature.feature.group" version="0.0.0"/>
 			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.feature.group" version="0.0.0"/>
 			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.analysis.feature.source.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.dfd.datadictionary.feature.source.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.dfd.dataflowdiagram.feature.source.feature.group" version="0.0.0"/>
+			<unit id="org.dataflowanalysis.examplemodels.feature.feature.group" version="0.0.0"/>
 		</location>
+		<location path="C:\Users\Huell\Desktop\New folder\workspace\plugins" type="Directory"/>
 	</locations>
 </target>

@@ -1,5 +1,8 @@
 package org.dataflowanalysis.standalone.analysis;
 
+import dev.arcovia.mitigation.sat.Constraint;
+import dev.arcovia.mitigation.sat.Mechanic;
+import dev.arcovia.mitigation.sat.dsl.CNFTranslation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +20,7 @@ import org.dataflowanalysis.converter.pcm2dfd.PCMConverterModel;
 import org.dataflowanalysis.converter.web2dfd.Web2DFDConverter;
 import org.dataflowanalysis.converter.web2dfd.WebEditorConverterModel;
 import org.dataflowanalysis.converter.web2dfd.model.WebEditorDfd;
+import org.dataflowanalysis.converter.web2dfd.model.Annotation;
 import org.dataflowanalysis.dfd.datadictionary.DataDictionary;
 import org.dataflowanalysis.dfd.datadictionary.datadictionaryPackage;
 import org.dataflowanalysis.dfd.dataflowdiagram.DataFlowDiagram;
@@ -27,6 +31,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.TimeoutException;
 
 public class Converter {
     
@@ -144,5 +150,44 @@ public class Converter {
 				var constraint2 = constraint.getResult();
 				return constraint2;
 			}).toList();	    	
+    }    
+    
+    public static WebEditorDfd repairDFD (WebEditorDfd webEditorDfd) throws ContradictionException, TimeoutException, IOException {
+        var webEditorconverter = new Web2DFDConverter();
+        var dd = webEditorconverter.convert(new WebEditorConverterModel(webEditorDfd));
+        var constraints = parseConstraints(webEditorDfd);
+        var converted = constraints.stream()
+                .map(CNFTranslation::new)
+                .map(CNFTranslation::constructCNF)
+                .flatMap(List::stream)
+                .toList();
+        
+        Mechanic mechanic = new Mechanic(dd, null, converted);
+        var dfdConverter = new DFD2WebConverter();
+        dfdConverter.setConstraints(constraints);
+        var dfdModel = mechanic.repair();
+        var newJson = dfdConverter.convert(dfdModel).getModel();
+        
+        for (var child : newJson.model().children()) {
+            if (child.type().startsWith("node") && child.annotations() != null) {
+                var oldNode = webEditorDfd.model().children().stream().filter(node -> node.id().equals(child.id())).findAny();
+                if (oldNode.isPresent()) {
+                    var RealOldNode = oldNode.get();
+                    var behaviorstream1 = RealOldNode.ports().stream().filter(p -> p.behavior() != null).map(p -> p.behavior().trim()).toList();
+                    var behaviorstream2 = child.ports().stream().filter(p -> p.behavior() != null).map(p -> p.behavior().trim()).toList();
+                    if (!behaviorstream1.containsAll(behaviorstream2) || !behaviorstream2.containsAll(behaviorstream1)) {
+                        child.annotations().add(new Annotation("Mitigation: Assignments modified", "bolt", "#68e362", 0)); //TODO TFG Number
+                    }
+                    
+                    
+                } else {
+                    child.annotations().add(new Annotation("Mitigation: Node added for Mitigation", "bolt", "#68e362", 0)); //TODO TFG Number
+                }
+            }
+        }    
+        
+        newJson.constraints().addAll(webEditorDfd.constraints());
+        
+        return analyzeAnnotate(newJson);
     }
 }
