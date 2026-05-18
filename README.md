@@ -9,19 +9,22 @@ To set up the project locally, you need to have [Node.js](https://nodejs.org/en/
 Then run the following commands to clone the repository and install the dependencies:
 
 ```shell
-git clone https://github.com/DataFlowAnalysis/OnlineEditor.git
-cd OnlineEditor/frontend/webEditor
+git clone https://github.com/arcovia-dev/OnlineEditorWithMitigation.git
+cd OnlineEditorWithMitigation/frontend/webEditor
 npm install
 ```
+Now you need to change the Websocket Ip to the Ip of your server, or the local adress.
+This is done Frontend/WebEditor/src/webSocket/webSocket.ts
+For local use: "ws://localhost:3000/events/"
 
-By default, the Editor will connect to the remote backend at `wss://websocket.dataflowanalysis.org/events/`.
-To use a local backend, change `webSocketAdress` in `src/features/serialize/webSocketHandler` to `ws://localhost:3000/events/`.
+### Setup Backend With Mitigation
 
-### Setup Backend
+To set up the backend, download our product at https://github.com/DataFlowAnalysis/DataFlowAnalysis/releases.
 
-To set up the backend locally, download our product at https://github.com/DataFlowAnalysis/DataFlowAnalysis/releases.
+Clone https://github.com/arcovia-dev/Mitigation and checkout the correct branch.
+Import into eclipse.
 
-Import the `analysisBackendServer` and set the target platform in this project's releng folder as the active target platform.
+Now import the OnlineEditor\backend\analysisBackendServer project into eclipse and set the target platform as active.
 
 # Running locally
 ### Running Frontend 
@@ -53,7 +56,12 @@ This will create a `dist` folder containing the built static assets. The content
 
 ### Building Backend
 
-To build an executable jar for the backend clone `https://github.com/DataFlowAnalysis/AnalysisBackendServerProduct` and run `mvn clean verify`
+Set the target platform for Mitigation as active.
+Then export deployable Plug-Ins and Fragments for The SMT, SAT, ILP and ranking packages.
+
+Add the plugin folder to the target platform of the analysisBackendServer, set it as active and export the analysisBackendServer plugin.
+
+To build an executable jar for the backend clone `https://github.com/DataFlowAnalysis/AnalysisBackendServerProduct`, add the plugin folder containing both the mitigation and analysisBackendServer plugins to the target platform, and run `mvn clean verify -Dtycho.localArtifacts=ignore`
 
 The jar can be executed by running 
 ```shell
@@ -61,6 +69,5 @@ eclipse.exe --application org.dataflowanalysis.standalone.application -consoleLo
 eclipse --application org.dataflowanalysis.standalone.application -consoleLog (Linux/Mac)
 ```
 
-# Actions
-
-This project is built using GitHub Actions and the current built version is hosted on GitHub Pages that can be found [here](https://dataflowanalysis.github.io/OnlineEditor/).
+### Z3 issues
+If you are running an older Linux version and the SMT approach throws an exception you might have to manually downgrade the Z3 version in the lib folder of the SMT package.
