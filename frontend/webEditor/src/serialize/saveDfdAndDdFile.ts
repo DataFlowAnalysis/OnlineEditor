@@ -35,7 +35,12 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
     async getFiles(context: CommandExecutionContext): Promise<FileData<string>[]> {
         const savedDiagram = this.createSavedDiagram(context);
 
-        const response = await this.dfdWebSocket.sendMessage("Json2DFD:" + JSON.stringify(savedDiagram));
+        const newName = prompt("Enter new Name");
+
+        const response = await this.dfdWebSocket.sendMessage(
+            "Json2DFD:" + JSON.stringify(savedDiagram),
+            newName || undefined,
+        );
         const nameEndIndex = response.indexOf(":");
         const name = response.substring(0, nameEndIndex);
         const endIndex =

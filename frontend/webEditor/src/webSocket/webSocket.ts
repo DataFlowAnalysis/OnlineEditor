@@ -80,7 +80,7 @@ export class DfdWebSocket {
         };
     }
 
-    public sendMessage(message: string): Promise<string> {
+    public sendMessage(message: string, overwriteName?: string): Promise<string> {
         const result = new Promise<string>((resolve, reject) => {
             this.lastRequest.resolve = resolve;
             this.lastRequest.reject = reject;
@@ -90,7 +90,7 @@ export class DfdWebSocket {
             return result;
         }
 
-        this.webSocket.send(this.webSocketId + ":" + this.fileName.getName() + ":" + message);
+        this.webSocket.send(this.webSocketId + ":" + (overwriteName ?? this.fileName.getName()) + ":" + message);
         return result;
     }
 }
