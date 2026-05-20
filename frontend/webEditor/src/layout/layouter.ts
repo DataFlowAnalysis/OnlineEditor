@@ -8,10 +8,11 @@ import {
     ILayoutPostprocessor,
 } from "sprotty-elk";
 import { SChildElementImpl, SShapeElementImpl, isBoundsAware } from "sprotty";
-import { SShapeElement, SModelIndex, SEdge, SLabel } from "sprotty-protocol";
+import { SShapeElement, SModelIndex, SEdge, SLabel, SGraph } from "sprotty-protocol";
 import { ElkShape, LayoutOptions } from "elkjs";
 import { LayoutMethod } from "./layoutMethod";
 import { calculateTextSize } from "../utils/TextSize";
+import { HideEdgeNames, SETTINGS } from "../settings/Settings";
 
 export class DfdLayoutConfigurator extends DefaultLayoutConfigurator {
     private static _method: LayoutMethod = LayoutMethod.LINES;
@@ -85,8 +86,17 @@ export class DfdElkLayoutEngine extends ElkLayoutEngine {
         @inject(IElementFilter) elementFilter: IElementFilter,
         @inject(DfdLayoutConfigurator) protected readonly configurator: DfdLayoutConfigurator,
         @inject(ILayoutPostprocessor) protected readonly postprocessor: ILayoutPostprocessor,
+        @inject(SETTINGS.HideEdgeNames) protected readonly hideEdgeNames: HideEdgeNames,
     ) {
         super(elkFactory, elementFilter, configurator, undefined, postprocessor);
+    }
+
+    layout(sgraph: SGraph, index?: SModelIndex): SGraph | Promise<SGraph> {
+        const r = super.layout(sgraph, index);
+        if (this.configurator.method === LayoutMethod.CIRCLES || this.configurator.method === LayoutMethod.WRAPPING) {
+            this.hideEdgeNames.set(true);
+        }
+        return r;
     }
 
     protected override transformShape(elkShape: ElkShape, sshape: SShapeElementImpl | SShapeElement): void {
