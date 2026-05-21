@@ -25,7 +25,7 @@ export abstract class SaveFileCommand extends SavedDiagramCreatorCommand {
             this.downloadFile(file);
         }
 
-        this.loadingIndicator.hide();
+        this.loadingIndicator.hideIndicator();
         return context.root;
     }
     undo(context: CommandExecutionContext): CommandReturn {

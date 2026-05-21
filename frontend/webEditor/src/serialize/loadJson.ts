@@ -65,7 +65,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.file = await this.getFile(context).catch(() => undefined);
         if (!this.file) {
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             return this.oldRoot;
         }
@@ -108,13 +108,13 @@ export abstract class LoadJsonCommand extends Command {
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
 
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
             this.newRoot = this.oldRoot;
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             return this.oldRoot;
         }
     }
@@ -143,7 +143,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.oldFileName ?? "diagram");
 
-        this.loadingIndicator.hide();
+        this.loadingIndicator.hideIndicator();
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
@@ -175,7 +175,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.file?.fileName ?? "diagram");
 
-        this.loadingIndicator.hide();
+        this.loadingIndicator.hideIndicator();
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
