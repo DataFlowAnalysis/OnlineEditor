@@ -5,7 +5,7 @@ export class LoadingIndicator extends AbstractUIExtension {
     static readonly ID = "loading-indicator";
     private loadingIndicatorWrapper: HTMLElement | undefined;
     private loadingIndicatorText: HTMLElement | undefined;
-    private waitTimeout?: number;
+    private static VISIBLE_CLASS = "show";
 
     id(): string {
         return LoadingIndicator.ID;
@@ -16,7 +16,6 @@ export class LoadingIndicator extends AbstractUIExtension {
     protected initializeContents(containerElement: HTMLElement): void {
         this.loadingIndicatorWrapper = document.createElement("div");
         this.loadingIndicatorWrapper.id = "loading-indicator-wrapper";
-        this.loadingIndicatorWrapper.style.display = "none";
 
         const loadingIndicator = document.createElement("div");
         loadingIndicator.id = "turning-circle";
@@ -30,28 +29,18 @@ export class LoadingIndicator extends AbstractUIExtension {
     }
 
     public showIndicator(text?: string) {
-        this.waitTimeout = setTimeout(() => {
-            if (!this.waitTimeout) {
-                return;
+        if (this.loadingIndicatorWrapper) {
+            this.loadingIndicatorWrapper.classList.add(LoadingIndicator.VISIBLE_CLASS);
+            if (this.loadingIndicatorText) {
+                this.loadingIndicatorText.innerText = text || "Loading...";
             }
-            if (this.loadingIndicatorWrapper) {
-                this.loadingIndicatorWrapper.style.display = "flex";
-                if (this.loadingIndicatorText) {
-                    this.loadingIndicatorText.innerText = text || "Loading...";
-                }
-                this.loadingIndicatorWrapper.focus();
-                this.waitTimeout = undefined;
-            }
-        }, 200);
+            this.loadingIndicatorWrapper.focus();
+        }
     }
 
     public hideIndicator() {
-        if (this.waitTimeout) {
-            clearTimeout(this.waitTimeout);
-            this.waitTimeout = undefined;
-        }
         if (this.loadingIndicatorWrapper) {
-            this.loadingIndicatorWrapper.style.display = "none";
+            this.loadingIndicatorWrapper.classList.remove(LoadingIndicator.VISIBLE_CLASS);
         }
     }
 }
