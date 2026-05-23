@@ -2,7 +2,7 @@ import { Action } from "sprotty-protocol";
 import { FileData, LoadJsonCommand } from "./loadJson";
 import { chooseFiles } from "./fileChooser";
 import { inject } from "inversify";
-import { DfdWebSocket } from "../webSocket/webSocket";
+import { DfdApiClient } from "../dfdApiClient/dfdApiClient";
 import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../settings/editorMode";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
@@ -40,7 +40,7 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(FileName) fileName: FileName,
-        @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
+        @inject(DfdApiClient) private dfdWebSocket: DfdApiClient,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
         super(
@@ -71,7 +71,7 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         this.fileName.setName(files[0].fileName);
 
         return this.dfdWebSocket
-            .requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---"))
+            .requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---"), "loadPCM")
             .catch((e) => {
                 this.fileName.setName(oldFileName);
                 throw e;

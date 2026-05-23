@@ -1,14 +1,12 @@
 package org.dataflowanalysis.standalone;
 
-import org.dataflowanalysis.standalone.websocket.WebSocketServerUtils;
+
+import org.dataflowanalysis.standalone.server.ApiServer;
 
 public class Main {
 	public static void main(String[] args) {		
 		try {			       
-            Thread webSocketServer =  WebSocketServerUtils.startWebSocketServer();
-                        
-            while(webSocketServer.isAlive());
-
+           ApiServer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }

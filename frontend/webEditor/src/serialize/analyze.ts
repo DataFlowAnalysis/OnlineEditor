@@ -4,7 +4,7 @@ import { CURRENT_VERSION, SavedDiagram } from "./SavedDiagram";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { SETTINGS } from "../settings/Settings";
 import { FileName } from "../fileName/fileName";
-import { DfdWebSocket } from "../webSocket/webSocket";
+import { DfdApiClient } from "../dfdApiClient/dfdApiClient";
 import { inject } from "inversify";
 import { EditorModeController } from "../settings/editorMode";
 import { Action } from "sprotty-protocol";
@@ -28,7 +28,7 @@ export class AnalyzeCommand extends LoadJsonCommand {
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(FileName) fileName: FileName,
-        @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
+        @inject(DfdApiClient) private readonly dfdApiClient: DfdApiClient,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
@@ -51,6 +51,6 @@ export class AnalyzeCommand extends LoadJsonCommand {
             mode: this.editorModeController.get(),
             version: CURRENT_VERSION,
         };
-        return await this.dfdWebSocket.requestDiagram("Json:" + JSON.stringify(savedDiagram));
+        return await this.dfdApiClient.requestDiagram(JSON.stringify(savedDiagram), "analyze");
     }
 }

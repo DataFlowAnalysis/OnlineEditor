@@ -2,7 +2,7 @@ import { Action } from "sprotty-protocol";
 import { FileData, LoadJsonCommand } from "./loadJson";
 import { chooseFiles } from "./fileChooser";
 import { inject } from "inversify";
-import { DfdWebSocket } from "../webSocket/webSocket";
+import { DfdApiClient } from "../dfdApiClient/dfdApiClient";
 import { TYPES, ILogger, ActionDispatcher } from "sprotty";
 import { EditorModeController } from "../settings/editorMode";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
@@ -30,7 +30,7 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(FileName) fileName: FileName,
-        @inject(DfdWebSocket) private dfdWebSocket: DfdWebSocket,
+        @inject(DfdApiClient) private dfdWebSocket: DfdApiClient,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
@@ -57,7 +57,7 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         this.fileName.setName(files[0].fileName);
 
         return this.dfdWebSocket
-            .requestDiagram("DFD:" + dataflowFileContent + "\n:DD:\n" + dictionaryFileContent)
+            .requestDiagram(dataflowFileContent + "\n:DD:\n" + dictionaryFileContent, "loadDD")
             .catch((e) => {
                 this.fileName.setName(oldFileName);
                 throw e;
