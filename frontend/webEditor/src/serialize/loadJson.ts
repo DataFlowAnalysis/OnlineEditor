@@ -112,7 +112,7 @@ export abstract class LoadJsonCommand extends Command {
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
-            alert(error)
+            alert(error);
             this.newRoot = this.oldRoot;
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             this.loadingIndicator.hideIndicator();

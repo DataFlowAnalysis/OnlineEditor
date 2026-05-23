@@ -3,13 +3,9 @@ import { FileName } from "../fileName/fileName";
 
 @injectable()
 export class DfdApiClient {
+    constructor(@inject(FileName) private readonly fileName: FileName) {}
 
-    constructor(
-        @inject(FileName) private readonly fileName: FileName,
-    ) { }
-
-
-    public async requestDiagram(message: string, action: string) {  
+    public async requestDiagram(message: string, action: string) {
         try {
             const result = await this.sendMessage(message, action);
 
@@ -22,7 +18,7 @@ export class DfdApiClient {
             };
         } catch (error) {
             alert(error);
-        }      
+        }
     }
 
     public sendMessage(message: string, action: string): Promise<string> {
@@ -32,8 +28,8 @@ export class DfdApiClient {
                 "Content-Type": "text/plain;charset=UTF-8",
             },
             body: this.fileName.getName() + ":" + message,
-        }).then(response => {
-            return response.text().then(responseText => {
+        }).then((response) => {
+            return response.text().then((responseText) => {
                 if (!response.ok) {
                     throw new Error(responseText || `Request failed: ${response.status} ${response.statusText}`);
                 }
@@ -42,4 +38,4 @@ export class DfdApiClient {
             });
         });
     }
-}   
+}
