@@ -20,12 +20,4 @@ export default defineConfig({
             },
         },
     },
-    server: {
-        proxy: {
-            "/api": {
-                target: "https://websocket.dataflowanalysis.org/",
-                changeOrigin: true,
-            },
-        },
-    },
 });

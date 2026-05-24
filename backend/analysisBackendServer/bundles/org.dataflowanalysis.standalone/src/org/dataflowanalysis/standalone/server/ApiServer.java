@@ -1,5 +1,7 @@
 package org.dataflowanalysis.standalone.server;
 
+import java.net.InetSocketAddress;
+
 import org.dataflowanalysis.standalone.api.AnalyzeServlet;
 import org.dataflowanalysis.standalone.api.LoadDDServlet;
 import org.dataflowanalysis.standalone.api.LoadPCMServlet;
@@ -9,7 +11,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public class ApiServer {
     public static void start() throws Exception {
-        Server server = new Server(8080);
+        Server server = new Server(new InetSocketAddress("localhost", 3000));
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");

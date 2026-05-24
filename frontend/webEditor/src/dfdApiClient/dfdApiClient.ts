@@ -22,7 +22,9 @@ export class DfdApiClient {
     }
 
     public sendMessage(message: string, action: string): Promise<string> {
-        return fetch("/api/" + action, {
+        const API_BASE_URL = "https://webeditor.t-hueller.de";
+
+        return fetch(`${API_BASE_URL}/api/${action}`, {
             method: "POST",
             headers: {
                 "Content-Type": "text/plain;charset=UTF-8",

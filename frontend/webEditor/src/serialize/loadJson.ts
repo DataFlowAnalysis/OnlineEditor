@@ -212,7 +212,7 @@ export abstract class LoadJsonCommand extends Command {
         return modelSchema;
     }
 
-    private async postLoadActions() {
+    public async postLoadActions() {
         if (!this.newRoot) {
             return;
         }
