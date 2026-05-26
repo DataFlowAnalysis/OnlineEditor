@@ -40,7 +40,7 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(FileName) fileName: FileName,
-        @inject(DfdApiClient) private dfdWebSocket: DfdApiClient,
+        @inject(DfdApiClient) private dfdApiClient: DfdApiClient,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
         super(
@@ -70,7 +70,7 @@ export class LoadPalladioFileCommand extends LoadJsonCommand {
         const oldFileName = this.fileName.getName();
         this.fileName.setName(files[0].fileName);
 
-        return this.dfdWebSocket
+        return this.dfdApiClient
             .requestDiagram(files.map((f) => `${f.fileName}:${f.content}`).join("---FILE---"), "loadPCM")
             .catch((e) => {
                 this.fileName.setName(oldFileName);

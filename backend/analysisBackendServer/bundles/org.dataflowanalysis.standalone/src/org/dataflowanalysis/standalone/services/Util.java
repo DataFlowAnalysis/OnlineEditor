@@ -77,6 +77,10 @@ public class Util {
      * @throws IOException 
      */
     public static File createAndWriteTempFile(String name, String content) throws IOException {
+        if (name.contains("..") || name.contains("/") || name.contains("\\")) {
+            throw new IllegalArgumentException("Invalid file name: " + name);
+        }
+        
         String tempDir = System.getProperty("java.io.tmpdir");
         var file = new File(tempDir, name);
         file.deleteOnExit();

@@ -59,11 +59,13 @@ public class LoadPCMService {
      */
     private WebEditorDfd convertPCM(File usageModelFile, File allocationModelFile, File nodeCharacteristicsFile){         
         var converter = new PCM2DFDConverter();
-        var dfd = converter.convert(new PCMConverterModel(usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString()));      
-        
-        
-        var dfdConverter = new DFD2WebConverter();
-        dfdConverter.setTransposeFlowGraphFinder(DFDSimpleTransposeFlowGraphFinder.class);
-        return dfdConverter.convert(dfd).getModel();
+        try {
+            var dfd = converter.convert(new PCMConverterModel(usageModelFile.toString(), allocationModelFile.toString(), nodeCharacteristicsFile.toString())); 
+            var dfdConverter = new DFD2WebConverter();
+            dfdConverter.setTransposeFlowGraphFinder(DFDSimpleTransposeFlowGraphFinder.class);
+            return dfdConverter.convert(dfd).getModel();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid PCM Model");
+        }        
     }
 }

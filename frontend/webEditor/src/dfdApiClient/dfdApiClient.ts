@@ -18,13 +18,14 @@ export class DfdApiClient {
             };
         } catch (error) {
             alert(error);
+            throw (error);
         }
     }
 
     public sendMessage(message: string, action: string): Promise<string> {
-        const API_BASE_URL = "https://webeditor.t-hueller.de";
+        const apiUrl = `/api/${action}`;
 
-        return fetch(`${API_BASE_URL}/api/${action}`, {
+        return fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "text/plain;charset=UTF-8",

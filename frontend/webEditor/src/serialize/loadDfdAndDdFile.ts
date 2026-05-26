@@ -30,7 +30,7 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
         @inject(FileName) fileName: FileName,
-        @inject(DfdApiClient) private dfdWebSocket: DfdApiClient,
+        @inject(DfdApiClient) private dfdApiClient: DfdApiClient,
         @inject(TYPES.IActionDispatcher) actionDispatcher: ActionDispatcher,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
@@ -56,7 +56,7 @@ export class LoadDfdAndDdFileCommand extends LoadJsonCommand {
         const oldFileName = this.fileName.getName();
         this.fileName.setName(files[0].fileName);
 
-        return this.dfdWebSocket
+        return this.dfdApiClient
             .requestDiagram(dataflowFileContent + "\n:DD:\n" + dictionaryFileContent, "loadDD")
             .catch((e) => {
                 this.fileName.setName(oldFileName);

@@ -25,7 +25,6 @@ public class LoadDDService {
      * @return Serialized WebJson
      */
     public String safeLoadAndConvertDFDString(String diagramMessage, String name) {
-        System.out.println(diagramMessage);
         String[] parts = diagramMessage.split("\\R:DD:\\R", 2);
 
         if (parts.length != 2) {

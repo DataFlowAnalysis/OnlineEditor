@@ -63,7 +63,10 @@ export abstract class LoadJsonCommand extends Command {
         this.loadingIndicator.showIndicator("Loading model...");
         this.oldRoot = context.root;
 
-        this.file = await this.getFile(context).catch(() => undefined);
+        this.file = await this.getFile(context).catch((error) => {
+            alert(error);
+            return undefined;
+        });
         if (!this.file) {
             this.loadingIndicator.hideIndicator();
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
