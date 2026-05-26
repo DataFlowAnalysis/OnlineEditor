@@ -63,9 +63,12 @@ export abstract class LoadJsonCommand extends Command {
         this.loadingIndicator.showIndicator("Loading model...");
         this.oldRoot = context.root;
 
-        this.file = await this.getFile(context).catch(() => undefined);
+        this.file = await this.getFile(context).catch((error) => {
+            alert(error);
+            return undefined;
+        });
         if (!this.file) {
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             return this.oldRoot;
         }
@@ -108,13 +111,14 @@ export abstract class LoadJsonCommand extends Command {
             this.oldFileName = this.fileName.getName();
             this.fileName.setName(this.file.fileName);
 
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
+            alert(error);
             this.newRoot = this.oldRoot;
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
-            this.loadingIndicator.hide();
+            this.loadingIndicator.hideIndicator();
             return this.oldRoot;
         }
     }
@@ -143,7 +147,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.oldFileName ?? "diagram");
 
-        this.loadingIndicator.hide();
+        this.loadingIndicator.hideIndicator();
         return this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
@@ -175,7 +179,7 @@ export abstract class LoadJsonCommand extends Command {
 
         this.fileName.setName(this.file?.fileName ?? "diagram");
 
-        this.loadingIndicator.hide();
+        this.loadingIndicator.hideIndicator();
         return this.newRoot ?? this.oldRoot ?? context.modelFactory.createRoot(EMPTY_ROOT);
     }
 
@@ -211,7 +215,7 @@ export abstract class LoadJsonCommand extends Command {
         return modelSchema;
     }
 
-    private async postLoadActions() {
+    public async postLoadActions() {
         if (!this.newRoot) {
             return;
         }
