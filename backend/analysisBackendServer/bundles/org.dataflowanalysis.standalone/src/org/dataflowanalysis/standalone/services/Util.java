@@ -84,9 +84,9 @@ public class Util {
         String tempDir = System.getProperty("java.io.tmpdir");
         var file = new File(tempDir, name);
         file.deleteOnExit();
-        FileWriter fileWriter = new FileWriter(file);
-        fileWriter.write(content);
-        fileWriter.close();
+        try (FileWriter fileWriter = new FileWriter(file)) {
+            fileWriter.write(content);
+        }
         return file;
     }    
 }
