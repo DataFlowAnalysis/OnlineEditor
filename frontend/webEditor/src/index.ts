@@ -26,6 +26,7 @@ import { assignmentModule } from "./assignment/di.config";
 import { editorModeOverwritesModule } from "./editModeOverwrites/di.config";
 import { loadingIndicatorModule } from "./loadingIndicator/di.config";
 import { keyListenerModule } from "./keyListeners/di.config";
+import { violationUiModule } from "./violationUi/di.config";
 
 const container = new Container();
 
@@ -55,6 +56,7 @@ container.load(
     editorModeOverwritesModule,
     loadingIndicatorModule,
     keyListenerModule,
+    violationUiModule,
 );
 
 const startUpAgents = container.getAll<IStartUpAgent>(StartUpAgent);

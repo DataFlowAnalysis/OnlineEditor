@@ -90,7 +90,7 @@ public class Converter {
     		dfdConverter.setConstraints(constraints);
     	}
     	var newJson = dfdConverter.convert(dd).getModel();
-    	
+     	
     	for (var child : newJson.model().children()) {
     	    if (child.type().startsWith("node") && child.annotations() != null) {
     	        var oldNode = webEditorDfd.model().children().stream().filter(node -> node.id().equals(child.id())).findAny().orElseThrow();
@@ -99,8 +99,9 @@ public class Converter {
     	        oldNode.annotations().removeAll(annotationsToRemove);
     	        oldNode.annotations().addAll(child.annotations());
     	    }
-    	}    	
-    	return webEditorDfd;
+    	}
+    	
+    	return webEditorDfd.withViolations(newJson.violations());
     }
     
     /**
