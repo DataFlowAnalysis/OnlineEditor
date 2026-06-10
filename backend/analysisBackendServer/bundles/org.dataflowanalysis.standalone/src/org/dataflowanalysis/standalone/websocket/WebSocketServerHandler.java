@@ -101,9 +101,13 @@ public class WebSocketServerHandler extends WebSocketAdapter
 	    	} 
 	    	else if (message.startsWith("DFD:")) {
 	    		newJson = safeLoadAndConvertDFDString(message, name);
-	    	} else {
+	    	} else if (message.startsWith("PCM2DFD:")){
+	    	    message = message.replaceFirst("PCM2DFD:", "");
 	    	    newJson = safeLoadAndConvertPCMString(message);
-	    	}
+                return name + ":" + Converter.convertToDFDandStringify(newJson, name); 
+	    	} else {
+                newJson = safeLoadAndConvertPCMString(message);
+            }
     	} catch (IllegalArgumentException e) {
 			return "Error:" + e.getMessage();
 		}
