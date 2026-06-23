@@ -4,7 +4,7 @@ import { SaveFileCommand } from "./saveFile";
 import { inject } from "inversify";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { EditorModeController } from "../settings/editorMode";
-import { DfdWebSocket } from "../webSocket/webSocket";
+import { DfdApiClient } from "../dfdApiClient/dfdApiClient";
 import { Action } from "sprotty-protocol";
 import { SETTINGS } from "../settings/Settings";
 import { ConstraintRegistry } from "../constraint/constraintRegistry";
@@ -26,7 +26,7 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
         @inject(LabelTypeRegistry) labelTypeRegistry: LabelTypeRegistry,
         @inject(ConstraintRegistry) constraintRegistry: ConstraintRegistry,
         @inject(SETTINGS.Mode) editorModeController: EditorModeController,
-        @inject(DfdWebSocket) private readonly dfdWebSocket: DfdWebSocket,
+        @inject(DfdApiClient) private readonly dfdApiClient: DfdApiClient,
         @inject(LoadingIndicator) loadingIndicator: LoadingIndicator,
     ) {
         super(labelTypeRegistry, constraintRegistry, editorModeController, loadingIndicator);
@@ -37,10 +37,8 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
 
         const newName = prompt("Enter Filename (Leave empty to use current file name)");
 
-        const response = await this.dfdWebSocket.sendMessage(
-            "Json2DFD:" + JSON.stringify(savedDiagram),
-            newName || undefined,
-        );
+        const response = await this.dfdApiClient.sendMessage(JSON.stringify(savedDiagram), "saveDD", newName?.trim() ? newName.trim() : undefined);
+        
         const nameEndIndex = response.indexOf(":");
         const name = response.substring(0, nameEndIndex);
         const endIndex =

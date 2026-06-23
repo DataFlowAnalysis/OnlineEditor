@@ -18,19 +18,20 @@ export class DfdApiClient {
             };
         } catch (error) {
             alert(error);
-            throw (error);
+            throw error;
         }
     }
 
-    public sendMessage(message: string, action: string): Promise<string> {
+    public sendMessage(message: string, action: string, name?: string): Promise<string> {
         const apiUrl = `/api/${action}`;
+        const fileName = name ?? this.fileName.getName();
 
         return fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "text/plain;charset=UTF-8",
             },
-            body: this.fileName.getName() + ":" + message,
+            body: fileName + ":" + message,
         }).then((response) => {
             return response.text().then((responseText) => {
                 if (!response.ok) {
