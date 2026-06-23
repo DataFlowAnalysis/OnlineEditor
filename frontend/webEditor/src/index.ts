@@ -14,7 +14,7 @@ import { commonModule } from "./commonModule";
 import { labelModule } from "./labels/di.config";
 import { serializeModule } from "./serialize/di.config";
 import { diagramModule } from "./diagram/di.config";
-import { webSocketModule } from "./webSocket/di.config";
+import { dfdApiModule } from "./dfdApiClient/di.config";
 import { commandPaletteModule } from "./commandPalette/di.config";
 import { layoutModule } from "./layout/di.config";
 import { elkLayoutModule } from "sprotty-elk";
@@ -43,7 +43,7 @@ container.load(
     labelModule,
     diagramModule,
     serializeModule,
-    webSocketModule,
+    dfdApiModule,
     commandPaletteModule,
     elkLayoutModule,
     layoutModule,

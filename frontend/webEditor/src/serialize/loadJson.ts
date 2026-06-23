@@ -63,7 +63,10 @@ export abstract class LoadJsonCommand extends Command {
         this.loadingIndicator.showIndicator("Loading model...");
         this.oldRoot = context.root;
 
-        this.file = await this.getFile(context).catch(() => undefined);
+        this.file = await this.getFile(context).catch((error) => {
+            alert(error);
+            return undefined;
+        });
         if (!this.file) {
             this.loadingIndicator.hideIndicator();
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
@@ -112,6 +115,7 @@ export abstract class LoadJsonCommand extends Command {
             return this.newRoot;
         } catch (error) {
             this.logger.error(this, "Error loading model", error);
+            alert(error);
             this.newRoot = this.oldRoot;
             this.actionDispatcher.dispatch(InitializeCanvasBoundsAction.create(this.oldRoot.canvasBounds));
             this.loadingIndicator.hideIndicator();
@@ -211,7 +215,7 @@ export abstract class LoadJsonCommand extends Command {
         return modelSchema;
     }
 
-    private async postLoadActions() {
+    public async postLoadActions() {
         if (!this.newRoot) {
             return;
         }
