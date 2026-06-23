@@ -31,6 +31,7 @@ export class DfdNodeAnnotationUIMouseListener extends MouseListener {
                 clearTimeout(this.stillTimeout);
                 this.stillTimeout = undefined;
             }
+            this.lastTarget = undefined;
             return this.hidePopup();
         }
         this.lastPosition = { x: event.clientX, y: event.clientY };
