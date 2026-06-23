@@ -23,7 +23,7 @@ export class DfdApiClient {
     }
 
     public sendMessage(message: string, action: string, name?: string): Promise<string> {
-        const apiUrl = `/api/${action}`;
+        const apiUrl = `https://websocket.dataflowanalysis.org/api/${action}`;
         const fileName = name ?? this.fileName.getName();
 
         return fetch(apiUrl, {
