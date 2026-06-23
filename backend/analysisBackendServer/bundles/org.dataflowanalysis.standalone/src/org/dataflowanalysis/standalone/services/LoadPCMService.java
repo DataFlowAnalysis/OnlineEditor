@@ -2,6 +2,7 @@ package org.dataflowanalysis.standalone.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.dataflowanalysis.analysis.dfd.simple.DFDSimpleTransposeFlowGraphFinder;
 import org.dataflowanalysis.converter.dfd2web.DFD2WebConverter;
@@ -22,6 +23,8 @@ public class LoadPCMService {
             File usageModelFile = null;
             File allocationFile = null;
             File nodeCharacteristicsFile = null;
+            
+            String randomFolder = UUID.randomUUID().toString(); 
 
             for (String fileSection : files) {
                 fileSection = fileSection.trim();
@@ -33,7 +36,7 @@ public class LoadPCMService {
                 String filename = fileSection.substring(0, firstColon);
                 String fileContent = fileSection.substring(firstColon + 1);
 
-                File file = Util.createAndWriteTempFile(filename, fileContent);
+                File file = Util.createAndWriteTempFile(filename, fileContent, randomFolder);
                 
                 if (filename.endsWith(".usagemodel")) {
                     usageModelFile = file;

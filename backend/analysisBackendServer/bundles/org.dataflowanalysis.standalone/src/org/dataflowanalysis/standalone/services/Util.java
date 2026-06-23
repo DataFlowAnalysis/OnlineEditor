@@ -3,6 +3,9 @@ package org.dataflowanalysis.standalone.services;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -76,17 +79,31 @@ public class Util {
      * @return File Object
      * @throws IOException 
      */
-    public static File createAndWriteTempFile(String name, String content) throws IOException {
+    public static File createAndWriteTempFile(String name, String content, String randomFolder) throws IOException {
         if (name.contains("..") || name.contains("/") || name.contains("\\")) {
             throw new IllegalArgumentException("Invalid file name: " + name);
         }
         
-        String tempDir = System.getProperty("java.io.tmpdir");
-        var file = new File(tempDir, name);
+        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir")).normalize();
+
+        Path folder = tempDir
+                .resolve(randomFolder)
+                .normalize();
+        
+        Files.createDirectories(folder);
+
+        Path filePath = folder
+                .resolve(name)
+                .normalize();
+        
+        
+        Files.writeString(filePath, content);
+
+        File file = filePath.toFile();
+
         file.deleteOnExit();
-        try (FileWriter fileWriter = new FileWriter(file)) {
-            fileWriter.write(content);
-        }
+        folder.toFile().deleteOnExit();
+
         return file;
     }    
 }

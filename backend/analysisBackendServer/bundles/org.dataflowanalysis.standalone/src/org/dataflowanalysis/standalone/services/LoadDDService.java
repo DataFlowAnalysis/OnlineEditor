@@ -1,6 +1,7 @@
 package org.dataflowanalysis.standalone.services;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.dataflowanalysis.converter.dfd2web.DFD2WebConverter;
 import org.dataflowanalysis.converter.dfd2web.DataFlowDiagramAndDictionary;
@@ -34,9 +35,11 @@ public class LoadDDService {
         String dfdMessage = parts[0];
         String ddMessage = parts[1];
         
+        String randomFolder = UUID.randomUUID().toString(); 
+        
         try {            
-            var dfd = Util.createAndWriteTempFile(name + ".dataflowdiagram", dfdMessage);
-            var dd = Util.createAndWriteTempFile(name + ".datadictionary", ddMessage);
+            var dfd = Util.createAndWriteTempFile(name + ".dataflowdiagram", dfdMessage, randomFolder);
+            var dd = Util.createAndWriteTempFile(name + ".datadictionary", ddMessage, randomFolder);
             return Util.serializeJson(convertDFD(dfd, dd));
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,14 +55,14 @@ public class LoadDDService {
      */
     private WebEditorDfd convertDFD(File dfd, File dd){
         var converter = new DFD2WebConverter();        
-        ResourceSet rs = new ResourceSetImpl();
-        rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
-        rs.getPackageRegistry().put(dataflowdiagramPackage.eNS_URI, dataflowdiagramPackage.eINSTANCE);
-        rs.getPackageRegistry().put(datadictionaryPackage.eNS_URI, datadictionaryPackage.eINSTANCE);
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+        resourceSet.getPackageRegistry().put(dataflowdiagramPackage.eNS_URI, dataflowdiagramPackage.eINSTANCE);
+        resourceSet.getPackageRegistry().put(datadictionaryPackage.eNS_URI, datadictionaryPackage.eINSTANCE);
 
-        Resource ddResource = rs.getResource(URI.createFileURI(dd.toString()), true);       
-        Resource dfdResource = rs.getResource(URI.createFileURI(dfd.toString()), true);
-        EcoreUtil.resolveAll(rs);
+        Resource ddResource = resourceSet.getResource(URI.createFileURI(dd.toString()), true);       
+        Resource dfdResource = resourceSet.getResource(URI.createFileURI(dfd.toString()), true);
+        EcoreUtil.resolveAll(resourceSet);
         EcoreUtil.resolveAll(ddResource);
         EcoreUtil.resolveAll(dfdResource);
         DataFlowDiagramAndDictionary dfdAndDD = new DataFlowDiagramAndDictionary((DataFlowDiagram)dfdResource.getContents().get(0), (DataDictionary)ddResource.getContents().get(0));
