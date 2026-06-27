@@ -6,6 +6,7 @@ import { HideEdgeNames, SETTINGS, SimplifyNodeNames } from "./Settings";
 import { EditorModeController } from "./editorMode";
 import { Theme, ThemeManager } from "./Theme";
 import { ShownLabels, ShownLabelsValue } from "./ShownLabels";
+import { BackEndURL } from "../dfdApiClient/backendUrl";
 
 @injectable()
 export class SettingsUI extends AccordionUiExtension {
@@ -17,6 +18,7 @@ export class SettingsUI extends AccordionUiExtension {
         @inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames,
         @inject(SETTINGS.SimplifyNodeNames) private readonly simplifyNodeNames: SimplifyNodeNames,
         @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController,
+        @inject(SETTINGS.BackEndURL) private readonly backEndURL: BackEndURL,
     ) {
         super("right", "up");
     }
@@ -42,6 +44,7 @@ export class SettingsUI extends AccordionUiExtension {
         this.addBooleanSwitch(grid, "Hide Edge Names", this.hideEdgeNames);
         this.addBooleanSwitch(grid, "Simplify Node Names", this.simplifyNodeNames);
         this.addSwitch(grid, "Read Only", this.editorModeController, { true: "view", false: "edit" });
+        this.addURLInput(grid);
     }
 
     protected initializeHeaderContent(headerElement: HTMLElement): void {
@@ -117,6 +120,50 @@ export class SettingsUI extends AccordionUiExtension {
 
         container.appendChild(textLabel);
         container.appendChild(dropDown);
+    }
+
+    private addURLInput(container: HTMLElement) {
+        const title = "Backend URL";
+        const textLabel = document.createElement("label");
+        textLabel.textContent = title;
+        textLabel.htmlFor = `setting-${title.toLowerCase().replace(/\s+/g, "-")}`;
+
+        const inputHolder = document.createElement("div");
+        inputHolder.id = "url-input-holder";
+        const textInput = document.createElement("input");
+        textInput.id = `setting-${title.toLowerCase().replace(/\s+/g, "-")}`;
+        textInput.value = this.backEndURL.get();
+        const resetButton = document.createElement("button");
+        resetButton.id = "url-reset";
+        inputHolder.appendChild(textInput);
+        inputHolder.appendChild(resetButton);
+
+        const visibilityClass = "visible";
+        this.backEndURL.registerListener((v) => {
+            textInput.value = v;
+            if (!this.backEndURL.isDefault()) {
+                resetButton.classList.add(visibilityClass);
+            } else {
+                resetButton.classList.remove(visibilityClass);
+            }
+        });
+        textInput.onchange = () => {
+            // when changing from the default URL we ask the user for confirmation
+            const confirmation = this.backEndURL.isDefault()
+                ? confirm("Are you sure you want to change the Backend URL?")
+                : true;
+            if (confirmation) {
+                this.backEndURL.set(textInput.value);
+            } else {
+                textInput.value = this.backEndURL.get();
+            }
+        };
+        resetButton.onclick = () => {
+            this.backEndURL.setDefault();
+        };
+
+        container.appendChild(textLabel);
+        container.appendChild(inputHolder);
     }
 }
 
