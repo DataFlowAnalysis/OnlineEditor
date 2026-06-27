@@ -6,6 +6,7 @@ export const SETTINGS = {
     HideEdgeNames: Symbol("HideEdgeNames"),
     SimplifyNodeNames: Symbol("SimplifyNodeNames"),
     ShownLabels: Symbol("ShownLabels"),
+    BackEndURL: Symbol("BackEndURL"),
 };
 
 export type SimplifyNodeNames = BoolSettingsValue;

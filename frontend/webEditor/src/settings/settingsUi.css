@@ -108,3 +108,35 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+#url-input-holder {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    width: 250px;
+    overflow: hidden;
+}
+
+#url-input-holder input {
+    flex: 1 1 auto;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    border: 1px solid var(--color-foreground);
+    border-radius: 6px;
+    font-size: 12px;
+    padding: 2px 4px;
+}
+
+#url-reset {
+    background-color: transparent;
+    background-image: url("@fortawesome/fontawesome-free/svgs/solid/arrow-rotate-left.svg");
+    color: var(--color-foreground);
+    border: none;
+    height: 12px;
+    width: 12px;
+    cursor: pointer;
+    display: none;
+}
+#url-reset.visible {
+    display: inline-block;
+}
