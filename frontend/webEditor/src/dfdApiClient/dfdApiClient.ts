@@ -1,9 +1,13 @@
 import { inject, injectable } from "inversify";
 import { FileName } from "../fileName/fileName";
+import { BackEndURL } from "./backendUrl";
 
 @injectable()
 export class DfdApiClient {
-    constructor(@inject(FileName) private readonly fileName: FileName) {}
+    constructor(
+        @inject(BackEndURL) private readonly backEndURL: BackEndURL,
+        @inject(FileName) private readonly fileName: FileName,
+    ) {}
 
     public async requestDiagram(message: string, action: string) {
         try {
@@ -23,7 +27,7 @@ export class DfdApiClient {
     }
 
     public sendMessage(message: string, action: string, name?: string): Promise<string> {
-        const apiUrl = `https://websocket.dataflowanalysis.org/api/${action}`;
+        const apiUrl = `${this.backEndURL.get()}${action}`;
         const fileName = name ?? this.fileName.getName();
 
         return fetch(apiUrl, {
