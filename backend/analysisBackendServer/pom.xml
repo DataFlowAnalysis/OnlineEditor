@@ -68,7 +68,7 @@
 			<version>${tycho.version}</version>
 			<configuration>
 				<!-- Optional set the Java version you are using-->
-				<executionEnvironment>JavaSE-17</executionEnvironment>
+				<executionEnvironment>JavaSE-21</executionEnvironment>
 				<target>
 				  <file>../../releng/org.dataflowanalysis.standalone.targetplatform/org.dataflowanalysis.standalone.targetplatform.targetplatform.target</file>
 				</target>
@@ -116,7 +116,7 @@
 					</goals>
 					<configuration>
 						<outputDirectory>xtend-gen</outputDirectory>
-						<javaSourceVersion>17</javaSourceVersion>
+						<javaSourceVersion>21</javaSourceVersion>
 					</configuration>
 				</execution>
 			</executions>
