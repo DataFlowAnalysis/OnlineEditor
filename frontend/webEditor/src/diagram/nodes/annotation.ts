@@ -201,7 +201,7 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
             }
 
             const textSpan = document.createElement("span");
-            textSpan.innerText = a.message;
+            textSpan.innerHTML = a.message;
             line.appendChild(textSpan);
 
             this.annotationParagraph.appendChild(line);
