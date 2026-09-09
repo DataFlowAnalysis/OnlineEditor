@@ -179,30 +179,32 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
         const mode = this.shownLabels.get();
 
         node.annotations.forEach((a) => {
-            if (
-                ((mode === ShownLabels.INCOMING || mode === ShownLabels.ALL) &&
-                    a.message.trim().startsWith("Incoming")) ||
-                ((mode === ShownLabels.OUTGOING || mode === ShownLabels.ALL) &&
-                    a.message.trim().startsWith("Propagated")) ||
-                a.message.startsWith("Constraint")
-            ) {
-                const line = document.createElement("div");
-                line.style.display = "flex";
-                line.style.alignItems = "center";
-                line.style.gap = "6px"; // some spacing between icon and text
-
-                if (a.icon) {
-                    const iconI = document.createElement("i");
-                    iconI.classList.add("fa", `fa-${a.icon}`);
-                    line.appendChild(iconI);
-                }
-
-                const textSpan = document.createElement("span");
-                textSpan.innerText = a.message;
-                line.appendChild(textSpan);
-
-                this.annotationParagraph.appendChild(line);
+            let showAnnotation = true;
+            if (a.message.trim().startsWith("Incoming")) {
+                showAnnotation = mode === ShownLabels.INCOMING || mode === ShownLabels.ALL;
+            } else if (a.message.trim().startsWith("Propagated")) {
+                showAnnotation = mode === ShownLabels.OUTGOING || mode === ShownLabels.ALL;
             }
+            if (!showAnnotation) {
+                return;
+            }
+
+            const line = document.createElement("div");
+            line.style.display = "flex";
+            line.style.alignItems = "center";
+            line.style.gap = "6px"; // some spacing between icon and text
+
+            if (a.icon) {
+                const iconI = document.createElement("i");
+                iconI.classList.add("fa", `fa-${a.icon}`);
+                line.appendChild(iconI);
+            }
+
+            const textSpan = document.createElement("span");
+            textSpan.innerText = a.message;
+            line.appendChild(textSpan);
+
+            this.annotationParagraph.appendChild(line);
         });
     }
 }
