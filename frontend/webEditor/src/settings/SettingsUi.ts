@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import "./settingsUi.css";
 import { SettingsValue } from "./SettingsValue";
 import { AccordionUiExtension } from "../accordionUiExtension";
-import { HideEdgeNames, SETTINGS, SimplifyNodeNames } from "./Settings";
+import { HideEdgeNames, HideNoErrorsLabel, SETTINGS, SimplifyNodeNames } from "./Settings";
 import { EditorModeController } from "./editorMode";
 import { Theme, ThemeManager } from "./Theme";
 import { ShownLabels, ShownLabelsValue } from "./ShownLabels";
@@ -15,6 +15,7 @@ export class SettingsUI extends AccordionUiExtension {
     constructor(
         @inject(SETTINGS.Theme) private readonly themeManager: ThemeManager,
         @inject(SETTINGS.ShownLabels) private readonly shownLabels: ShownLabelsValue,
+        @inject(SETTINGS.HideNoErrorsLabel) private readonly hideNoErrorsLabel: HideNoErrorsLabel,
         @inject(SETTINGS.HideEdgeNames) private readonly hideEdgeNames: HideEdgeNames,
         @inject(SETTINGS.SimplifyNodeNames) private readonly simplifyNodeNames: SimplifyNodeNames,
         @inject(SETTINGS.Mode) private readonly editorModeController: EditorModeController,
@@ -41,6 +42,7 @@ export class SettingsUI extends AccordionUiExtension {
             ShownLabels.OUTGOING,
             ShownLabels.ALL,
         ]);
+        this.addBooleanSwitch(grid, "Hide No Errors Label", this.hideNoErrorsLabel);
         this.addBooleanSwitch(grid, "Hide Edge Names", this.hideEdgeNames);
         this.addBooleanSwitch(grid, "Simplify Node Names", this.simplifyNodeNames);
         this.addSwitch(grid, "Read Only", this.editorModeController, { true: "view", false: "edit" });

@@ -13,7 +13,7 @@ import { Action } from "sprotty-protocol";
 import { DfdNodeImpl } from "./common";
 import "./nodeAnnotationUi.css";
 import { ShownLabels, ShownLabelsValue } from "../../settings/ShownLabels";
-import { SETTINGS } from "../../settings/Settings";
+import { HideNoErrorsLabel, SETTINGS } from "../../settings/Settings";
 
 export class DfdNodeAnnotationUIMouseListener extends MouseListener {
     private stillTimeout: number | undefined;
@@ -107,6 +107,7 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
         @inject(DfdNodeAnnotationUIMouseListener)
         private readonly mouseListener: DfdNodeAnnotationUIMouseListener,
         @inject(SETTINGS.ShownLabels) private shownLabels: ShownLabelsValue,
+        @inject(SETTINGS.HideNoErrorsLabel) private hideNoErrorsLabel: HideNoErrorsLabel,
     ) {
         super();
     }
@@ -160,6 +161,7 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
         containerElement.style.top = `${annotationPosition.y}px`;
 
         // Set tooltip size and scroll to prevent them from growing out of the screen
+        containerElement.style.display = "unset";
         containerElement.style.overflowY = "auto";
         this.annotationParagraph.style.whiteSpace = "normal";
         this.annotationParagraph.style.wordBreak = "break-word";
@@ -170,6 +172,9 @@ export class DfdNodeAnnotationUI extends AbstractUIExtension {
 
         // Set content
         if (!node.annotations || node.annotations.length == 0) {
+            if (this.hideNoErrorsLabel.get()) {
+                containerElement.style.display = "none";
+            }
             this.annotationParagraph.innerText = "No errors";
             return;
         }
