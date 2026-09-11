@@ -1,9 +1,11 @@
 import { ContainerModule } from "inversify";
 import { DeleteKeyListener } from "./deleteKeyListener";
-import { CenterKeyboardListener, configureCommand, TYPES } from "sprotty";
+import { CenterKeyboardListener, configureCommand, KeyTool, MouseTool, TYPES } from "sprotty";
 import { CopyPasteKeyListener, PasteElementsCommand } from "./copyPasteKeyListener";
 import { SerializeKeyListener } from "./serializeKeyListener";
 import { FitToScreenKeyListener } from "./fitToScreenKeyListener";
+import { EditModeAwareKeyTool } from "./EditModeAwareKeyTool";
+import { EditModeAwareMouseTool } from "./EditModeAwareMouseTool";
 
 export const keyListenerModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(DeleteKeyListener).toSelf().inSingletonScope();
@@ -17,4 +19,7 @@ export const keyListenerModule = new ContainerModule((bind, unbind, isBound, reb
 
     bind(FitToScreenKeyListener).toSelf().inSingletonScope();
     rebind(CenterKeyboardListener).toService(FitToScreenKeyListener);
+
+    rebind(KeyTool).to(EditModeAwareKeyTool).inSingletonScope();
+    rebind(MouseTool).to(EditModeAwareMouseTool).inSingletonScope();
 });
