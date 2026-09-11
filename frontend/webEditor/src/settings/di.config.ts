@@ -20,6 +20,7 @@ export const settingsModule = new ContainerModule((bind, _, isBound) => {
     bind(SETTINGS.SimplifyNodeNames).to(BoolSettingsValue).inSingletonScope();
     bind(SETTINGS.Mode).to(EditorModeController).inSingletonScope();
     bind(SETTINGS.ShownLabels).to(ShownLabelsValue).inSingletonScope();
+    bind(SETTINGS.HideNoErrorsLabel).to(BoolSettingsValue).inSingletonScope();
 
     const context = { bind, isBound };
     configureCommand(context, HideEdgeNamesCommand);
