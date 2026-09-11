@@ -7,7 +7,9 @@ export const SETTINGS = {
     SimplifyNodeNames: Symbol("SimplifyNodeNames"),
     ShownLabels: Symbol("ShownLabels"),
     BackEndURL: Symbol("BackEndURL"),
+    HideNoErrorsLabel: Symbol("HideNoErrorsLabel"),
 };
 
 export type SimplifyNodeNames = BoolSettingsValue;
 export type HideEdgeNames = BoolSettingsValue;
+export type HideNoErrorsLabel = BoolSettingsValue;
