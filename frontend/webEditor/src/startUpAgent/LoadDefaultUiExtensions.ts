@@ -11,8 +11,10 @@ export class LoadDefaultUiExtensionsStartUpAgent implements IStartUpAgent {
     ) {}
 
     public run() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const embedMode = urlParams.get("embed") === "true";
         const uiVisibilityActions = this.defaultUiElements.map((e) =>
-            SetUIExtensionVisibilityAction.create({ extensionId: e.id(), visible: true }),
+            SetUIExtensionVisibilityAction.create({ extensionId: e.id(), visible: !embedMode }),
         );
         this.actionDispatcher.dispatchAll(uiVisibilityActions);
     }
