@@ -19,6 +19,7 @@ export class EditModeAwareMouseTool extends MouseTool {
             let eventShouldBeExecuted = false;
             if (target?.id.startsWith("root")) eventShouldBeExecuted = true;
             if (target?.type.startsWith("port") && methodName === "doubleClick") eventShouldBeExecuted = true;
+            if (methodName === "mouseMove") eventShouldBeExecuted = true;
             if (!eventShouldBeExecuted) {
                 event.preventDefault();
                 return;
