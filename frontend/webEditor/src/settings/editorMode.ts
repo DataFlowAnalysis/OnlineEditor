@@ -1,10 +1,12 @@
+import { inject } from "inversify";
 import { SettingsValue } from "./SettingsValue";
+import { URLParameters } from "../urlParameters/URLParameters";
 
 export type EditorMode = "edit" | "view" | "embed";
 
 export class EditorModeController extends SettingsValue<EditorMode> {
-    constructor() {
-        super(new URLSearchParams(window.location.search).get("embed") === "true" ? "embed" : "edit");
+    constructor(@inject(URLParameters) urlParameters: URLParameters) {
+        super(urlParameters.getBoolean("embed") ? "embed" : "edit");
     }
 
     setDefault(): void {
