@@ -66,8 +66,7 @@ export class DfdModelFactory extends SModelFactory {
             dfdSchema.ports = ports;
 
             const labelValue = schema.children?.find((child) => child.type === "label:positional") as
-                | SLabel
-                | undefined;
+                SLabel | undefined;
 
             if (labelValue) {
                 dfdSchema.text = labelValue.text;
@@ -81,8 +80,7 @@ export class DfdModelFactory extends SModelFactory {
             const dfdSchema = schema as ArrowEdge;
 
             const labelValue = schema.children?.find((child) => child.type === "label:filled-background") as
-                | SLabel
-                | undefined;
+                SLabel | undefined;
 
             if (labelValue) {
                 dfdSchema.text = labelValue.text;
