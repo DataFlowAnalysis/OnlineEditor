@@ -9,7 +9,6 @@ import {
     ReplacementTestData,
 } from "./LanguageTestUtils";
 
-
 const VALID_EXPRESSIONS: ValidExpressionTestData[] = [
     ["- Test: data Sensitivity.Personal neverFlows vertex Location.nonEU"],
     ["- Auth_request: data Sensitivity.Personal,Location.EU neverFlows vertex !Location.EU"],
@@ -19,7 +18,7 @@ const VALID_EXPRESSIONS: ValidExpressionTestData[] = [
 
 const INVALID_EXPRESSIONS: InvalidExpressionTestData[] = [
     { input: ["- data Sensitivity.Personal neverFlows vertex Location.nonEU"] },
-    { input: ["- Test: data Sensitivity.Personal vertex Location.nonEU"] }
+    { input: ["- Test: data Sensitivity.Personal vertex Location.nonEU"] },
 ];
 
 const AUTOCOMPLETE_TEST_DATA: AutoCompleteTestData[] = [
@@ -27,14 +26,16 @@ const AUTOCOMPLETE_TEST_DATA: AutoCompleteTestData[] = [
     { input: ["- Test: data "], completionOptions: ["Sensitivity", "named", "Location", "type"] },
     { input: ["- Test: data Sensitivity.Personal "], completionOptions: ["neverFlows", "vertex"] },
     { input: ["- Test: data Sensitivity.Personal neverFlows "], completionOptions: ["where", "vertex"] },
-    { input: ["- Test: data Sensitivity.Personal neverFlows vertex Location."], completionOptions: ["EU", "nonEU"] }
+    { input: ["- Test: data Sensitivity.Personal neverFlows vertex Location."], completionOptions: ["EU", "nonEU"] },
 ];
 
-const REPLACEMENT_TEST_DATA: ReplacementTestData[] = [{
+const REPLACEMENT_TEST_DATA: ReplacementTestData[] = [
+    {
         input: ["- Test: data Sensitivity.Personal neverFlows vertex Location.nonEU"],
         replacement: { old: "Sensitivity.Personal", replacement: "Sensitivity.New", type: "label" },
         output: ["- Test: data Sensitivity.New neverFlows vertex Location.nonEU"],
-    }];
+    },
+];
 
 const labelTypeRegistry = new LabelTypeRegistry();
 const location = labelTypeRegistry.registerLabelType("Location");
@@ -50,8 +51,7 @@ for (const defaultValue of sensitivity.values) {
 labelTypeRegistry.registerLabelTypeValue(sensitivity.id, "Personal");
 labelTypeRegistry.registerLabelTypeValue(sensitivity.id, "Public");
 
-const mockModel = {
-} as unknown as LocalModelSource;
+const mockModel = {} as unknown as LocalModelSource;
 
 generateTests(
     "Simple Constraint Language",
