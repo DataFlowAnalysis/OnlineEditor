@@ -9,6 +9,7 @@ import { LabelTypeRegistry } from "../../labels/LabelTypeRegistry";
 import { LanguageTreeNode, tokenize } from "../../languages/tokenize";
 import { verify, VerifyWord } from "../../languages/verify";
 import { AssignmentLanguageTreeBuilder } from "../../assignment/language";
+import { DfdNodeImpl } from "../nodes/common";
 
 export interface DfdOutputPort extends SPort {
     behavior: string;
@@ -74,6 +75,14 @@ export class DfdOutputPortImpl extends DfdPortImpl {
 
     public getBehavior() {
         return this.behavior;
+    }
+
+    public getAvailableInputs(): string[] {
+        const parent = this.parent;
+        if (parent instanceof DfdNodeImpl) {
+            return parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
+        }
+        return [];
     }
 }
 

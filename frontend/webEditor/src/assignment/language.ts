@@ -1,11 +1,13 @@
 import { languages } from "monaco-editor/esm/vs/editor/editor.api";
-import { DfdOutputPortImpl } from "../diagram/ports/DfdOutputPort";
 import { LabelTypeRegistry } from "../labels/LabelTypeRegistry";
 import { LanguageTreeNode } from "../languages/tokenize";
 import { ConstantWord, ListWord, Word } from "../languages/words";
-import { DfdNodeImpl } from "../diagram/nodes/common";
 import { WordCompletion } from "../languages/autocomplete";
 import { ReplacementData } from "../languages/replace";
+
+interface PortInterface {
+    getAvailableInputs: () => string[];
+}
 
 export const ASSIGNMENT_LANGUAGE_ID = "dfd-assignment-language";
 
@@ -51,7 +53,7 @@ export const assignmentLanguageMonarchDefinition: languages.IMonarchLanguage = {
 };
 
 export namespace AssignmentLanguageTreeBuilder {
-    export function buildTree(port: DfdOutputPortImpl, labelTypeRegistry: LabelTypeRegistry): LanguageTreeNode<Word>[] {
+    export function buildTree(port: PortInterface, labelTypeRegistry: LabelTypeRegistry): LanguageTreeNode<Word>[] {
         return [
             buildSetOrUnsetStatement(labelTypeRegistry, "set"),
             buildSetOrUnsetStatement(labelTypeRegistry, "unset"),
@@ -71,7 +73,7 @@ export namespace AssignmentLanguageTreeBuilder {
         };
     }
 
-    function buildForwardStatement(port: DfdOutputPortImpl): LanguageTreeNode<Word> {
+    function buildForwardStatement(port: PortInterface): LanguageTreeNode<Word> {
         const inputNode: LanguageTreeNode<Word> = {
             word: new ListWord(new InputWord(port)),
             children: [],
@@ -82,10 +84,7 @@ export namespace AssignmentLanguageTreeBuilder {
         };
     }
 
-    function buildAssignStatement(
-        labelTypeRegistry: LabelTypeRegistry,
-        port: DfdOutputPortImpl,
-    ): LanguageTreeNode<Word> {
+    function buildAssignStatement(labelTypeRegistry: LabelTypeRegistry, port: PortInterface): LanguageTreeNode<Word> {
         const fromNode: LanguageTreeNode<Word> = {
             word: new ConstantWord("from"),
             children: [
@@ -113,7 +112,7 @@ export namespace AssignmentLanguageTreeBuilder {
     function buildCondition(
         labelTypeRegistry: LabelTypeRegistry,
         nextNode: LanguageTreeNode<Word>,
-        port: DfdOutputPortImpl,
+        port: PortInterface,
     ) {
         const connectors: LanguageTreeNode<Word>[] = ["&&", "||"].map((o) => ({
             word: new ConstantWord(o),
@@ -138,14 +137,10 @@ export namespace AssignmentLanguageTreeBuilder {
 }
 
 abstract class InputAwareWord {
-    constructor(private port: DfdOutputPortImpl) {}
+    constructor(private port: PortInterface) {}
 
     protected getAvailableInputs(): string[] {
-        const parent = this.port.parent;
-        if (parent instanceof DfdNodeImpl) {
-            return parent.getAvailableInputs().filter((input) => input !== undefined) as string[];
-        }
-        return [];
+        return this.port.getAvailableInputs();
     }
 }
 
@@ -234,7 +229,7 @@ class InputLabelWord implements Word {
     private inputWord: InputWord;
     private labelWord: LabelWord;
 
-    constructor(labelTypeRegistry: LabelTypeRegistry, port: DfdOutputPortImpl) {
+    constructor(labelTypeRegistry: LabelTypeRegistry, port: PortInterface) {
         this.inputWord = new InputWord(port);
         this.labelWord = new LabelWord(labelTypeRegistry);
     }
