@@ -1,9 +1,8 @@
 import { inject, injectable } from "inversify";
 import { SChildElementImpl, SModelElementImpl, SModelFactory, SParentElementImpl } from "sprotty";
-import { DfdNode } from "../diagram/nodes/common";
+import { DfdNode, DfdNodeImpl } from "../diagram/nodes/common";
 import { getBasicType, SLabel, SModelElement } from "sprotty-protocol";
 import { ArrowEdge } from "../diagram/edges/ArrowEdge";
-import { containsDfdLabels } from "../labels/feature";
 import { DfdNodeLabelSizeCalculator } from "../diagram/nodes/DfdNodeLabels";
 
 @injectable()
@@ -51,7 +50,7 @@ export class DfdModelFactory extends SModelFactory {
         if (element.features === undefined) {
             element.features = new Set<symbol>();
         }
-        if (containsDfdLabels(element)) {
+        if (element instanceof DfdNodeImpl) {
             element.dfdNodeLabelRenderer = this.dfdNodeLabelRenderer;
         }
         return element;
@@ -66,8 +65,7 @@ export class DfdModelFactory extends SModelFactory {
             dfdSchema.ports = ports;
 
             const labelValue = schema.children?.find((child) => child.type === "label:positional") as
-                | SLabel
-                | undefined;
+                SLabel | undefined;
 
             if (labelValue) {
                 dfdSchema.text = labelValue.text;
@@ -81,8 +79,7 @@ export class DfdModelFactory extends SModelFactory {
             const dfdSchema = schema as ArrowEdge;
 
             const labelValue = schema.children?.find((child) => child.type === "label:filled-background") as
-                | SLabel
-                | undefined;
+                SLabel | undefined;
 
             if (labelValue) {
                 dfdSchema.text = labelValue.text;
