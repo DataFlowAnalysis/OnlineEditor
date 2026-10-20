@@ -10,7 +10,7 @@ import { URLParameters } from "../urlParameters/URLParameters";
 export class LoadDefaultDiagramStartUpAgent implements IStartUpAgent {
     constructor(
         @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
-        @inject(URLPattern) private urlParameters: URLParameters,
+        @inject(URLParameters) private urlParameters: URLParameters,
     ) {}
 
     run(): void {

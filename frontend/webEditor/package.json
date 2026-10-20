@@ -40,6 +40,7 @@
         "prepare": "cd ../../ && husky ./frontend/webEditor/.husky",
         "postprepare": "npm run fetch-hash",
         "prebuild": "npm run fetch-hash",
+        "postbuild": "node ./scripts/createGithub404.js",
         "predev": "npm run fetch-hash",
         "fetch-hash": "node ./scripts/fetchHash.js"
     },
