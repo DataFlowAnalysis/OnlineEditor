@@ -25,8 +25,8 @@ export default defineConfig({
             "/api": {
                 target: "https://websocket.dataflowanalysis.org",
                 //target: "http://localhost:3000",
-                changeOrigin: true
-            }
-        }
-    }
+                changeOrigin: true,
+            },
+        },
+    },
 });

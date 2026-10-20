@@ -37,8 +37,12 @@ export class SaveDfdAndDdFileCommand extends SaveFileCommand {
 
         const newName = prompt("Enter Filename (Leave empty to use current file name)");
 
-        const response = await this.dfdApiClient.sendMessage(JSON.stringify(savedDiagram), "saveDD", newName?.trim() ? newName.trim() : undefined);
-        
+        const response = await this.dfdApiClient.sendMessage(
+            JSON.stringify(savedDiagram),
+            "saveDD",
+            newName?.trim() ? newName.trim() : undefined,
+        );
+
         const nameEndIndex = response.indexOf(":");
         const name = response.substring(0, nameEndIndex);
         const endIndex =
