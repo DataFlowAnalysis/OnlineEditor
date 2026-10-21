@@ -5,14 +5,17 @@ import { inject } from "inversify";
 import { LoadFromUrlAction } from "../serialize/LoadUrl";
 import { LayoutModelAction } from "../layout/command";
 import { LayoutMethod } from "../layout/layoutMethod";
+import { URLParameters } from "../urlParameters/URLParameters";
 
 export class LoadDefaultDiagramStartUpAgent implements IStartUpAgent {
-    constructor(@inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher) {}
+    constructor(
+        @inject(TYPES.IActionDispatcher) private actionDispatcher: ActionDispatcher,
+        @inject(URLParameters) private urlParameters: URLParameters,
+    ) {}
 
     run(): void {
-        const urlParams = new URLSearchParams(window.location.search);
-        const fileUrlParameter = urlParams.get("file");
-        const doLayout = urlParams.get("layout") === "true";
+        const fileUrlParameter = this.urlParameters.get("file");
+        const doLayout = this.urlParameters.getBoolean("layout");
         const actions = [
             fileUrlParameter != undefined
                 ? LoadFromUrlAction.create(fileUrlParameter)
