@@ -5,7 +5,7 @@ export default defineConfig({
     // Because this project is hosted with GitHub actions without a custom domain,
     // it is located in a subdirectory/subbase and we need relative paths.
     // The below setting tells vite to use relative paths everywhere.
-    base: "",
+    base: "/",
     build: {
         rollupOptions: {
             output: {
