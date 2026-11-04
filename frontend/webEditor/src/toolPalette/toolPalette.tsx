@@ -22,7 +22,7 @@ import { PortCreationTool } from "./portCreationTool";
 import { AnyCreationTool } from "./creationTool";
 
 import "./toolPalette.css";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 import { SETTINGS } from "../settings/Settings";
 import { EditorModeController } from "../settings/editorMode";
 

@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 import { configureCommand, TYPES } from "sprotty";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 import { ConstraintMenu } from "./ConstraintMenu";
 import { ConstraintRegistry } from "./constraintRegistry";
 import { ThemeSwitchable } from "../settings/Theme";

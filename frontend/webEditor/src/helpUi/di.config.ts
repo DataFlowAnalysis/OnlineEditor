@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 import { TYPES } from "sprotty";
 import { HelpUI } from "./helpUi";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 
 export const helpUiModule = new ContainerModule((bind) => {
     bind(HelpUI).toSelf().inSingletonScope();

@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 import { LoadingIndicator } from "./loadingIndicator";
 import { TYPES } from "sprotty";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 
 export const loadingIndicatorModule = new ContainerModule((bind) => {
     bind(LoadingIndicator).toSelf().inSingletonScope();

@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 import { SettingsUI } from "./SettingsUi";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 import { SETTINGS } from "./Settings";
 import { BoolSettingsValue } from "./SettingsValue";
 import { configureCommand, TYPES } from "sprotty";

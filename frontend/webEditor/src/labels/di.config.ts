@@ -2,7 +2,7 @@ import { ContainerModule } from "inversify";
 import { LabelTypeRegistry } from "./LabelTypeRegistry";
 import { LabelTypeEditorUi } from "./LabelTypeEditorUi";
 import { configureCommand, TYPES } from "sprotty";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 import { LabelAssignmentCommand } from "./assignmentCommand";
 import { DfdLabelMouseDropListener } from "./dragAndDrop";
 import { ReplaceCommand } from "./renameCommand";

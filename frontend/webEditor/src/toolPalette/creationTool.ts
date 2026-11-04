@@ -23,7 +23,7 @@ import {
 } from "sprotty";
 import { inject, injectable, multiInject } from "inversify";
 import { Action, Point, SEdge, SNode, SPort } from "sprotty-protocol";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 
 type Positionable = { position?: Point };
 type Schema = (SNode | SEdge | SPort) & Positionable;

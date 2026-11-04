@@ -1,5 +1,5 @@
 import { inject, injectable, multiInject } from "inversify";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 import { AbstractUIExtension, ActionDispatcher, SetUIExtensionVisibilityAction, TYPES } from "sprotty";
 import { IStartUpAgent } from "./StartUpAgent";
 

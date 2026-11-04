@@ -13,7 +13,7 @@ import {
     configureCommand,
     configureModelElement,
 } from "sprotty";
-import { EDITOR_TYPES } from "../editorTypes";
+import { EDITOR_TYPES } from "../utils/editorTypes";
 
 // This module contains an UI extension that adds a tool palette to the editor.
 // This tool palette allows the user to create new nodes and edges.
